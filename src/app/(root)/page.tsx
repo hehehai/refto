@@ -22,23 +22,44 @@ export default async function Home({
                 <br />
                 Embrace pure simplicity
               </h2>
-              <ul className="mt-6 space-y-2">
+              <ul className="mt-6 space-y-1">
                 <li>Stay on top of popular design trends</li>
                 <li>Daily updates with an endless supply</li>
                 <li>Receive the best websites of the week via email</li>
-                <li>Follow other media X.com</li>
+                <li>
+                  Follow other media{" "}
+                  <a
+                    href="https://twitter.com/riverhohai"
+                    target="_blank"
+                    className="hover:underline"
+                  >
+                    X.com
+                  </a>
+                </li>
               </ul>
             </div>
             <SiteEmailSubscription className="mt-auto flex items-center space-x-5" />
           </div>
           <div className="col-span-1 flex flex-col">
             <div className="mt-auto">
-              <div className="h-[216px] rounded-lg bg-zinc-50"></div>
+              <video
+                src="https://pub-f815ef445d13430e8011cfd52bf4e100.r2.dev/24-03-07%2Frefto-metalab.mp4"
+                autoPlay
+                muted
+                loop
+                className="block w-full rounded-lg"
+              />
             </div>
           </div>
-          <div className="col-span-1 flex flex-col">
+          <div className="col-span-1 flex flex-col min-h-[360px]">
             <div className="mt-auto">
-              <div className="h-[400px] rounded-lg bg-zinc-50"></div>
+              <video
+                src="https://pub-f815ef445d13430e8011cfd52bf4e100.r2.dev/24-03-07%2Frefto-authkit.mp4"
+                autoPlay
+                muted
+                loop
+                className="block w-full rounded-lg"
+              />
             </div>
           </div>
         </section>
