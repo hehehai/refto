@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// Necessary for Next auth
+model Account {
+    id                String   @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?  @db.Text
+    access_token      String?  @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?  @db.Text
+    session_state     String?
+    createdAt         DateTime @default(now()) @map("created_at")
+    updatedAt         DateTime @updatedAt @map("updated_at")
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+    @@map("accounts")
+}
+
+model Session {
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("sessions")
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model User {
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    role          Role      @default(USER)
+    createdAt     DateTime  @default(now()) @map("created_at")
+    updatedAt     DateTime  @updatedAt @map("updated_at")
+
+    accounts Account[]
+    sessions Session[]
+    refSites RefSite[]
+
+    @@map("users")
+}
+
+model VerificationToken {
+    id         Int      @id @default(autoincrement())
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+    @@map("verification_tokens")
+}
+
+model RefSite {
+    id              String    @id @default(cuid())
+    siteName        String    @db.VarChar(255)
+    siteTitle       String    @db.VarChar(500)
+    siteDescription String    @db.VarChar(1200)
+    siteFavicon     String
+    siteUrl         String
+    siteCover       String
+    siteCoverHeight Float
+    siteCoverWidth  Float
+    siteScreenshot  String?   @default("")
+    siteOGImage     String?   @default("")
+    siteTags        String[]
+    createdAt       DateTime  @default(now()) @map("created_at")
+    updatedAt       DateTime  @updatedAt @map("updated_at")
+    deletedAt       DateTime? @map("deleted_at")
+    likes           Int       @default(0)
+    visits          Int       @default(0)
+    isTop           Boolean   @default(false)
+
+    createdBy   User    @relation(fields: [createdById], references: [id])
+    createdById String
+    Weekly      Weekly? @relation(fields: [weeklyId], references: [id])
+    weeklyId    String?
+
+    @@unique([siteUrl])
+    @@index([siteName, siteTitle, siteUrl])
+    @@map("ref_sites")
+}
+
+model Weekly {
+    id         String               @id @default(cuid())
+    title      String
+    sites      RefSite[]
+    weekStart  DateTime
+    weekEnd    DateTime
+    createdAt  DateTime             @default(now()) @map("created_at")
+    sentDate   DateTime?
+    weeklySent WeeklyOnSubscriber[]
+
+    @@map("weekly")
+}
+
+model Subscriber {
+    id         String               @id @default(cuid())
+    email      String
+    createdAt  DateTime             @default(now()) @map("created_at")
+    updatedAt  DateTime             @updatedAt @map("updated_at")
+    sentWeekly WeeklyOnSubscriber[]
+
+    unSubSign String?
+    unSubDate DateTime?
+
+    @@unique([email])
+    @@map("email_subscriptions")
+}
+
+model WeeklyOnSubscriber {
+    weekly       Weekly     @relation(fields: [weeklyId], references: [id])
+    weeklyId     String
+    subscriber   Subscriber @relation(fields: [subscriberId], references: [id])
+    subscriberId String
+
+    @@unique([weeklyId, subscriberId])
+    @@map("weekly_on_subscriber")
+}

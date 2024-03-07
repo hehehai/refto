@@ -1,0 +1,22 @@
+import { refSitesRouter } from "@/server/api/routers/ref-sites";
+import { createTRPCRouter } from "@/server/api/trpc";
+import { siteMetaRouter } from "./routers/site-meta";
+import { uploadRouter } from "./routers/upload";
+import { weeklyRouter } from "./routers/weekly";
+import { subscriberRouter } from "./routers/subscriber";
+
+/**
+ * This is the primary router for your server.
+ *
+ * All routers added in /api/routers should be manually added here.
+ */
+export const appRouter = createTRPCRouter({
+  refSites: refSitesRouter,
+  weekly: weeklyRouter,
+  subscriber: subscriberRouter,
+  upload: uploadRouter,
+  siteMeta: siteMetaRouter,
+});
+
+// export type definition of API
+export type AppRouter = typeof appRouter;
