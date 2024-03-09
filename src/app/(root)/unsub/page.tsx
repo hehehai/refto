@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
 import { Spinner } from "@/components/shared/icons";
+import { useSearchParams } from "next/navigation";
 
 const unSubSchema = z.object({
   email: z
@@ -16,11 +17,8 @@ const unSubSchema = z.object({
   token: z.string().min(1, { message: "Token is required" }),
 });
 
-export default function UnSubPage({
-  searchParams,
-}: {
-  searchParams: { email: string; token: string };
-}) {
+export default function UnSubPage() {
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const valid = unSubSchema.safeParse(searchParams);
 

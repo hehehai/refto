@@ -81,6 +81,9 @@ export const weeklyRouter = createTRPCRouter({
       return await db.weekly.create({
         data: {
           ...input,
+          sites: {
+            connect: input.sites.map((site) => ({ id: site })),
+          },
         },
       });
     }),
@@ -106,6 +109,9 @@ export const weeklyRouter = createTRPCRouter({
         },
         data: {
           ...input,
+          sites: {
+            set: input.sites?.map((site) => ({ id: site })),
+          },
         },
       });
     }),
