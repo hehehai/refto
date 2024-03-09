@@ -10,6 +10,7 @@ import { type Prisma, type RefSite } from "@prisma/client";
 import { db } from "@/lib/db";
 import { pagination } from "@/lib/pagination";
 import { refSiteSchema, updateRefSiteSchema } from "@/lib/validations/ref-site";
+import { correlation, detail } from "@/server/functions/ref-sites";
 
 export const refSitesRouter = createTRPCRouter({
   // 列表
@@ -221,12 +222,21 @@ export const refSitesRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
-      return await db.refSite.findUnique({
-        where: {
-          id: input.id,
-          deletedAt: null,
-        },
-      });
+      return detail(input.id);
+    }),
+
+  // 关联
+  correlation: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const site = await detail(input.id);
+      if (!site) return null;
+
+      return correlation(site.siteTags, [site.id]);
     }),
 
   // 删除

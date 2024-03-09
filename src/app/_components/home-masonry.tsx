@@ -3,7 +3,9 @@
 import { Masonry } from "react-plock";
 import { api } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
-import { HomeShowcase } from "./home-showcase";
+import { SiteShowcase } from "./site-showcase";
+import { useAtom } from "jotai";
+import { refSiteSheetAtom } from "../_store/sheet.store";
 
 interface HomeMasonryProps {
   search: string;
@@ -11,6 +13,8 @@ interface HomeMasonryProps {
 }
 
 export const HomeMasonry = ({ search, tags }: HomeMasonryProps) => {
+  const [_, setStatus] = useAtom(refSiteSheetAtom);
+
   const [pages, allSitesQuery] =
     api.refSites.queryWithCursor.useSuspenseInfiniteQuery(
       {
@@ -42,10 +46,18 @@ export const HomeMasonry = ({ search, tags }: HomeMasonryProps) => {
             items={allData}
             config={{
               columns: [1, 2, 3, 4],
-              gap: [16, 16, 24, 32],
+              gap: [8, 12, 16, 24],
               media: [640, 768, 1024, 1280],
             }}
-            render={(item) => <HomeShowcase item={item} />}
+            render={(item) => (
+              <SiteShowcase
+                key={item.id}
+                item={item}
+                onClick={() => {
+                  setStatus({ id: item.id });
+                }}
+              />
+            )}
           />
 
           <div className="mt-8 flex w-full justify-center">

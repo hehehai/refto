@@ -1,30 +1,56 @@
 import { BlurImage } from "@/components/shared/blur-image";
 import { LikeIcon, VisitIcon } from "@/components/shared/icons";
+import { cn } from "@/lib/utils";
 
-interface HomeShowcaseProps {
+interface SiteShowcaseProps extends React.ComponentPropsWithoutRef<"div"> {
   item: {
     id: string;
     siteUrl: string;
     siteName: string;
     siteFavicon: string;
     siteCover: string;
-    siteCoverWidth: number;
-    siteCoverHeight: number;
+    siteCoverWidth?: number;
+    siteCoverHeight?: number;
     likes: number;
     visits: number;
   };
+  fixedHeight?: number;
 }
 
-export const HomeShowcase = ({ item }: HomeShowcaseProps) => {
+export const SiteShowcase = ({
+  item,
+  fixedHeight,
+  ...props
+}: SiteShowcaseProps) => {
   return (
-    <div key={item.id} className="flex w-full flex-col">
-      <div className="relative w-full overflow-hidden rounded-xl border border-zinc-100">
-        <BlurImage
-          src={item.siteCover}
-          alt={item.siteName}
-          width={item.siteCoverWidth}
-          height={item.siteCoverHeight}
-        />
+    <div
+      key={item.id}
+      {...props}
+      className={cn(
+        "flex w-full cursor-pointer flex-col rounded-[14px] p-1 transition-all hover:bg-zinc-100",
+        props.className,
+      )}
+    >
+      <div
+        className="relative w-full overflow-hidden rounded-xl border border-[rgb(232,238,241)]"
+        style={{ height: fixedHeight ? `${fixedHeight}px` : undefined }}
+      >
+        {fixedHeight ? (
+          <BlurImage
+            src={item.siteCover}
+            alt={item.siteName}
+            fill={true}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover"
+          />
+        ) : (
+          <BlurImage
+            src={item.siteCover}
+            alt={item.siteName}
+            width={item.siteCoverWidth}
+            height={item.siteCoverHeight}
+          />
+        )}
       </div>
       <div className="flex w-full items-center justify-between">
         <div className="flex flex-grow items-center space-x-1">
@@ -48,7 +74,7 @@ export const HomeShowcase = ({ item }: HomeShowcaseProps) => {
           </a>
         </div>
         <div className="flex items-center space-x-3 px-0.5 py-1">
-          <div className="flex items-center space-x-1 transition-opacity opacity-90 hover:opacity-100">
+          <div className="flex items-center space-x-1 opacity-80 transition-opacity hover:opacity-100">
             <LikeIcon className="text-lg" />
             <span>{item.likes}</span>
           </div>
@@ -56,7 +82,7 @@ export const HomeShowcase = ({ item }: HomeShowcaseProps) => {
             href={item.siteUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center space-x-1 transition-opacity opacity-90 hover:opacity-100"
+            className="flex items-center space-x-1 opacity-80 transition-opacity hover:opacity-100"
           >
             <VisitIcon className="text-[16px]" />
             <span>{item.visits}</span>

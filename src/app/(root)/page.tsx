@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { HomeMasonry } from "@/app/_components/home-masonry";
 import { HomeMasonrySkeleton } from "../_components/home-masonry-skeleton";
 import { SiteEmailSubscription } from "../_components/site-email-subscription";
+import { SiteShowcaseSheet } from "../_components/site-showcase-sheet";
 
 export default async function Home({
   searchParams,
@@ -51,7 +52,7 @@ export default async function Home({
               />
             </div>
           </div>
-          <div className="col-span-1 flex flex-col min-h-[360px]">
+          <div className="col-span-1 flex min-h-[360px] flex-col">
             <div className="mt-auto">
               <video
                 src="https://pub-f815ef445d13430e8011cfd52bf4e100.r2.dev/24-03-07%2Frefto-authkit.mp4"
@@ -69,6 +70,9 @@ export default async function Home({
           </Suspense>
         </section>
       </div>
+      <Suspense fallback={null}>
+        <SiteShowcaseSheet />
+      </Suspense>
     </div>
   );
 }
