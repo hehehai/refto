@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { UserAuthForm } from "@/components/shared/user-auth-form";
+import { site } from "@/lib/config/site";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -27,7 +28,7 @@ export default function LoginPage() {
       </Link>
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
-          <span className="mx-auto text-5xl font-medium">refto</span>
+          <span className="mx-auto text-5xl font-medium">{site.name}</span>
           <h1 className="text-2xl font-semibold tracking-tight">
             Welcome back
           </h1>

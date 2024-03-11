@@ -2,14 +2,15 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { SendIcon, AboutIcon } from "@/components/shared/icons";
 import { SiteFilterCommand } from "./site-filter-dialog";
+import { site } from "@/lib/config/site";
 
 export const SiteHeader = () => {
   return (
     <div className="w-full">
       <div className="max-auto container flex h-20 items-center justify-between">
         <div>
-          <Link href={"/"} className="text-5xl font-medium text-foreground">
-            refto
+          <Link href={"/"} className="text-[40px] font-medium text-foreground">
+            {site.name}
           </Link>
         </div>
         <div className="flex-center flex space-x-3">

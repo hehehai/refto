@@ -3,6 +3,7 @@ import { PanelNav } from "./panel-nav";
 import { type Session } from "next-auth";
 import { UserAccountNav } from "@/components/shared/user-account-nav";
 import { AddSiteButton } from "./add-site-button";
+import { site } from "@/lib/config/site";
 
 interface PanelHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   user: Session["user"];
@@ -13,7 +14,7 @@ export const PanelHeader = ({ user }: PanelHeaderProps) => {
     <div className="sticky inset-x-0 top-0 flex h-16 w-full items-center justify-between border-b border-zinc-100 px-5">
       <div>
         <Link href={"/"} className="text-4xl font-medium text-foreground">
-          refto
+          {site.name}
         </Link>
       </div>
       <div className="container h-full flex-grow">

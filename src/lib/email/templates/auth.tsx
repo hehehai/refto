@@ -90,12 +90,12 @@ export const UserAuthEmail = ({
                 ignore this email. If you are concerned about the security of
                 your account, please visit our{" "}
                 <Link
-                  href={`${baseUrl}/help`}
+                  href={`${baseUrl}/about`}
                   className="text-blue-600 no-underline"
                 >
                   help page
-                </Link>{" "}
-                and contact us.
+                </Link>
+                .
               </Text>
             </Container>
           </Body>

@@ -14,8 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { Spinner } from "./icons";
-import { InputOtp } from "../ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -49,7 +54,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
     setIsLoading(false);
 
-    if (!signInResult?.error) {
+    if (signInResult?.error) {
       return toast({
         title: "Something went wrong.",
         description: "Your sign in request failed. Please try again.",
@@ -105,19 +110,35 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     <div className={cn("grid gap-6", className)} {...props}>
       {showOtpForm ? (
         <form onSubmit={handleVerifyOtp}>
-          <div className="grid gap-2">
+          <div className="grid gap-3">
             <div className="grid gap-1">
               <Label className="sr-only" htmlFor="otp">
                 Email OTP token
               </Label>
-              <InputOtp
+              <InputOTP
+                maxLength={6}
                 disabled={optLoading}
                 onComplete={handleVerifyOtp}
                 ref={optInputRef}
                 value={optValue}
                 onChange={setOptValue}
-                maxLength={6}
                 pattern={REGEXP_ONLY_DIGITS}
+                className="w-full"
+                render={({ slots }) => (
+                  <>
+                    <InputOTPGroup>
+                      {slots.slice(0, 3).map((slot, index) => (
+                        <InputOTPSlot key={index} {...slot} />
+                      ))}{" "}
+                    </InputOTPGroup>
+                    <InputOTPSeparator />
+                    <InputOTPGroup>
+                      {slots.slice(3).map((slot, index) => (
+                        <InputOTPSlot key={index + 3} {...slot} />
+                      ))}
+                    </InputOTPGroup>
+                  </>
+                )}
               />
             </div>
             <button
@@ -139,7 +160,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         </form>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid gap-2">
+          <div className="grid gap-3">
             <div className="grid gap-1">
               <Label className="sr-only" htmlFor="email">
                 Email
