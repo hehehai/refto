@@ -98,6 +98,9 @@ dependencies:
   '@react-email/components':
     specifier: ^0.0.15
     version: 0.0.15(@types/react@18.2.59)(react-email@2.1.0)(react@18.2.0)
+  '@react-email/font':
+    specifier: ^0.0.5
+    version: 0.0.5(react@18.2.0)
   '@react-email/render':
     specifier: ^0.0.12
     version: 0.0.12
@@ -185,6 +188,9 @@ dependencies:
   react-dom:
     specifier: 18.2.0
     version: 18.2.0(react@18.2.0)
+  react-email:
+    specifier: ^2.1.0
+    version: 2.1.0(eslint@8.57.0)
   react-hook-form:
     specifier: ^7.50.1
     version: 7.50.1(react@18.2.0)

@@ -4,7 +4,7 @@ import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet";
 import { useAtom } from "jotai";
 import { useSearchParams } from "next/navigation";
 import { refSiteSheetAtom } from "../_store/sheet.store";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
 import { type RefSite } from "@prisma/client";
@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 export const SiteShowcaseSheet = () => {
   const searchParams = useSearchParams();
   const [status, setStatus] = useAtom(refSiteSheetAtom);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const { toast } = useToast();
   const utils = api.useUtils();
@@ -56,6 +57,12 @@ export const SiteShowcaseSheet = () => {
     }
 
     if (status.id) {
+      if (contentRef.current) {
+        contentRef.current.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
       window.history.pushState(
         null,
         "",
@@ -78,10 +85,13 @@ export const SiteShowcaseSheet = () => {
       <SheetContent
         side="bottom"
         showClose={false}
-        className="h-[calc(100dvh-64px)] overflow-auto rounded-t-2xl p-0"
+        className="h-[calc(100dvh-64px)] overflow-auto rounded-t-2xl border-0 p-0"
       >
         <div className="relative h-full w-full">
-          <div className="h-full w-full overflow-auto pb-20">
+          <div
+            ref={contentRef}
+            className="h-full w-full overflow-auto scroll-smooth pb-20"
+          >
             {loading ? (
               <div className="flex h-full w-full items-center justify-center">
                 <Spinner className="text-3xl" />

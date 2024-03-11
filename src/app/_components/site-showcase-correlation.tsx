@@ -35,7 +35,7 @@ export const SiteShowcaseCorrelation = ({
               key={item.id}
               item={item}
               fixedHeight={400}
-              onClick={() => onDetail?.(id)}
+              onClick={() => onDetail?.(item.id)}
             />
           ))
         )}

@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
         // Generate a random 6-digit code (OTP)
         return crypto.randomInt(100000, 999999).toString();
       },
-      sendVerificationRequest: async ({ identifier, url }) => {
+      sendVerificationRequest: async ({ identifier, url, token }) => {
         try {
           const user = await db.user.findUnique({
             where: {
@@ -45,12 +45,15 @@ export const authOptions: NextAuthOptions = {
             });
           }
 
+          const [name = identifier] = identifier.split("@");
+
           await sendEmail({
             to: identifier,
-            subject: `refto ${sendTitle} to your account`,
+            subject: `Refto ${sendTitle} | Verify your email`,
             renderData: UserAuthEmail({
-              actionUrl: url,
-              title: sendTitle,
+              name,
+              verifyUrl: url,
+              verifyCode: token,
               baseUrl: getBaseUrl(),
             }),
           });
