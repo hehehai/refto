@@ -21,7 +21,7 @@ export const subscriberRouter = createTRPCRouter({
         status: z.enum(["subscribed", "unsubscribed"]).optional(),
         orderBy: genOrderValidSchema<Subscriber>(["createdAt", "unSubDate"])
           .optional()
-          .default(["-createdAt"])
+          .transform((v) => (v?.length ? v : ["-createdAt"]))
           .transform(formatOrders),
       }),
     )
@@ -40,6 +40,12 @@ export const subscriberRouter = createTRPCRouter({
       } else if (status === "subscribed") {
         whereInput.unSubDate = null;
       }
+
+      console.log("order", orderBy);
+      console.log(
+        "order",
+        orderBy?.reduce((acc, item) => ({ ...acc, [item.key]: item.dir }), {}),
+      );
 
       const rows = await db.subscriber.findMany({
         where: whereInput,

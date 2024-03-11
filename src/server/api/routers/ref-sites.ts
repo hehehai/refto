@@ -22,7 +22,7 @@ export const refSitesRouter = createTRPCRouter({
         cursor: z.string().nullish(),
         orderBy: genOrderValidSchema<RefSite>(["createdAt", "likes", "visits"])
           .optional()
-          .default(["-createdAt"])
+          .transform((v) => (v?.length ? v : ["-createdAt"]))
           .transform(formatOrders),
         tags: z.array(z.string()).max(20).optional().default([]),
         hasTop: z.boolean().optional().default(false),

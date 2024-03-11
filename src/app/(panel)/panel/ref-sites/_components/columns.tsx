@@ -49,8 +49,8 @@ export const columns = (
       <DataTableColumnHeader column={column} title="CreatedAt" />
     ),
     cell: ({ row }) => (
-      <div className="w-[80px] text-center">
-        {format(row.getValue("createdAt"), "yyyy-MM-dd")}
+      <div className="w-[140px] text-center">
+        {format(row.getValue("createdAt"), "yyyy-MM-dd HH:mm:ss")}
       </div>
     ),
   },

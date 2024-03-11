@@ -1,6 +1,7 @@
 import { BlurImage } from "@/components/shared/blur-image";
 import { LikeIcon, VisitIcon } from "@/components/shared/icons";
 import { Badge } from "@/components/ui/badge";
+import { siteTagMapTypes } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { type RefSite } from "@prisma/client";
 import { memo } from "react";
@@ -49,7 +50,7 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
                     key={tag}
                     className="border-zinc-150 rounded-full border px-3 py-0.5 text-sm"
                   >
-                    {tag}
+                    {siteTagMapTypes[tag]?.en}
                   </div>
                 ))}
               </div>

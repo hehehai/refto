@@ -1,4 +1,4 @@
-export const siteTagMapTypes = {
+export const siteTagMapTypes: Record<string, { en: string; zh: string }> = {
   agency: { en: "Agency", zh: "机构" },
   ai: { en: "AI", zh: "人工智能" },
   architecture: { en: "Architecture", zh: "建筑" },
