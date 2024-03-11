@@ -1,10 +1,11 @@
 import { BlurImage } from "@/components/shared/blur-image";
 import { LikeIcon, VisitIcon } from "@/components/shared/icons";
 import { Badge } from "@/components/ui/badge";
-import { siteTagMapTypes } from "@/lib/constants";
+import { siteTagMap } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { type RefSite } from "@prisma/client";
 import { memo } from "react";
+import { VisitLink } from "./visit-link";
 
 interface SiteDetailProps extends React.ComponentPropsWithoutRef<"div"> {
   item: RefSite;
@@ -30,18 +31,24 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
               </div>
             )}
             <div className="flex items-center space-x-4">
-              <a
+              <VisitLink
+                id={item.id}
                 href={item.siteUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="text-xl hover:underline"
               >
                 {item.siteName}
-              </a>
+              </VisitLink>
               {item.siteUrl && (
-                <a href={item.siteUrl} target="_blank" rel="noreferrer">
+                <VisitLink
+                  id={item.id}
+                  href={item.siteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <VisitIcon className="text-2xl" />
-                </a>
+                </VisitLink>
               )}
               {item.isTop && <Badge className="ml-auto px-3 py-0.5">TOP</Badge>}
               <div className="flex items-center space-x-2">
@@ -50,7 +57,7 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
                     key={tag}
                     className="border-zinc-150 rounded-full border px-3 py-0.5 text-sm"
                   >
-                    {siteTagMapTypes[tag]?.en}
+                    {siteTagMap[tag]?.en}
                   </div>
                 ))}
               </div>
@@ -58,19 +65,20 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
           </div>
 
           <div className="flex items-center space-x-7 px-0.5 py-1">
-            <div className="flex items-center space-x-1 text-xl transition-opacity hover:opacity-90">
+            {/* <div className="flex items-center space-x-1 text-xl transition-opacity hover:opacity-90">
               <LikeIcon className="text-2xl" />
               <span>{item.likes}</span>
-            </div>
-            <a
+            </div> */}
+            <VisitLink
+              id={item.id}
               href={item.siteUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center space-x-1 text-xl transition-opacity hover:opacity-90"
+              className="flex items-center space-x-1 transition-opacity hover:opacity-90"
+              count={item.visits}
             >
-              <VisitIcon className="text-[22px]" />
-              <span>{item.visits}</span>
-            </a>
+              <VisitIcon className="text-[24px]" />
+            </VisitLink>
           </div>
         </div>
       </div>

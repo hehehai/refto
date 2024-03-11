@@ -10,7 +10,7 @@ const config = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "pub-f815ef445d13430e8011cfd52bf4e100.r2.dev",
+        hostname: "storage.refto.one",
         pathname: "**",
       },
     ],
