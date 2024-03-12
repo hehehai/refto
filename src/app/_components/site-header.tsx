@@ -4,7 +4,7 @@ import { SendIcon, AboutIcon } from "@/components/shared/icons";
 import { SiteFilterCommand } from "./site-filter-dialog";
 import { site } from "@/lib/config/site";
 
-export const SiteHeader = () => {
+export const SiteHeader = ({ filter = true }: { filter?: boolean }) => {
   return (
     <div className="w-full">
       <div className="max-auto container flex h-20 items-center justify-between">
@@ -14,10 +14,12 @@ export const SiteHeader = () => {
           </Link>
         </div>
         <div className="flex-center flex space-x-3">
-          <SiteFilterCommand />
-          <Button variant={"secondary"} className="rounded-full">
-            <SendIcon className="mr-2 text-xl"></SendIcon>
-            <span>Submit</span>
+          {filter && <SiteFilterCommand />}
+          <Button variant={"secondary"} className="rounded-full" asChild>
+            <a href="mailto:riverhohai@gmail.com?subject=Refto Website recommendation">
+              <SendIcon className="mr-2 text-xl"></SendIcon>
+              <span>Submit</span>
+            </a>
           </Button>
           <Button variant={"secondary"} className="rounded-full" asChild>
             <Link href="/about">

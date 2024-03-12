@@ -63,3 +63,15 @@
     @apply items-center justify-center;
   }
 }
+
+@layer components {
+  .section-mark-title {
+    @apply relative inline-block;
+  }
+
+  .section-mark-title::before {
+    @apply absolute -left-20 top-1/2 z-0 -translate-y-1/2 text-zinc-400;
+    content: "///";
+    font-size: 1em;
+  }
+}

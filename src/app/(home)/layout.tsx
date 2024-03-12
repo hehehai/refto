@@ -3,7 +3,7 @@ import { SiteHeader } from "../_components/site-header";
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
-      <SiteHeader filter={false} />
+      <SiteHeader />
       <main>{children}</main>
     </div>
   );
