@@ -70,13 +70,13 @@ export const SiteEmailSubscription = ({
               <Input
                 placeholder="Email Get Best of the Week"
                 {...field}
-                className="w-[384px] max-w-sm rounded-full"
+                className="w-full sm:w-[300px] md:w-[324px] lg:w-[384px] lg:max-w-sm rounded-full"
               />
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="rounded-full">
+        <Button type="submit" className="rounded-full w-full sm:w-auto">
           {submitAction.isLoading && <Spinner className="mr-2" />}
           <span>Subscription</span>
         </Button>

@@ -9,22 +9,22 @@ export const SiteHeader = ({ filter = true }: { filter?: boolean }) => {
     <div className="w-full">
       <div className="max-auto container flex h-20 items-center justify-between">
         <div>
-          <Link href={"/"} className="text-[40px] font-medium text-foreground">
+          <Link href={"/"} className="text-3xl md:text-[40px] font-medium text-foreground">
             {site.name}
           </Link>
         </div>
         <div className="flex-center flex space-x-3">
           {filter && <SiteFilterCommand />}
-          <Button variant={"secondary"} className="rounded-full" asChild>
+          <Button variant={"secondary"} className="rounded-full space-x-2" asChild>
             <a href="mailto:riverhohai@gmail.com?subject=Refto Website recommendation">
-              <SendIcon className="mr-2 text-xl"></SendIcon>
-              <span>Submit</span>
+              <SendIcon className="text-xl"></SendIcon>
+              <span className="hidden md:inline">Submit</span>
             </a>
           </Button>
-          <Button variant={"secondary"} className="rounded-full" asChild>
+          <Button variant={"secondary"} className="rounded-full space-x-2" asChild>
             <Link href="/about">
-              <AboutIcon className="mr-2 text-xl"></AboutIcon>
-              <span>About</span>
+              <AboutIcon className="text-xl"></AboutIcon>
+              <span className="hidden md:inline">About</span>
             </Link>
           </Button>
         </div>

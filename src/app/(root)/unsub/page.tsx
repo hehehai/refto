@@ -20,7 +20,10 @@ const unSubSchema = z.object({
 export default function UnSubPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const valid = unSubSchema.safeParse(searchParams);
+  const valid = unSubSchema.safeParse({
+    email: searchParams.get("email") || "",
+    token: searchParams.get("token") || "",
+  });
 
   const ubSubAction = api.subscriber.unsubscribe.useMutation({
     onSuccess: () => {
@@ -44,7 +47,9 @@ export default function UnSubPage() {
         <Alert variant="destructive">
           <ExclamationTriangleIcon className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>Invalid email</AlertDescription>
+          <AlertDescription>
+            {valid.error.issues[0]?.message || "Invalid data"}
+          </AlertDescription>
         </Alert>
       ) : (
         <div className="w-full rounded-xl border border-zinc-100 p-5">

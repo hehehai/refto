@@ -9,9 +9,12 @@ const items = Array.from({ length: 4 }, (_, i) => {
 
 export const HomeMasonrySkeleton = () => {
   return (
-    <div className="grid w-full grid-cols-4 gap-8">
+    <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-4 lg:grid-cols-4 lg:gap-6">
       {items.map((cols, idx) => (
-        <div key={idx} className="flex flex-col gap-8">
+        <div
+          key={idx}
+          className="flex flex-col gap-3 md:gap-4 lg:gap-6"
+        >
           {cols.map((item) => (
             <div
               key={item.key}

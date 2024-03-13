@@ -101,7 +101,7 @@ export const SiteShowcaseSheet = () => {
             ) : null}
 
             <div className="container">
-              <Separator className="my-28" />
+              <Separator className="my-12 md:my-28" />
 
               {status.id && (
                 <SiteShowcaseCorrelation

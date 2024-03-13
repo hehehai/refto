@@ -74,12 +74,12 @@ const faqs = [
 
 export default function AboutPage() {
   return (
-    <div className="my-[120px]">
-      <div className="container max-w-screen-md space-y-32 text-center">
+    <div className="my-[80px] md:my-[120px]">
+      <div className="container max-w-screen-md space-y-12 md:space-y-32 md:text-center">
         {faqs.map((faq, idx) => (
           <section key={idx}>
-            <h3 className="section-mark-title mb-10 text-4xl">{faq.title}</h3>
-            <div className="space-y-4 text-lg">{faq.content}</div>
+            <h3 className="section-mark-title mb-6 md:mb-10 text-2xl md:text-4xl">{faq.title}</h3>
+            <div className="space-y-4 md:text-lg">{faq.content}</div>
           </section>
         ))}
       </div>

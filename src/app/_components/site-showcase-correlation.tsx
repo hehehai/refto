@@ -25,8 +25,8 @@ export const SiteShowcaseCorrelation = ({
 
   return (
     <div>
-      <div className="mb-6 text-2xl">You might also like</div>
-      <div className="grid w-full grid-cols-3 gap-8">
+      <div className="mb-3 md:mb-6 text-lg md:text-2xl">You might also like</div>
+      <div className="smg:gap-4 grid w-full grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:gap-8">
         {sitesQuery.isLoading ? (
           <SiteShowcaseCorrelationSkeleton />
         ) : (

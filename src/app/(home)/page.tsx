@@ -15,10 +15,10 @@ export default async function Home({
   return (
     <div className="w-full">
       <div className="container mx-auto">
-        <section className="mt-24 grid grid-cols-4 gap-8">
+        <section className="mt-16 grid-cols-1 space-y-6 md:mt-24 md:grid md:grid-cols-3 md:gap-8 md:space-y-0 lg:grid-cols-4">
           <div className="col-span-2 flex flex-col">
             <div className="">
-              <h2 className="text-nowrap text-6xl leading-tight">
+              <h2 className="text-nowrap text-3xl leading-tight md:text-5xl lg:text-6xl">
                 Unleash limitless inspiration
                 <br />
                 Embrace pure simplicity
@@ -39,7 +39,7 @@ export default async function Home({
                 </li>
               </ul>
             </div>
-            <SiteEmailSubscription className="mt-auto flex items-center space-x-5" />
+            <SiteEmailSubscription className="mt-6 items-center space-y-3 sm:flex sm:space-x-5 sm:space-y-0 lg:mt-auto" />
           </div>
           <div className="col-span-1 flex flex-col">
             <div className="mt-auto">
@@ -52,7 +52,7 @@ export default async function Home({
               />
             </div>
           </div>
-          <div className="col-span-1 flex min-h-[360px] flex-col">
+          <div className="col-span-1 flex flex-col md:hidden lg:block">
             <div className="mt-auto">
               <video
                 src="https://pub-f815ef445d13430e8011cfd52bf4e100.r2.dev/24-03-07%2Frefto-authkit.mp4"
@@ -64,7 +64,7 @@ export default async function Home({
             </div>
           </div>
         </section>
-        <section className="mt-24">
+        <section className="mt-16 md:mt-24">
           <Suspense fallback={<HomeMasonrySkeleton />}>
             <HomeMasonry search={search} tags={tags} />
           </Suspense>
