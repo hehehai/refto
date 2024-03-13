@@ -79,7 +79,7 @@ export function DataTable() {
     return columns((row) => {
       return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />;
     });
-  }, [tableQuery]);
+  }, [tableQuery.refetch]);
 
   const table = useReactTable<Subscriber>({
     data: (tableQuery.data?.rows as any) || [],

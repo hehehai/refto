@@ -1,6 +1,10 @@
 import { atom } from "jotai";
 import mitt from "mitt";
 
+// detail
+export const refSiteDetailSheetAtom = atom<string | null>(null);
+
+// upset
 interface RefSiteDialogState {
   show: boolean;
   isAdd: boolean;

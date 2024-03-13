@@ -3,7 +3,7 @@ import { load } from "cheerio";
 import { ProxyAgent } from "undici";
 
 export const formatUrl = (url: string, site: string) => {
-  if (url.startsWith(".") || url.startsWith("/")) {
+  if (!url.startsWith("http://") || !url.startsWith("https://")) {
     return new URL(url, site).href;
   }
   return url;
@@ -80,5 +80,19 @@ export async function getSiteMetaByUrl(url: string) {
   } catch (err) {
     console.log(err);
     return null;
+  }
+}
+
+export function getMetaInSite() {
+  const title = document.head.title
+  const favicon = document.querySelector("link[rel=icon]")?.getAttribute("href")
+  const ogImage = document.querySelector("meta[property=og:image]")?.getAttribute("content")
+  const description = document.querySelector("meta[name=description]")?.getAttribute("content")
+
+  return {
+    title,
+    favicon,
+    ogImage,
+    description
   }
 }

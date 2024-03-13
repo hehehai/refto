@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { useAtom } from "jotai";
 import {
+  refSiteDetailSheetAtom,
   refSiteDialogAtom,
   refSiteDialogEmitter,
 } from "@/app/(panel)/_store/dialog.store";
@@ -44,6 +45,7 @@ const statusOptions = Object.entries(siteTagMap).map(([value, item]) => ({
 
 export function DataTable() {
   const { toast } = useToast();
+  const [_, setDetailStatus] = useAtom(refSiteDetailSheetAtom);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -86,10 +88,15 @@ export function DataTable() {
   });
 
   const tableColumns = React.useMemo(() => {
-    return columns((row) => {
-      return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />;
-    });
-  }, [tableQuery]);
+    return columns(
+      (row) => {
+        return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />;
+      },
+      {
+        onDetail: setDetailStatus,
+      },
+    );
+  }, [tableQuery.refetch, setDetailStatus]);
 
   const table = useReactTable<RefSite>({
     data: (tableQuery.data?.rows as RefSite[]) || [],

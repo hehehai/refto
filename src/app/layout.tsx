@@ -15,7 +15,7 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: site.name,
+    default: `${site.name} - Unleash limitless inspiration Embrace pure simplicity`,
     template: `%s | ${site.name}`,
   },
   description: site.description,

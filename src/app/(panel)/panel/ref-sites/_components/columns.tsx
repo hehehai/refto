@@ -8,12 +8,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { format } from "date-fns";
 import { type RefSite } from "@prisma/client";
-import Image from "next/image";
 import { LikeIcon, VisitIcon } from "@/components/shared/icons";
 import { BlurImage } from "@/components/shared/blur-image";
 
+interface ColumnsMethods {
+  onDetail: (rowId: string) => void;
+}
+
 export const columns = (
   actionSlot: (row: Row<RefSite>) => React.ReactNode,
+  methods?: ColumnsMethods,
 ): ColumnDef<RefSite>[] => [
   {
     id: "select",
@@ -73,7 +77,12 @@ export const columns = (
           )}
           <div className="max-w-[500px]">
             <div className="flex items-center space-x-2">
-              <div className="truncate text-[16px] font-medium">{name}</div>
+              <div
+                className="cursor-pointer truncate text-[16px] font-medium hover:underline"
+                onClick={() => methods?.onDetail(row.original.id)}
+              >
+                {name}
+              </div>
               {siteUrl && (
                 <a href={siteUrl} target="_blank" rel="noreferrer">
                   <VisitIcon className="text-lg" />
