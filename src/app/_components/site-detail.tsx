@@ -14,7 +14,7 @@ interface SiteDetailProps extends React.ComponentPropsWithoutRef<"div"> {
 export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
   const tagsNode = useMemo(() => {
     return (
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center gap-2 flex-wrap">
         {item.siteTags.map((tag) => (
           <div
             key={tag}

@@ -9,7 +9,7 @@ export const SiteHeader = ({ filter = true }: { filter?: boolean }) => {
     <div className="w-full">
       <div className="max-auto container flex h-20 items-center justify-between">
         <div>
-          <Link href={"/"} className="text-3xl md:text-[40px] font-medium text-foreground">
+          <Link href={"/"} className="text-[34px] md:text-[40px] font-medium text-foreground">
             {site.name}
           </Link>
         </div>

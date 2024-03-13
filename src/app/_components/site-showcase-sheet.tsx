@@ -85,12 +85,12 @@ export const SiteShowcaseSheet = () => {
       <SheetContent
         side="bottom"
         showClose={false}
-        className="h-[calc(100dvh-64px)] overflow-auto rounded-t-2xl border-0 p-0"
+        className="h-[calc(100dvh-64px)] rounded-t-2xl border-0 p-0"
       >
         <div className="relative h-full w-full">
           <div
             ref={contentRef}
-            className="h-full w-full overflow-auto scroll-smooth pb-20"
+            className="h-full w-full overflow-auto scroll-smooth rounded-t-2xl pb-20"
           >
             {loading ? (
               <div className="flex h-full w-full items-center justify-center">
@@ -112,7 +112,7 @@ export const SiteShowcaseSheet = () => {
             </div>
           </div>
 
-          <SheetClose className="absolute right-6 top-6 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+          <SheetClose className="absolute -top-10 text-white md:text-inherit right-6 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary md:top-6">
             <X className="h-5 w-5" />
             <span className="sr-only">Close</span>
           </SheetClose>
