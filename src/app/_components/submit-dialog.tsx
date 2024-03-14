@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Spinner } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
@@ -115,7 +115,7 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[526px]">
+      <DialogContent className="flex flex-col max-sm:h-[100dvh] sm:grid sm:max-w-[526px]">
         <DialogHeader>
           <DialogTitle>Submit Ref Site</DialogTitle>
           <DialogDescription>
@@ -124,7 +124,10 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col max-sm:mt-3"
+          >
             <div className="space-y-2">
               <FormField
                 control={form.control}
@@ -203,8 +206,12 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                 )}
               />
             </div>
-            <DialogFooter className="mt-4">
-              <Button type="submit" disabled={submitAction.isLoading}>
+            <DialogFooter className="mt-auto max-sm:flex-grow sm:mt-4">
+              <Button
+                type="submit"
+                disabled={submitAction.isLoading}
+                className="max-sm:w-full"
+              >
                 {submitAction.isLoading && (
                   <Spinner className="mr-2 text-xl"></Spinner>
                 )}

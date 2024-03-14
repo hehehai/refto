@@ -35,7 +35,7 @@ const CommandDialog = ({
   return (
     <Dialog {...props}>
       <DialogContent
-        className="max-w-2xl overflow-hidden p-0 shadow-lg max-md:top-0 max-md:h-[100vh] max-md:translate-y-0 max-md:border-none max-md:shadow-none"
+        className="max-w-2xl overflow-hidden p-0 shadow-lg max-md:top-0 max-md:h-[100dvh] max-md:translate-y-0 max-md:border-none max-md:shadow-none"
         showCloseButton={false}
       >
         <Command
