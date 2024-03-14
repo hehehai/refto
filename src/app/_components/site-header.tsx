@@ -3,25 +3,33 @@ import Link from "next/link";
 import { SendIcon, AboutIcon } from "@/components/shared/icons";
 import { SiteFilterCommand } from "./site-filter-dialog";
 import { site } from "@/lib/config/site";
+import { SubmitDialog } from "./submit-dialog";
 
 export const SiteHeader = ({ filter = true }: { filter?: boolean }) => {
   return (
     <div className="w-full">
       <div className="max-auto container flex h-20 items-center justify-between">
         <div>
-          <Link href={"/"} className="text-[34px] md:text-[40px] font-medium text-foreground">
+          <Link
+            href={"/"}
+            className="text-[34px] font-medium text-foreground md:text-[40px]"
+          >
             {site.name}
           </Link>
         </div>
         <div className="flex-center flex space-x-3">
           {filter && <SiteFilterCommand />}
-          <Button variant={"secondary"} className="rounded-full space-x-2" asChild>
-            <a href="mailto:riverhohai@gmail.com?subject=Refto Website recommendation">
+          <SubmitDialog>
+            <Button variant={"secondary"} className="space-x-2 rounded-full">
               <SendIcon className="text-xl"></SendIcon>
               <span className="hidden md:inline">Submit</span>
-            </a>
-          </Button>
-          <Button variant={"secondary"} className="rounded-full space-x-2" asChild>
+            </Button>
+          </SubmitDialog>
+          <Button
+            variant={"secondary"}
+            className="space-x-2 rounded-full"
+            asChild
+          >
             <Link href="/about">
               <AboutIcon className="text-xl"></AboutIcon>
               <span className="hidden md:inline">About</span>

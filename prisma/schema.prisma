@@ -74,6 +74,27 @@ model VerificationToken {
     @@map("verification_tokens")
 }
 
+enum SubmitSiteStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}
+
+model SubmitSite {
+    id              Int              @id @default(autoincrement())
+    email           String
+    siteUrl         String
+    siteTitle       String
+    siteDescription String
+    createdAt       DateTime         @default(now()) @map("created_at")
+    updatedAt       DateTime         @updatedAt @map("updated_at")
+    status          SubmitSiteStatus @default(PENDING)
+    approvedAt      DateTime?        @map("approved_at")
+    rejectedAt      DateTime?        @map("rejected_at")
+
+    @@map("submit_sites")
+}
+
 model RefSite {
     id              String    @id @default(cuid())
     siteName        String    @db.VarChar(255)

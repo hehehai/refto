@@ -41,12 +41,6 @@ export const subscriberRouter = createTRPCRouter({
         whereInput.unSubDate = null;
       }
 
-      console.log("order", orderBy);
-      console.log(
-        "order",
-        orderBy?.reduce((acc, item) => ({ ...acc, [item.key]: item.dir }), {}),
-      );
-
       const rows = await db.subscriber.findMany({
         where: whereInput,
         select: {

@@ -41,6 +41,8 @@ ORDER BY
     siteName: site.siteName,
     siteFavicon: site.siteFavicon,
     siteCover: site.siteCover,
+    siteCoverWidth: site.siteCoverWidth,
+    siteCoverHeight: site.siteCoverHeight,
     likes: site.likes,
     visits: site.visits,
   }));

@@ -1,3 +1,4 @@
+import { submitSitesRouter } from "./routers/submit-sites";
 import { refSitesRouter } from "@/server/api/routers/ref-sites";
 import { createTRPCRouter } from "@/server/api/trpc";
 import { siteMetaRouter } from "./routers/site-meta";
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   subscriber: subscriberRouter,
   upload: uploadRouter,
   siteMeta: siteMetaRouter,
+  submitSite: submitSitesRouter,
 });
 
 // export type definition of API

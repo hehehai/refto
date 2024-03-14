@@ -18,6 +18,11 @@ const panelNavMap = [
     icon: DashboardIcon,
   },
   {
+    path: "/panel/submit-sites",
+    label: "Submit Sites",
+    icon: ListIcon,
+  },
+  {
     path: "/panel/ref-sites",
     label: "Ref Sites",
     icon: ListIcon,

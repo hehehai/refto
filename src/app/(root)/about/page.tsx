@@ -18,7 +18,11 @@ const faqs = [
     title: "Who am I?",
     content: [
       <p key={1}>
-        Hello everyone, I am "一块木头" and you can find me on{" "}
+        Hello everyone, I am "
+        <a href="https://hehehai.cn" target="_blank" className="underline">
+          一块木头
+        </a>
+        " and you can find me on{" "}
         <a
           href="https://twitter.com/riverhohai"
           target="_blank"
@@ -51,6 +55,23 @@ const faqs = [
     ],
   },
   {
+    title: "How can websites be submitted?",
+    content: [
+      <p key={1}>
+        You can click the "Submit" button at the top of the webpage, which will
+        open the email submission page. Alternatively, you can directly send an
+        email to "
+        <a href="mailto:riverhohai@gmail.com" className="underline">
+          riverhohai@gmail.com
+        </a>
+        ". Please make sure to include an accessible webpage link in the email.
+        Due to the large volume of website submissions we receive, we may not be
+        able to include every submission, but we will select the most
+        outstanding ones for display.
+      </p>,
+    ],
+  },
+  {
     title: "How can I stay updated on the latest trends?",
     content: [
       <p key={1}>
@@ -78,7 +99,9 @@ export default function AboutPage() {
       <div className="container max-w-screen-md space-y-12 md:space-y-32 md:text-center">
         {faqs.map((faq, idx) => (
           <section key={idx}>
-            <h3 className="section-mark-title mb-6 md:mb-10 text-2xl md:text-4xl">{faq.title}</h3>
+            <h3 className="section-mark-title mb-6 text-2xl md:mb-10 md:text-4xl">
+              {faq.title}
+            </h3>
             <div className="space-y-4 md:text-lg">{faq.content}</div>
           </section>
         ))}

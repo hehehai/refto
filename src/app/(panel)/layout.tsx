@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PanelHeader } from "../_components/panel-header";
 import { getSession } from "@/lib/session";
 import { RefSiteUpsetDialog } from "./_components/ref-site-upset-dialog";
@@ -17,11 +17,7 @@ export default async function PanelLayout({
   }
 
   if (session.user.role === "USER") {
-    return (
-      <div className="h-screen">
-        <div>Not open for the time being</div>
-      </div>
-    );
+    return redirect("/");
   }
 
   return (
