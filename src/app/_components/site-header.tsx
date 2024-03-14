@@ -12,7 +12,7 @@ export const SiteHeader = ({ filter = true }: { filter?: boolean }) => {
         <div>
           <Link
             href={"/"}
-            className="text-[34px] font-medium text-foreground md:text-[40px]"
+            className="text-[32px] font-medium text-foreground md:text-[40px]"
           >
             {site.name}
           </Link>

@@ -140,7 +140,8 @@ export function SiteFilterCommand() {
         )}
         onClick={() => setOpen(true)}
       >
-        {filterPreview}
+        <div className="hidden sm:block">{filterPreview}</div>
+        <div className="sm:hidden">Filter</div>
         <div className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-foreground text-white">
           <FilterIcon className="text-lg" />
         </div>
@@ -180,10 +181,11 @@ export function SiteFilterCommand() {
               <CommandItem key={tag.value} value={tag.value} className="p-0">
                 <label
                   htmlFor={tag.value}
-                  className="flex w-full items-center space-x-2 px-1 py-3"
+                  className="flex w-full items-center space-x-3 px-1 py-3"
                 >
                   <Checkbox
                     id={tag.value}
+                    className="h-[18px] w-[18px]"
                     checked={selected.includes(tag.value)}
                     onCheckedChange={(value) => {
                       if (value) {

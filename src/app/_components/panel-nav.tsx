@@ -2,6 +2,7 @@
 
 import {
   DashboardIcon,
+  DocIcon,
   ListIcon,
   SubscriberIcon,
   WeeklyIcon,
@@ -20,7 +21,7 @@ const panelNavMap = [
   {
     path: "/panel/submit-sites",
     label: "Submit Sites",
-    icon: ListIcon,
+    icon: DocIcon,
   },
   {
     path: "/panel/ref-sites",

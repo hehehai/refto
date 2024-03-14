@@ -111,6 +111,32 @@ export const ExpandIcon = (props: SVGProps<SVGSVGElement>) => {
   );
 };
 
+export const DocIcon = (props: SVGProps<SVGSVGElement>) => {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      width={"1em"}
+      height={"1em"}
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M3.9 3.9C3 4.83 2.5 6.33 2.5 8.76v6c0 2.43.49 3.93 1.4 4.84.92.92 2.42 1.41 4.85 1.41h6c2.43 0 3.93-.49 4.84-1.4.92-.92 1.41-2.42 1.41-4.85v-5a.75.75 0 0 1 1.5 0v5c0 2.57-.51 4.57-1.84 5.9-1.34 1.34-3.34 1.85-5.91 1.85h-6c-2.57 0-4.57-.51-5.9-1.84C1.5 19.32 1 17.32 1 14.75v-6c0-2.57.51-4.57 1.84-5.9C4.18 1.5 6.18 1 8.75 1h5a.75.75 0 0 1 0 1.5h-5c-2.43 0-3.93.49-4.84 1.4Z"
+        fill="currentColor"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M13.46 1.06c.28-.12.6-.05.82.16l8 8a.75.75 0 0 1-.53 1.28h-4c-1.54 0-2.8-.25-3.66-1.1C13.25 8.57 13 7.3 13 5.76v-4c0-.3.18-.58.46-.7Zm1.04 2.5v2.19c0 1.46.25 2.2.66 2.6.4.4 1.13.65 2.59.65h2.19L14.5 3.56ZM6 12.75c0-.41.34-.75.75-.75h6a.75.75 0 0 1 0 1.5h-6a.75.75 0 0 1-.75-.75ZM6 16.75c0-.41.34-.75.75-.75h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1-.75-.75Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
 export const BoxAddIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
