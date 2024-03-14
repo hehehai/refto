@@ -21,7 +21,6 @@ export const env = createEnv({
     CLOUD_FLARE_S3_UPLOAD_KEY: z.string(),
     CLOUD_FLARE_S3_UPLOAD_SECRET: z.string(),
     CLOUD_FLARE_S3_UPLOAD_BUCKET: z.string(),
-    ARCJET_KEY: z.string(),
   },
 
   client: {
@@ -46,7 +45,6 @@ export const env = createEnv({
     CLOUD_FLARE_S3_UPLOAD_SECRET: process.env.CLOUD_FLARE_S3_UPLOAD_SECRET,
     CLOUD_FLARE_S3_UPLOAD_BUCKET: process.env.CLOUD_FLARE_S3_UPLOAD_BUCKET,
     NEXT_PUBLIC_CLOUD_FLARE_R2_URL: process.env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL,
-    ARCJET_KEY: process.env.ARCJET_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

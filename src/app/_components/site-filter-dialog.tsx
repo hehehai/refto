@@ -21,6 +21,8 @@ import {
 import { siteTagMap } from "@/lib/constants";
 import { Checkbox } from "@/components/ui/checkbox";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { X } from "lucide-react";
+import { SheetClose } from "@/components/ui/sheet";
 
 const tagOptions = Object.entries(siteTagMap).map(([value, item]) => ({
   label: item.en,
@@ -163,6 +165,10 @@ export function SiteFilterCommand() {
           onInput={(e) => setSearch(e.currentTarget.value)}
         >
           <CommandShortcut>⌘K</CommandShortcut>
+          <button className="rounded-sm text-foreground opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary md:top-6 md:hidden md:text-inherit">
+            <X className="h-3 w-3" />
+            <span className="sr-only">Close</span>
+          </button>
         </CommandInput>
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
