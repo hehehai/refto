@@ -35,7 +35,7 @@ const CommandDialog = ({
   return (
     <Dialog {...props}>
       <DialogContent
-        className="max-w-2xl overflow-hidden p-0 shadow-lg"
+        className="max-w-2xl overflow-hidden p-0 shadow-lg max-md:top-0 max-md:h-[100vh] max-md:translate-y-0 max-md:border-none max-md:shadow-none"
         showCloseButton={false}
       >
         <Command
@@ -89,7 +89,10 @@ const CommandList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn("max-h-[400px] overflow-y-auto overflow-x-hidden", className)}
+    className={cn(
+      "overflow-y-auto overflow-x-hidden md:max-h-[400px]",
+      className,
+    )}
     {...props}
   />
 ));
@@ -160,7 +163,7 @@ const CommandShortcut = ({
   return (
     <span
       className={cn(
-        "ml-auto rounded-sm border border-zinc-100 bg-transparent px-1.5 text-xs tracking-widest text-muted-foreground text-zinc-700",
+        "ml-auto rounded-sm border border-zinc-100 bg-transparent px-1.5 text-xs tracking-widest text-muted-foreground text-zinc-700 max-md:hidden",
         className,
       )}
       {...props}

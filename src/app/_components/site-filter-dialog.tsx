@@ -12,7 +12,7 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 import { cn, getSearchParams } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -117,14 +117,14 @@ export function SiteFilterCommand() {
     const search = params.s || "";
     const tags = params.tags?.split(",").filter(Boolean) || [];
     if (!search.trim() && tags.length === 0) {
-      return <div>Filter cases</div>;
+      return <div>Filter</div>;
     }
     const showTags = tags.slice(0, 3);
     return (
       <div className="flex items-center space-x-1">
         <div className="max-w-[60px] truncate">{search}</div>
         {tags.length > 0 && showTags.map((tag) => <span key={tag}>{tag}</span>)}
-        {tags.length > 3 && <span>... 3+</span>}
+        {tags.length > 3 && <span>... ${tags.length - 3}+</span>}
       </div>
     );
   }, [params]);
@@ -192,7 +192,7 @@ export function SiteFilterCommand() {
             ))}
           </CommandGroup>
         </CommandList>
-        <div className="flex items-center justify-between border-t border-zinc-200 p-3">
+        <div className="flex items-center justify-between border-t border-zinc-200 p-3 max-md:hidden">
           <div>
             <span className="flex items-center space-x-1">
               <CommandShortcut className="px-0.5 py-0.5">
@@ -218,6 +218,16 @@ export function SiteFilterCommand() {
               <span className="text-xs text-zinc-700">Close</span>
             </span>
           </div>
+        </div>
+        <div
+          className="border-t border-zinc-200 p-3 md:hidden"
+          onClick={() => {
+            if (!inputLock) {
+              handleConfirm();
+            }
+          }}
+        >
+          <Button className="w-full">Confirm Filter</Button>
         </div>
       </CommandDialog>
     </>
