@@ -40,7 +40,7 @@ export const UserAuthEmail = ({
             <Container className="mx-auto my-[40px] max-w-[500px] py-8 text-[14px] text-[#1C1C1C]">
               <Section className="mt-[32px]">
                 <Img
-                  src={`${baseUrl}/favicon.svg`}
+                  src={`${baseUrl}/logo.png`}
                   width="70"
                   height="70"
                   alt={config.siteName}

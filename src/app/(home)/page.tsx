@@ -3,6 +3,7 @@ import { HomeMasonry } from "@/app/_components/home-masonry";
 import { HomeMasonrySkeleton } from "../_components/home-masonry-skeleton";
 import { SiteEmailSubscription } from "../_components/site-email-subscription";
 import { SiteShowcaseSheet } from "../_components/site-showcase-sheet";
+import { env } from "@/env";
 
 export default async function Home({
   searchParams,
@@ -44,22 +45,22 @@ export default async function Home({
           <div className="col-span-1 flex flex-col">
             <div className="mt-auto">
               <video
-                src="https://pub-f815ef445d13430e8011cfd52bf4e100.r2.dev/24-03-07%2Frefto-metalab.mp4"
+                src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-1.mp4`}
                 autoPlay
                 muted
                 loop
-                className="block w-full rounded-lg"
+                className="block w-full rounded-lg border border-zinc-50"
               />
             </div>
           </div>
           <div className="col-span-1 flex flex-col md:hidden lg:block">
-            <div className="mt-auto">
+            <div className="mt-auto space-y-6">
               <video
-                src="https://pub-f815ef445d13430e8011cfd52bf4e100.r2.dev/24-03-07%2Frefto-authkit.mp4"
+                src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-3.mp4`}
                 autoPlay
                 muted
                 loop
-                className="block w-full rounded-lg"
+                className="block w-full rounded-lg border border-zinc-50"
               />
             </div>
           </div>
