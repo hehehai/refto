@@ -2,9 +2,23 @@
 
 import { db } from "@/lib/db";
 import crypto from "node:crypto";
+import { verifyEmail } from "@devmehq/email-validator-js";
+import { env } from "@/env";
 
 // 订阅
 export async function subscribe(email: string) {
+  const { validFormat, validSmtp, validMx } = await verifyEmail({
+    emailAddress: email,
+    verifySmtp: true,
+    verifyMx: true,
+    timeout: 5000,
+    debug: env.NODE_ENV !== "production",
+  });
+
+  if (!validFormat || !validSmtp || !validMx) {
+    throw new Error("Invalid email address");
+  }
+
   const subscriber = await db.subscriber.findUnique({
     where: {
       email,

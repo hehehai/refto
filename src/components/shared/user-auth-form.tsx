@@ -80,8 +80,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
     try {
       setOptLoading(true);
+      const { email } = getValues();
+
       const res = await fetch(
-        `/api/auth/callback/email?email=${encodeURIComponent(getValues().email)}&token=${optValue}`,
+        `/api/auth/callback/email?email=${encodeURIComponent(email)}&token=${optValue}`,
       );
       if (res.status !== 200) {
         setOptLoading(false);
@@ -98,7 +100,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
       setOptLoading(false);
       toast({ title: "Verified Success" });
-      router.replace(searchParams?.get("from") || "/");
+      router.replace(searchParams?.get("from")?.trim() || "/");
     } catch (err) {
       console.log("OTP err", err);
     } finally {

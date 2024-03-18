@@ -17,6 +17,9 @@ dependencies:
   '@aws-sdk/signature-v4-crt':
     specifier: ^3.525.0
     version: 3.525.0
+  '@devmehq/email-validator-js':
+    specifier: ^1.0.19
+    version: 1.0.19
   '@hookform/resolvers':
     specifier: ^3.3.4
     version: 3.3.4(react-hook-form@7.50.1)
@@ -1042,6 +1045,14 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.1
+
+  /@devmehq/email-validator-js@1.0.19:
+    resolution: {integrity: sha512-Z2qlnD2xddvXz+5e26czIvPJysUfvVi+9mjyNG/XH7eZbqF93hoU/Ff4KfGv9UoPmj7uhRW1k+i9JFtae7sc3w==}
+    engines: {node: '>= 12.0'}
+    dependencies:
+      '@types/psl': 1.1.3
+      psl: 1.9.0
+    dev: false
 
   /@egoist/tailwindcss-icons@1.7.4(tailwindcss@3.4.1):
     resolution: {integrity: sha512-883qx0sqeNb8km7os0w8K6UYue88dbgTWwyEUwW74Bgz0H7t+m7PMIIEvSQ4JqHwA823Qd5ciz+NoTBWKaMYfg==}
@@ -4218,6 +4229,10 @@ packages:
 
   /@types/prop-types@15.7.11:
     resolution: {integrity: sha512-ga8y9v9uyeiLdpKddhxYQkxNDrfvuPrlFb0N1qnZZByvcElJaXthF1UhvCh9TLWJBEHeNtdnbysW7Y6Uq8CVng==}
+
+  /@types/psl@1.1.3:
+    resolution: {integrity: sha512-Iu174JHfLd7i/XkXY6VDrqSlPvTDQOtQI7wNAXKKOAADJ9TduRLkNdMgjGiMxSttUIZnomv81JAbAbC0DhggxA==}
+    dev: false
 
   /@types/react-dom@18.2.19:
     resolution: {integrity: sha512-aZvQL6uUbIJpjZk4U8JZGbau9KDeAwMfmhyWorxgBkqDIEf6ROjRozcmPIicqsUwPUjbkDfHKgGee1Lq65APcA==}
@@ -7775,6 +7790,10 @@ packages:
 
   /proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
+    dev: false
+
+  /psl@1.9.0:
+    resolution: {integrity: sha512-E/ZsdU4HLs/68gYzgGTkMicWTLPdAftJLfJFlLUAAKZGkStNU72sZjT66SnMDVOfOWY/YAoiD7Jxa9iHvngcag==}
     dev: false
 
   /pump@3.0.0:

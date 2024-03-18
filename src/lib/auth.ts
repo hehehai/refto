@@ -8,6 +8,7 @@ import { env } from "@/env";
 import { sendEmail } from "./email";
 import UserAuthEmail from "./email/templates/auth";
 import { getBaseUrl } from "./utils";
+import { verifyEmail } from "@devmehq/email-validator-js";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
@@ -34,6 +35,19 @@ export const authOptions: NextAuthOptions = {
               emailVerified: true,
             },
           });
+
+          if (!user) {
+            const { validFormat, validSmtp, validMx } = await verifyEmail({
+              emailAddress: identifier,
+              verifySmtp: true,
+              verifyMx: true,
+              timeout: 5000,
+            });
+
+            if (!validFormat || !validSmtp || !validMx) {
+              throw new Error("Invalid email address");
+            }
+          }
 
           const sendTitle = user ? "Sign in" : "Sign up";
 

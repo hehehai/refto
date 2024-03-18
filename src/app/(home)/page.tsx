@@ -54,7 +54,7 @@ export default async function Home({
             </div>
           </div>
           <div className="col-span-1 flex flex-col md:hidden lg:block">
-            <div className="mt-auto space-y-6">
+            <div className="mt-auto space-y-6 lg:min-h-[387px]">
               <Suspense fallback={<div>Loading...</div>}>
                 <VideoWrapper
                   src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-3.mp4`}
