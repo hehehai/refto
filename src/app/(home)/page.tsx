@@ -4,6 +4,7 @@ import { HomeMasonrySkeleton } from "../_components/home-masonry-skeleton";
 import { SiteEmailSubscription } from "../_components/site-email-subscription";
 import { SiteShowcaseSheet } from "../_components/site-showcase-sheet";
 import { env } from "@/env";
+import { VideoWrapper } from "@/components/shared/video-wraper";
 
 export default async function Home({
   searchParams,
@@ -44,24 +45,22 @@ export default async function Home({
           </div>
           <div className="col-span-1 flex flex-col">
             <div className="mt-auto">
-              <video
-                src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-1.mp4`}
-                autoPlay
-                muted
-                loop
-                className="block w-full rounded-lg border border-zinc-50"
-              />
+              <Suspense fallback={<div>Loading...</div>}>
+                <VideoWrapper
+                  src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-1.mp4`}
+                  className="rounded-lg border border-zinc-50"
+                />
+              </Suspense>
             </div>
           </div>
           <div className="col-span-1 flex flex-col md:hidden lg:block">
             <div className="mt-auto space-y-6">
-              <video
-                src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-3.mp4`}
-                autoPlay
-                muted
-                loop
-                className="block w-full rounded-lg border border-zinc-50"
-              />
+              <Suspense fallback={<div>Loading...</div>}>
+                <VideoWrapper
+                  src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-3.mp4`}
+                  className="rounded-lg border border-zinc-50"
+                />
+              </Suspense>
             </div>
           </div>
         </section>
