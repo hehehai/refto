@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 
 import { Outfit } from "next/font/google";
 import { Providers } from "@/app/_components/providers";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/config/site";
@@ -38,6 +39,7 @@ export default function RootLayout({
       >
         <Providers>{children}</Providers>
       </body>
+      <GoogleAnalytics gaId="G-SHWYRC6QM5" />
     </html>
   );
 }
