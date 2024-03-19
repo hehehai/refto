@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { SiteShowcase } from "./site-showcase";
 import { useAtom } from "jotai";
 import { refSiteSheetAtom } from "../_store/sheet.store";
+import { useEffect, useRef } from "react";
+import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 
 interface HomeMasonryProps {
   search: string;
@@ -14,11 +16,16 @@ interface HomeMasonryProps {
 
 export const HomeMasonry = ({ search, tags }: HomeMasonryProps) => {
   const [_, setStatus] = useAtom(refSiteSheetAtom);
+  const bottomTriggerRef = useRef(null);
+  const inView = useIntersectionObserver(bottomTriggerRef, {
+    rootMargin: "0px 0px 50% 0px",
+    threshold: 0,
+  });
 
   const [pages, allSitesQuery] =
     api.refSites.queryWithCursor.useSuspenseInfiniteQuery(
       {
-        limit: 20,
+        limit: 16,
         search,
         tags,
       },
@@ -33,6 +40,12 @@ export const HomeMasonry = ({ search, tags }: HomeMasonryProps) => {
 
   const { isFetching, isFetchingNextPage, fetchNextPage, hasNextPage } =
     allSitesQuery;
+
+  useEffect(() => {
+    if (inView) {
+      void fetchNextPage();
+    }
+  }, [inView, fetchNextPage]);
 
   return (
     <div className="pb-8">
@@ -62,6 +75,7 @@ export const HomeMasonry = ({ search, tags }: HomeMasonryProps) => {
 
           <div className="mt-8 flex w-full justify-center">
             <Button
+              ref={bottomTriggerRef}
               variant={"secondary"}
               onClick={() => fetchNextPage()}
               disabled={!hasNextPage || isFetchingNextPage}

@@ -32,7 +32,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
                   className="w-full"
                   legacyBehavior
                 >
-                  <SiteShowcase item={item} fixedHeight={400} />
+                  <SiteShowcase item={item} fixedHeight={280} />
                 </Link>
               ))}
             </div>
