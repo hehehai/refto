@@ -4,7 +4,9 @@ import { HomeMasonrySkeleton } from "../_components/home-masonry-skeleton";
 import { SiteEmailSubscription } from "../_components/site-email-subscription";
 import { SiteShowcaseSheet } from "../_components/site-showcase-sheet";
 import { env } from "@/env";
-import { VideoWrapper } from "@/components/shared/video-wraper";
+import { VideoWrapper } from "@/components/shared/video-wrapper";
+import { queryWithCursor } from "@/server/functions/ref-sites";
+import { queryWithCursorRefSiteSchema } from "@/lib/validations/ref-site";
 
 export default async function Home({
   searchParams,
@@ -13,6 +15,14 @@ export default async function Home({
 }) {
   const search = searchParams.s || "";
   const tags = searchParams.tags?.split(",").filter(Boolean) || [];
+
+  const initParams = queryWithCursorRefSiteSchema.parse({
+    search,
+    tags,
+    limit: 16,
+  });
+
+  const siteQuery = await queryWithCursor(initParams);
 
   return (
     <div className="w-full">
@@ -66,7 +76,12 @@ export default async function Home({
         </section>
         <section className="mt-16 md:mt-24">
           <Suspense fallback={<HomeMasonrySkeleton />}>
-            <HomeMasonry search={search} tags={tags} />
+            <HomeMasonry
+              search={search}
+              tags={tags}
+              firstSlice={siteQuery.rows}
+              initNextCursor={siteQuery.nextCursor}
+            />
           </Suspense>
         </section>
       </div>

@@ -6,15 +6,22 @@ import { Button } from "@/components/ui/button";
 import { SiteShowcase } from "./site-showcase";
 import { useAtom } from "jotai";
 import { refSiteSheetAtom } from "../_store/sheet.store";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 
 interface HomeMasonryProps {
   search: string;
   tags: string[];
+  firstSlice?: any[];
+  initNextCursor?: string;
 }
 
-export const HomeMasonry = ({ search, tags }: HomeMasonryProps) => {
+export const HomeMasonry = ({
+  search,
+  tags,
+  firstSlice,
+  initNextCursor,
+}: HomeMasonryProps) => {
   const [_, setStatus] = useAtom(refSiteSheetAtom);
   const bottomTriggerRef = useRef(null);
   const inView = useIntersectionObserver(bottomTriggerRef, {
@@ -22,24 +29,28 @@ export const HomeMasonry = ({ search, tags }: HomeMasonryProps) => {
     threshold: 0,
   });
 
-  const [pages, allSitesQuery] =
+  const [sliceQuery, allSitesQuery] =
     api.refSites.queryWithCursor.useSuspenseInfiniteQuery(
       {
-        limit: 16,
+        limit: 14,
         search,
         tags,
       },
       {
         retry: 2,
         refetchOnWindowFocus: false,
+        initialCursor: initNextCursor,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
     );
 
-  const allData = pages.pages.map((page) => page.rows).flat();
+  const allData = useMemo(() => {
+    return (
+      firstSlice?.concat(sliceQuery.pages.map((page) => page.rows).flat()) || []
+    );
+  }, [sliceQuery.pages, firstSlice]);
 
-  const { isFetching, isFetchingNextPage, fetchNextPage, hasNextPage } =
-    allSitesQuery;
+  const { isFetchingNextPage, fetchNextPage, hasNextPage } = allSitesQuery;
 
   useEffect(() => {
     if (inView) {
@@ -49,7 +60,7 @@ export const HomeMasonry = ({ search, tags }: HomeMasonryProps) => {
 
   return (
     <div className="pb-8">
-      {!isFetching && allData.length === 0 ? (
+      {allData.length === 0 ? (
         <div className="flex min-h-96 w-full items-center justify-center">
           <div>No sites found.</div>
         </div>

@@ -5,97 +5,26 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { formatOrders, genOrderValidSchema } from "@/lib/utils";
-import { type Prisma, type RefSite } from "@prisma/client";
 import { db } from "@/lib/db";
-import { pagination } from "@/lib/pagination";
-import { refSiteSchema, updateRefSiteSchema } from "@/lib/validations/ref-site";
-import { correlation, detail } from "@/server/functions/ref-sites";
+import {
+  queryRefSiteSchema,
+  queryWithCursorRefSiteSchema,
+  refSiteSchema,
+  updateRefSiteSchema,
+} from "@/lib/validations/ref-site";
+import {
+  correlation,
+  detail,
+  query,
+  queryWithCursor,
+} from "@/server/functions/ref-sites";
 
 export const refSitesRouter = createTRPCRouter({
   // 列表
   queryWithCursor: publicProcedure
-    .input(
-      z.object({
-        search: z.coerce.string().trim().max(1024).optional(),
-        limit: z.number().min(1).max(50).optional().default(10),
-        cursor: z.string().nullish(),
-        orderBy: genOrderValidSchema<RefSite>(["createdAt", "likes", "visits"])
-          .optional()
-          .transform((v) => (v?.length ? v : ["-createdAt"]))
-          .transform(formatOrders),
-        tags: z.array(z.string()).max(20).optional().default([]),
-        hasTop: z.boolean().optional().default(false),
-      }),
-    )
+    .input(queryWithCursorRefSiteSchema)
     .query(async ({ input }) => {
-      const { search, limit, cursor, orderBy, tags, hasTop } = input;
-
-      const whereInput: Prisma.RefSiteWhereInput = {
-        deletedAt: null,
-        isTop: hasTop ? true : false,
-      };
-
-      if (search) {
-        whereInput.OR = [
-          {
-            siteName: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-          {
-            siteTitle: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-          {
-            siteUrl: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-        ];
-      }
-
-      if (tags.length) {
-        whereInput.siteTags = {
-          hasSome: tags,
-        };
-      }
-
-      const rows = await db.refSite.findMany({
-        where: whereInput,
-        select: {
-          id: true,
-          siteUrl: true,
-          siteName: true,
-          siteFavicon: true,
-          siteCover: true,
-          siteCoverHeight: true,
-          siteCoverWidth: true,
-          likes: true,
-          visits: true,
-        },
-        cursor: cursor ? { id: cursor } : undefined,
-        take: limit + 1,
-        orderBy: orderBy?.reduce(
-          (acc, item) => ({ ...acc, [item.key]: item.dir }),
-          {},
-        ),
-      });
-
-      let nextCursor: typeof cursor | undefined = undefined;
-      if (rows && rows.length > limit) {
-        const nextItem = rows.pop();
-        nextCursor = nextItem?.id;
-      }
-
-      return {
-        rows,
-        nextCursor,
-      };
+      return queryWithCursor(input);
     }),
 
   // 列表
@@ -103,83 +32,9 @@ export const refSitesRouter = createTRPCRouter({
     .meta({
       requiredRoles: ["ADMIN"],
     })
-    .input(
-      z.object({
-        search: z.coerce.string().trim().max(1024).optional(),
-        limit: z.number().min(1).max(50).optional().default(10),
-        page: z.number().min(0).optional().default(0),
-        orderBy: genOrderValidSchema<RefSite>(["createdAt", "likes", "visits"])
-          .optional()
-          .default(["-createdAt"])
-          .transform(formatOrders),
-        tags: z.array(z.string()).max(20).optional().default([]),
-      }),
-    )
+    .input(queryRefSiteSchema)
     .query(async ({ input }) => {
-      const { search, limit, page, orderBy, tags } = input;
-
-      const whereInput: Prisma.RefSiteWhereInput = {
-        deletedAt: null,
-      };
-
-      if (search) {
-        whereInput.OR = [
-          {
-            siteName: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-          {
-            siteTitle: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-          {
-            siteUrl: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-        ];
-      }
-
-      if (tags.length) {
-        whereInput.siteTags = {
-          hasSome: tags,
-        };
-      }
-
-      const rows = await db.refSite.findMany({
-        where: whereInput,
-        select: {
-          id: true,
-          siteUrl: true,
-          siteName: true,
-          siteTitle: true,
-          siteFavicon: true,
-          createdAt: true,
-          likes: true,
-          visits: true,
-          isTop: true,
-        },
-        skip: page * limit,
-        take: limit,
-        orderBy: orderBy?.reduce(
-          (acc, item) => ({ ...acc, [item.key]: item.dir }),
-          {},
-        ),
-      });
-
-      const total = await db.refSite.count({
-        where: whereInput,
-      });
-
-      return {
-        rows,
-        ...pagination(page, limit, total),
-      };
+      return query(input);
     }),
 
   // 创建
