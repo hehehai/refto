@@ -22,7 +22,6 @@ import { siteTagMap } from "@/lib/constants";
 import { Checkbox } from "@/components/ui/checkbox";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
-import { SheetClose } from "@/components/ui/sheet";
 
 const tagOptions = Object.entries(siteTagMap).map(([value, item]) => ({
   label: item.en,

@@ -9,8 +9,6 @@ import { Prisma, type RefSite } from "@prisma/client";
 export async function queryWithCursor(input: QueryWithCursorRefSite) {
   const { search, limit, cursor, orderBy, tags, hasTop } = input;
 
-  console.log("orderBy", orderBy);
-
   const whereInput: Prisma.RefSiteWhereInput = {
     deletedAt: null,
     isTop: hasTop ? true : false,
@@ -80,8 +78,6 @@ export async function queryWithCursor(input: QueryWithCursorRefSite) {
 
 export async function query(input: QueryRefSite) {
   const { search, limit, page, orderBy, tags } = input;
-
-  console.log('orderBy', orderBy)
 
   const whereInput: Prisma.RefSiteWhereInput = {
     deletedAt: null,
