@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 
 import { Outfit } from "next/font/google";
 import { Providers } from "@/app/_components/providers";
-import { GoogleAnalytics } from '@next/third-parties/google'
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/config/site";
@@ -22,6 +22,21 @@ export const metadata: Metadata = {
   description: site.description,
   keywords: site.keywords,
   icons: site.icons,
+  openGraph: {
+    title: site.name,
+    description: site.description,
+    url: site.url,
+    siteName: site.name,
+    locale: "en-US",
+    type: "website",
+    images: [
+      {
+        url: site.ogImage,
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
