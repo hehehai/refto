@@ -5,6 +5,6 @@ export const site = {
   keywords: ["refto", "refto.one", "Design", "Website"],
   author: "refto.one",
   authorUrl: "https://refto.one",
-  ogImage: "https://refto.one/og.jpg",
+  ogImage: "https://refto.one/images/og.jpg",
   icons: [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }]
 };
