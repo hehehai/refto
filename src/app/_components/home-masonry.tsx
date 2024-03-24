@@ -25,7 +25,7 @@ export const HomeMasonry = ({
   const [_, setStatus] = useAtom(refSiteSheetAtom);
   const bottomTriggerRef = useRef(null);
   const inView = useIntersectionObserver(bottomTriggerRef, {
-    rootMargin: "0px 0px 50% 0px",
+    rootMargin: "0px 0px 90% 0px",
     threshold: 0,
   });
 
