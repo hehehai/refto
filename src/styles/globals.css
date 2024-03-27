@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    --font-mi: MISans;
     --background: 0 0% 100%;
     --foreground: 0 0% 9%;
     --card: 0 0% 100%;
@@ -70,7 +71,7 @@
   }
 
   .section-mark-title::before {
-    @apply absolute -left-20 top-1/2 z-0 -translate-y-1/2 text-zinc-400 hidden md:block;
+    @apply absolute -left-20 top-1/2 z-0 hidden -translate-y-1/2 text-zinc-400 md:block;
     content: "///";
     font-size: 1em;
   }

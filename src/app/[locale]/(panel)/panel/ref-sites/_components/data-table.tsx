@@ -15,7 +15,7 @@ import {
   refSiteDetailSheetAtom,
   refSiteDialogAtom,
   refSiteDialogEmitter,
-} from "@/app/(panel)/_store/dialog.store";
+} from "@/app/[locale]/(panel)/_store/dialog.store";
 
 import {
   Table,

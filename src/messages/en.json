@@ -1,0 +1,24 @@
+{
+  "Meta": {
+    "name": "Refto",
+    "title": "Unleash limitless inspiration Embrace pure simplicity",
+    "description": "An exceptional platform to explore website design and interactive inspiration.",
+    "keywords": "website design, interactive inspiration, explore, platform, exceptional"
+  },
+  "Site": {
+    "loading": "Loading",
+    "error": "Error"
+  },
+  "Index": {
+    "slogan": {
+      "s1": "Unleash limitless inspiration",
+      "s2": "Embrace pure simplicity"
+    },
+    "features": {
+      "f1": "Stay on top of popular design trends",
+      "f2": "Daily updates with an endless supply",
+      "f3": "Receive the best websites of the week via email",
+      "f4": "Follow other media"
+    }
+  }
+}

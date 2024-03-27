@@ -1,46 +1,49 @@
-import { getToken } from "next-auth/jwt";
-import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+// import { getToken } from "next-auth/jwt";
+import { type NextRequestWithAuth, withAuth } from "next-auth/middleware";
+import { type NextFetchEvent, type NextRequest } from "next/server";
+import createIntlMiddleware from "next-intl/middleware";
 
-export default withAuth(
-  async function middleware(req) {
-    const token = await getToken({ req });
-    const isAuth = !!token;
-    const isAuthPage =
-      req.nextUrl.pathname.startsWith("/login") ||
-      req.nextUrl.pathname.startsWith("/register");
+import { i18n } from "./i18n";
 
-    if (isAuthPage) {
-      if (isAuth) {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
+// const publicPages = ["/", "/*", "/login", "/register"];
+const protectionPages = ["/panel"];
 
-      return null;
-    }
+const intlMiddleware = createIntlMiddleware({
+  locales: i18n.locales,
+  defaultLocale: i18n.defaultLocale,
+  localePrefix: "as-needed",
+});
 
-    if (!isAuth) {
-      let from = req.nextUrl.pathname;
-      if (req.nextUrl.search) {
-        from += req.nextUrl.search;
-      }
-
-      return NextResponse.redirect(
-        new URL(`/login?from=${encodeURIComponent(from)}`, req.url),
-      );
-    }
+const authMiddleware = withAuth(
+  async function onSuccess(req) {
+    return intlMiddleware(req);
   },
   {
     callbacks: {
-      async authorized() {
-        // This is a work-around for handling redirect on auth pages.
-        // We return true here so that the middleware function above
-        // is always called.
-        return true;
+      authorized: ({ token }) => {
+        return !!token;
       },
     },
   },
 );
 
+export default function middleware(req: NextRequest, event: NextFetchEvent) {
+  const protectionPathnameRegex = RegExp(
+    `^(/(${i18n.locales.join("|")}))?(${protectionPages
+      .flatMap((p) => (p === "/" ? ["", "/"] : p))
+      .join("|")})/?$`,
+    "i",
+  );
+
+  const isProtectionPage = protectionPathnameRegex.test(req.nextUrl.pathname);
+
+  if (!isProtectionPage) {
+    return intlMiddleware(req);
+  } else {
+    return authMiddleware(req as NextRequestWithAuth, event);
+  }
+}
+
 export const config = {
-  matcher: ["/panel/:path*", "/login", "/register"],
+  matcher: ["/((?!api|_next|.*\\..*).*)"],
 };

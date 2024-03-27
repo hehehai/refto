@@ -4,6 +4,8 @@ import { SendIcon, AboutIcon } from "@/components/shared/icons";
 import { SiteFilterCommand } from "./site-filter-dialog";
 import { site } from "@/lib/config/site";
 import { SubmitDialog } from "./submit-dialog";
+import { cn } from "@/lib/utils";
+import { outfit } from "@/lib/font";
 
 export const SiteHeader = ({ filter = true }: { filter?: boolean }) => {
   return (
@@ -12,7 +14,10 @@ export const SiteHeader = ({ filter = true }: { filter?: boolean }) => {
         <div>
           <Link
             href={"/"}
-            className="text-[32px] font-medium text-foreground md:text-[40px]"
+            className={cn(
+              "text-[32px] font-medium text-foreground md:text-[40px]",
+              outfit.className,
+            )}
           >
             {site.name}
           </Link>

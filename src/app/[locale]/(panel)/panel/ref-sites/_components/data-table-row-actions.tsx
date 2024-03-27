@@ -15,7 +15,7 @@ import {
 import { api } from "@/lib/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
 import { Spinner } from "@/components/shared/icons";
-import { refSiteDialogAtom } from "@/app/(panel)/_store/dialog.store";
+import { refSiteDialogAtom } from "@/app/[locale]/(panel)/_store/dialog.store";
 
 interface DataTableRowActionsProps {
   row: Row<RefSite>;
