@@ -7,15 +7,14 @@ import { env } from "@/env";
 
 // 订阅
 export async function subscribe(email: string) {
-  const { validFormat, validSmtp, validMx } = await verifyEmail({
+  const { validFormat, validMx } = await verifyEmail({
     emailAddress: email,
-    verifySmtp: true,
     verifyMx: true,
-    timeout: 5000,
+    timeout: 10000,
     debug: env.NODE_ENV !== "production",
   });
 
-  if (!validFormat || !validSmtp || !validMx) {
+  if (!validFormat || !validMx) {
     throw new Error("Invalid email address");
   }
 

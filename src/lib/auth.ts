@@ -37,14 +37,13 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (!user) {
-            const { validFormat, validSmtp, validMx } = await verifyEmail({
+            const { validFormat, validMx } = await verifyEmail({
               emailAddress: identifier,
-              verifySmtp: true,
               verifyMx: true,
-              timeout: 5000,
+              timeout: 10000,
             });
 
-            if (!validFormat || !validSmtp || !validMx) {
+            if (!validFormat || !validMx) {
               throw new Error("Invalid email address");
             }
           }
