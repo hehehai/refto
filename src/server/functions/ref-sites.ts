@@ -72,7 +72,7 @@ export async function queryWithCursor(input: QueryWithCursorRefSite) {
 
   return {
     rows,
-    nextCursor,
+    nextCursor: nextCursor ?? undefined,
   };
 }
 
