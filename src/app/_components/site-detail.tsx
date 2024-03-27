@@ -1,5 +1,5 @@
 import { BlurImage } from "@/components/shared/blur-image";
-import { LikeIcon, VisitIcon } from "@/components/shared/icons";
+import { VisitIcon } from "@/components/shared/icons";
 import { Badge } from "@/components/ui/badge";
 import { siteTagMap } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ interface SiteDetailProps extends React.ComponentPropsWithoutRef<"div"> {
 export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
   const tagsNode = useMemo(() => {
     return (
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center gap-2">
         {item.siteTags.map((tag) => (
           <div
             key={tag}
@@ -46,7 +46,7 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
         </VisitLink>
       </div>
     );
-  }, [item.id, item.likes, item.siteUrl, item.visits]);
+  }, [item.id, item.siteUrl, item.visits]);
 
   return (
     <div {...props} className={cn("pb-14 md:pb-20", props.className)}>
@@ -54,7 +54,7 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
         {item.siteTitle}
       </div>
       <div className="sticky inset-x-0 top-0 z-40 w-full bg-white py-5">
-        <div className="container justify-between md:flex space-y-5 md:space-y-0">
+        <div className="container justify-between space-y-5 md:flex md:space-y-0">
           <div className="flex flex-grow space-x-2">
             {item.siteFavicon && (
               <div className="overflow-hidden rounded-sm">
@@ -98,9 +98,9 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
         </div>
       </div>
       <div className="container">
-        <div className="mt-6 md:mt-20 space-y-8">
+        <div className="mt-6 space-y-8 md:mt-20">
           <div className="relative">
-            <div className="absolute left-0 top-0 md:top-[3px] text-2xl md:text-4xl font-medium">
+            <div className="absolute left-0 top-0 text-2xl font-medium md:top-[3px] md:text-4xl">
               {"//"}
             </div>
             <div className="relative z-10 ml-7 md:ml-12 md:text-lg">

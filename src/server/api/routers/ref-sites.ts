@@ -58,7 +58,7 @@ export const refSitesRouter = createTRPCRouter({
       requiredRoles: ["ADMIN"],
     })
     .input(updateRefSiteSchema)
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       return await db.refSite.update({
         where: {
           id: input.id,
@@ -104,7 +104,7 @@ export const refSitesRouter = createTRPCRouter({
         ids: z.array(z.string()).min(1).max(50),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       return await db.refSite.updateMany({
         where: {
           id: {
@@ -129,7 +129,7 @@ export const refSitesRouter = createTRPCRouter({
         nextIsTop: z.boolean(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       return await db.refSite.update({
         where: {
           id: input.id,

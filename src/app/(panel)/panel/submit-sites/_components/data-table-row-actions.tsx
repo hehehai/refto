@@ -2,7 +2,7 @@
 
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { type Row } from "@tanstack/react-table";
-import { type SubmitSite, type Subscriber } from "@prisma/client";
+import { type SubmitSite } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,8 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { api } from "@/lib/trpc/react";
-import { useToast } from "@/components/ui/use-toast";
 import { Spinner } from "@/components/shared/icons";
 
 interface DataTableRowActionsProps {
@@ -19,13 +17,7 @@ interface DataTableRowActionsProps {
   onRefresh?: () => void;
 }
 
-export function DataTableRowActions({
-  row,
-  onRefresh,
-}: DataTableRowActionsProps) {
-  const { original } = row;
-  const { toast } = useToast();
-
+export function DataTableRowActions({}: DataTableRowActionsProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

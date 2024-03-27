@@ -1,9 +1,7 @@
 import { SiteDetail } from "@/app/_components/site-detail";
-import { SiteShowcaseSheet } from "@/app/_components/site-showcase-sheet";
 import { correlation, detail } from "@/server/functions/ref-sites";
 import { Separator } from "@/components/ui/separator";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import Link from "next/link";
 import { SiteShowcase } from "@/app/_components/site-showcase";
 
@@ -23,7 +21,9 @@ export default async function SitePage({ params }: { params: { id: string } }) {
         <Separator className="my-12 md:my-28" />
         {sites?.length && (
           <div>
-            <div className="mb-3 md:mb-6 text-lg md:text-2xl">You might also like</div>
+            <div className="mb-3 text-lg md:mb-6 md:text-2xl">
+              You might also like
+            </div>
             <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:gap-8">
               {sites.map((item) => (
                 <Link

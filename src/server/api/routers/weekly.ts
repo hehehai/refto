@@ -102,7 +102,7 @@ export const weeklyRouter = createTRPCRouter({
         weekEnd: z.date().optional(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       return await db.weekly.update({
         where: {
           id: input.id,
@@ -126,7 +126,7 @@ export const weeklyRouter = createTRPCRouter({
         id: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({}) => {
       // 周内容是否已发送，或正在发送
       // 无法删除
     }),
@@ -141,7 +141,7 @@ export const weeklyRouter = createTRPCRouter({
         id: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       // 获取周内容，是否有效
       // 获取订阅者
       // 发送邮件

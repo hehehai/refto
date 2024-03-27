@@ -36,7 +36,7 @@ export const SiteShowcaseSheet = () => {
           throw new Error("Data not found");
         }
         setDetailData(data);
-      } catch (err: any) {
+      } catch (_err: any) {
         toast({
           title: "Fetch failed.",
           description: "Please try again.",
@@ -71,7 +71,7 @@ export const SiteShowcaseSheet = () => {
     } else {
       window.history.pushState(null, "", `/?${searchParams.toString()}`);
     }
-  }, [status.id]);
+  }, [status.id, handleFetch, searchParams]);
 
   return (
     <Sheet
@@ -112,7 +112,7 @@ export const SiteShowcaseSheet = () => {
             </div>
           </div>
 
-          <SheetClose className="absolute -top-10 text-white md:text-inherit right-6 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary md:top-6">
+          <SheetClose className="absolute -top-10 right-6 z-50 rounded-sm text-white opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary md:top-6 md:text-inherit">
             <X className="h-5 w-5" />
             <span className="sr-only">Close</span>
           </SheetClose>

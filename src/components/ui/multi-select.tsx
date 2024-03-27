@@ -60,7 +60,7 @@ export const MultiSelect = React.forwardRef<HTMLDivElement, MultiSelectProps>(
       (option: string) => {
         onChange(value.filter((s) => s !== option));
       },
-      [value],
+      [value, onChange],
     );
 
     const handleKeyDown = React.useCallback(

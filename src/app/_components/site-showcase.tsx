@@ -1,5 +1,5 @@
 import { BlurImage } from "@/components/shared/blur-image";
-import { LikeIcon, VisitIcon } from "@/components/shared/icons";
+import { VisitIcon } from "@/components/shared/icons";
 import { cn } from "@/lib/utils";
 import { VisitLink } from "./visit-link";
 

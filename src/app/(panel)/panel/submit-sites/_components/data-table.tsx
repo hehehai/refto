@@ -28,11 +28,9 @@ import { Button } from "@/components/ui/button";
 import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
 import { columns, statuses } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
-import { type SubmitSite, type Subscriber } from "@prisma/client";
-import { useToast } from "@/components/ui/use-toast";
+import { type SubmitSite } from "@prisma/client";
 
 export function DataTable() {
-  const { toast } = useToast();
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -172,9 +170,13 @@ export function DataTable() {
         footerActions={
           <>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
-              <Button size={"xs"} variant={"destructive"} onClick={() => {
-                // empty
-              }}>
+              <Button
+                size={"xs"}
+                variant={"destructive"}
+                onClick={() => {
+                  // empty
+                }}
+              >
                 <Spinner className="mr-2" />
                 <span>Switch</span>
               </Button>

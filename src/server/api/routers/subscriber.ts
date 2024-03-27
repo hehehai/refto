@@ -75,7 +75,7 @@ export const subscriberRouter = createTRPCRouter({
   // 订阅
   subscribe: publicProcedure
     .input(z.string().email())
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       return subscribe(input);
     }),
 
@@ -87,7 +87,7 @@ export const subscriberRouter = createTRPCRouter({
         token: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       return unsubscribe(input);
     }),
 
@@ -100,7 +100,7 @@ export const subscriberRouter = createTRPCRouter({
         emails: z.array(z.string().email()).min(1).max(50),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       const { emails } = input;
 
       const subscriber = await db.subscriber.findMany({

@@ -57,7 +57,7 @@ export function SiteFilterCommand() {
 
   // 获取 查询参数， 初始化 search 和 checkbox
 
-  const handleConfirm = () => {
+  const handleConfirm = React.useCallback(() => {
     console.log("search", search);
     console.log("selected", selected);
 
@@ -66,44 +66,47 @@ export function SiteFilterCommand() {
     newSearchParams.set("tags", selected.join(","));
     router.push(`${pathname}?${newSearchParams.toString()}`);
     setOpen(false);
-  };
+  }, [search, selected, searchParams, pathname, router, setOpen]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    switch (e.key) {
-      case "ArrowDown":
-      case "ArrowUp":
-        // 获取所有 cmdk-group-items 属性元素的子元素，筛选元素 data-selected="true" 的元素，设置聚焦
-        const items = document.querySelectorAll<HTMLDivElement>(
-          'div[cmdk-group-items] > [data-selected="true"]',
-        );
-        if (items.length) {
-          const [activeEl] = items;
-          // 如果为上， 设置为当前元素的上一个元素， 如果为下，设置为当前元素的下一个元素
-          // 如果上一个元素，不存在， 则需要让 input 聚焦
-          if (e.key === "ArrowUp") {
-            const prev = activeEl?.previousElementSibling;
-            if (prev) {
-              prev.querySelector("label")?.focus();
-            } else if (inputRef.current) {
-              inputRef.current.focus();
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      switch (e.key) {
+        case "ArrowDown":
+        case "ArrowUp":
+          // 获取所有 cmdk-group-items 属性元素的子元素，筛选元素 data-selected="true" 的元素，设置聚焦
+          const items = document.querySelectorAll<HTMLDivElement>(
+            'div[cmdk-group-items] > [data-selected="true"]',
+          );
+          if (items.length) {
+            const [activeEl] = items;
+            // 如果为上， 设置为当前元素的上一个元素， 如果为下，设置为当前元素的下一个元素
+            // 如果上一个元素，不存在， 则需要让 input 聚焦
+            if (e.key === "ArrowUp") {
+              const prev = activeEl?.previousElementSibling;
+              if (prev) {
+                prev.querySelector("label")?.focus();
+              } else if (inputRef.current) {
+                inputRef.current.focus();
+              }
+            } else if (e.key === "ArrowDown") {
+              activeEl?.nextElementSibling?.querySelector("label")?.focus();
             }
-          } else if (e.key === "ArrowDown") {
-            activeEl?.nextElementSibling?.querySelector("label")?.focus();
           }
-        }
-        break;
-      case "Enter":
-        if (!inputLock) {
-          handleConfirm();
-        }
-        break;
-      case "Escape":
-        setSearch(params.s || "");
-        setSelected(params.tags?.split(",") || []);
-        setOpen(false);
-        break;
-    }
-  };
+          break;
+        case "Enter":
+          if (!inputLock) {
+            handleConfirm();
+          }
+          break;
+        case "Escape":
+          setSearch(params.s || "");
+          setSelected(params.tags?.split(",") || []);
+          setOpen(false);
+          break;
+      }
+    },
+    [params, inputLock, setSearch, setSelected, setOpen, handleConfirm],
+  );
 
   const commandProps = React.useMemo(
     () => ({

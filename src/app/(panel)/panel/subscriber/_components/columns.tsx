@@ -8,8 +8,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { format } from "date-fns";
 import { type Subscriber } from "@prisma/client";
-import Image from "next/image";
-import { LikeIcon, VisitIcon } from "@/components/shared/icons";
 
 export const columns = (
   actionSlot: (row: Row<Subscriber>) => React.ReactNode,
@@ -59,7 +57,7 @@ export const columns = (
       <DataTableColumnHeader column={column} title="Email" />
     ),
     enableSorting: false,
-    cell: ({ row, getValue }) => {
+    cell: ({ getValue }) => {
       const email = getValue<string>();
 
       return <div>{email}</div>;

@@ -77,7 +77,7 @@ export const columns = (
       <DataTableColumnHeader column={column} title="Email" />
     ),
     enableSorting: false,
-    cell: ({ row, getValue }) => {
+    cell: ({ getValue }) => {
       const email = getValue<string>();
 
       return <div>{email}</div>;

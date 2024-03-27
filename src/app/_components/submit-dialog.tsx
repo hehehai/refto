@@ -71,7 +71,7 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
     async (values: z.infer<typeof submitSiteCreateSchema>) => {
       submitAction.mutate(values);
     },
-    [],
+    [submitAction],
   );
 
   const handleGetUrlMeta = useCallback(
@@ -109,7 +109,7 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
         setGetUrlLoading(false);
       }
     },
-    [form, toast],
+    [form, toast, utils.siteMeta.meta],
   );
 
   return (

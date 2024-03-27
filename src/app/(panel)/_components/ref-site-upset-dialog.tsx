@@ -95,18 +95,21 @@ export function RefSiteUpsetDialog() {
     } finally {
       setDetailLoading(false);
     }
-  }, [status.id]);
+  }, [status.id, utils.refSites.detail, form, toast]);
 
   useEffect(() => {
     handleInitData();
   }, [status.id, handleInitData]);
 
-  const handleClose = (value: boolean) => {
-    if (!value) {
-      form.reset({ ...emptyData });
-      setStatus({ show: false, isAdd: true, id: null });
-    }
-  };
+  const handleClose = useCallback(
+    (value: boolean) => {
+      if (!value) {
+        form.reset({ ...emptyData });
+        setStatus({ show: false, isAdd: true, id: null });
+      }
+    },
+    [form, setStatus],
+  );
 
   const onSubmit = useCallback(
     async (values: z.infer<typeof refSiteSchema>, thenAdd = false) => {
@@ -142,7 +145,15 @@ export function RefSiteUpsetDialog() {
         setSaveLoading(false);
       }
     },
-    [isEdit, status.id, handleClose, toast, utils.client.refSites.update],
+    [
+      isEdit,
+      status.id,
+      handleClose,
+      toast,
+      form,
+      utils.client.refSites.update,
+      utils.client.refSites.create,
+    ],
   );
 
   const [getUrlLoading, setGetUrlLoading] = useState(false);
@@ -185,7 +196,7 @@ export function RefSiteUpsetDialog() {
         setGetUrlLoading(false);
       }
     },
-    [form, toast],
+    [form, toast, utils.siteMeta.meta],
   );
 
   return (

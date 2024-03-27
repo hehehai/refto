@@ -31,7 +31,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
         await signOut({
           callbackUrl: `${window.location.origin}/`,
         });
-      } catch (err) {
+      } catch (_err) {
         toast({
           title: "Something went wrong.",
           description: "Your sign out request failed. Please try again.",

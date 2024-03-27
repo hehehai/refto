@@ -31,7 +31,7 @@ export function RefSiteDetailSheet() {
           throw new Error("Data not found");
         }
         setDetailData(data);
-      } catch (err: any) {
+      } catch (_err: any) {
         toast({
           title: "Fetch failed.",
           description: "Please try again.",

@@ -1,6 +1,4 @@
 import { type User as DBUser } from "@prisma/client";
-import { User } from "next-auth";
-import { JWT } from "next-auth/jwt";
 
 type UserId = DBUser["id"];
 

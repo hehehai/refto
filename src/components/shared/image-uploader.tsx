@@ -100,7 +100,7 @@ export const ImageUploader = forwardRef<HTMLDivElement, ImageUploaderProps>(
     const previewInfo = useMemo(() => {
       if (fileUrl) {
         const file = new URL(fileUrl).pathname.split("/").pop();
-        const [_, ext] = file?.split(".") ?? [];
+        const ext = (file?.split(".") ?? []).pop();
         if (file) {
           return {
             name: file,
@@ -217,6 +217,7 @@ export const ImageUploader = forwardRef<HTMLDivElement, ImageUploaderProps>(
         setFileUrl,
         uploadAbortController,
         onComputedSize,
+        toast,
       ],
     );
 
@@ -240,7 +241,7 @@ export const ImageUploader = forwardRef<HTMLDivElement, ImageUploaderProps>(
           handleSaveFile(file);
         }
       },
-      [fileSizeLimit, fileTypes, onError, handleSaveFile],
+      [fileSizeLimit, fileTypes, onError, handleSaveFile, autoUpload],
     );
 
     const handleFileChange = useCallback(
@@ -311,6 +312,7 @@ export const ImageUploader = forwardRef<HTMLDivElement, ImageUploaderProps>(
       urlNeedSyncStorage,
       setSyncLoading,
       setSyncProgress,
+      toast
     ]);
 
     const handleExpandView = () => {
