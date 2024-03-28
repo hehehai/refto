@@ -9,6 +9,8 @@ import { queryWithCursor } from "@/server/functions/ref-sites";
 import { queryWithCursorRefSiteSchema } from "@/lib/validations/ref-site";
 import { getTranslations } from "next-intl/server";
 
+export const revalidate = 7200;
+
 export default async function Home({
   searchParams,
 }: {

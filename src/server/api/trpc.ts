@@ -35,7 +35,7 @@ const t = initTRPC
 
 export const createTRPCRouter = t.router;
 
-export const publicProcedure = t.procedure
+export const publicProcedure = t.procedure;
 
 export const protectedProcedure = t.procedure.use(({ ctx, meta, next }) => {
   if (!ctx.session?.user) {

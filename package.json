@@ -58,6 +58,7 @@
     "@trpc/next": "^10.45.1",
     "@trpc/react-query": "^10.45.1",
     "@trpc/server": "^10.45.1",
+    "@upstash/redis": "^1.29.0",
     "axios": "^1.6.7",
     "cheerio": "1.0.0-rc.12",
     "class-variance-authority": "^0.7.0",
@@ -95,6 +96,7 @@
   "devDependencies": {
     "@egoist/tailwindcss-icons": "^1.7.4",
     "@iconify-json/lucide": "^1.1.169",
+    "@tanstack/react-query-devtools": "^5.28.10",
     "@types/eslint": "^8.56.2",
     "@types/node": "^20.11.20",
     "@types/nodemailer": "^6.4.14",

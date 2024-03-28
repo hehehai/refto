@@ -33,6 +33,22 @@ const handler = async (req: NextRequest) => {
             );
           }
         : undefined,
+    responseMeta({ type, errors, paths }) {
+      const allOk = errors.length === 0;
+      const isQuery = type === "query";
+      const allPublic =
+        paths && paths.every((path) => path.includes("refSites"));
+      if (allPublic && allOk && isQuery) {
+        // cache request for 1 day + revalidate once every second
+        const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
+        return {
+          headers: {
+            "cache-control": `s-maxage=1, stale-while-revalidate=${ONE_DAY_IN_SECONDS}`,
+          },
+        };
+      }
+      return {};
+    },
   });
 };
 

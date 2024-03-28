@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SiteShowcase } from "@/app/_components/site-showcase";
 
+export const revalidate = 7200;
+
 export default async function SitePage({ params }: { params: { id: string } }) {
   const site = await detail(params.id);
   if (!site) {
