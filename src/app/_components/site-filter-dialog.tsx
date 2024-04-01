@@ -22,13 +22,20 @@ import { siteTagMap } from "@/lib/constants";
 import { Checkbox } from "@/components/ui/checkbox";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
-
-const tagOptions = Object.entries(siteTagMap).map(([value, item]) => ({
-  label: item.en,
-  value,
-}));
+import { useLocale, useTranslations } from "next-intl";
+import { type SiteLocale } from "@/i18n";
 
 export function SiteFilterCommand() {
+  const t = useTranslations("Index.Search");
+  const local = useLocale();
+
+  const tagOptions = React.useMemo(() => {
+    return Object.entries(siteTagMap).map(([value, item]) => ({
+      label: item[local as SiteLocale],
+      value,
+    }));
+  }, [local]);
+
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -58,9 +65,6 @@ export function SiteFilterCommand() {
   // 获取 查询参数， 初始化 search 和 checkbox
 
   const handleConfirm = React.useCallback(() => {
-    console.log("search", search);
-    console.log("selected", selected);
-
     const newSearchParams = new URLSearchParams(searchParams.toString());
     newSearchParams.set("s", search);
     newSearchParams.set("tags", selected.join(","));
@@ -121,7 +125,7 @@ export function SiteFilterCommand() {
     const search = params.s || "";
     const tags = params.tags?.split(",").filter(Boolean) || [];
     if (!search.trim() && tags.length === 0) {
-      return <div>Filter</div>;
+      return <div>{t("holder")}</div>;
     }
     const showTags = tags.slice(0, 3);
     return (
@@ -143,7 +147,7 @@ export function SiteFilterCommand() {
         onClick={() => setOpen(true)}
       >
         <div className="hidden sm:block">{filterPreview}</div>
-        <div className="sm:hidden">Filter</div>
+        <div className="sm:hidden">{t("holder")}</div>
         <div className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-foreground text-white">
           <FilterIcon className="text-lg" />
         </div>
@@ -155,7 +159,7 @@ export function SiteFilterCommand() {
       >
         <CommandInput
           ref={inputRef}
-          placeholder="Type search for site name / title / url ..."
+          placeholder={t("placeholder")}
           wrapperClassname="px-4"
           className="text-md"
           onCompositionStart={() => {
@@ -173,12 +177,12 @@ export function SiteFilterCommand() {
             onClick={() => setOpen(false)}
           >
             <X className="h-3 w-3" />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("controls.cancel")}</span>
           </button>
         </CommandInput>
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Ref site tags">
+          <CommandEmpty>{t("empty")}</CommandEmpty>
+          <CommandGroup heading={t("tagsLabel")}>
             {tagOptions.map((tag) => (
               <CommandItem key={tag.value} value={tag.value} className="p-0">
                 <label
@@ -214,21 +218,29 @@ export function SiteFilterCommand() {
               <CommandShortcut className="px-0.5 py-0.5">
                 <ArrowDownIcon className="text-md" />
               </CommandShortcut>
-              <span className="text-xs text-zinc-700">Move</span>
+              <span className="text-xs text-zinc-700">
+                {t("controls.move")}
+              </span>
             </span>
           </div>
           <div className="flex items-center space-x-4">
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">Space</CommandShortcut>
-              <span className="text-xs text-zinc-700">Select Tag</span>
+              <span className="text-xs text-zinc-700">
+                {t("controls.select")}
+              </span>
             </span>
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">Enter</CommandShortcut>
-              <span className="text-xs text-zinc-700">Confirm Filter</span>
+              <span className="text-xs text-zinc-700">
+                {t("controls.confirm")}
+              </span>
             </span>
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">ESC</CommandShortcut>
-              <span className="text-xs text-zinc-700">Close</span>
+              <span className="text-xs text-zinc-700">
+                {t("controls.cancel")}
+              </span>
             </span>
           </div>
         </div>
@@ -240,7 +252,7 @@ export function SiteFilterCommand() {
             }
           }}
         >
-          <Button className="w-full">Confirm Filter</Button>
+          <Button className="w-full">{t("controls.confirm")}</Button>
         </div>
       </CommandDialog>
     </>

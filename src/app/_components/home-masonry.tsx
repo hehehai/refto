@@ -8,6 +8,7 @@ import { useAtom } from "jotai";
 import { refSiteSheetAtom } from "../_store/sheet.store";
 import { useEffect, useMemo, useRef } from "react";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
+import { useTranslations } from "next-intl";
 
 interface HomeMasonryProps {
   search: string;
@@ -22,6 +23,8 @@ export const HomeMasonry = ({
   firstSlice,
   initNextCursor,
 }: HomeMasonryProps) => {
+  const t = useTranslations("Index.list");
+
   const [_, setStatus] = useAtom(refSiteSheetAtom);
   const bottomTriggerRef = useRef(null);
   const inView = useIntersectionObserver(bottomTriggerRef, {
@@ -62,7 +65,7 @@ export const HomeMasonry = ({
     <div className="pb-8">
       {allData.length === 0 ? (
         <div className="flex min-h-96 w-full items-center justify-center">
-          <div>No sites found.</div>
+          <div>{t("empty")}</div>
         </div>
       ) : (
         <>
@@ -92,10 +95,10 @@ export const HomeMasonry = ({
               disabled={!hasNextPage || isFetchingNextPage}
             >
               {isFetchingNextPage
-                ? "Loading more..."
+                ? t("loading")
                 : hasNextPage
-                  ? "Load More"
-                  : "Nothing more to load"}
+                  ? t("loadMore")
+                  : t("nothing")}
             </Button>
           </div>
         </>

@@ -10,6 +10,7 @@ import { getTranslations } from "next-intl/server";
 import { NextIntlClientProvider, useMessages } from "next-intl";
 import { outfit } from "@/lib/font";
 import { env } from "@/env";
+import { type SiteLocale } from "@/i18n";
 
 export async function generateMetadata({
   params: { locale },
@@ -25,11 +26,11 @@ export async function generateMetadata({
       template: `%s | ${site.name}`,
     },
     description: t("description"),
-    keywords: site.keywords,
+    keywords: site.keywords[locale as SiteLocale],
     icons: site.icons,
     openGraph: {
       title: site.name,
-      description: site.description,
+      description: site.description[locale as SiteLocale],
       url: site.url,
       siteName: site.name,
       locale: locale,
@@ -74,9 +75,7 @@ export default function RootLayout({
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>
-      {env.NODE_ENV !== "development" && (
-        <GoogleAnalytics gaId="G-SHWYRC6QM5" />
-      )}
+      {env.NODE_ENV !== "development" && <GoogleAnalytics gaId={site.ga} />}
     </html>
   );
 }

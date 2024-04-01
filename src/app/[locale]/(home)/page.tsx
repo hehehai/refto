@@ -23,7 +23,7 @@ export default async function Home({
   const initParams = queryWithCursorRefSiteSchema.parse({
     search,
     tags,
-    limit: 16,
+    limit: 10,
   });
 
   const siteQuery = await queryWithCursor(initParams);

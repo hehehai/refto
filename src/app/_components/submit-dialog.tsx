@@ -26,6 +26,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/lib/trpc/react";
 import { submitSiteCreateSchema } from "@/lib/validations/submit-site";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -38,6 +39,7 @@ const emptyData = {
 };
 
 export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
+  const t = useTranslations("Submit");
   const utils = api.useUtils();
   const { toast } = useToast();
 
@@ -51,8 +53,8 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
   const submitAction = api.submitSite.recommend.useMutation({
     onSuccess: () => {
       toast({
-        title: "🎉 You are Subscribed",
-        description: "Thank you for subscribing",
+        title: t("success.title"),
+        description: t("success.description"),
       });
       form.reset({ ...emptyData });
     },
@@ -117,11 +119,8 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="flex flex-col max-sm:h-[100dvh] max-sm:border-none max-sm:shadow-none sm:grid sm:max-w-[526px]">
         <DialogHeader>
-          <DialogTitle>Submit Ref Site</DialogTitle>
-          <DialogDescription>
-            We may not be able to include every submission, but we will select
-            the most outstanding ones for display
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -134,17 +133,15 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t("email.label")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Please input your email"
+                        placeholder={t("email.placeholder")}
                         {...field}
                         disabled={getUrlLoading}
                       />
                     </FormControl>
-                    <FormDescription>
-                      If the website is adopted, an email will be sent to you.
-                    </FormDescription>
+                    <FormDescription>{t("email.msg")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -154,11 +151,11 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                 name="site"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Site Url</FormLabel>
+                    <FormLabel>{t("siteUrl.label")}</FormLabel>
                     <FormControl>
                       <div className="flex space-x-2">
                         <Input
-                          placeholder="https://vercel.com"
+                          placeholder={t("siteUrl.placeholder")}
                           {...field}
                           disabled={getUrlLoading}
                         />
@@ -167,7 +164,7 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                           disabled={getUrlLoading}
                         >
                           {getUrlLoading && <Spinner className="mr-1" />}
-                          <span>Get Meta</span>
+                          <span>{t("siteUrl.button")}</span>
                         </Button>
                       </div>
                     </FormControl>
@@ -180,9 +177,13 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Site Title (Option)</FormLabel>
+                    <FormLabel>{t("siteTitle.label")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Site Title" {...field} disabled />
+                      <Input
+                        placeholder={t("siteTitle.placeholder")}
+                        {...field}
+                        disabled
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -193,10 +194,10 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Site Description (Option)</FormLabel>
+                    <FormLabel>{t("siteDescription.label")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Site Description"
+                        placeholder={t("siteDescription.placeholder")}
                         {...field}
                         disabled
                       />
@@ -215,7 +216,7 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                 {submitAction.isLoading && (
                   <Spinner className="mr-2 text-xl"></Spinner>
                 )}
-                <span>Submit</span>
+                <span>{t("button.submit")}</span>
               </Button>
             </DialogFooter>
           </form>

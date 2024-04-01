@@ -9,7 +9,33 @@
     "loading": "Loading",
     "error": "Error"
   },
+  "Header": {
+    "submit": "Submit",
+    "menu": "Menu",
+    "about": "About"
+  },
   "Index": {
+    "subscribe": {
+      "slogan": "Get the best websites of the week",
+      "placeholder": "Enter your email address",
+      "success": {
+        "title": "🎉 You are Subscribed",
+        "description": "Thank you for subscribing"
+      },
+      "button": "Subscribe"
+    },
+    "Search": {
+      "holder": "Filter",
+      "placeholder": "Type search for site name / title / url ...",
+      "tagsLabel": "Ref site tags",
+      "empty": "No results found",
+      "controls": {
+        "move": "Move",
+        "select": "Select Tag",
+        "confirm": "Confirm",
+        "cancel": "Cancel"
+      }
+    },
     "slogan": {
       "s1": "Unleash limitless inspiration",
       "s2": "Embrace pure simplicity"
@@ -19,6 +45,50 @@
       "f2": "Daily updates with an endless supply",
       "f3": "Receive the best websites of the week via email",
       "f4": "Follow other media"
+    },
+    "list": {
+      "empty": "No ref sites found",
+      "loading": "Loading more...",
+      "more": "Load more",
+      "nothing": "No more data"
+    }
+  },
+  "Submit": {
+    "title": "Submit Ref Site",
+    "description": "We may not be able to include every submission, but we will select the most outstanding ones for display",
+    "email": {
+      "label": "email",
+      "placeholder": "Please input your email",
+      "msg": "If the website is adopted, an email will be sent to you."
+    },
+    "siteUrl": {
+      "label": "Site Url",
+      "placeholder": "Please input site url",
+      "button": "Get Meta"
+    },
+    "siteTitle": {
+      "label": "Site Title (Option)",
+      "placeholder": "Site title"
+    },
+    "siteDescription": {
+      "label": "Site Description (Option)",
+      "placeholder": "Site description"
+    },
+    "button": {
+      "submit": "Submit"
+    },
+    "success": {
+      "title": "🎉 提交成功",
+      "description": "感谢您的提交"
+    },
+    "error": {
+      "url": "Please input site url",
+      "getMeta": "Failed to get site meta"
+    }
+  },
+  "Detail": {
+    "correlation": {
+      "title": "You might also like"
     }
   }
 }

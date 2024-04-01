@@ -1,10 +1,35 @@
 export const site = {
   url: "https://refto.one",
   name: "Refto",
-  description: "Unleash limitless inspiration Embrace pure simplicity",
-  keywords: ["refto", "refto.one", "Design", "Website"],
+  description: {
+    en: "Unleash limitless inspiration Embrace pure simplicity",
+    "zh-CN": "释放无限的灵感，拥抱纯粹的简洁",
+  },
+  keywords: {
+    en: [
+      "refto",
+      "refto.one",
+      "Design",
+      "Website",
+      "Website Design",
+      "Interaction",
+      "Inspiration",
+      "Design Resources",
+    ],
+    "zh-CN": [
+      "refto",
+      "refto.one",
+      "设计",
+      "网站",
+      "网站设计",
+      "交互",
+      "灵感",
+      "设计资源",
+    ],
+  },
   author: "refto.one",
   authorUrl: "https://refto.one",
   ogImage: "https://refto.one/images/og.jpg",
-  icons: [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }]
+  icons: [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }],
+  ga: "G-SHWYRC6QM5"
 };

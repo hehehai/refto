@@ -6,8 +6,10 @@ import { site } from "@/lib/config/site";
 import { SubmitDialog } from "./submit-dialog";
 import { cn } from "@/lib/utils";
 import { outfit } from "@/lib/font";
+import { getTranslations } from "next-intl/server";
 
-export const SiteHeader = ({ filter = true }: { filter?: boolean }) => {
+export const SiteHeader = async ({ filter = true }: { filter?: boolean }) => {
+  const t = await getTranslations("Header");
   return (
     <div className="w-full">
       <div className="max-auto container flex h-20 items-center justify-between">
@@ -27,7 +29,7 @@ export const SiteHeader = ({ filter = true }: { filter?: boolean }) => {
           <SubmitDialog>
             <Button variant={"secondary"} className="space-x-2 rounded-full">
               <SendIcon className="text-xl"></SendIcon>
-              <span className="hidden md:inline">Submit</span>
+              <span className="hidden md:inline">{t('submit')}</span>
             </Button>
           </SubmitDialog>
           <Button
@@ -37,7 +39,7 @@ export const SiteHeader = ({ filter = true }: { filter?: boolean }) => {
           >
             <Link href="/about">
               <AboutIcon className="text-xl"></AboutIcon>
-              <span className="hidden md:inline">About</span>
+              <span className="hidden md:inline">{t('about')}</span>
             </Link>
           </Button>
         </div>

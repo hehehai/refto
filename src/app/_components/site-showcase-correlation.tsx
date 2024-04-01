@@ -3,6 +3,7 @@
 import { api } from "@/lib/trpc/react";
 import { SiteShowcase } from "./site-showcase";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 const correlationSkeleton = () => {
   return Array.from({ length: 6 }, (_, i) => (
@@ -21,12 +22,13 @@ export const SiteShowcaseCorrelation = ({
   id: string;
   onDetail?: (id: string) => void;
 }) => {
+  const t = useTranslations("Detail.correlation");
   const sitesQuery = api.refSites.correlation.useQuery({ id });
 
   return (
     <div>
       <div className="mb-3 text-lg md:mb-6 md:text-2xl">
-        You might also like
+        {t('title')}
       </div>
       <div className="smg:gap-4 grid w-full grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:gap-8">
         {sitesQuery.isLoading ? (

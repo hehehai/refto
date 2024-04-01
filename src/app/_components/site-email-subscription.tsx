@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/lib/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -24,6 +25,7 @@ export const SiteEmailSubscription = ({
   className,
   ...props
 }: SiteEmailSubscriptionProps) => {
+  const t = useTranslations("Index");
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof subscribeSchema>>({
@@ -36,8 +38,8 @@ export const SiteEmailSubscription = ({
   const submitAction = api.subscriber.subscribe.useMutation({
     onSuccess: () => {
       toast({
-        title: "🎉 You are Subscribed",
-        description: "Thank you for subscribing",
+        title: t("subscribe.success.title"),
+        description: t("subscribe.success.description"),
       });
 
       form.reset();
@@ -68,17 +70,17 @@ export const SiteEmailSubscription = ({
           render={({ field }) => (
             <FormItem>
               <Input
-                placeholder="Email Get Best of the Week"
+                placeholder={t("subscribe.slogan")}
                 {...field}
-                className="w-full sm:w-[300px] md:w-[324px] lg:w-[384px] lg:max-w-sm rounded-full"
+                className="w-full rounded-full sm:w-[300px] md:w-[324px] lg:w-[384px] lg:max-w-sm"
               />
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="rounded-full w-full sm:w-auto">
+        <Button type="submit" className="w-full rounded-full sm:w-auto">
           {submitAction.isLoading && <Spinner className="mr-2" />}
-          <span>Subscription</span>
+          <span>{t("subscribe.button")}</span>
         </Button>
       </form>
     </Form>
