@@ -39,7 +39,7 @@ import { type RefSite } from "@prisma/client";
 import { useToast } from "@/components/ui/use-toast";
 
 const statusOptions = Object.entries(siteTagMap).map(([value, item]) => ({
-  label: `${item.en} / ${item.zh}`,
+  label: `${item.en} / ${item['zh-CN']}`,
   value,
 }));
 
