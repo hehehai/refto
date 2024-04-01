@@ -8,7 +8,7 @@ import { pagination } from "@/lib/pagination";
 
 export const submitSitesRouter = createTRPCRouter({
   recommend: publicProcedure
-    .input(submitSiteCreateSchema)
+    .input(submitSiteCreateSchema('en'))
     .mutation(async ({ input }) => {
       const { email, site, title, description } = input;
 
