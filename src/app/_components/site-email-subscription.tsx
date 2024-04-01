@@ -7,16 +7,18 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/lib/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const subscribeSchema = z.object({
+const subscribeSchema = (locale: string) => z.object({
   email: z
     .string()
-    .min(1, { message: "Email is required" })
-    .email({ message: "Email is invalid" }),
+    .min(1, { message: { en: "Email is required", "zh-CN": "邮箱不能为空"}[locale] })
+    .email({ message: { en: "Email is invalid", "zh-CN": "邮箱格式不正确" }[locale] }),
 });
+
+export type SubscribeSchema = z.infer<ReturnType<typeof subscribeSchema>>;
 
 interface SiteEmailSubscriptionProps
   extends React.HTMLAttributes<HTMLFormElement> {}
@@ -26,10 +28,11 @@ export const SiteEmailSubscription = ({
   ...props
 }: SiteEmailSubscriptionProps) => {
   const t = useTranslations("Index");
+  const locale = useLocale()
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof subscribeSchema>>({
-    resolver: zodResolver(subscribeSchema),
+  const form = useForm<SubscribeSchema>({
+    resolver: zodResolver(subscribeSchema(locale)),
     defaultValues: {
       email: "",
     },
@@ -53,7 +56,7 @@ export const SiteEmailSubscription = ({
     },
   });
 
-  const onSubmit = (values: z.infer<typeof subscribeSchema>) => {
+  const onSubmit = (values: SubscribeSchema) => {
     submitAction.mutate(values.email);
   };
 
@@ -68,13 +71,15 @@ export const SiteEmailSubscription = ({
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="relative">
               <Input
                 placeholder={t("subscribe.slogan")}
                 {...field}
                 className="w-full rounded-full sm:w-[300px] md:w-[324px] lg:w-[384px] lg:max-w-sm"
               />
-              <FormMessage />
+              <div className="md:absolute top-[100%] left-0 pl-3">
+                <FormMessage />
+              </div>
             </FormItem>
           )}
         />

@@ -39,12 +39,12 @@ export default async function Home({
                 <br />
                 {t("Index.slogan.s2")}
               </h2>
-              <ul className="mt-6 space-y-1">
-                <li>{t("Index.features.f1")}</li>
-                <li>{t("Index.features.f2")}</li>
-                <li>{t("Index.features.f3")}</li>
+              <ul className="mt-10 space-y-1.5">
+                <li>✦ {t("Index.features.f1")}</li>
+                <li>✦ {t("Index.features.f2")}</li>
+                <li>✦ {t("Index.features.f3")}</li>
                 <li>
-                  {t("Index.features.f4")}{" "}
+                  ✦ {t("Index.features.f4")}{" "}
                   <a
                     href="https://twitter.com/riverhohai"
                     target="_blank"

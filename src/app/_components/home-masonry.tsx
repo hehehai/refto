@@ -97,7 +97,7 @@ export const HomeMasonry = ({
               {isFetchingNextPage
                 ? t("loading")
                 : hasNextPage
-                  ? t("loadMore")
+                  ? t("more")
                   : t("nothing")}
             </Button>
           </div>

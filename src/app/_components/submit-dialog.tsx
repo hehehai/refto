@@ -24,9 +24,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/lib/trpc/react";
-import { submitSiteCreateSchema } from "@/lib/validations/submit-site";
+import {
+  type SubmitSiteCreate,
+  submitSiteCreateSchema,
+} from "@/lib/validations/submit-site";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -40,11 +43,12 @@ const emptyData = {
 
 export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
   const t = useTranslations("Submit");
+  const locale = useLocale();
   const utils = api.useUtils();
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof submitSiteCreateSchema>>({
-    resolver: zodResolver(submitSiteCreateSchema),
+  const form = useForm<SubmitSiteCreate>({
+    resolver: zodResolver(submitSiteCreateSchema(locale)),
     defaultValues: {
       ...emptyData,
     },
@@ -70,7 +74,7 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
   const [getUrlLoading, setGetUrlLoading] = useState(false);
 
   const onSubmit = useCallback(
-    async (values: z.infer<typeof submitSiteCreateSchema>) => {
+    async (values: SubmitSiteCreate) => {
       submitAction.mutate(values);
     },
     [submitAction],
