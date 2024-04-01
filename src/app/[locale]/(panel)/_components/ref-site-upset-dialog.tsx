@@ -319,7 +319,7 @@ export function RefSiteUpsetDialog() {
                         )}
                         renderOption={(key) => (
                           <div>
-                            {siteTagMap[key]?.en} / {siteTagMap[key]?.zh}
+                            {siteTagMap[key]?.en} / {siteTagMap[key]?.["zh-CN"]}
                           </div>
                         )}
                       />
