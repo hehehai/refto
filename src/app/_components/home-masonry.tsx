@@ -48,10 +48,13 @@ export const HomeMasonry = ({
     );
 
   const allData = useMemo(() => {
+    if (!initNextCursor) {
+      return firstSlice || [];
+    }
     return (
       firstSlice?.concat(sliceQuery.pages.map((page) => page.rows).flat()) || []
     );
-  }, [sliceQuery.pages, firstSlice]);
+  }, [sliceQuery.pages, firstSlice, initNextCursor]);
 
   const { isFetchingNextPage, fetchNextPage, hasNextPage } = allSitesQuery;
 

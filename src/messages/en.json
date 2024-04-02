@@ -90,5 +90,29 @@
     "correlation": {
       "title": "You might also like"
     }
+  },
+  "Auth": {
+    "login": {
+      "title": "Login",
+      "description": "Login to your account",
+      "back": "Back",
+      "welcome": "Welcome back",
+      "m1": "Enter your email to sign in to your account",
+      "or": "Or continue with",
+      "m2": "Don't have an account? Sign Up",
+      "button": "Sign in with Email"
+    },
+    "register": {
+      "title": "Create an account",
+      "description": "Create an account to get started",
+      "login": "Login",
+      "welcome": "Create an account",
+      "m1": "Enter your email below to create your account",
+      "or": "Or continue with",
+      "m2": "By clicking continue, you agree to our",
+      "m3": "Terms of Service",
+      "m4": "and",
+      "m5": "Privacy Policy"
+    }
   }
 }

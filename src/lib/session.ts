@@ -10,5 +10,5 @@ export async function getCurrentUser() {
 }
 
 export const getSession = async () => {
-  return getServerSession(authOptions) as Promise<Session>;
+  return getServerSession(authOptions);
 };

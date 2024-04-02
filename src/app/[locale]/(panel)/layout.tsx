@@ -12,7 +12,7 @@ export default async function PanelLayout({
 }) {
   const session = await getSession();
 
-  if (!session.user) {
+  if (!session?.user) {
     return notFound();
   }
 

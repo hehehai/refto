@@ -5,13 +5,15 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { UserAuthForm } from "@/components/shared/user-auth-form";
 import { site } from "@/lib/config/site";
+import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Login",
   description: "Login to your account",
 };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const t = await getTranslations("Auth.login");
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <Link
@@ -23,18 +25,16 @@ export default function LoginPage() {
       >
         <>
           <span className="i-lucide-chevron-left mr-2 h-4 w-4" />
-          Back
+          {t("back")}
         </>
       </Link>
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
           <span className="mx-auto text-5xl font-medium">{site.name}</span>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome back
+            {t("welcome")}
           </h1>
-          <p className="text-center text-sm text-muted-foreground">
-            Enter your email to sign in to your account
-          </p>
+          <p className="text-center text-sm text-muted-foreground">{t("m1")}</p>
         </div>
         <UserAuthForm />
         <p className="px-8 text-center text-sm text-muted-foreground">
@@ -42,7 +42,7 @@ export default function LoginPage() {
             href="/register"
             className="hover:text-brand underline underline-offset-4"
           >
-            Don&apos;t have an account? Sign Up
+            {t("m2")}
           </Link>
         </p>
       </div>

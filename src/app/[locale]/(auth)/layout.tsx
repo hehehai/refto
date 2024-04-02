@@ -8,7 +8,7 @@ interface AuthLayoutProps {
 export default async function AuthLayout({ children }: AuthLayoutProps) {
   const session = await getSession();
 
-  if (session.user) {
+  if (session?.user) {
     return notFound();
   }
 

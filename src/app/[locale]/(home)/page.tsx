@@ -28,6 +28,8 @@ export default async function Home({
 
   const siteQuery = await queryWithCursor(initParams);
 
+  console.log('siteQuery', siteQuery)
+
   return (
     <div className="w-full">
       <div className="container mx-auto">
