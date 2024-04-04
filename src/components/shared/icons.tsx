@@ -85,6 +85,32 @@ export const AboutIcon = (props: SVGProps<SVGSVGElement>) => {
   );
 };
 
+export const MenuIcon = (props: SVGProps<SVGSVGElement>) => {
+  return (
+    <svg
+      viewBox="0 0 22 22"
+      fill="none"
+      width={"1em"}
+      height={"1em"}
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M11 20.85a3.96 3.96 0 0 1-2.82-1.16l-5.86-5.86a3.97 3.97 0 0 1 0-5.64l5.86-5.86a3.97 3.97 0 0 1 5.64 0l5.86 5.86a3.97 3.97 0 0 1 0 5.64l-5.86 5.86A3.96 3.96 0 0 1 11 20.85Zm0-18.33c-.7 0-1.37.28-1.85.76L3.29 9.14a2.62 2.62 0 0 0 0 3.7l5.86 5.86a2.7 2.7 0 0 0 3.7 0l5.86-5.86c.5-.5.76-1.14.76-1.85 0-.7-.28-1.37-.76-1.85l-5.86-5.86A2.6 2.6 0 0 0 11 2.52Z"
+        fill="currentColor"
+      />
+      <path
+        d="M16.27 16.96a.68.68 0 0 1-.48-.2L5.23 6.2a.7.7 0 0 1 0-.97.7.7 0 0 1 .97 0l10.55 10.54a.7.7 0 0 1 0 .98.68.68 0 0 1-.49.2Z"
+        fill="currentColor"
+      />
+      <path
+        d="M5.73 16.96a.68.68 0 0 1-.49-.2.7.7 0 0 1 0-.98L15.78 5.24a.7.7 0 0 1 .98 0 .7.7 0 0 1 0 .97L6.2 16.76a.68.68 0 0 1-.48.2Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
 export const ExpandIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg

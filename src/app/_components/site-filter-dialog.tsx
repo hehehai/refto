@@ -135,7 +135,7 @@ export function SiteFilterCommand() {
         {tags.length > 3 && <span>... ${tags.length - 3}+</span>}
       </div>
     );
-  }, [params]);
+  }, [params, t]);
 
   return (
     <>

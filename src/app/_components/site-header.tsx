@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { SendIcon, AboutIcon } from "@/components/shared/icons";
+import { SendIcon } from "@/components/shared/icons";
 import { SiteFilterCommand } from "./site-filter-dialog";
 import { site } from "@/lib/config/site";
 import { SubmitDialog } from "./submit-dialog";
 import { cn } from "@/lib/utils";
 import { outfit } from "@/lib/font";
 import { getTranslations } from "next-intl/server";
+import { SiteMenu } from "./site-menu";
 
 export const SiteHeader = async ({ filter = true }: { filter?: boolean }) => {
   const t = await getTranslations("Header");
@@ -29,19 +30,10 @@ export const SiteHeader = async ({ filter = true }: { filter?: boolean }) => {
           <SubmitDialog>
             <Button variant={"secondary"} className="space-x-2 rounded-full">
               <SendIcon className="text-xl"></SendIcon>
-              <span className="hidden md:inline">{t('submit')}</span>
+              <span className="hidden md:inline">{t("submit")}</span>
             </Button>
           </SubmitDialog>
-          <Button
-            variant={"secondary"}
-            className="space-x-2 rounded-full"
-            asChild
-          >
-            <Link href="/about">
-              <AboutIcon className="text-xl"></AboutIcon>
-              <span className="hidden md:inline">{t('about')}</span>
-            </Link>
-          </Button>
+          <SiteMenu />
         </div>
       </div>
     </div>

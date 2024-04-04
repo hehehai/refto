@@ -4,7 +4,7 @@ import { getRequestConfig } from "next-intl/server";
 export type SiteLocale = 'en' | 'zh-CN';
 
 // Can be imported from a shared config
-const supportedLanguages = [
+export const supportedLanguages = [
   { id: "en", locale: "en", title: "English", isDefault: true },
   { id: "zh_CN", locale: "zh-CN", title: "简体中文" },
 ];

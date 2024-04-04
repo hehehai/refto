@@ -22,7 +22,7 @@ type WithWrapperHandler = ({
   req: Request;
   params: Record<string, string>;
   searchParams: Record<string, string>;
-  session: Session;
+  session: Session | null;
 }) => Promise<Response>;
 
 export const withAuthWrapper =
