@@ -126,6 +126,7 @@ export const ImageUploader = forwardRef<HTMLDivElement, ImageUploaderProps>(
 
     // 清空
     const handleCleanFile = useCallback(() => {
+      console.log('clean')
       if (disabled) return;
 
       if (uploadLoading || syncLoading) {

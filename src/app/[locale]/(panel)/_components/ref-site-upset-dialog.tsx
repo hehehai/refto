@@ -29,7 +29,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ImageUploader } from "@/components/shared/image-uploader";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +38,7 @@ import { type RefSite } from "@prisma/client";
 import { useAtom } from "jotai";
 import { Separator } from "@/components/ui/separator";
 import { refSiteSchema } from "@/lib/validations/ref-site";
+import { format } from "url";
 
 const emptyData = {
   siteName: "",
@@ -57,6 +58,7 @@ export function RefSiteUpsetDialog() {
   const { toast } = useToast();
 
   const [status, setStatus] = useAtom(refSiteDialogAtom);
+  const statusId = useMemo(() => status.id, [status.id]);
   const [detailData, setDetailData] = useState<Partial<RefSite>>(emptyData);
   const [detailLoading, setDetailLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -70,14 +72,14 @@ export function RefSiteUpsetDialog() {
   });
 
   const handleInitData = useCallback(async () => {
-    if (!status.id) {
+    if (!statusId) {
       setDetailData(emptyData);
       return;
     }
 
     try {
       setDetailLoading(true);
-      const detail = await utils.refSites.detail.fetch({ id: status.id });
+      const detail = await utils.refSites.detail.fetch({ id: statusId });
       if (!detail) {
         throw new Error("Detail not found");
       }
@@ -95,11 +97,11 @@ export function RefSiteUpsetDialog() {
     } finally {
       setDetailLoading(false);
     }
-  }, [status.id, utils.refSites.detail, form, toast]);
+  }, [statusId, setDetailData]);
 
   useEffect(() => {
     handleInitData();
-  }, [status.id, handleInitData]);
+  }, [statusId, handleInitData]);
 
   const handleClose = useCallback(
     (value: boolean) => {
@@ -108,7 +110,7 @@ export function RefSiteUpsetDialog() {
         setStatus({ show: false, isAdd: true, id: null });
       }
     },
-    [form, setStatus],
+    [setStatus],
   );
 
   const onSubmit = useCallback(
@@ -119,7 +121,7 @@ export function RefSiteUpsetDialog() {
         if (isEdit) {
           await utils.client.refSites.update.mutate({
             ...values,
-            id: status.id!,
+            id: statusId!,
           });
         } else {
           await utils.client.refSites.create.mutate(values);
@@ -145,15 +147,7 @@ export function RefSiteUpsetDialog() {
         setSaveLoading(false);
       }
     },
-    [
-      isEdit,
-      status.id,
-      handleClose,
-      toast,
-      form,
-      utils.client.refSites.update,
-      utils.client.refSites.create,
-    ],
+    [isEdit, statusId, handleClose],
   );
 
   const [getUrlLoading, setGetUrlLoading] = useState(false);
@@ -196,7 +190,7 @@ export function RefSiteUpsetDialog() {
         setGetUrlLoading(false);
       }
     },
-    [form, toast, utils.siteMeta.meta],
+    [form],
   );
 
   return (
@@ -399,7 +393,7 @@ export function RefSiteUpsetDialog() {
                           });
                         }}
                         onChange={(fileUrl) => {
-                          console.log("siteCover fileUrl", fileUrl);
+                          console.log("siteCover fileUrl", typeof fileUrl);
                           field.onChange(fileUrl);
                         }}
                         onComputedSize={([width, height]) => {
@@ -451,7 +445,7 @@ export function RefSiteUpsetDialog() {
                 variant={"outline"}
                 disabled={saveLoading}
                 onClick={() => {
-                  if (status.id) {
+                  if (statusId) {
                     form.reset({
                       ...detailData,
                       siteOGImage: detailData.siteOGImage ?? "",
