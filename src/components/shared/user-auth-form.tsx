@@ -49,9 +49,9 @@ export function UserAuthForm({
   const searchParams = useSearchParams();
   const [showOtpForm, setShowOtpForm] = React.useState<boolean>(false);
 
-  const optInputRef = React.useRef<HTMLInputElement>(null);
-  const [optValue, setOptValue] = React.useState<string>("");
-  const [optLoading, setOptLoading] = React.useState<boolean>(false);
+  const otpInputRef = React.useRef<HTMLInputElement>(null);
+  const [otpValue, setOtpValue] = React.useState<string>("");
+  const [otpLoading, setOtpLoading] = React.useState<boolean>(false);
 
   async function onSubmit(data: FormData) {
     setIsLoading(true);
@@ -65,22 +65,22 @@ export function UserAuthForm({
 
     if (signInResult?.error) {
       return toast({
-        title: t('status.error.title'),
-        description: t('status.error.description'),
+        title: t("status.error.title"),
+        description: t("status.error.description"),
         variant: "destructive",
       });
     }
 
-    setOptValue("");
+    setOtpValue("");
     setShowOtpForm(true);
 
     toast({
-      title: t('status.success.title'),
-      description: t('status.success.description'),
+      title: t("status.success.title"),
+      description: t("status.success.description"),
     });
 
     setTimeout(() => {
-      optInputRef.current?.focus();
+      otpInputRef.current?.focus();
     }, 20);
   }
 
@@ -88,32 +88,32 @@ export function UserAuthForm({
     e?.preventDefault?.();
 
     try {
-      setOptLoading(true);
+      setOtpLoading(true);
       const { email } = getValues();
 
       const res = await fetch(
-        `/api/auth/callback/email?email=${encodeURIComponent(email)}&token=${optValue}`,
+        `/api/auth/callback/email?email=${encodeURIComponent(email)}&token=${otpValue}`,
       );
       if (res.status !== 200) {
-        setOptLoading(false);
+        setOtpLoading(false);
         toast({
-          title: t('opt.error.title'),
-          description: t('opt.error.description'),
+          title: t("otp.error.title"),
+          description: t("otp.error.description"),
           variant: "destructive",
         });
         setTimeout(() => {
-          optInputRef.current?.focus();
+          otpInputRef.current?.focus();
         }, 20);
         return;
       }
 
-      setOptLoading(false);
-      toast({ title: t('opt.success.title') });
+      setOtpLoading(false);
+      toast({ title: t("otp.success.title") });
       router.replace(searchParams?.get("from")?.trim() || "/");
     } catch (err) {
       console.log("OTP err", err);
     } finally {
-      setOptLoading(false);
+      setOtpLoading(false);
     }
   };
 
@@ -128,11 +128,11 @@ export function UserAuthForm({
               </Label>
               <InputOTP
                 maxLength={6}
-                disabled={optLoading}
+                disabled={otpLoading}
                 onComplete={handleVerifyOtp}
-                ref={optInputRef}
-                value={optValue}
-                onChange={setOptValue}
+                ref={otpInputRef}
+                value={otpValue}
+                onChange={setOtpValue}
                 pattern={REGEXP_ONLY_DIGITS}
                 className="w-full"
                 render={({ slots }) => (
@@ -154,13 +154,13 @@ export function UserAuthForm({
             </div>
             <button
               className={cn(buttonVariants({ variant: "secondary" }))}
-              disabled={optLoading}
+              disabled={otpLoading}
               onClick={() => {
-                setOptValue("");
+                setOtpValue("");
                 setShowOtpForm(false);
               }}
             >
-              {optLoading ? (
+              {otpLoading ? (
                 <Spinner className="mr-2" />
               ) : (
                 <span className="i-lucide-arrow-left mr-2" />
