@@ -7,10 +7,18 @@ import { Suspense } from "react";
 import { site } from "@/lib/config/site";
 import { getTranslations } from "next-intl/server";
 
-export const metadata = {
-  title: "Create an account",
-  description: "Create an account to get started.",
-};
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  const t = await getTranslations({ locale, namespace: "Auth" });
+
+  return {
+    title: t("register.title"),
+    description: t("register.description"),
+  };
+}
 
 export default async function RegisterPage() {
   const t = await getTranslations("Auth.register");
@@ -36,7 +44,7 @@ export default async function RegisterPage() {
             <p className="text-sm text-muted-foreground">{t("m1")}</p>
           </div>
           <Suspense fallback={null}>
-            <UserAuthForm />
+            <UserAuthForm isLogin={false} />
           </Suspense>
           <p className="px-5 text-center text-sm text-muted-foreground">
             {t("m2")}{" "}

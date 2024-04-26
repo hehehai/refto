@@ -21,12 +21,21 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { useTranslations } from "next-intl";
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
+  isLogin: boolean;
+}
 
 type FormData = z.infer<typeof userAuthSchema>;
 
-export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+export function UserAuthForm({
+  isLogin,
+  className,
+  ...props
+}: UserAuthFormProps) {
+  const t = useTranslations(`Auth`);
+  const tSpace = `${isLogin ? "login" : "register"}`;
   const {
     register,
     handleSubmit,
@@ -56,8 +65,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
     if (signInResult?.error) {
       return toast({
-        title: "Something went wrong.",
-        description: "Your sign in request failed. Please try again.",
+        title: t('status.error.title'),
+        description: t('status.error.description'),
         variant: "destructive",
       });
     }
@@ -66,8 +75,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     setShowOtpForm(true);
 
     toast({
-      title: "Check your email",
-      description: "We sent you a login link. Be sure to check your spam too.",
+      title: t('status.success.title'),
+      description: t('status.success.description'),
     });
 
     setTimeout(() => {
@@ -88,8 +97,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       if (res.status !== 200) {
         setOptLoading(false);
         toast({
-          title: "Validation failed.",
-          description: "Please try again.",
+          title: t('opt.error.title'),
+          description: t('opt.error.description'),
           variant: "destructive",
         });
         setTimeout(() => {
@@ -99,7 +108,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       }
 
       setOptLoading(false);
-      toast({ title: "Verified Success" });
+      toast({ title: t('opt.success.title') });
       router.replace(searchParams?.get("from")?.trim() || "/");
     } catch (err) {
       console.log("OTP err", err);
@@ -115,7 +124,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <div className="grid gap-3">
             <div className="grid gap-1">
               <Label className="sr-only" htmlFor="otp">
-                Email OTP token
+                {t("otp.title")}
               </Label>
               <InputOTP
                 maxLength={6}
@@ -156,7 +165,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               ) : (
                 <span className="i-lucide-arrow-left mr-2" />
               )}
-              <span>Did not receive the message, resend</span>
+              <span>{t("otp.try")}</span>
             </button>
           </div>
         </form>
@@ -165,11 +174,11 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           <div className="grid gap-3">
             <div className="grid gap-1">
               <Label className="sr-only" htmlFor="email">
-                Email
+                {t(`${tSpace}.label`)}
               </Label>
               <Input
                 id="email"
-                placeholder="name@example.com"
+                placeholder={t(`${tSpace}.m1`)}
                 type="email"
                 autoCapitalize="none"
                 autoComplete="email"
@@ -185,7 +194,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             </div>
             <button className={cn(buttonVariants())} disabled={isLoading}>
               {isLoading && <Spinner className="mr-2" />}
-              Sign In with Email
+              {t(`${tSpace}.button`)}
             </button>
           </div>
         </form>
@@ -196,7 +205,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
+            {t(`${tSpace}.or`)}
           </span>
         </div>
       </div>

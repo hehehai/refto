@@ -4,10 +4,12 @@ import { Separator } from "@/components/ui/separator";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SiteShowcase } from "@/app/_components/site-showcase";
+import { getTranslations } from "next-intl/server";
 
 export const revalidate = 7200;
 
-export default async function SitePage({ params }: { params: { id: string } }) {
+export default async function SitePage({ params }: { params: { id: string, locale: string } }) {
+  const t = await getTranslations({ locale: params.locale, namespace: "Detail" });
   const site = await detail(params.id);
   if (!site) {
     notFound();
@@ -24,7 +26,7 @@ export default async function SitePage({ params }: { params: { id: string } }) {
         {sites?.length && (
           <div>
             <div className="mb-3 text-lg md:mb-6 md:text-2xl">
-              You might also like
+              {t('correlation.title')}
             </div>
             <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:gap-8">
               {sites.map((item) => (

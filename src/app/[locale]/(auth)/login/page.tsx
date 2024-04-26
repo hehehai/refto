@@ -1,4 +1,3 @@
-import { type Metadata } from "next";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
@@ -7,9 +6,17 @@ import { UserAuthForm } from "@/components/shared/user-auth-form";
 import { site } from "@/lib/config/site";
 import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Login",
-  description: "Login to your account",
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  const t = await getTranslations({ locale, namespace: "Auth" });
+
+  return {
+    title: t('login.title'),
+    description: t('login.description'),
+  }
 };
 
 export default async function LoginPage() {
@@ -36,7 +43,7 @@ export default async function LoginPage() {
           </h1>
           <p className="text-center text-sm text-muted-foreground">{t("m1")}</p>
         </div>
-        <UserAuthForm />
+        <UserAuthForm isLogin/>
         <p className="px-8 text-center text-sm text-muted-foreground">
           <Link
             href="/register"
