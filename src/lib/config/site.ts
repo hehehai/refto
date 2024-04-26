@@ -1,6 +1,6 @@
 export const site = {
   url: "https://refto.one",
-  name: "Refto",
+  name: "refto",
   description: {
     en: "Unleash limitless inspiration Embrace pure simplicity",
     "zh-CN": "释放无限的灵感，拥抱纯粹的简洁",

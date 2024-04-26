@@ -76,17 +76,6 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
               >
                 {item.siteName}
               </VisitLink>
-              {item.siteUrl && (
-                <VisitLink
-                  id={item.id}
-                  href={item.siteUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hidden md:block"
-                >
-                  <VisitIcon className="text-2xl" />
-                </VisitLink>
-              )}
               {item.isTop && <Badge className="ml-auto px-3 py-0.5">TOP</Badge>}
               <div className="hidden md:block">{tagsNode}</div>
               <div className="md:hidden">{metaNode}</div>

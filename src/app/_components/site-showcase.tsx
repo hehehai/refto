@@ -65,15 +65,6 @@ export const SiteShowcase = ({
               />
             </div>
           )}
-          <VisitLink
-            id={item.id}
-            href={item.siteUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="max-w-[60%] truncate text-[15px] text-foreground hover:underline"
-          >
-            {item.siteName}
-          </VisitLink>
         </div>
         <div className="flex items-center space-x-3 px-0.5 py-1">
           {/* <div className="flex items-center space-x-1 opacity-80 transition-opacity hover:opacity-100">
