@@ -8,27 +8,33 @@ import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/lib/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
+import { trackEvent } from "@openpanel/nextjs";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { type HTMLAttributes } from "react";
 
-const subscribeSchema = (locale: string) => z.object({
-  email: z
-    .string()
-    .min(1, { message: { en: "Email is required", "zh-CN": "邮箱不能为空"}[locale] })
-    .email({ message: { en: "Email is invalid", "zh-CN": "邮箱格式不正确" }[locale] }),
-});
+const subscribeSchema = (locale: string) =>
+  z.object({
+    email: z
+      .string()
+      .min(1, {
+        message: { en: "Email is required", "zh-CN": "邮箱不能为空" }[locale],
+      })
+      .email({
+        message: { en: "Email is invalid", "zh-CN": "邮箱格式不正确" }[locale],
+      }),
+  });
 
 export type SubscribeSchema = z.infer<ReturnType<typeof subscribeSchema>>;
 
-interface SiteEmailSubscriptionProps
-  extends React.HTMLAttributes<HTMLFormElement> {}
+interface SiteEmailSubscriptionProps extends HTMLAttributes<HTMLFormElement> {}
 
 export const SiteEmailSubscription = ({
   className,
   ...props
 }: SiteEmailSubscriptionProps) => {
   const t = useTranslations("Index");
-  const locale = useLocale()
+  const locale = useLocale();
   const { toast } = useToast();
 
   const form = useForm<SubscribeSchema>({
@@ -58,6 +64,7 @@ export const SiteEmailSubscription = ({
 
   const onSubmit = (values: SubscribeSchema) => {
     submitAction.mutate(values.email);
+    trackEvent("subscribe", { email: values.email });
   };
 
   return (
@@ -77,7 +84,7 @@ export const SiteEmailSubscription = ({
                 {...field}
                 className="w-full rounded-full sm:w-[300px] md:w-[324px] lg:w-[384px] lg:max-w-sm"
               />
-              <div className="md:absolute top-[100%] left-0 pl-3">
+              <div className="left-0 top-[100%] pl-3 md:absolute">
                 <FormMessage />
               </div>
             </FormItem>

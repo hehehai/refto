@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 
 import { Providers } from "@/app/_components/providers";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { OpenpanelProvider } from "@openpanel/nextjs";
 
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/config/site";
@@ -75,7 +75,16 @@ export default function RootLayout({
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>
-      {env.NODE_ENV !== "development" && <GoogleAnalytics gaId={site.ga} />}
+      {env.NODE_ENV === "production" && (
+        <OpenpanelProvider
+          clientId="404650eb-ce2c-4136-84ed-c68f1166e7b6"
+          trackScreenViews={true}
+          trackAttributes={true}
+          trackOutgoingLinks={true}
+          // If you have a user id, you can pass it here to identify the user
+          // profileId={'123'}
+        />
+      )}
     </html>
   );
 }
