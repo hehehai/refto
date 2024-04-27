@@ -24,6 +24,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { type SiteLocale } from "@/i18n";
+import { trackEvent } from "@openpanel/nextjs";
 
 export function SiteFilterCommand() {
   const t = useTranslations("Index.Search");
@@ -70,6 +71,10 @@ export function SiteFilterCommand() {
     newSearchParams.set("tags", selected.join(","));
     router.push(`${pathname}?${newSearchParams.toString()}`);
     setOpen(false);
+    trackEvent("filter", {
+      search,
+      tags: selected,
+    });
   }, [search, selected, searchParams, pathname, router, setOpen]);
 
   const handleKeyDown = React.useCallback(

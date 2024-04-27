@@ -9,6 +9,7 @@ import { refSiteSheetAtom } from "../_store/sheet.store";
 import { useEffect, useMemo, useRef } from "react";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useTranslations } from "next-intl";
+import { increment, trackEvent } from '@openpanel/nextjs';
 
 interface HomeMasonryProps {
   search: string;
@@ -85,6 +86,8 @@ export const HomeMasonry = ({
                 item={item}
                 onClick={() => {
                   setStatus({ id: item.id });
+                  trackEvent("viewSite", { id: item.id, name: item.siteName });
+                  increment(`viewSite-${item.siteName}`, 1);
                 }}
               />
             )}
