@@ -4,6 +4,7 @@ import { type Options, renderAsync } from "@react-email/render";
 import { Resend } from "resend";
 import { type JSXElementConstructor, type ReactElement } from "react";
 import { env } from "@/env";
+import { site } from "../config/site";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -24,7 +25,7 @@ export async function sendEmail({
     const emailHtml = await renderAsync(renderData, renderOptions);
 
     const status = await resend.emails.send({
-      from: `Refto <${env.EMAIL_USER}>`,
+      from: `${site.name} <${env.EMAIL_USER}>`,
       to,
       subject,
       html: emailHtml,

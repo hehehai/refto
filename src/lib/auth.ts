@@ -9,6 +9,7 @@ import { sendEmail } from "./email";
 import UserAuthEmail from "./email/templates/auth";
 import { getBaseUrl } from "./utils";
 import { verifyEmail } from "@devmehq/email-validator-js";
+import { site } from "./config/site";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
@@ -62,7 +63,7 @@ export const authOptions: NextAuthOptions = {
 
           await sendEmail({
             to: identifier,
-            subject: `Refto ${sendTitle} | Verify your email`,
+            subject: `${site.name} ${sendTitle} | Verify your email`,
             renderData: UserAuthEmail({
               name,
               verifyUrl: url,

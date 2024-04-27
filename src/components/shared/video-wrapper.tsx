@@ -1,8 +1,10 @@
 import { cn } from "@/lib/utils";
 
-interface VideoWrapper extends React.ComponentPropsWithoutRef<"video"> {}
+interface VideoWrapper extends React.ComponentPropsWithoutRef<"video"> {
+  cover: string;
+}
 
-export const VideoWrapper = ({ className, src }: VideoWrapper) => {
+export const VideoWrapper = ({ className, src, cover }: VideoWrapper) => {
   return (
     <video
       className={cn("block w-full", className)}
@@ -10,8 +12,12 @@ export const VideoWrapper = ({ className, src }: VideoWrapper) => {
       loop
       muted
       playsInline
+      preload="none"
+      aria-label="Video player"
     >
+      <source src={cover} type="image/png" />
       <source src={src} type="video/mp4" />
+      Your browser does not support the video tag.
     </video>
   );
 };

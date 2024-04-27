@@ -61,6 +61,7 @@ export default async function Home({
             <div className="mt-auto">
               <Suspense fallback={<div>{t("Site.loading")}...</div>}>
                 <VideoWrapper
+                  cover={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-holder-1.mp4`}
                   src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-1.mp4`}
                   className="rounded-lg border border-zinc-50"
                 />
@@ -71,6 +72,7 @@ export default async function Home({
             <div className="mt-auto space-y-6 lg:min-h-[387px]">
               <Suspense fallback={<div>{t("Site.loading")}...</div>}>
                 <VideoWrapper
+                  cover={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-holder-3.mp4`}
                   src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-3.mp4`}
                   className="rounded-lg border border-zinc-50"
                 />
