@@ -134,5 +134,14 @@
       "m5": "隐私政策",
       "button": "使用电子邮件注册"
     }
+  },
+  "NotFound": {
+    "title": "页面未找到",
+    "description": "抱歉！找不到您要寻找的页面。",
+    "back": "返回首页"
+  },
+  "Error": {
+    "fallback": "提交 Issue",
+    "button": "重试"
   }
 }
