@@ -75,14 +75,12 @@ export default function RootLayout({
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>
-      {env.NODE_ENV === "production" && (
-        <OpenpanelProvider
-          clientId="404650eb-ce2c-4136-84ed-c68f1166e7b6"
-          trackScreenViews={true}
-          trackAttributes={true}
-          trackOutgoingLinks={true}
-        />
-      )}
+      <OpenpanelProvider
+        clientId="404650eb-ce2c-4136-84ed-c68f1166e7b6"
+        trackScreenViews={true}
+        trackAttributes={true}
+        trackOutgoingLinks={true}
+      />
     </html>
   );
 }

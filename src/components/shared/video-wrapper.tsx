@@ -14,8 +14,8 @@ export const VideoWrapper = ({ className, src, cover }: VideoWrapper) => {
       playsInline
       preload="none"
       aria-label="Video player"
+      poster={cover}
     >
-      <source src={cover} type="image/png" />
       <source src={src} type="video/mp4" />
       Your browser does not support the video tag.
     </video>

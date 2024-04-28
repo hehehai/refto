@@ -10,8 +10,10 @@ import { useState, useCallback, useEffect } from "react";
 import { type RefSite } from "@prisma/client";
 import { Spinner } from "@/components/shared/icons";
 import { SiteDetail } from "@/app/_components/site-detail";
+import { useLocale } from "next-intl";
 
 export function RefSiteDetailSheet() {
+  const locale = useLocale();
   const [status, setStatus] = useAtom(refSiteDetailSheetAtom);
 
   const { toast } = useToast();
@@ -73,7 +75,7 @@ export function RefSiteDetailSheet() {
                 <Spinner className="text-3xl" />
               </div>
             ) : detailData ? (
-              <SiteDetail item={detailData} />
+              <SiteDetail item={detailData} locale={locale} />
             ) : null}
           </div>
 

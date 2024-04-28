@@ -9,7 +9,8 @@ import { refSiteSheetAtom } from "../_store/sheet.store";
 import { useEffect, useMemo, useRef } from "react";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useTranslations } from "next-intl";
-import { increment, trackEvent } from '@openpanel/nextjs';
+import { increment, trackEvent } from "@openpanel/nextjs";
+import { env } from "@/env";
 
 interface HomeMasonryProps {
   search: string;

@@ -19,7 +19,7 @@ export default async function SitePage({ params }: { params: { id: string, local
 
   return (
     <div className="py-14">
-      <SiteDetail item={site} className="relative" />
+      <SiteDetail item={site} locale={params.locale} className="relative" />
 
       <div className="container">
         <Separator className="my-12 md:my-28" />

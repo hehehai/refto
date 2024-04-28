@@ -13,8 +13,10 @@ import { Spinner } from "@/components/shared/icons";
 import { X } from "lucide-react";
 import { SiteShowcaseCorrelation } from "./site-showcase-correlation";
 import { Separator } from "@/components/ui/separator";
+import { useLocale } from "next-intl";
 
 export const SiteShowcaseSheet = () => {
+  const locale = useLocale()
   const searchParams = useSearchParams();
   const [status, setStatus] = useAtom(refSiteSheetAtom);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -97,7 +99,7 @@ export const SiteShowcaseSheet = () => {
                 <Spinner className="text-3xl" />
               </div>
             ) : detailData ? (
-              <SiteDetail item={detailData} />
+              <SiteDetail item={detailData} locale={locale} />
             ) : null}
 
             <div className="container">
