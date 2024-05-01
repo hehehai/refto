@@ -100,6 +100,7 @@ export const siteTagMapStyles = {
   unusual_layout: { en: "Unusual Layout", "zh-CN": "非常规布局" },
   virtual_reality: { en: "Virtual Reality", "zh-CN": "虚拟现实" },
   webgl: { en: "WebGL", "zh-CN": "WebGL" },
+  chinese: { en: "Chinese", "zh-CN": "中文" },
 };
 
 export const siteTagMap: Record<string, { en: string; "zh-CN": string }> = {

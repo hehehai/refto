@@ -65,6 +65,7 @@ export const SiteShowcase = ({
               />
             </div>
           )}
+          <div className="text-sm font-medium text-foreground/80">{item.siteName}</div>
         </div>
         <div className="flex items-center space-x-3 px-0.5 py-1">
           {/* <div className="flex items-center space-x-1 opacity-80 transition-opacity hover:opacity-100">
