@@ -20,7 +20,7 @@ export const SiteDetail = memo(
           {item.siteTags.map((tag) => (
             <div
               key={tag}
-              className="border-zinc-150 rounded-full border px-3 py-0.5 text-sm"
+              className="border-zinc-150 rounded-full border px-3 py-0.5 text-sm my-[3px]"
             >
               {siteTagMap[tag]?.[locale as "en" | "zh-CN"] || tag}
             </div>
@@ -68,26 +68,26 @@ export const SiteDetail = memo(
                   />
                 </div>
               )}
-              <div className="flex items-center space-x-4">
+              <div className="flex space-x-4">
                 <VisitLink
                   id={item.id}
                   href={item.siteUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xl hover:underline"
+                  className="text-xl hover:underline flex-shrink-0"
                 >
                   {item.siteName}
                 </VisitLink>
                 {item.isTop && (
-                  <Badge className="ml-auto px-3 py-0.5">TOP</Badge>
+                  <Badge className="ml-auto px-3 py-0.5 flex-shrink-0">TOP</Badge>
                 )}
                 <div className="hidden md:block">{tagsNode}</div>
-                <div className="md:hidden">{metaNode}</div>
+                <div className="md:hidden flex-shrink-0 ml-4">{metaNode}</div>
               </div>
             </div>
 
             <div className="md:hidden">{tagsNode}</div>
-            <div className="hidden md:block">{metaNode}</div>
+            <div className="hidden md:block flex-shrink-0 ml-4">{metaNode}</div>
           </div>
         </div>
         <div className="container">
