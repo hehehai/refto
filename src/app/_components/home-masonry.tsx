@@ -10,7 +10,6 @@ import { useEffect, useMemo, useRef } from "react";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useTranslations } from "next-intl";
 import { increment, trackEvent } from "@openpanel/nextjs";
-import { env } from "@/env";
 
 interface HomeMasonryProps {
   search: string;
@@ -30,7 +29,7 @@ export const HomeMasonry = ({
   const [_, setStatus] = useAtom(refSiteSheetAtom);
   const bottomTriggerRef = useRef(null);
   const inView = useIntersectionObserver(bottomTriggerRef, {
-    rootMargin: "0px 0px 90% 0px",
+    rootMargin: "0px 0px 100% 0px",
     threshold: 0,
   });
 
