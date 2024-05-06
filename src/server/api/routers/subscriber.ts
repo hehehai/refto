@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { pagination } from "@/lib/pagination";
 import { subscribe, unsubscribe } from "@/server/functions/subscriber";
 import { TRPCError } from "@trpc/server";
+import { SupportLocale } from "@/i18n";
 
 export const subscriberRouter = createTRPCRouter({
   // 查询
@@ -74,9 +75,12 @@ export const subscriberRouter = createTRPCRouter({
 
   // 订阅
   subscribe: publicProcedure
-    .input(z.string().email())
+    .input(z.object({
+      email: z.string().email(),
+      locale: z.nativeEnum(SupportLocale).optional().default(SupportLocale.en),
+    }))
     .mutation(async ({ input }) => {
-      return subscribe(input);
+      return subscribe(input.email, input.locale);
     }),
 
   // 取消订阅

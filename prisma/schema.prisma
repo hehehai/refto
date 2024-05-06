@@ -145,6 +145,7 @@ model Subscriber {
     createdAt  DateTime             @default(now()) @map("created_at")
     updatedAt  DateTime             @updatedAt @map("updated_at")
     sentWeekly WeeklyOnSubscriber[]
+    locale     String               @default("en")
 
     unSubSign String?
     unSubDate DateTime?

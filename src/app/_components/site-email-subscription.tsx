@@ -12,6 +12,7 @@ import { trackEvent } from "@openpanel/nextjs";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { type HTMLAttributes } from "react";
+import { type SupportLocale } from "@/i18n";
 
 const subscribeSchema = (locale: string) =>
   z.object({
@@ -63,7 +64,10 @@ export const SiteEmailSubscription = ({
   });
 
   const onSubmit = (values: SubscribeSchema) => {
-    submitAction.mutate(values.email);
+    submitAction.mutate({
+      email: values.email,
+      locale: locale as SupportLocale,
+    });
     trackEvent("subscribe", { email: values.email });
   };
 

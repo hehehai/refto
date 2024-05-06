@@ -9,6 +9,11 @@ export const supportedLanguages = [
   { id: "zh_CN", locale: "zh-CN", title: "简体中文" },
 ];
 
+export enum SupportLocale {
+  en = "en",
+  zh_CN = "zh_CN",
+};
+
 const baseLanguage = supportedLanguages.find((l) => l.isDefault)!;
 
 export const i18n = {

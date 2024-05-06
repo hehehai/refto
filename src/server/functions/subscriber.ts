@@ -4,9 +4,10 @@ import { db } from "@/lib/db";
 import crypto from "node:crypto";
 import { verifyEmail } from "@devmehq/email-validator-js";
 import { env } from "@/env";
+import { type SupportLocale } from "@/i18n";
 
 // 订阅
-export async function subscribe(email: string) {
+export async function subscribe(email: string, locale: SupportLocale) {
   const { validFormat, validMx } = await verifyEmail({
     emailAddress: email,
     verifyMx: true,
@@ -30,6 +31,7 @@ export async function subscribe(email: string) {
     return await db.subscriber.create({
       data: {
         email,
+        locale,
         unSubSign,
       },
     });
@@ -41,6 +43,7 @@ export async function subscribe(email: string) {
         id: subscriber.id,
       },
       data: {
+        locale,
         unSubDate: null,
       },
     });
