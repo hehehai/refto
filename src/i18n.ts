@@ -11,7 +11,7 @@ export const supportedLanguages = [
 
 export enum SupportLocale {
   en = "en",
-  zh_CN = "zh_CN",
+  zh_CN = "zh-CN",
 };
 
 const baseLanguage = supportedLanguages.find((l) => l.isDefault)!;

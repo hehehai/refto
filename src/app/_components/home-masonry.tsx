@@ -36,7 +36,7 @@ export const HomeMasonry = ({
   const [sliceQuery, allSitesQuery] =
     api.refSites.queryWithCursor.useSuspenseInfiniteQuery(
       {
-        limit: 14,
+        limit: 16,
         search,
         tags,
       },

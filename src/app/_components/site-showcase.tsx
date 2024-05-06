@@ -28,7 +28,7 @@ export const SiteShowcase = ({
       key={item.id}
       {...props}
       className={cn(
-        "flex w-full cursor-pointer flex-col rounded-[14px] p-1 transition-all hover:bg-zinc-100",
+        "flex w-full cursor-pointer flex-col rounded-[14px] p-1 transition-all hover:bg-zinc-50",
         props.className,
       )}
     >
