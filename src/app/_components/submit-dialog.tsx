@@ -110,6 +110,7 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
         }
 
         form.reset({
+          email: form.getValues("email"),
           site: validUrl.data,
           title: data.siteTitle,
           description: data.siteDescription,
