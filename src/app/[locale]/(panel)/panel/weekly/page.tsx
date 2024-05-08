@@ -1,7 +1,14 @@
+import { DataTable } from "./_components/data-table";
+
 export default function WeeklyPage() {
   return (
-    <div className="w-full py-12">
-      <div className="container mx-auto">Weekly</div>
+    <div className="w-full pb-8 pt-12">
+      <div className="container mx-auto">
+        <h2 className="text-3xl">Weekly</h2>
+        <section className="mt-9">
+          <DataTable />
+        </section>
+      </div>
     </div>
   );
 }

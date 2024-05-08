@@ -219,6 +219,7 @@ export function DataTable() {
       </div>
       <DataTablePagination
         table={table}
+        total={tableQuery.data?.total}
         footerActions={
           <>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (

@@ -17,11 +17,13 @@ import {
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
+  total?: number;
   footerActions?: React.ReactNode;
 }
 
 export function DataTablePagination<TData>({
   table,
+  total,
   footerActions,
 }: DataTablePaginationProps<TData>) {
   return (
@@ -35,6 +37,7 @@ export function DataTablePagination<TData>({
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
+          {total != null && <p className="text-sm font-medium">Total {total}</p>}
           <p className="text-sm font-medium">Rows per page</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}

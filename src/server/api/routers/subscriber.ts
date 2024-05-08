@@ -49,6 +49,7 @@ export const subscriberRouter = createTRPCRouter({
           email: true,
           unSubDate: true,
           createdAt: true,
+          locale: true,
           _count: {
             select: {
               sentWeekly: true,

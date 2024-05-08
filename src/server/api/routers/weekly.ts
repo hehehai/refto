@@ -8,8 +8,9 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { formatOrders, genOrderValidSchema } from "@/lib/utils";
-import { type Prisma, type Weekly } from "@prisma/client";
+import { WeeklySentStatus, type Prisma, type Weekly } from "@prisma/client";
 import { db } from "@/lib/db";
+import { pagination } from "@/lib/pagination";
 
 export const weeklyRouter = createTRPCRouter({
   // 列表
@@ -21,7 +22,8 @@ export const weeklyRouter = createTRPCRouter({
       z.object({
         search: z.coerce.string().trim().max(1024).optional(),
         limit: z.number().min(1).max(50).optional().default(10),
-        cursor: z.string().nullish(),
+        page: z.number().min(0).optional().default(0),
+        status: z.nativeEnum(WeeklySentStatus).optional(),
         orderBy: genOrderValidSchema<Weekly>(["weekStart", "sentDate"])
           .optional()
           .default(["-weekStart"])
@@ -29,7 +31,7 @@ export const weeklyRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
-      const { search, limit, cursor, orderBy } = input;
+      const { search, limit, page, status, orderBy } = input;
 
       const whereInput: Prisma.WeeklyWhereInput = {
         title: {
@@ -38,29 +40,34 @@ export const weeklyRouter = createTRPCRouter({
         },
       };
 
+      if (status) {
+        whereInput.status = status;
+      }
+
       const rows = await db.weekly.findMany({
         where: whereInput,
         select: {
           id: true,
           title: true,
+          weekStart: true,
+          weekEnd: true,
+          status: true
         },
-        cursor: cursor ? { id: cursor } : undefined,
-        take: limit + 1,
+        skip: page * limit,
+        take: limit,
         orderBy: orderBy?.reduce(
           (acc, item) => ({ ...acc, [item.key]: item.dir }),
           {},
         ),
       });
 
-      let nextCursor: typeof cursor | undefined = undefined;
-      if (rows && rows.length > limit) {
-        const nextItem = rows.pop();
-        nextCursor = nextItem?.id;
-      }
-
+      const total = await db.weekly.count({
+        where: whereInput,
+      });
+      
       return {
         rows,
-        nextCursor,
+        ...pagination(page, limit, total),
       };
     }),
 

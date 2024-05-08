@@ -7,11 +7,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { format } from "date-fns";
-import { type Subscriber } from "@prisma/client";
+import { type Weekly } from "@prisma/client";
 
 export const columns = (
-  actionSlot: (row: Row<Subscriber>) => React.ReactNode,
-): ColumnDef<Subscriber>[] => [
+  actionSlot: (row: Row<Weekly>) => React.ReactNode,
+): ColumnDef<Weekly>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -46,7 +46,7 @@ export const columns = (
       <DataTableColumnHeader column={column} title="CreatedAt" />
     ),
     cell: ({ row }) => (
-      <div className="w-[150px] text-left">
+      <div className="w-[150px] text-center">
         {format(row.getValue("createdAt"), "yyyy-MM-dd HH:mm:ss")}
       </div>
     ),
@@ -62,7 +62,6 @@ export const columns = (
 
       return (
         <div className="flex items-center space-x-1">
-          {row.original.locale && <Badge variant="secondary">{row.original.locale}</Badge>}
           <span>{email}</span>
         </div>
       );

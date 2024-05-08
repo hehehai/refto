@@ -76,7 +76,7 @@ export const PanelNav = (props: PanelNavProps) => {
         >
           <item.icon className="mr-2 text-xl" />
           <span>{item.label}</span>
-          {item.path === active && (
+          {item.path.endsWith(active) && (
             <motion.div
               layoutId="underline"
               className="absolute bottom-0 left-0 right-0 h-[3px] rounded-t-xl bg-gray-950"

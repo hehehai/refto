@@ -126,6 +126,12 @@ model RefSite {
     @@map("ref_sites")
 }
 
+enum WeeklySentStatus {
+    AWAITING
+    PENDING
+    SENT
+}
+
 model Weekly {
     id         String               @id @default(cuid())
     title      String
@@ -133,6 +139,8 @@ model Weekly {
     weekStart  DateTime
     weekEnd    DateTime
     createdAt  DateTime             @default(now()) @map("created_at")
+    updatedAt  DateTime             @updatedAt @map("updated_at")
+    status     WeeklySentStatus     @default(PENDING)
     sentDate   DateTime?
     weeklySent WeeklyOnSubscriber[]
 

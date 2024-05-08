@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
 import { columns } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
-import { type Subscriber } from "@prisma/client";
+import { type Weekly } from "@prisma/client";
 import { useToast } from "@/components/ui/use-toast";
 
 export function DataTable() {
@@ -46,7 +46,7 @@ export function DataTable() {
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const tableQuery = api.subscriber.query.useQuery(
+  const tableQuery = api.weekly.query.useQuery(
     {
       limit: pagination.pageSize,
       search: globalFilter,
@@ -81,7 +81,7 @@ export function DataTable() {
     });
   }, [tableQuery.refetch]);
 
-  const table = useReactTable<Subscriber>({
+  const table = useReactTable<Weekly>({
     data: (tableQuery.data?.rows as any) || [],
     pageCount: (tableQuery.data as any)?.maxPage + 1 || 0,
     columns: tableColumns,
@@ -188,7 +188,6 @@ export function DataTable() {
       </div>
       <DataTablePagination
         table={table}
-        total={tableQuery.data?.total}
         footerActions={
           <>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
@@ -196,19 +195,6 @@ export function DataTable() {
                 size={"xs"}
                 variant={"destructive"}
                 disabled={unSubRow.isLoading}
-                onClick={() => {
-                  const emails = table
-                    .getFilteredSelectedRowModel()
-                    .rows.filter((row) => !row.original.unSubDate)
-                    .map((row) => row.original.email);
-                  if (!emails.length) {
-                    return toast({
-                      title: "Error",
-                      description: "No can be deleted",
-                    });
-                  }
-                  unSubRow.mutate({ emails });
-                }}
               >
                 {unSubRow.isLoading && <Spinner className="mr-2" />}
                 <span>Unsubscribe</span>
