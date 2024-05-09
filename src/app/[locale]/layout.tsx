@@ -9,7 +9,6 @@ import { type Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { NextIntlClientProvider, useMessages } from "next-intl";
 import { outfit } from "@/lib/font";
-import { env } from "@/env";
 import { type SiteLocale } from "@/i18n";
 
 export async function generateMetadata({
