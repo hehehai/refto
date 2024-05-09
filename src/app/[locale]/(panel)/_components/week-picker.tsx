@@ -115,11 +115,7 @@ export function WeekPicker({
     setHoverRange(false);
   };
 
-  const handleWeekClick: WeekNumberClickEventHandler = (
-    weekNumber,
-    days,
-    e,
-  ) => {
+  const handleWeekClick: WeekNumberClickEventHandler = (_, days, e) => {
     e.preventDefault();
     setSelectedDay(days);
   };

@@ -96,7 +96,7 @@ export function RefSiteUpsetDialog() {
     } finally {
       setDetailLoading(false);
     }
-  }, [statusId, setDetailData]);
+  }, [statusId, setDetailData, toast, utils.refSites.detail, form]);
 
   useEffect(() => {
     handleInitData();
@@ -109,7 +109,7 @@ export function RefSiteUpsetDialog() {
         setStatus({ show: false, isAdd: true, id: null });
       }
     },
-    [setStatus],
+    [setStatus, form],
   );
 
   const onSubmit = useCallback(
@@ -146,7 +146,15 @@ export function RefSiteUpsetDialog() {
         setSaveLoading(false);
       }
     },
-    [isEdit, statusId, handleClose],
+    [
+      isEdit,
+      statusId,
+      handleClose,
+      form,
+      toast,
+      utils.client.refSites.update,
+      utils.client.refSites.create,
+    ],
   );
 
   const [getUrlLoading, setGetUrlLoading] = useState(false);
@@ -189,7 +197,7 @@ export function RefSiteUpsetDialog() {
         setGetUrlLoading(false);
       }
     },
-    [form],
+    [form, utils.siteMeta.meta, toast],
   );
 
   return (
@@ -486,4 +494,4 @@ export function RefSiteUpsetDialog() {
 
 RefSiteUpsetDialog.displayName = "RefSiteUpsetDialog";
 
-export default RefSiteUpsetDialog
+export default RefSiteUpsetDialog;

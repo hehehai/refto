@@ -76,7 +76,7 @@ export function WeeklyUpsetDialog() {
     } finally {
       setDetailLoading(false);
     }
-  }, [statusId, setDetailData]);
+  }, [statusId, setDetailData, utils, form, toast]);
 
   useEffect(() => {
     handleInitData();
@@ -89,7 +89,7 @@ export function WeeklyUpsetDialog() {
         setStatus({ show: false, isAdd: true, id: null });
       }
     },
-    [setStatus],
+    [setStatus, form],
   );
 
   const onSubmit = useCallback(
@@ -126,7 +126,7 @@ export function WeeklyUpsetDialog() {
         setSaveLoading(false);
       }
     },
-    [isEdit, statusId, handleClose],
+    [isEdit, statusId, handleClose, form, utils, toast],
   );
 
   return (

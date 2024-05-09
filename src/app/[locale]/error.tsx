@@ -5,16 +5,16 @@ import { TerminalIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
-export default async function Error({
+export default function Error({
   error,
   reset,
 }: {
   error: Error;
   reset: () => void;
 }) {
-  const t = await getTranslations("Error");
+  const t = useTranslations("Error");
 
   return (
     <div className="flex h-[80vh] w-full flex-col items-center justify-center">
