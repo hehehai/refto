@@ -10,13 +10,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { type RefSite } from "@prisma/client";
 import { SiteDetail } from "./site-detail";
 import { Spinner } from "@/components/shared/icons";
-import { X } from "lucide-react";
+import { X, Maximize2 } from "lucide-react";
 import { SiteShowcaseCorrelation } from "./site-showcase-correlation";
 import { Separator } from "@/components/ui/separator";
 import { useLocale } from "next-intl";
+import Link from "next/link";
 
 export const SiteShowcaseSheet = () => {
-  const locale = useLocale()
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const [status, setStatus] = useAtom(refSiteSheetAtom);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -114,10 +115,20 @@ export const SiteShowcaseSheet = () => {
             </div>
           </div>
 
-          <SheetClose className="absolute -top-10 right-6 z-50 rounded-sm text-white opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary md:top-6 md:text-inherit">
-            <X className="h-5 w-5" />
-            <span className="sr-only">Close</span>
-          </SheetClose>
+          <div className="absolute -top-10 right-6 z-50 flex items-center justify-center space-x-3">
+            <SheetClose className=" rounded-sm text-white opacity-80 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-background/20 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+              <X className="h-5 w-5 md:h-6 md:w-6" />
+              <span className="sr-only">Close</span>
+            </SheetClose>
+            <Link
+              href={`/${status.id}`}
+              prefetch={true}
+              className="rounded-sm p-1 text-white opacity-80 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-background/20 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
+            >
+              <Maximize2 className="h-4 w-4 md:h-5 md:w-5" />
+              <span className="sr-only">Expand</span>
+            </Link>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

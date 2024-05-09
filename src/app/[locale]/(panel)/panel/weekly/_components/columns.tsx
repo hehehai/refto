@@ -46,8 +46,8 @@ export const columns = (
       <DataTableColumnHeader column={column} title="Week Date" />
     ),
     cell: ({ row }) => {
-      const weekStart = row.original.weekStart;
-      const weekEnd = row.original.weekEnd;
+      const weekStart = row.original?.weekStart;
+      const weekEnd = row.original?.weekEnd;
       return (
         <div className="w-[200px] text-left">
           {weekStart ? format(weekStart, "yyyy-MM-dd") : "unknown"}
