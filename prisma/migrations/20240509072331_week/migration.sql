@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "weekly" ALTER COLUMN "status" SET DEFAULT 'AWAITING';

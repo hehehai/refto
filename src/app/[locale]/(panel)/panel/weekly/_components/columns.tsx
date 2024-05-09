@@ -41,56 +41,43 @@ export const columns = (
     enableHiding: false,
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "weekStart",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="CreatedAt" />
+      <DataTableColumnHeader column={column} title="Week Date" />
     ),
-    cell: ({ row }) => (
-      <div className="w-[150px] text-center">
-        {format(row.getValue("createdAt"), "yyyy-MM-dd HH:mm:ss")}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Email" />
-    ),
-    enableSorting: false,
-    cell: ({ getValue, row }) => {
-      const email = getValue<string>();
-
+    cell: ({ row }) => {
+      const weekStart = row.original.weekStart;
+      const weekEnd = row.original.weekEnd;
       return (
-        <div className="flex items-center space-x-1">
-          <span>{email}</span>
+        <div className="w-[200px] text-left">
+          {weekStart ? format(weekStart, "yyyy-MM-dd") : "unknown"}
+          {" ~ "}
+          {weekEnd ? format(weekEnd, "yyyy-MM-dd") : "unknown"}
         </div>
       );
     },
   },
   {
-    id: "_count.sentWeekly",
+    accessorKey: "title",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="SentWeekly" />
+      <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => {
-      return <div>{(row.original as any)?._count.sentWeekly}</div>;
+    enableSorting: false,
+    cell: ({ getValue }) => {
+      const title = getValue<string>();
+
+      return <div className="flex items-center space-x-1">{title}</div>;
     },
   },
   {
-    accessorKey: "unSubDate",
+    accessorKey: "status",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="UnSub Date" />
+      <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ getValue }) => {
-      const unSubDate = getValue<number>();
+      const status = getValue<number>();
 
-      if (!unSubDate) {
-        return <Badge>Active</Badge>;
-      }
-
-      return (
-        <Badge variant={"outline"}>{format(unSubDate, "yyyy-MM-dd")}</Badge>
-      );
+      return <Badge variant={"outline"}>{status}</Badge>;
     },
   },
   {

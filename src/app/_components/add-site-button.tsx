@@ -15,7 +15,7 @@ export function AddSiteButton() {
       disabled={status.show}
       onClick={() => setStatus({ show: true, isAdd: true, id: null })}
     >
-      <BoxAddIcon className="mr-2 text-xl"></BoxAddIcon>
+      <BoxAddIcon className="mr-2 text-xl" />
       <span>Add Site</span>
     </Button>
   );

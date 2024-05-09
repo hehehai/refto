@@ -30,9 +30,13 @@ import { columns } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { type Weekly } from "@prisma/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useAtom } from "jotai";
+import { weeklyDialogAtom, weeklyDialogEmitter } from "../../../_store/dialog.store";
 
 export function DataTable() {
   const { toast } = useToast();
+
+  const [_, setStatus] = useAtom(weeklyDialogAtom);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -111,6 +115,13 @@ export function DataTable() {
     onPaginationChange: setPagination,
   });
 
+  React.useEffect(() => {
+    weeklyDialogEmitter.on("success", tableQuery.refetch);
+    return () => {
+      weeklyDialogEmitter.off("success", tableQuery.refetch);
+    };
+  }, [tableQuery.refetch]);
+
   return (
     <div className="space-y-4">
       <DataTableToolbar
@@ -128,6 +139,15 @@ export function DataTable() {
               table.setColumnFilters([{ id: "status", value }])
             }
           />
+        }
+        actionsSlot={
+          <Button
+            onClick={() => {
+              setStatus({ show: true, isAdd: true, id: null });
+            }}
+          >
+            Create Week
+          </Button>
         }
       />
       <div className="rounded-lg border">

@@ -62,19 +62,22 @@ export const columns = (
 
       return (
         <div className="flex items-center space-x-1">
-          {row.original.locale && <Badge variant="secondary">{row.original.locale}</Badge>}
+          {row.original.locale && (
+            <Badge variant="secondary">{row.original.locale}</Badge>
+          )}
           <span>{email}</span>
         </div>
       );
     },
   },
   {
-    id: "_count.sentWeekly",
+    id: "weekly",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="SentWeekly" />
     ),
-    cell: ({ row }) => {
-      return <div>{(row.original as any)?._count.sentWeekly}</div>;
+    cell: ({ getValue }) => {
+      const weekly = getValue<string[]>();
+      return <div>{weekly?.length}</div>;
     },
   },
   {

@@ -4,7 +4,7 @@ import mitt from "mitt";
 // detail
 export const refSiteDetailSheetAtom = atom<string | null>(null);
 
-// upset
+// ref site upset
 interface RefSiteDialogState {
   show: boolean;
   isAdd: boolean;
@@ -22,3 +22,22 @@ type RefSiteDialogEvents = {
 };
 
 export const refSiteDialogEmitter = mitt<RefSiteDialogEvents>();
+
+// weekly upset
+interface WeeklyDialogState {
+  show: boolean;
+  isAdd: boolean;
+  id: string | null;
+}
+
+export const weeklyDialogAtom = atom<WeeklyDialogState>({
+  show: false,
+  isAdd: true,
+  id: null,
+});
+
+type WeeklyDialogEvents = {
+  success: undefined;
+};
+
+export const weeklyDialogEmitter = mitt<WeeklyDialogEvents>();

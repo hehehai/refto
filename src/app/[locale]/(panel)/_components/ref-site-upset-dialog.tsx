@@ -38,7 +38,6 @@ import { type RefSite } from "@prisma/client";
 import { useAtom } from "jotai";
 import { Separator } from "@/components/ui/separator";
 import { refSiteSchema } from "@/lib/validations/ref-site";
-import { format } from "url";
 
 const emptyData = {
   siteName: "",
@@ -484,3 +483,7 @@ export function RefSiteUpsetDialog() {
     </Dialog>
   );
 }
+
+RefSiteUpsetDialog.displayName = "RefSiteUpsetDialog";
+
+export default RefSiteUpsetDialog

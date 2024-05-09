@@ -116,10 +116,8 @@ model RefSite {
     visits          Int       @default(0)
     isTop           Boolean   @default(false)
 
-    createdBy   User    @relation(fields: [createdById], references: [id])
+    createdBy   User   @relation(fields: [createdById], references: [id])
     createdById String
-    Weekly      Weekly? @relation(fields: [weeklyId], references: [id])
-    weeklyId    String?
 
     @@unique([siteUrl])
     @@index([siteName, siteTitle, siteUrl])
@@ -133,41 +131,30 @@ enum WeeklySentStatus {
 }
 
 model Weekly {
-    id         String               @id @default(cuid())
-    title      String
-    sites      RefSite[]
-    weekStart  DateTime
-    weekEnd    DateTime
-    createdAt  DateTime             @default(now()) @map("created_at")
-    updatedAt  DateTime             @updatedAt @map("updated_at")
-    status     WeeklySentStatus     @default(PENDING)
-    sentDate   DateTime?
-    weeklySent WeeklyOnSubscriber[]
+    id        String           @id @default(cuid())
+    title     String
+    sites     String[]
+    weekStart DateTime
+    weekEnd   DateTime
+    createdAt DateTime         @default(now()) @map("created_at")
+    updatedAt DateTime         @updatedAt @map("updated_at")
+    status    WeeklySentStatus @default(AWAITING)
+    sentDate  DateTime?
 
     @@map("weekly")
 }
 
 model Subscriber {
-    id         String               @id @default(cuid())
-    email      String
-    createdAt  DateTime             @default(now()) @map("created_at")
-    updatedAt  DateTime             @updatedAt @map("updated_at")
-    sentWeekly WeeklyOnSubscriber[]
-    locale     String               @default("en")
+    id        String   @id @default(cuid())
+    email     String
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    locale    String   @default("en")
+    weekly    String[] @default([])
 
     unSubSign String?
     unSubDate DateTime?
 
     @@unique([email])
     @@map("email_subscriptions")
-}
-
-model WeeklyOnSubscriber {
-    weekly       Weekly     @relation(fields: [weeklyId], references: [id])
-    weeklyId     String
-    subscriber   Subscriber @relation(fields: [subscriberId], references: [id])
-    subscriberId String
-
-    @@unique([weeklyId, subscriberId])
-    @@map("weekly_on_subscriber")
 }

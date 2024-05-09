@@ -39,3 +39,40 @@ export async function sendEmail({
     throw err;
   }
 }
+
+interface BatchSendEmailOptions
+  extends Omit<SendEmailOptions, "to" | "renderData"> {
+  to: string[];
+  renderData: ReactElement<any, string | JSXElementConstructor<any>>[];
+}
+
+export async function batchSendEmail({
+  to,
+  subject,
+  renderData,
+  renderOptions,
+}: BatchSendEmailOptions) {
+  try {
+    const emailHtml = renderData.map((item) =>
+      renderAsync(item, renderOptions),
+    );
+
+    const mailTask = to.map(async (email, idx) => ({
+      from: `${site.name} <${env.EMAIL_USER}>`,
+      to: email,
+      subject,
+      html: (await emailHtml[idx])!,
+    }));
+
+    const mails = await Promise.all(mailTask);
+
+    const status = await resend.batch.send(mails);
+    if (status.error) {
+      throw new Error(status.error.message ?? "unknown");
+    }
+    return status;
+  } catch (err) {
+    console.error("[Email] Error sending:", err);
+    throw err;
+  }
+}

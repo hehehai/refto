@@ -88,3 +88,7 @@ export function RefSiteDetailSheet() {
     </Sheet>
   );
 }
+
+RefSiteDetailSheet.displayName = "RefSiteDetailSheet";
+
+export default RefSiteDetailSheet;

@@ -2,7 +2,7 @@
 
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { type Row } from "@tanstack/react-table";
-import { type Weekly } from "@prisma/client";
+import { WeeklySentStatus, type Weekly } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,14 +24,19 @@ export function DataTableRowActions({
   onRefresh,
 }: DataTableRowActionsProps) {
   const { original } = row;
+
   const { toast } = useToast();
 
-  const unSubRow = api.subscriber.unsubscribeBatch.useMutation({
+  if (original.status === WeeklySentStatus.SENT) {
+    return null;
+  }
+
+  const sentRow = api.weekly.send.useMutation({
     onSuccess: () => {
       onRefresh?.();
       toast({
         title: "Success",
-        description: "unSubscribe",
+        description: "Sent weekly emails",
       });
     },
     onError: (error) => {
@@ -56,9 +61,10 @@ export function DataTableRowActions({
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem
           className="text-red-600 focus:text-red-500"
-          disabled={unSubRow.isLoading}
+          disabled={sentRow.isLoading}
+          onClick={() => sentRow.mutate({ id: original.id })}
         >
-          {unSubRow.isLoading && <Spinner className="mr-2" />}
+          {sentRow.isLoading && <Spinner className="mr-2" />}
           <span>Sent</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -1,16 +1,15 @@
-// 查询 - 排序
-// 创建 - 选择统计， 编辑简介
-// 更新 - 修改统计，编辑简介
-// 发送 - 向订阅者推送
-// 删除 - 仅未发生状态下可删除
-// cron: 每周统计一次， 当前访问数较上周增长数量
-
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { formatOrders, genOrderValidSchema } from "@/lib/utils";
+import { formatOrders, genOrderValidSchema, getBaseUrl } from "@/lib/utils";
 import { WeeklySentStatus, type Prisma, type Weekly } from "@prisma/client";
 import { db } from "@/lib/db";
 import { pagination } from "@/lib/pagination";
+import { detail } from "@/server/functions/weekly";
+import { updateWeeklySchema, weeklySchema } from "@/lib/validations/weekly";
+import { chunk } from "lodash-es";
+import { batchSendEmail } from "@/lib/email";
+import { WeeklyEmail } from "@/lib/email/templates/weekly";
+import { type SupportLocale } from "@/i18n";
 
 export const weeklyRouter = createTRPCRouter({
   // 列表
@@ -51,7 +50,7 @@ export const weeklyRouter = createTRPCRouter({
           title: true,
           weekStart: true,
           weekEnd: true,
-          status: true
+          status: true,
         },
         skip: page * limit,
         take: limit,
@@ -64,7 +63,7 @@ export const weeklyRouter = createTRPCRouter({
       const total = await db.weekly.count({
         where: whereInput,
       });
-      
+
       return {
         rows,
         ...pagination(page, limit, total),
@@ -76,23 +75,28 @@ export const weeklyRouter = createTRPCRouter({
     .meta({
       requiredRoles: ["ADMIN"],
     })
-    .input(
-      z.object({
-        title: z.string().trim().min(1).max(255),
-        sites: z.array(z.string()).min(1).max(10),
-        weekStart: z.date(),
-        weekEnd: z.date(),
-      }),
-    )
+    .input(weeklySchema)
     .mutation(async ({ input }) => {
+      const [weekStart, weekEnd] = input.weekRange as [Date, Date];
       return await db.weekly.create({
         data: {
-          ...input,
-          sites: {
-            connect: input.sites.map((site) => ({ id: site })),
-          },
+          title: input.title,
+          weekStart,
+          weekEnd,
+          sites: input.sites.filter(Boolean),
         },
       });
+    }),
+
+  // 详情
+  detail: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return detail(input.id);
     }),
 
   // 更新
@@ -100,25 +104,19 @@ export const weeklyRouter = createTRPCRouter({
     .meta({
       requiredRoles: ["ADMIN"],
     })
-    .input(
-      z.object({
-        id: z.string(),
-        title: z.string().trim().min(1).max(255).optional(),
-        sites: z.array(z.string()).min(1).max(10).optional(),
-        weekStart: z.date().optional(),
-        weekEnd: z.date().optional(),
-      }),
-    )
+    .input(updateWeeklySchema)
     .mutation(async ({ input }) => {
+      const [weekStart, weekEnd] = input.weekRange as [Date, Date];
+
       return await db.weekly.update({
         where: {
           id: input.id,
         },
         data: {
-          ...input,
-          sites: {
-            set: input.sites?.map((site) => ({ id: site })),
-          },
+          title: input.title,
+          weekStart,
+          weekEnd,
+          sites: input.sites?.filter(Boolean),
         },
       });
     }),
@@ -149,15 +147,89 @@ export const weeklyRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      // 获取周内容，是否有效
-      // 获取订阅者
-      // 发送邮件
-      // 修改周状态，订阅者状态
+      const weekly = await db.weekly.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+      if (!weekly) {
+        throw new Error("Weekly not found");
+      }
+      if (weekly.status === WeeklySentStatus.PENDING) {
+        throw new Error("Weekly is pending, can not be sent");
+      }
+      if (weekly.status === WeeklySentStatus.SENT) {
+        throw new Error("Weekly is sent, can not be sent again");
+      }
+      const currentSubscribers = await db.subscriber.findMany({
+        where: {
+          unSubDate: null,
+        },
+        select: {
+          id: true,
+          email: true,
+          unSubSign: true,
+          locale: true,
+        },
+      });
+      if (currentSubscribers.length === 0) {
+        return null;
+      }
+      const sites = await db.refSite.findMany({
+        where: {
+          id: {
+            in: weekly.sites,
+          },
+        },
+        select: {
+          id: true,
+          siteTitle: true,
+          siteUrl: true,
+          siteCover: true,
+          siteTags: true,
+        },
+      });
+      if (sites.length === 0) {
+        throw new Error("Weekly sites not found");
+      }
+
+      // 如果数量大于 100， 则按 100 切块
+      const chunkSize = 100;
+      let chunks = [currentSubscribers];
+      if (currentSubscribers.length > chunkSize) {
+        chunks = chunk(currentSubscribers, chunkSize);
+      }
+
+      const baseUrl = "https://refto.one";
+
+      for (const chunk of chunks) {
+        await batchSendEmail({
+          subject: weekly.title,
+          to: chunk.map((item) => item.email),
+          renderData: chunk.map((item) =>
+            WeeklyEmail({
+              count: 24,
+              sites: sites.map((site) => ({
+                id: site.id,
+                cover: site.siteCover,
+                title: site.siteTitle,
+                url: site.siteUrl,
+                tags: site.siteTags,
+              })),
+              unsubscribeUrl: `${baseUrl}/unsub?email=${item.email}&token=${item.unSubSign}`,
+              baseUrl,
+              locale: item.locale as SupportLocale,
+            }),
+          ),
+        });
+      }
+
       return await db.weekly.update({
         where: {
           id: input.id,
         },
         data: {
+          status: WeeklySentStatus.SENT,
           sentDate: new Date(),
         },
       });

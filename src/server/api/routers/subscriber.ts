@@ -50,11 +50,7 @@ export const subscriberRouter = createTRPCRouter({
           unSubDate: true,
           createdAt: true,
           locale: true,
-          _count: {
-            select: {
-              sentWeekly: true,
-            },
-          },
+          weekly: true,
         },
         skip: page * limit,
         take: limit,
