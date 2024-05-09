@@ -200,7 +200,7 @@ export const weeklyRouter = createTRPCRouter({
         chunks = chunk(currentSubscribers, chunkSize);
       }
 
-      const baseUrl = "https://refto.one";
+      const baseUrl = getBaseUrl();
 
       for (const chunk of chunks) {
         await batchSendEmail({
