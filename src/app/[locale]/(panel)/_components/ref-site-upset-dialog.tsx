@@ -342,6 +342,7 @@ export function RefSiteUpsetDialog() {
                         autoUpload={true}
                         disabled={field.disabled}
                         value={field.value}
+                        fileTypes='image'
                         placeholder="Upload site favicon"
                         errorMessage={fieldState.error?.message}
                         onError={(message) => {
@@ -367,6 +368,7 @@ export function RefSiteUpsetDialog() {
                         autoUpload={true}
                         disabled={field.disabled}
                         value={field.value}
+                        fileTypes='image'
                         placeholder="Upload OG image"
                         errorMessage={fieldState.error?.message}
                         onError={(message) => {
@@ -392,6 +394,7 @@ export function RefSiteUpsetDialog() {
                         autoUpload={true}
                         disabled={field.disabled}
                         value={field.value}
+                        fileTypes='image'
                         placeholder="Upload site cover"
                         errorMessage={fieldState.error?.message}
                         onError={(message) => {
