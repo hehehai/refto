@@ -2,16 +2,17 @@
 
 import { Spinner } from '@/components/shared/icons'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { match } from 'ts-pattern'
 import { z } from 'zod'
 import { refSiteDialogAtom, refSiteDialogEmitter } from '../_store/dialog.store'
 
@@ -25,8 +26,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Label } from '@/components/ui/label'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { Separator } from '@/components/ui/separator'
+import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
 import { siteTagKeys, siteTagMap } from '@/lib/constants'
@@ -45,6 +48,8 @@ const emptyData = {
   siteCover: '',
   siteCoverHeight: 0,
   siteScreenshot: '',
+  siteRecord: '',
+  siteCoverRecord: '',
   siteOGImage: '',
   siteTags: [],
 }
@@ -58,6 +63,7 @@ export function RefSiteUpsetDialog() {
   const [detailData, setDetailData] = useState<Partial<RefSite>>(emptyData)
   const [detailLoading, setDetailLoading] = useState(false)
   const [saveLoading, setSaveLoading] = useState(false)
+  const [isVideo, setIsVideo] = useState(false)
   const isEdit = status.isAdd === false && status.id !== null
 
   const form = useForm<z.infer<typeof refSiteSchema>>({
@@ -84,7 +90,10 @@ export function RefSiteUpsetDialog() {
         ...detail,
         siteOGImage: detail.siteOGImage ?? '',
         siteScreenshot: detail.siteScreenshot ?? '',
+        siteRecord: detail.siteRecord ?? '',
+        siteCoverRecord: detail.siteCoverRecord ?? '',
       })
+      setIsVideo(!!detail.siteRecord)
     } catch (err: unknown) {
       toast({
         title: 'Fetch detail err',
@@ -112,12 +121,12 @@ export function RefSiteUpsetDialog() {
   const onSubmit = useCallback(
     async (values: z.infer<typeof refSiteSchema>, thenAdd = false) => {
       const title = isEdit ? 'Save' : 'Create'
-      if (!statusId) {
-        return
-      }
       try {
         setSaveLoading(true)
         if (isEdit) {
+          if (!statusId) {
+            return
+          }
           await utils.client.refSites.update.mutate({
             ...values,
             id: statusId,
@@ -201,17 +210,20 @@ export function RefSiteUpsetDialog() {
   )
 
   return (
-    <Dialog open={status.show} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px]">
-        <DialogHeader>
-          <DialogTitle>
+    <Sheet open={status.show} onOpenChange={handleClose}>
+      <SheetContent side="left" className="sm:max-w-[700px] flex flex-col">
+        <SheetHeader>
+          <SheetTitle>
             <span>{isEdit ? 'Edit Ref Site' : 'Create Ref Site'}</span>
             {detailLoading && <Spinner className="ml-2" />}
-          </DialogTitle>
-        </DialogHeader>
+          </SheetTitle>
+        </SheetHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((v) => onSubmit(v, false))}>
-            <div className="space-y-2">
+          <form
+            onSubmit={form.handleSubmit((v) => onSubmit(v, false))}
+            className="flex-grow flex flex-col"
+          >
+            <div className="space-y-2 h-[calc(100dvh-144px)] overflow-y-auto px-3 -mx-3 mb-6">
               <FormField
                 control={form.control}
                 name="siteUrl"
@@ -342,7 +354,7 @@ export function RefSiteUpsetDialog() {
                         autoUpload={true}
                         disabled={field.disabled}
                         value={field.value}
-                        fileTypes='image'
+                        fileTypes="image"
                         placeholder="Upload site favicon"
                         errorMessage={fieldState.error?.message}
                         onError={(message) => {
@@ -368,7 +380,7 @@ export function RefSiteUpsetDialog() {
                         autoUpload={true}
                         disabled={field.disabled}
                         value={field.value}
-                        fileTypes='image'
+                        fileTypes="image"
                         placeholder="Upload OG image"
                         errorMessage={fieldState.error?.message}
                         onError={(message) => {
@@ -394,7 +406,7 @@ export function RefSiteUpsetDialog() {
                         autoUpload={true}
                         disabled={field.disabled}
                         value={field.value}
-                        fileTypes='image'
+                        fileTypes="image"
                         placeholder="Upload site cover"
                         errorMessage={fieldState.error?.message}
                         onError={(message) => {
@@ -417,40 +429,120 @@ export function RefSiteUpsetDialog() {
                     </div>
                   )}
                 />
-                <FormField
-                  key="siteScreenshot"
-                  control={form.control}
-                  name="siteScreenshot"
-                  render={({ field, fieldState }) => (
-                    <div className="col-span-3">
-                      <p className="mb-1 text-sm font-medium">
-                        Site Screenshot
-                      </p>
-                      <MediaUploader
-                        {...field}
-                        autoUpload={true}
-                        disabled={field.disabled}
-                        value={field.value}
-                        placeholder="Upload site screenshot"
-                        errorMessage={fieldState.error?.message}
-                        onError={(message) => {
-                          form.setError('siteScreenshot', {
-                            type: 'custom',
-                            message,
-                          })
-                        }}
-                        onChange={(fileUrl) => {
-                          console.log('siteCover fileUrl', fileUrl)
-                          field.onChange(fileUrl)
-                        }}
+                {match(isVideo)
+                  .with(true, () => (
+                    <>
+                      <FormField
+                        key="siteCoverRecord"
+                        control={form.control}
+                        name="siteCoverRecord"
+                        render={({ field, fieldState }) => (
+                          <div className="col-span-3">
+                            <p className="mb-1 text-sm font-medium">
+                              Site CoverRecord
+                            </p>
+                            <MediaUploader
+                              {...field}
+                              autoUpload={true}
+                              disabled={field.disabled}
+                              value={field.value}
+                              fileTypes="video"
+                              fileSizeLimit={24}
+                              placeholder="Upload site cover record"
+                              errorMessage={fieldState.error?.message}
+                              onError={(message) => {
+                                form.setError('siteCoverRecord', {
+                                  type: 'custom',
+                                  message,
+                                })
+                              }}
+                              onChange={(fileUrl) => {
+                                console.log('siteCoverRecord fileUrl', fileUrl)
+                                field.onChange(fileUrl)
+                              }}
+                            />
+                          </div>
+                        )}
                       />
-                    </div>
-                  )}
-                />
+                      <FormField
+                        key="siteRecord"
+                        control={form.control}
+                        name="siteRecord"
+                        render={({ field, fieldState }) => (
+                          <div className="col-span-3">
+                            <p className="mb-1 text-sm font-medium">
+                              Site Record
+                            </p>
+                            <MediaUploader
+                              {...field}
+                              autoUpload={true}
+                              disabled={field.disabled}
+                              value={field.value}
+                              fileTypes="video"
+                              fileSizeLimit={24}
+                              placeholder="Upload site record"
+                              errorMessage={fieldState.error?.message}
+                              onError={(message) => {
+                                form.setError('siteRecord', {
+                                  type: 'custom',
+                                  message,
+                                })
+                              }}
+                              onChange={(fileUrl) => {
+                                console.log('siteRecord fileUrl', fileUrl)
+                                field.onChange(fileUrl)
+                              }}
+                            />
+                          </div>
+                        )}
+                      />
+                    </>
+                  ))
+                  .otherwise(() => (
+                    <FormField
+                      key="siteScreenshot"
+                      control={form.control}
+                      name="siteScreenshot"
+                      render={({ field, fieldState }) => (
+                        <div className="col-span-3">
+                          <p className="mb-1 text-sm font-medium">
+                            Site Screenshot
+                          </p>
+                          <MediaUploader
+                            {...field}
+                            autoUpload={true}
+                            disabled={field.disabled}
+                            value={field.value}
+                            fileTypes="image"
+                            placeholder="Upload site screenshot"
+                            errorMessage={fieldState.error?.message}
+                            onError={(message) => {
+                              form.setError('siteScreenshot', {
+                                type: 'custom',
+                                message,
+                              })
+                            }}
+                            onChange={(fileUrl) => {
+                              console.log('siteScreenshot fileUrl', fileUrl)
+                              field.onChange(fileUrl)
+                            }}
+                          />
+                        </div>
+                      )}
+                    />
+                  ))}
               </div>
             </div>
 
-            <DialogFooter className="mt-4">
+            <SheetFooter className="mt-auto">
+              <div className="flex items-center space-x-2 mr-6">
+                <Switch
+                  id="video-ref"
+                  checked={isVideo}
+                  onCheckedChange={setIsVideo}
+                />
+                <Label htmlFor="video-ref">Video Ref</Label>
+              </div>
               <Button
                 type="button"
                 variant={'outline'}
@@ -461,6 +553,8 @@ export function RefSiteUpsetDialog() {
                       ...detailData,
                       siteOGImage: detailData.siteOGImage ?? '',
                       siteScreenshot: detailData.siteScreenshot ?? '',
+                      siteRecord: detailData.siteRecord ?? '',
+                      siteCoverRecord: detailData.siteCoverRecord ?? '',
                     })
                   } else {
                     form.reset({ ...emptyData })
@@ -486,11 +580,11 @@ export function RefSiteUpsetDialog() {
                   </Button>
                 </div>
               )}
-            </DialogFooter>
+            </SheetFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   )
 }
 

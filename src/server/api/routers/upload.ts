@@ -14,7 +14,9 @@ export const uploadRouter = createTRPCRouter({
             const suffix = value.split('.').pop()
             return (
               suffix &&
-              ['jpg', 'jpeg', 'png', 'svg', 'webp', 'ico'].includes(suffix)
+              ['jpg', 'jpeg', 'png', 'svg', 'webp', 'ico', 'mp4'].includes(
+                suffix,
+              )
             )
           },
           { message: 'Invalid file type' },

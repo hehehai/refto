@@ -109,12 +109,16 @@ export const SiteDetail = memo(
                 className="mx-auto block rounded-lg ring-1 ring-zinc-100"
               />
             )}
-            {(item.siteScreenshot || item.siteCover) && (
-              <img
-                src={item.siteScreenshot || item.siteCover}
-                alt={item.siteName}
-                className="mx-auto block rounded-lg ring-1 ring-zinc-100"
-              />
+            {item.siteRecord ? (
+              <video src={item.siteRecord} muted autoPlay />
+            ) : (
+              (item.siteScreenshot || item.siteCover) && (
+                <img
+                  src={item.siteScreenshot || item.siteCover}
+                  alt={item.siteName}
+                  className="mx-auto block rounded-lg ring-1 ring-zinc-100"
+                />
+              )
             )}
           </div>
         </div>

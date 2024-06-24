@@ -1,5 +1,6 @@
 import { BlurImage } from '@/components/shared/blur-image'
 import { VisitIcon } from '@/components/shared/icons'
+import { VideoWrapper } from '@/components/shared/video-wrapper'
 import { cn } from '@/lib/utils'
 import { VisitLink } from './visit-link'
 
@@ -10,6 +11,7 @@ interface SiteShowcaseProps extends React.ComponentPropsWithoutRef<'div'> {
     siteName: string
     siteFavicon: string
     siteCover: string
+    siteCoverRecord: string
     siteCoverWidth?: number
     siteCoverHeight?: number
     visits: number
@@ -35,7 +37,14 @@ export const SiteShowcase = ({
         className="relative w-full overflow-hidden rounded-xl border border-[rgb(232,238,241)]"
         style={{ height: fixedHeight ? `${fixedHeight}px` : undefined }}
       >
-        {fixedHeight ? (
+        {item.siteCoverRecord ? (
+          <VideoWrapper
+            src={item.siteCoverRecord}
+            cover={item.siteCover}
+            width={item.siteCoverWidth}
+            height={item.siteCoverHeight}
+          />
+        ) : fixedHeight ? (
           <BlurImage
             src={item.siteCover}
             alt={item.siteName}

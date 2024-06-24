@@ -88,7 +88,7 @@ export const SiteShowcaseSheet = () => {
       <SheetContent
         side="bottom"
         showClose={false}
-        className="h-[calc(100dvh-64px)] rounded-t-2xl border-0 p-0"
+        className="h-[calc(100dvh-52px)] rounded-t-2xl border-0 p-0"
       >
         <div className="relative h-full w-full">
           <div

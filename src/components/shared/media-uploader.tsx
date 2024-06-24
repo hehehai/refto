@@ -120,24 +120,22 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
     const previewInfo = useMemo(() => {
       if (fileUrl) {
         const fileLink = new URL(fileUrl).pathname.split('/').pop()
-        const ext = (fileLink?.split('.') ?? []).pop()
+        const ext = (fileLink?.split('.') ?? []).pop()?.toUpperCase()
         if (fileLink) {
-          const isVideo = mediaTypes.video.type.includes(
-            ext?.toUpperCase() ?? '',
-          )
+          const isVideo = mediaTypes.video.type.includes(ext ?? '')
           return {
             name: fileLink,
-            type: ext?.toUpperCase(),
+            type: ext,
             url: fileUrl,
             isVideo,
           }
         }
       } else if (file) {
-        const fileMime = mime.getExtension(file.type)
-        const isVideo = mediaTypes.video.mime.includes(fileMime ?? '')
+        const ext = mime.getExtension(file.type)?.toUpperCase()
+        const isVideo = mediaTypes.video.type.includes(ext ?? '')
         return {
           name: file.name,
-          type: fileMime?.toUpperCase(),
+          type: ext,
           url: URL.createObjectURL(file),
           isVideo,
         }

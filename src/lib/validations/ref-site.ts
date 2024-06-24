@@ -28,6 +28,8 @@ export const refSiteSchema = z.object({
   siteCoverHeight: z.number(),
   siteCoverWidth: z.number(),
   siteScreenshot: z.string().url().optional().or(z.literal('')),
+  siteRecord: z.string().url().optional().or(z.literal('')),
+  siteCoverRecord: z.string().url().optional().or(z.literal('')),
   siteTags: z.array(z.string()).min(1).max(16),
 })
 
