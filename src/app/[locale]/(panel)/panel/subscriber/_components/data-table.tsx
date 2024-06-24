@@ -1,15 +1,15 @@
-"use client";
+'use client'
 
-import * as React from "react";
 import {
   type ColumnFiltersState,
+  type PaginationState,
   type SortingState,
   type VisibilityState,
   flexRender,
   getCoreRowModel,
   useReactTable,
-  type PaginationState,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table'
+import * as React from 'react'
 
 import {
   Table,
@@ -18,68 +18,68 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table'
 
-import { DataTablePagination } from "@/components/shared/data-table-pagination";
-import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
-import { api } from "@/lib/trpc/react";
-import { Spinner } from "@/components/shared/icons";
-import { Button } from "@/components/ui/button";
-import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
-import { columns } from "./columns";
-import { DataTableRowActions } from "./data-table-row-actions";
-import { type Subscriber } from "@prisma/client";
-import { useToast } from "@/components/ui/use-toast";
+import { DataTableFacetedFilter } from '@/components/shared/data-table-faceted-filter'
+import { DataTablePagination } from '@/components/shared/data-table-pagination'
+import { DataTableToolbar } from '@/components/shared/data-table-toolbar'
+import { Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/trpc/react'
+import type { Subscriber } from '@prisma/client'
+import { columns } from './columns'
+import { DataTableRowActions } from './data-table-row-actions'
 
 export function DataTable() {
-  const { toast } = useToast();
-  const [rowSelection, setRowSelection] = React.useState({});
+  const { toast } = useToast()
+  const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({})
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  })
+  const [globalFilter, setGlobalFilter] = React.useState('')
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
-  );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  )
+  const [sorting, setSorting] = React.useState<SortingState>([])
 
   const tableQuery = api.subscriber.query.useQuery(
     {
       limit: pagination.pageSize,
       search: globalFilter,
-      orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
+      orderBy: sorting.map(({ id, desc }) => `${desc ? '-' : '+'}${id}`),
       page: pagination.pageIndex,
       status: columnFilters[0]?.value as any,
     },
     {
       refetchOnWindowFocus: false,
     },
-  );
+  )
 
   const unSubRow = api.subscriber.unsubscribeBatch.useMutation({
     onSuccess: () => {
-      tableQuery.refetch();
+      tableQuery.refetch()
       toast({
-        title: "Success",
-        description: "unSubscribe",
-      });
+        title: 'Success',
+        description: 'unSubscribe',
+      })
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-      });
+      })
     },
-  });
+  })
 
   const tableColumns = React.useMemo(() => {
     return columns((row) => {
-      return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />;
-    });
-  }, [tableQuery.refetch]);
+      return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />
+    })
+  }, [tableQuery.refetch])
 
   const table = useReactTable<Subscriber>({
     data: (tableQuery.data?.rows as any) || [],
@@ -109,7 +109,7 @@ export function DataTable() {
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     onPaginationChange: setPagination,
-  });
+  })
 
   return (
     <div className="space-y-4">
@@ -121,11 +121,11 @@ export function DataTable() {
             value={(table.getState().columnFilters[0]?.value as string[]) ?? []}
             title="Status"
             options={[
-              { label: "Active", value: "subscribed" },
-              { label: "Inactive", value: "unsubscribed" },
+              { label: 'Active', value: 'subscribed' },
+              { label: 'Inactive', value: 'unsubscribed' },
             ]}
             onChange={(value) =>
-              table.setColumnFilters([{ id: "status", value }])
+              table.setColumnFilters([{ id: 'status', value }])
             }
           />
         }
@@ -150,7 +150,7 @@ export function DataTable() {
                               header.getContext(),
                             )}
                       </TableHead>
-                    );
+                    )
                   })}
                 </TableRow>
               ))}
@@ -160,7 +160,7 @@ export function DataTable() {
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
+                    data-state={row.getIsSelected() && 'selected'}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -193,21 +193,21 @@ export function DataTable() {
           <>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <Button
-                size={"xs"}
-                variant={"destructive"}
+                size={'xs'}
+                variant={'destructive'}
                 disabled={unSubRow.isLoading}
                 onClick={() => {
                   const emails = table
                     .getFilteredSelectedRowModel()
                     .rows.filter((row) => !row.original.unSubDate)
-                    .map((row) => row.original.email);
+                    .map((row) => row.original.email)
                   if (!emails.length) {
                     return toast({
-                      title: "Error",
-                      description: "No can be deleted",
-                    });
+                      title: 'Error',
+                      description: 'No can be deleted',
+                    })
                   }
-                  unSubRow.mutate({ emails });
+                  unSubRow.mutate({ emails })
                 }}
               >
                 {unSubRow.isLoading && <Spinner className="mr-2" />}
@@ -218,5 +218,5 @@ export function DataTable() {
         }
       />
     </div>
-  );
+  )
 }

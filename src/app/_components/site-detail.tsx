@@ -1,15 +1,15 @@
-import { BlurImage } from "@/components/shared/blur-image";
-import { VisitIcon } from "@/components/shared/icons";
-import { Badge } from "@/components/ui/badge";
-import { siteTagMap } from "@/lib/constants";
-import { cn } from "@/lib/utils";
-import { type RefSite } from "@prisma/client";
-import { memo, useMemo } from "react";
-import { VisitLink } from "./visit-link";
+import { BlurImage } from '@/components/shared/blur-image'
+import { VisitIcon } from '@/components/shared/icons'
+import { Badge } from '@/components/ui/badge'
+import { siteTagMap } from '@/lib/constants'
+import { cn } from '@/lib/utils'
+import type { RefSite } from '@prisma/client'
+import { memo, useMemo } from 'react'
+import { VisitLink } from './visit-link'
 
-interface SiteDetailProps extends React.ComponentPropsWithoutRef<"div"> {
-  item: RefSite;
-  locale: string;
+interface SiteDetailProps extends React.ComponentPropsWithoutRef<'div'> {
+  item: RefSite
+  locale: string
 }
 
 export const SiteDetail = memo(
@@ -22,12 +22,12 @@ export const SiteDetail = memo(
               key={tag}
               className="border-zinc-150 rounded-full border px-3 py-0.5 text-sm my-[3px]"
             >
-              {siteTagMap[tag]?.[locale as "en" | "zh-CN"] || tag}
+              {siteTagMap[tag]?.[locale as 'en' | 'zh-CN'] || tag}
             </div>
           ))}
         </div>
-      );
-    }, [item.siteTags, locale]);
+      )
+    }, [item.siteTags, locale])
 
     const metaNode = useMemo(() => {
       return (
@@ -47,11 +47,11 @@ export const SiteDetail = memo(
             <VisitIcon className="text-[24px]" />
           </VisitLink>
         </div>
-      );
-    }, [item.id, item.siteUrl, item.visits]);
+      )
+    }, [item.id, item.siteUrl, item.visits])
 
     return (
-      <div {...props} className={cn("pb-14 md:pb-20", props.className)}>
+      <div {...props} className={cn('pb-14 md:pb-20', props.className)}>
         <div className="container mb-6 mt-4 text-3xl font-medium leading-normal sm:text-4xl md:mt-14 lg:text-5xl">
           {item.siteTitle}
         </div>
@@ -79,7 +79,9 @@ export const SiteDetail = memo(
                   {item.siteName}
                 </VisitLink>
                 {item.isTop && (
-                  <Badge className="ml-auto px-3 py-0.5 flex-shrink-0">TOP</Badge>
+                  <Badge className="ml-auto px-3 py-0.5 flex-shrink-0">
+                    TOP
+                  </Badge>
                 )}
                 <div className="hidden md:block">{tagsNode}</div>
                 <div className="md:hidden flex-shrink-0 ml-4">{metaNode}</div>
@@ -94,7 +96,7 @@ export const SiteDetail = memo(
           <div className="mt-6 space-y-8 md:mt-20">
             <div className="relative">
               <div className="absolute left-0 top-0 text-2xl font-medium md:top-[3px] md:text-4xl">
-                {"//"}
+                {'//'}
               </div>
               <div className="relative z-10 ml-7 md:ml-12 md:text-lg">
                 {item.siteDescription}
@@ -117,8 +119,8 @@ export const SiteDetail = memo(
           </div>
         </div>
       </div>
-    );
+    )
   },
-);
+)
 
-SiteDetail.displayName = "SiteDetail";
+SiteDetail.displayName = 'SiteDetail'

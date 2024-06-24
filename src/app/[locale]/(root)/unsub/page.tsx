@@ -1,44 +1,44 @@
-"use client";
+'use client'
 
-import { z } from "zod";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { Button } from "@/components/ui/button";
-import { api } from "@/lib/trpc/react";
-import { useToast } from "@/components/ui/use-toast";
-import { Spinner } from "@/components/shared/icons";
-import { useSearchParams } from "next/navigation";
+import { Spinner } from '@/components/shared/icons'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/trpc/react'
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
+import { useSearchParams } from 'next/navigation'
+import { z } from 'zod'
 
 const unSubSchema = z.object({
   email: z
     .string()
-    .min(1, { message: "Email is required" })
-    .email({ message: "Email is invalid" }),
-  token: z.string().min(1, { message: "Token is required" }),
-});
+    .min(1, { message: 'Email is required' })
+    .email({ message: 'Email is invalid' }),
+  token: z.string().min(1, { message: 'Token is required' }),
+})
 
 export default function UnSubPage() {
-  const searchParams = useSearchParams();
-  const { toast } = useToast();
+  const searchParams = useSearchParams()
+  const { toast } = useToast()
   const valid = unSubSchema.safeParse({
-    email: searchParams.get("email") || "",
-    token: searchParams.get("token") || "",
-  });
+    email: searchParams.get('email') || '',
+    token: searchParams.get('token') || '',
+  })
 
   const ubSubAction = api.subscriber.unsubscribe.useMutation({
     onSuccess: () => {
       toast({
-        title: "You are Unsubscribe",
-      });
+        title: 'You are Unsubscribe',
+      })
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-        variant: "destructive",
-      });
+        variant: 'destructive',
+      })
     },
-  });
+  })
 
   return (
     <div className="container flex min-h-[460px] max-w-lg flex-col items-center justify-center">
@@ -48,7 +48,7 @@ export default function UnSubPage() {
           <ExclamationTriangleIcon className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            {valid.error.issues[0]?.message || "Invalid data"}
+            {valid.error.issues[0]?.message || 'Invalid data'}
           </AlertDescription>
         </Alert>
       ) : (
@@ -66,5 +66,5 @@ export default function UnSubPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

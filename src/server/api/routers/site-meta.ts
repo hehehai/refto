@@ -1,6 +1,6 @@
-import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
-import { getSiteMetaByUrl } from "@/lib/site-meta";
+import { getSiteMetaByUrl } from '@/lib/site-meta'
+import { z } from 'zod'
+import { createTRPCRouter, publicProcedure } from '../trpc'
 
 export const siteMetaRouter = createTRPCRouter({
   // meta
@@ -11,6 +11,6 @@ export const siteMetaRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
-      return getSiteMetaByUrl(input.url);
+      return getSiteMetaByUrl(input.url)
     }),
-});
+})

@@ -61,6 +61,7 @@ model User {
     accounts Account[]
     sessions Session[]
     refSites RefSite[]
+    likes    RefSiteLike[]
 
     @@map("users")
 }
@@ -97,24 +98,26 @@ model SubmitSite {
 }
 
 model RefSite {
-    id              String    @id @default(cuid())
-    siteName        String    @db.VarChar(255)
-    siteTitle       String    @db.VarChar(500)
-    siteDescription String    @db.VarChar(1200)
+    id              String        @id @default(cuid())
+    siteName        String        @db.VarChar(255)
+    siteTitle       String        @db.VarChar(500)
+    siteDescription String        @db.VarChar(1200)
     siteFavicon     String
     siteUrl         String
     siteCover       String
     siteCoverHeight Float
     siteCoverWidth  Float
-    siteScreenshot  String?   @default("")
-    siteOGImage     String?   @default("")
+    siteScreenshot  String?       @default("")
+    siteRecord      String?       @default("")
+    siteCoverRecord String?       @default("")
+    siteOGImage     String?       @default("")
     siteTags        String[]
-    createdAt       DateTime  @default(now()) @map("created_at")
-    updatedAt       DateTime  @updatedAt @map("updated_at")
-    deletedAt       DateTime? @map("deleted_at")
-    likes           Int       @default(0)
-    visits          Int       @default(0)
-    isTop           Boolean   @default(false)
+    createdAt       DateTime      @default(now()) @map("created_at")
+    updatedAt       DateTime      @updatedAt @map("updated_at")
+    deletedAt       DateTime?     @map("deleted_at")
+    likes           RefSiteLike[]
+    visits          Int           @default(0)
+    isTop           Boolean       @default(false)
 
     createdBy   User   @relation(fields: [createdById], references: [id])
     createdById String
@@ -122,6 +125,19 @@ model RefSite {
     @@unique([siteUrl])
     @@index([siteName, siteTitle, siteUrl])
     @@map("ref_sites")
+}
+
+model RefSiteLike {
+    id        String  @id @default(cuid())
+    refSiteId String
+    userId    String
+    RefSite   RefSite @relation(fields: [refSiteId], references: [id])
+    User      User    @relation(fields: [userId], references: [id])
+
+    createdAt DateTime @default(now()) @map("created_at")
+
+    @@unique([refSiteId, userId])
+    @@map("ref_site_likes")
 }
 
 enum WeeklySentStatus {

@@ -1,48 +1,48 @@
-"use client";
+'use client'
 
-import { type Session } from "next-auth";
-import { signOut } from "next-auth/react";
+import type { Session } from 'next-auth'
+import { signOut } from 'next-auth/react'
 
+import { BoxUserIcon, Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { BoxUserIcon, Spinner } from "@/components/shared/icons";
-import React, { useCallback } from "react";
-import { useToast } from "../ui/use-toast";
+} from '@/components/ui/dropdown-menu'
+import React, { useCallback } from 'react'
+import { useToast } from '../ui/use-toast'
 
-interface UserAccountNavProps extends React.ComponentPropsWithoutRef<"div"> {
-  user: Session["user"];
+interface UserAccountNavProps extends React.ComponentPropsWithoutRef<'div'> {
+  user: Session['user']
 }
 
 export function UserAccountNav({ user }: UserAccountNavProps) {
-  const { toast } = useToast();
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const userName = user.name || user.email?.split("@")[0];
+  const { toast } = useToast()
+  const [loading, setLoading] = React.useState<boolean>(false)
+  const userName = user.name || user.email?.split('@')[0]
 
   const handleSignOut = useCallback(
     async (event: Event) => {
-      event.preventDefault();
+      event.preventDefault()
       try {
-        setLoading(true);
+        setLoading(true)
         await signOut({
           callbackUrl: `${window.location.origin}/`,
-        });
+        })
       } catch (_err) {
         toast({
-          title: "Something went wrong.",
-          description: "Your sign out request failed. Please try again.",
-          variant: "destructive",
-        });
+          title: 'Something went wrong.',
+          description: 'Your sign out request failed. Please try again.',
+          variant: 'destructive',
+        })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
-    [toast, setLoading],
-  );
+    [toast],
+  )
 
   return (
     <DropdownMenu>
@@ -63,5 +63,5 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

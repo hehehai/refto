@@ -1,19 +1,19 @@
 interface FetcherError extends Error {
-  status: number;
+  status: number
 }
 
 export async function fetcher<JSON = any>(
   input: RequestInfo,
   init?: RequestInit,
 ): Promise<JSON> {
-  const res = await fetch(input, init);
+  const res = await fetch(input, init)
 
   if (!res.ok) {
-    const error = await res.text();
-    const err = new Error(error) as FetcherError;
-    err.status = res.status;
-    throw err;
+    const error = await res.text()
+    const err = new Error(error) as FetcherError
+    err.status = res.status
+    throw err
   }
 
-  return res.json();
+  return res.json()
 }

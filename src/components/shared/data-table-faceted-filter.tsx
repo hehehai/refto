@@ -1,9 +1,8 @@
-import * as React from "react";
-import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
+import { CheckIcon, PlusCircledIcon } from '@radix-ui/react-icons'
+import type * as React from 'react'
 
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Command,
   CommandEmpty,
@@ -12,23 +11,24 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command";
+} from '@/components/ui/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
+} from '@/components/ui/popover'
+import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
 
 interface DataTableFacetedFilterProps {
-  value?: string[];
-  title?: string;
+  value?: string[]
+  title?: string
   options: {
-    label: string;
-    value: string;
-    icon?: React.ComponentType<{ className?: string }>;
-  }[];
-  onChange?: (value: string[]) => void;
+    label: string
+    value: string
+    icon?: React.ComponentType<{ className?: string }>
+  }[]
+  onChange?: (value: string[]) => void
 }
 
 export function DataTableFacetedFilter({
@@ -37,7 +37,7 @@ export function DataTableFacetedFilter({
   options,
   onChange,
 }: DataTableFacetedFilterProps) {
-  const selectedValues = new Set(value);
+  const selectedValues = new Set(value)
 
   return (
     <Popover>
@@ -87,36 +87,36 @@ export function DataTableFacetedFilter({
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
-                const isSelected = selectedValues.has(option.value);
+                const isSelected = selectedValues.has(option.value)
                 return (
                   <CommandItem
                     key={option.value}
                     onSelect={() => {
                       if (isSelected) {
-                        selectedValues.delete(option.value);
+                        selectedValues.delete(option.value)
                       } else {
-                        selectedValues.add(option.value);
+                        selectedValues.add(option.value)
                       }
-                      const filterValues = Array.from(selectedValues);
-                      onChange?.(filterValues.length ? filterValues : []);
+                      const filterValues = Array.from(selectedValues)
+                      onChange?.(filterValues.length ? filterValues : [])
                     }}
                   >
                     <div
                       className={cn(
-                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                        'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
                         isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "opacity-50 [&_svg]:invisible",
+                          ? 'bg-primary text-primary-foreground'
+                          : 'opacity-50 [&_svg]:invisible',
                       )}
                     >
-                      <CheckIcon className={cn("h-4 w-4")} />
+                      <CheckIcon className={cn('h-4 w-4')} />
                     </div>
                     {option.icon && (
                       <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
                     )}
                     <span>{option.label}</span>
                   </CommandItem>
-                );
+                )
               })}
             </CommandGroup>
             {selectedValues.size > 0 && (
@@ -136,5 +136,5 @@ export function DataTableFacetedFilter({
         </Command>
       </PopoverContent>
     </Popover>
-  );
+  )
 }

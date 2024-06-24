@@ -1,21 +1,20 @@
-import { BlurImage } from "@/components/shared/blur-image";
-import { VisitIcon } from "@/components/shared/icons";
-import { cn } from "@/lib/utils";
-import { VisitLink } from "./visit-link";
+import { BlurImage } from '@/components/shared/blur-image'
+import { VisitIcon } from '@/components/shared/icons'
+import { cn } from '@/lib/utils'
+import { VisitLink } from './visit-link'
 
-interface SiteShowcaseProps extends React.ComponentPropsWithoutRef<"div"> {
+interface SiteShowcaseProps extends React.ComponentPropsWithoutRef<'div'> {
   item: {
-    id: string;
-    siteUrl: string;
-    siteName: string;
-    siteFavicon: string;
-    siteCover: string;
-    siteCoverWidth?: number;
-    siteCoverHeight?: number;
-    likes: number;
-    visits: number;
-  };
-  fixedHeight?: number;
+    id: string
+    siteUrl: string
+    siteName: string
+    siteFavicon: string
+    siteCover: string
+    siteCoverWidth?: number
+    siteCoverHeight?: number
+    visits: number
+  }
+  fixedHeight?: number
 }
 
 export const SiteShowcase = ({
@@ -28,7 +27,7 @@ export const SiteShowcase = ({
       key={item.id}
       {...props}
       className={cn(
-        "flex w-full cursor-pointer flex-col rounded-[14px] p-1 transition-all hover:bg-zinc-50",
+        'flex w-full cursor-pointer flex-col rounded-[14px] p-1 transition-all hover:bg-zinc-50',
         props.className,
       )}
     >
@@ -65,7 +64,9 @@ export const SiteShowcase = ({
               />
             </div>
           )}
-          <div className="text-sm font-medium text-foreground/80">{item.siteName}</div>
+          <div className="text-sm font-medium text-foreground/80">
+            {item.siteName}
+          </div>
         </div>
         <div className="flex items-center space-x-3 px-0.5 py-1">
           {/* <div className="flex items-center space-x-1 opacity-80 transition-opacity hover:opacity-100">
@@ -85,5 +86,5 @@ export const SiteShowcase = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

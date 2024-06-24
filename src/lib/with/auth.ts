@@ -1,16 +1,16 @@
-"use server";
+'use server'
 
-import { type Session } from "next-auth";
-import { getSession } from "../session";
-import { type Role } from "@prisma/client";
-import { getSearchParams } from "../utils";
+import type { Role } from '@prisma/client'
+import type { Session } from 'next-auth'
+import { getSession } from '../session'
+import { getSearchParams } from '../utils'
 
 export async function isAdmin() {
-  const session = await getSession();
-  if (!session?.user) return false;
-  if (session.user.role !== "ADMIN") return false;
+  const session = await getSession()
+  if (!session?.user) return false
+  if (session.user.role !== 'ADMIN') return false
 
-  return true;
+  return true
 }
 
 type WithWrapperHandler = ({
@@ -19,45 +19,45 @@ type WithWrapperHandler = ({
   searchParams,
   session,
 }: {
-  req: Request;
-  params: Record<string, string>;
-  searchParams: Record<string, string>;
-  session: Session | null;
-}) => Promise<Response>;
+  req: Request
+  params: Record<string, string>
+  searchParams: Record<string, string>
+  session: Session | null
+}) => Promise<Response>
 
 export const withAuthWrapper =
   (
     handler: WithWrapperHandler,
     {
-      requiredRole = ["USER", "ADMIN"],
+      requiredRole = ['USER', 'ADMIN'],
       allowAnonymous, // special case for /api/links (POST /api/links) – allow no session
     }: {
-      requiredRole?: Array<Role>;
-      allowAnonymous?: boolean;
+      requiredRole?: Array<Role>
+      allowAnonymous?: boolean
     } = {},
   ) =>
   async (
     req: Request,
     { params }: { params: Record<string, string> | undefined },
   ) => {
-    const searchParams = getSearchParams(req.url);
+    const searchParams = getSearchParams(req.url)
 
-    const session = await getSession();
+    const session = await getSession()
 
     if (!allowAnonymous) {
       if (!session?.user) {
-        return new Response("Unauthorized", { status: 401 });
+        return new Response('Unauthorized', { status: 401 })
       }
 
       if (requiredRole?.length) {
         // 角色验证
         if (!requiredRole.includes(session.user.role)) {
-          return new Response("Unauthorized", { status: 401 });
+          return new Response('Unauthorized', { status: 401 })
         }
       }
 
       if (!session?.user) {
-        return new Response("Unauthorized", { status: 401 });
+        return new Response('Unauthorized', { status: 401 })
       }
     }
 
@@ -66,8 +66,8 @@ export const withAuthWrapper =
       params: params ?? {},
       searchParams,
       session,
-    });
-  };
+    })
+  }
 
 export const withSessionWrapper =
   (handler: WithWrapperHandler) =>
@@ -75,12 +75,12 @@ export const withSessionWrapper =
     req: Request,
     { params }: { params: Record<string, string> | undefined },
   ) => {
-    const searchParams = getSearchParams(req.url);
+    const searchParams = getSearchParams(req.url)
 
-    const session = await getSession();
+    const session = await getSession()
 
     if (!session?.user) {
-      return new Response("Unauthorized", { status: 401 });
+      return new Response('Unauthorized', { status: 401 })
     }
 
     return handler({
@@ -88,5 +88,5 @@ export const withSessionWrapper =
       params: params ?? {},
       searchParams,
       session,
-    });
-  };
+    })
+  }

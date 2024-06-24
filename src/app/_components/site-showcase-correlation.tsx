@@ -1,35 +1,33 @@
-"use client";
+'use client'
 
-import { api } from "@/lib/trpc/react";
-import { SiteShowcase } from "./site-showcase";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useTranslations } from "next-intl";
+import { Skeleton } from '@/components/ui/skeleton'
+import { api } from '@/lib/trpc/react'
+import { useTranslations } from 'next-intl'
+import { SiteShowcase } from './site-showcase'
 
 const correlationSkeleton = () => {
   return Array.from({ length: 6 }, (_, i) => (
     <Skeleton key={i} className="h-[400px] w-full rounded-xl bg-slate-200" />
-  ));
-};
+  ))
+}
 
 export const SiteShowcaseCorrelationSkeleton = () => {
-  return correlationSkeleton();
-};
+  return correlationSkeleton()
+}
 
 export const SiteShowcaseCorrelation = ({
   id,
   onDetail,
 }: {
-  id: string;
-  onDetail?: (id: string) => void;
+  id: string
+  onDetail?: (id: string) => void
 }) => {
-  const t = useTranslations("Detail.correlation");
-  const sitesQuery = api.refSites.correlation.useQuery({ id });
+  const t = useTranslations('Detail.correlation')
+  const sitesQuery = api.refSites.correlation.useQuery({ id })
 
   return (
     <div>
-      <div className="mb-3 text-lg md:mb-6 md:text-2xl">
-        {t('title')}
-      </div>
+      <div className="mb-3 text-lg md:mb-6 md:text-2xl">{t('title')}</div>
       <div className="smg:gap-4 grid w-full grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:gap-8">
         {sitesQuery.isLoading ? (
           <SiteShowcaseCorrelationSkeleton />
@@ -45,5 +43,5 @@ export const SiteShowcaseCorrelation = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}

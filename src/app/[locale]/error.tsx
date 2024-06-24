@@ -1,20 +1,20 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { TerminalIcon } from "lucide-react";
+import { TerminalIcon } from 'lucide-react'
+import Link from 'next/link'
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { useTranslations } from 'next-intl'
 
-export default function Error({
+export default function ErrorPage({
   error,
   reset,
 }: {
-  error: Error;
-  reset: () => void;
+  error: Error
+  reset: () => void
 }) {
-  const t = useTranslations("Error");
+  const t = useTranslations('Error')
 
   return (
     <div className="flex h-[80vh] w-full flex-col items-center justify-center">
@@ -27,18 +27,16 @@ export default function Error({
       <div className="mt-5 flex items-center">
         <Button variant="outline" asChild>
           <Link
-            href={`https://github.com/hehehai/refto/issues/new?labels=runtime+error&title=${
-              "Runtime: " + error.name
-            }&body=${error.message}`}
+            href={`https://github.com/hehehai/refto/issues/new?labels=runtime+error&title=${`Runtime: ${error.name}`}&body=${error.message}`}
             target="_blank"
           >
-            {t("fallback")}
+            {t('fallback')}
           </Link>
         </Button>
         <Button onClick={() => reset()} className="ml-3">
-          {t("button")}
+          {t('button')}
         </Button>
       </div>
     </div>
-  );
+  )
 }

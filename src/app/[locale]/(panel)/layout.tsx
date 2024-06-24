@@ -1,31 +1,31 @@
-import dynamic from "next/dynamic";
-import { notFound, redirect } from "next/navigation";
-import { PanelHeader } from "../../_components/panel-header";
-import { getSession } from "@/lib/session";
+import { getSession } from '@/lib/session'
+import dynamic from 'next/dynamic'
+import { notFound, redirect } from 'next/navigation'
+import { PanelHeader } from '../../_components/panel-header'
 
 const RefSiteUpsetDialog = dynamic(
-  () => import("./_components/ref-site-upset-dialog"),
-);
+  () => import('./_components/ref-site-upset-dialog'),
+)
 const RefSiteDetailSheet = dynamic(
-  () => import("./_components/ref-site-detail-sheet"),
-);
+  () => import('./_components/ref-site-detail-sheet'),
+)
 const WeeklyUpsetDialog = dynamic(
-  () => import("./_components/weekly-upset-dialog"),
-);
+  () => import('./_components/weekly-upset-dialog'),
+)
 
 export default async function PanelLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const session = await getSession();
+  const session = await getSession()
 
   if (!session?.user) {
-    return notFound();
+    return notFound()
   }
 
-  if (session.user.role === "USER") {
-    return redirect("/");
+  if (session.user.role === 'USER') {
+    return redirect('/')
   }
 
   return (
@@ -36,5 +36,5 @@ export default async function PanelLayout({
       <RefSiteDetailSheet />
       <WeeklyUpsetDialog />
     </div>
-  );
+  )
 }

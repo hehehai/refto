@@ -1,6 +1,6 @@
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { getR2SignedUploadUrl } from "@/lib/upload";
+import { getR2SignedUploadUrl } from '@/lib/upload'
+import { z } from 'zod'
+import { createTRPCRouter, protectedProcedure } from '../trpc'
 
 export const uploadRouter = createTRPCRouter({
   getUploadUrl: protectedProcedure
@@ -11,16 +11,16 @@ export const uploadRouter = createTRPCRouter({
         .max(1024)
         .refine(
           (value) => {
-            const suffix = value.split(".").pop();
+            const suffix = value.split('.').pop()
             return (
               suffix &&
-              ["jpg", "jpeg", "png", "svg", "webp", "ico"].includes(suffix)
-            );
+              ['jpg', 'jpeg', 'png', 'svg', 'webp', 'ico'].includes(suffix)
+            )
           },
-          { message: "Invalid file type" },
+          { message: 'Invalid file type' },
         ),
     )
     .query(async ({ input }) => {
-      return getR2SignedUploadUrl(input);
+      return getR2SignedUploadUrl(input)
     }),
-});
+})

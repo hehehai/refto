@@ -1,4 +1,4 @@
-import { DataTable } from "./_components/data-table";
+import { DataTable } from './_components/data-table'
 
 export default function SubscriberPage() {
   return (
@@ -10,5 +10,5 @@ export default function SubscriberPage() {
         </section>
       </div>
     </div>
-  );
+  )
 }

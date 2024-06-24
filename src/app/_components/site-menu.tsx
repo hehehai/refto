@@ -1,24 +1,24 @@
-"use client";
+'use client'
 
-import Link from "next/link";
+import { MenuIcon } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { MenuIcon } from "@/components/shared/icons";
-import { useTranslations } from "next-intl";
-import { supportedLanguages } from "@/i18n";
+} from '@/components/ui/popover'
+import { supportedLanguages } from '@/i18n'
+import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 
 export const SiteMenu = () => {
-  const t = useTranslations("Header");
+  const t = useTranslations('Header')
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant={"secondary"} className="space-x-2 rounded-full">
+        <Button variant={'secondary'} className="space-x-2 rounded-full">
           <MenuIcon className="text-xl" />
-          <span className="hidden md:inline">{t("menu")}</span>
+          <span className="hidden md:inline">{t('menu')}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -28,9 +28,9 @@ export const SiteMenu = () => {
       >
         <div className="group inline-flex items-center justify-end space-x-4">
           <Link href="/about">
-            <span>{t("about")}</span>
+            <span>{t('about')}</span>
           </Link>
-          <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]"></span>
+          <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
         </div>
         {supportedLanguages.map((lang) => (
           <div
@@ -44,10 +44,10 @@ export const SiteMenu = () => {
             >
               {lang.title}
             </Link>
-            <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]"></span>
+            <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
           </div>
         ))}
       </PopoverContent>
     </Popover>
-  );
-};
+  )
+}

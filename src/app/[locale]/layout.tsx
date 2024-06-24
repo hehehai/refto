@@ -1,30 +1,30 @@
-import "@/styles/globals.css";
+import '@/styles/globals.css'
 
-import { Providers } from "@/app/_components/providers";
-import { OpenpanelProvider } from "@openpanel/nextjs";
+import { Providers } from '@/app/_components/providers'
+import { OpenpanelProvider } from '@openpanel/nextjs'
 
-import { cn } from "@/lib/utils";
-import { site } from "@/lib/config/site";
-import { type Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { NextIntlClientProvider, useMessages } from "next-intl";
-import { outfit } from "@/lib/font";
-import { type SiteLocale } from "@/i18n";
+import type { SiteLocale } from '@/i18n'
+import { site } from '@/lib/config/site'
+import { outfit } from '@/lib/font'
+import { cn } from '@/lib/utils'
+import type { Metadata } from 'next'
+import { NextIntlClientProvider, useMessages } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 export async function generateMetadata({
   params: { locale },
 }: {
-  params: { locale: string };
+  params: { locale: string }
 }) {
-  const t = await getTranslations({ locale, namespace: "Meta" });
+  const t = await getTranslations({ locale, namespace: 'Meta' })
 
   const metadata: Metadata = {
     metadataBase: new URL(site.url),
     title: {
-      default: `${site.name} - ${t("title")}`,
+      default: `${site.name} - ${t('title')}`,
       template: `%s | ${site.name}`,
     },
-    description: t("description"),
+    description: t('description'),
     keywords: site.keywords[locale as SiteLocale],
     icons: site.icons,
     openGraph: {
@@ -33,7 +33,7 @@ export async function generateMetadata({
       url: site.url,
       siteName: site.name,
       locale: locale,
-      type: "website",
+      type: 'website',
       images: [
         {
           url: site.ogImage,
@@ -42,28 +42,28 @@ export async function generateMetadata({
         },
       ],
     },
-  };
+  }
 
-  return metadata;
+  return metadata
 }
 
 export default function RootLayout({
   children,
   params: { locale },
 }: {
-  children: React.ReactNode;
-  params: { locale: string };
+  children: React.ReactNode
+  params: { locale: string }
 }) {
-  const messages = useMessages();
+  const messages = useMessages()
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
+          'min-h-screen bg-background font-sans antialiased',
           outfit.variable,
         )}
       >
-        {locale === "zh-CN" && (
+        {locale === 'zh-CN' && (
           <link
             rel="stylesheet"
             crossOrigin="anonymous"
@@ -81,5 +81,5 @@ export default function RootLayout({
         trackOutgoingLinks={true}
       />
     </html>
-  );
+  )
 }

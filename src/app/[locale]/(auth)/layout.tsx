@@ -1,16 +1,16 @@
-import { getSession } from "@/lib/session";
-import { notFound } from "next/navigation";
+import { getSession } from '@/lib/session'
+import { notFound } from 'next/navigation'
 
 interface AuthLayoutProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 export default async function AuthLayout({ children }: AuthLayoutProps) {
-  const session = await getSession();
+  const session = await getSession()
 
   if (session?.user) {
-    return notFound();
+    return notFound()
   }
 
-  return <div className="min-h-screen">{children}</div>;
+  return <div className="min-h-screen">{children}</div>
 }

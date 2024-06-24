@@ -1,7 +1,14 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import * as React from 'react'
 
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  FilterIcon,
+} from '@/components/shared/icons'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   CommandDialog,
   CommandEmpty,
@@ -10,149 +17,143 @@ import {
   CommandItem,
   CommandList,
   CommandShortcut,
-} from "@/components/ui/command";
-import { cn, getSearchParams } from "@/lib/utils";
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  FilterIcon,
-} from "@/components/shared/icons";
-import { siteTagMap } from "@/lib/constants";
-import { Checkbox } from "@/components/ui/checkbox";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { X } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { type SiteLocale } from "@/i18n";
-import { trackEvent } from "@openpanel/nextjs";
+} from '@/components/ui/command'
+import type { SiteLocale } from '@/i18n'
+import { siteTagMap } from '@/lib/constants'
+import { cn, getSearchParams } from '@/lib/utils'
+import { trackEvent } from '@openpanel/nextjs'
+import { X } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 export function SiteFilterCommand() {
-  const t = useTranslations("Index.Search");
-  const local = useLocale();
+  const t = useTranslations('Index.Search')
+  const local = useLocale()
 
   const tagOptions = React.useMemo(() => {
     return Object.entries(siteTagMap).map(([value, item]) => ({
       label: item[local as SiteLocale],
       value,
-    }));
-  }, [local]);
+    }))
+  }, [local])
 
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const pathname = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const params = getSearchParams(searchParams);
+  const params = getSearchParams(searchParams)
 
-  const [open, setOpen] = React.useState(false);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const [inputLock, setInputLock] = React.useState(false);
-  const [search, setSearch] = React.useState(params.s || "");
+  const [open, setOpen] = React.useState(false)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+  const [inputLock, setInputLock] = React.useState(false)
+  const [search, setSearch] = React.useState(params.s || '')
   const [selected, setSelected] = React.useState<string[]>(
-    params.tags?.split(",").filter(Boolean) || [],
-  );
+    params.tags?.split(',').filter(Boolean) || [],
+  )
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((open) => !open);
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        setOpen((open) => !open)
       }
-    };
+    }
 
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, []);
+    document.addEventListener('keydown', down)
+    return () => document.removeEventListener('keydown', down)
+  }, [])
 
   // 获取 查询参数， 初始化 search 和 checkbox
 
   const handleConfirm = React.useCallback(() => {
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    newSearchParams.set("s", search);
-    newSearchParams.set("tags", selected.join(","));
-    router.push(`${pathname}?${newSearchParams.toString()}`);
-    setOpen(false);
-    trackEvent("filter", {
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+    newSearchParams.set('s', search)
+    newSearchParams.set('tags', selected.join(','))
+    router.push(`${pathname}?${newSearchParams.toString()}`)
+    setOpen(false)
+    trackEvent('filter', {
       search,
       tags: selected,
-    });
-  }, [search, selected, searchParams, pathname, router, setOpen]);
+    })
+  }, [search, selected, searchParams, pathname, router])
 
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       switch (e.key) {
-        case "ArrowDown":
-        case "ArrowUp":
+        case 'ArrowDown':
+        case 'ArrowUp': {
           // 获取所有 cmdk-group-items 属性元素的子元素，筛选元素 data-selected="true" 的元素，设置聚焦
           const items = document.querySelectorAll<HTMLDivElement>(
             'div[cmdk-group-items] > [data-selected="true"]',
-          );
+          )
           if (items.length) {
-            const [activeEl] = items;
+            const [activeEl] = items
             // 如果为上， 设置为当前元素的上一个元素， 如果为下，设置为当前元素的下一个元素
             // 如果上一个元素，不存在， 则需要让 input 聚焦
-            if (e.key === "ArrowUp") {
-              const prev = activeEl?.previousElementSibling;
+            if (e.key === 'ArrowUp') {
+              const prev = activeEl?.previousElementSibling
               if (prev) {
-                prev.querySelector("label")?.focus();
+                prev.querySelector('label')?.focus()
               } else if (inputRef.current) {
-                inputRef.current.focus();
+                inputRef.current.focus()
               }
-            } else if (e.key === "ArrowDown") {
-              activeEl?.nextElementSibling?.querySelector("label")?.focus();
+            } else if (e.key === 'ArrowDown') {
+              activeEl?.nextElementSibling?.querySelector('label')?.focus()
             }
           }
-          break;
-        case "Enter":
+          break
+        }
+        case 'Enter':
           if (!inputLock) {
-            handleConfirm();
+            handleConfirm()
           }
-          break;
-        case "Escape":
-          setSearch(params.s || "");
-          setSelected(params.tags?.split(",") || []);
-          setOpen(false);
-          break;
+          break
+        case 'Escape':
+          setSearch(params.s || '')
+          setSelected(params.tags?.split(',') || [])
+          setOpen(false)
+          break
       }
     },
-    [params, inputLock, setSearch, setSelected, setOpen, handleConfirm],
-  );
+    [params, inputLock, handleConfirm],
+  )
 
   const commandProps = React.useMemo(
     () => ({
-      className: "[&_[cmdk-input]]:h-14",
+      className: '[&_[cmdk-input]]:h-14',
       shouldFilter: false,
       onKeyDown: handleKeyDown,
     }),
     [handleKeyDown],
-  );
+  )
 
   const filterPreview = React.useMemo(() => {
-    const search = params.s || "";
-    const tags = params.tags?.split(",").filter(Boolean) || [];
+    const search = params.s || ''
+    const tags = params.tags?.split(',').filter(Boolean) || []
     if (!search.trim() && tags.length === 0) {
-      return <div>{t("holder")}</div>;
+      return <div>{t('holder')}</div>
     }
-    const showTags = tags.slice(0, 3);
+    const showTags = tags.slice(0, 3)
     return (
       <div className="flex items-center space-x-1">
         <div className="max-w-[60px] truncate">{search}</div>
         {tags.length > 0 && showTags.map((tag) => <span key={tag}>{tag}</span>)}
         {tags.length > 3 && <span>... ${tags.length - 3}+</span>}
       </div>
-    );
-  }, [params, t]);
+    )
+  }, [params, t])
 
   return (
     <>
       <div
         className={cn(
-          buttonVariants({ variant: "outline" }),
-          "relative cursor-pointer rounded-full border-zinc-200 pr-12 hover:border-foreground hover:bg-background",
+          buttonVariants({ variant: 'outline' }),
+          'relative cursor-pointer rounded-full border-zinc-200 pr-12 hover:border-foreground hover:bg-background',
         )}
         onClick={() => setOpen(true)}
       >
         <div className="hidden sm:block">{filterPreview}</div>
-        <div className="sm:hidden">{t("holder")}</div>
+        <div className="sm:hidden">{t('holder')}</div>
         <div className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-foreground text-white">
           <FilterIcon className="text-lg" />
         </div>
@@ -164,14 +165,14 @@ export function SiteFilterCommand() {
       >
         <CommandInput
           ref={inputRef}
-          placeholder={t("placeholder")}
+          placeholder={t('placeholder')}
           wrapperClassname="px-4"
           className="text-md"
           onCompositionStart={() => {
-            setInputLock(true);
+            setInputLock(true)
           }}
           onCompositionEnd={() => {
-            setInputLock(false);
+            setInputLock(false)
           }}
           value={search}
           onInput={(e) => setSearch(e.currentTarget.value)}
@@ -180,14 +181,15 @@ export function SiteFilterCommand() {
           <button
             className="rounded-sm text-foreground opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary md:top-6 md:hidden md:text-inherit"
             onClick={() => setOpen(false)}
+            type="button"
           >
             <X className="h-3 w-3" />
-            <span className="sr-only">{t("controls.cancel")}</span>
+            <span className="sr-only">{t('controls.cancel')}</span>
           </button>
         </CommandInput>
         <CommandList>
-          <CommandEmpty>{t("empty")}</CommandEmpty>
-          <CommandGroup heading={t("tagsLabel")}>
+          <CommandEmpty>{t('empty')}</CommandEmpty>
+          <CommandGroup heading={t('tagsLabel')}>
             {tagOptions.map((tag) => (
               <CommandItem key={tag.value} value={tag.value} className="p-0">
                 <label
@@ -200,11 +202,11 @@ export function SiteFilterCommand() {
                     checked={selected.includes(tag.value)}
                     onCheckedChange={(value) => {
                       if (value) {
-                        setSelected([...selected, tag.value]);
+                        setSelected([...selected, tag.value])
                       } else {
                         setSelected(
                           selected.filter((item) => item !== tag.value),
-                        );
+                        )
                       }
                     }}
                   />
@@ -224,7 +226,7 @@ export function SiteFilterCommand() {
                 <ArrowDownIcon className="text-md" />
               </CommandShortcut>
               <span className="text-xs text-zinc-700">
-                {t("controls.move")}
+                {t('controls.move')}
               </span>
             </span>
           </div>
@@ -232,19 +234,19 @@ export function SiteFilterCommand() {
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">Space</CommandShortcut>
               <span className="text-xs text-zinc-700">
-                {t("controls.select")}
+                {t('controls.select')}
               </span>
             </span>
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">Enter</CommandShortcut>
               <span className="text-xs text-zinc-700">
-                {t("controls.confirm")}
+                {t('controls.confirm')}
               </span>
             </span>
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">ESC</CommandShortcut>
               <span className="text-xs text-zinc-700">
-                {t("controls.cancel")}
+                {t('controls.cancel')}
               </span>
             </span>
           </div>
@@ -253,13 +255,13 @@ export function SiteFilterCommand() {
           className="border-t border-zinc-200 p-3 md:hidden"
           onClick={() => {
             if (!inputLock) {
-              handleConfirm();
+              handleConfirm()
             }
           }}
         >
-          <Button className="w-full">{t("controls.confirm")}</Button>
+          <Button className="w-full">{t('controls.confirm')}</Button>
         </div>
       </CommandDialog>
     </>
-  );
+  )
 }

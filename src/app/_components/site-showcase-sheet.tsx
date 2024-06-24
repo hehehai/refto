@@ -1,87 +1,87 @@
-"use client";
+'use client'
 
-import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet";
-import { useAtom } from "jotai";
-import { useSearchParams } from "next/navigation";
-import { refSiteSheetAtom } from "../_store/sheet.store";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { api } from "@/lib/trpc/react";
-import { useToast } from "@/components/ui/use-toast";
-import { type RefSite } from "@prisma/client";
-import { SiteDetail } from "./site-detail";
-import { Spinner } from "@/components/shared/icons";
-import { X, Maximize2 } from "lucide-react";
-import { SiteShowcaseCorrelation } from "./site-showcase-correlation";
-import { Separator } from "@/components/ui/separator";
-import { useLocale } from "next-intl";
-import Link from "next/link";
+import { Spinner } from '@/components/shared/icons'
+import { Separator } from '@/components/ui/separator'
+import { Sheet, SheetClose, SheetContent } from '@/components/ui/sheet'
+import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/trpc/react'
+import type { RefSite } from '@prisma/client'
+import { useAtom } from 'jotai'
+import { Maximize2, X } from 'lucide-react'
+import { useLocale } from 'next-intl'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { refSiteSheetAtom } from '../_store/sheet.store'
+import { SiteDetail } from './site-detail'
+import { SiteShowcaseCorrelation } from './site-showcase-correlation'
 
 export const SiteShowcaseSheet = () => {
-  const locale = useLocale();
-  const searchParams = useSearchParams();
-  const [status, setStatus] = useAtom(refSiteSheetAtom);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const locale = useLocale()
+  const searchParams = useSearchParams()
+  const [status, setStatus] = useAtom(refSiteSheetAtom)
+  const contentRef = useRef<HTMLDivElement>(null)
 
-  const { toast } = useToast();
-  const utils = api.useUtils();
-  const [loading, setLoading] = useState(true);
-  const [detailData, setDetailData] = useState<RefSite | null>(null);
+  const { toast } = useToast()
+  const utils = api.useUtils()
+  const [loading, setLoading] = useState(true)
+  const [detailData, setDetailData] = useState<RefSite | null>(null)
 
   const handleFetch = useCallback(
     async (id: string) => {
       if (!id) {
-        return;
+        return
       }
       try {
-        setLoading(true);
-        const data = await utils.refSites.detail.fetch({ id });
+        setLoading(true)
+        const data = await utils.refSites.detail.fetch({ id })
         if (!data) {
-          throw new Error("Data not found");
+          throw new Error('Data not found')
         }
-        setDetailData(data);
+        setDetailData(data)
       } catch (_err: any) {
         toast({
-          title: "Fetch failed.",
-          description: "Please try again.",
-          variant: "destructive",
-        });
+          title: 'Fetch failed.',
+          description: 'Please try again.',
+          variant: 'destructive',
+        })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
     [utils, toast],
-  );
+  )
 
   useEffect(() => {
     if (status.id) {
-      handleFetch(status.id);
+      handleFetch(status.id)
     } else {
-      setDetailData(null);
+      setDetailData(null)
     }
 
     if (status.id) {
       if (contentRef.current) {
         contentRef.current.scrollTo({
           top: 0,
-          behavior: "smooth",
-        });
+          behavior: 'smooth',
+        })
       }
       window.history.pushState(
         null,
-        "",
+        '',
         `/${status.id}?${searchParams.toString()}`,
-      );
+      )
     } else {
-      window.history.pushState(null, "", `/?${searchParams.toString()}`);
+      window.history.pushState(null, '', `/?${searchParams.toString()}`)
     }
-  }, [status.id, handleFetch, searchParams]);
+  }, [status.id, handleFetch, searchParams])
 
   return (
     <Sheet
       open={!!status.id}
       onOpenChange={(val) => {
         if (!val) {
-          setStatus({ id: null });
+          setStatus({ id: null })
         }
       }}
     >
@@ -132,5 +132,5 @@ export const SiteShowcaseSheet = () => {
         </div>
       </SheetContent>
     </Sheet>
-  );
-};
+  )
+}

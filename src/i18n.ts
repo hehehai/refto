@@ -1,20 +1,20 @@
-import { notFound } from "next/navigation";
-import { getRequestConfig } from "next-intl/server";
+import { getRequestConfig } from 'next-intl/server'
+import { notFound } from 'next/navigation'
 
-export type SiteLocale = 'en' | 'zh-CN';
+export type SiteLocale = 'en' | 'zh-CN'
 
 // Can be imported from a shared config
 export const supportedLanguages = [
-  { id: "en", locale: "en", title: "English", isDefault: true },
-  { id: "zh_CN", locale: "zh-CN", title: "简体中文" },
-];
+  { id: 'en', locale: 'en', title: 'English', isDefault: true },
+  { id: 'zh_CN', locale: 'zh-CN', title: '简体中文' },
+]
 
 export enum SupportLocale {
-  en = "en",
-  zh_CN = "zh-CN",
-};
+  en = 'en',
+  zh_CN = 'zh-CN',
+}
 
-const baseLanguage = supportedLanguages.find((l) => l.isDefault)!;
+const baseLanguage = supportedLanguages.find((l) => l.isDefault)!
 
 export const i18n = {
   ids: supportedLanguages.map((l) => l.id),
@@ -22,13 +22,13 @@ export const i18n = {
   defaultId: baseLanguage.id,
   defaultLocale: baseLanguage.locale,
   languages: supportedLanguages,
-};
+}
 
 export default getRequestConfig(async ({ locale }) => {
   // Validate that the incoming `locale` parameter is valid
-  if (!i18n.locales.includes(locale)) notFound();
+  if (!i18n.locales.includes(locale)) notFound()
 
   return {
     messages: (await import(`./messages/${locale}.json`)).default,
-  };
-});
+  }
+})

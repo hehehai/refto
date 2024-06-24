@@ -1,3 +1,4 @@
+import { site } from '@/lib/config/site'
 import {
   Body,
   Button,
@@ -11,17 +12,16 @@ import {
   Preview,
   Section,
   Text,
-} from "@react-email/components";
-import { Tailwind } from "@react-email/tailwind";
-import * as React from "react";
-import { config } from "../constants";
-import { Fragment } from "react";
+} from '@react-email/components'
+import { Tailwind } from '@react-email/tailwind'
+import * as React from 'react'
+import { Fragment } from 'react'
 
 interface AuthEmailProps {
-  name: string;
-  verifyCode: string;
-  verifyUrl: string;
-  baseUrl: string;
+  name: string
+  verifyCode: string
+  verifyUrl: string
+  baseUrl: string
 }
 
 export const UserAuthEmail = ({
@@ -33,7 +33,7 @@ export const UserAuthEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>Verify your email to log on to {config.siteName}</Preview>
+      <Preview>Verify your email to log on to {site.siteName}</Preview>
       <Tailwind>
         <Fragment>
           <Body className="mx-auto my-auto px-2 font-sans">
@@ -43,12 +43,12 @@ export const UserAuthEmail = ({
                   src={`${baseUrl}/images/logo.png`}
                   width="70"
                   height="70"
-                  alt={config.siteName}
+                  alt={site.siteName}
                   className="mx-auto my-0"
                 />
               </Section>
               <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-medium">
-                Verify your email to log on to {config.siteName}
+                Verify your email to log on to {site.siteName}
               </Heading>
               <Text className="mt-12 leading-[20px]">
                 Hello <strong>{name}</strong>,
@@ -88,7 +88,7 @@ export const UserAuthEmail = ({
               <Text className="text-[12px] leading-[24px] text-[#666666]">
                 If you did not try to log in but received this email, please
                 ignore this email. If you are concerned about the security of
-                your account, please visit our{" "}
+                your account, please visit our{' '}
                 <Link
                   href={`${baseUrl}/about`}
                   className="text-blue-600 no-underline"
@@ -102,14 +102,14 @@ export const UserAuthEmail = ({
         </Fragment>
       </Tailwind>
     </Html>
-  );
-};
+  )
+}
 
 UserAuthEmail.PreviewProps = {
-  name: "riverhohai",
-  verifyCode: "123456",
-  verifyUrl: "http://auth/123utf091",
-  baseUrl: "http://localhost:3000",
-} as AuthEmailProps;
+  name: 'riverhohai',
+  verifyCode: '123456',
+  verifyUrl: 'http://auth/123utf091',
+  baseUrl: 'http://localhost:3000',
+} as AuthEmailProps
 
-export default UserAuthEmail;
+export default UserAuthEmail

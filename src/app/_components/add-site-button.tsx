@@ -1,16 +1,16 @@
-"use client";
+'use client'
 
-import { refSiteDialogAtom } from "../[locale]/(panel)/_store/dialog.store";
-import { BoxAddIcon } from "@/components/shared/icons";
-import { Button } from "@/components/ui/button";
-import { useAtom } from "jotai";
+import { BoxAddIcon } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
+import { useAtom } from 'jotai'
+import { refSiteDialogAtom } from '../[locale]/(panel)/_store/dialog.store'
 
 export function AddSiteButton() {
-  const [status, setStatus] = useAtom(refSiteDialogAtom);
+  const [status, setStatus] = useAtom(refSiteDialogAtom)
 
   return (
     <Button
-      variant={"secondary"}
+      variant={'secondary'}
       className="rounded-full"
       disabled={status.show}
       onClick={() => setStatus({ show: true, isAdd: true, id: null })}
@@ -18,5 +18,5 @@ export function AddSiteButton() {
       <BoxAddIcon className="mr-2 text-xl" />
       <span>Add Site</span>
     </Button>
-  );
+  )
 }

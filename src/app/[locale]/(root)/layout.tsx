@@ -1,4 +1,4 @@
-import { SiteHeader } from "../../_components/site-header";
+import { SiteHeader } from '../../_components/site-header'
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -6,7 +6,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       <SiteHeader filter={false} />
       <main>{children}</main>
     </div>
-  );
-};
+  )
+}
 
-export default RootLayout;
+export default RootLayout

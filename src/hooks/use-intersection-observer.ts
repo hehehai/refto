@@ -1,40 +1,40 @@
-"use client";
+'use client'
 
-import React from "react";
+import React from 'react'
 
 export const useIntersectionObserver = <T extends HTMLElement | null>(
   ref: React.MutableRefObject<T>,
   options: {
-    rootMargin?: string;
-    threshold?: number | number[];
-    logicFn?: (entry: IntersectionObserverEntry) => boolean;
+    rootMargin?: string
+    threshold?: number | number[]
+    logicFn?: (entry: IntersectionObserverEntry) => boolean
   } = {
     threshold: 0,
   },
 ) => {
-  const [isIntersecting, setIsIntersecting] = React.useState(false);
+  const [isIntersecting, setIsIntersecting] = React.useState(false)
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry) {
         setIsIntersecting(
           options?.logicFn ? options.logicFn(entry) : entry.isIntersecting,
-        );
+        )
       }
-    }, options);
+    }, options)
 
     if (ref.current) {
-      observer.observe(ref.current);
+      observer.observe(ref.current)
     }
 
-    const refCurrent = ref.current;
+    const refCurrent = ref.current
 
     return () => {
       if (refCurrent) {
-        observer.unobserve(refCurrent);
+        observer.unobserve(refCurrent)
       }
-    };
-  }, [options, ref]);
+    }
+  }, [options, ref])
 
-  return isIntersecting;
-};
+  return isIntersecting
+}

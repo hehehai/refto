@@ -1,18 +1,18 @@
-"use client";
+'use client'
 
-import { type ColumnDef, type Row } from "@tanstack/react-table";
+import type { ColumnDef, Row } from '@tanstack/react-table'
 
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
 
-import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
-import { format } from "date-fns";
-import { type RefSite } from "@prisma/client";
-import { LikeIcon, VisitIcon } from "@/components/shared/icons";
-import { BlurImage } from "@/components/shared/blur-image";
+import { BlurImage } from '@/components/shared/blur-image'
+import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
+import { LikeIcon, VisitIcon } from '@/components/shared/icons'
+import type { RefSite } from '@prisma/client'
+import { format } from 'date-fns'
 
 interface ColumnsMethods {
-  onDetail: (rowId: string) => void;
+  onDetail: (rowId: string) => void
 }
 
 export const columns = (
@@ -20,13 +20,13 @@ export const columns = (
   methods?: ColumnsMethods,
 ): ColumnDef<RefSite>[] => [
   {
-    id: "select",
+    id: 'select',
     header: ({ table }) => (
       <div className="w-6 text-center">
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
@@ -48,25 +48,25 @@ export const columns = (
     enableHiding: false,
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: 'createdAt',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="CreatedAt" />
     ),
     cell: ({ row }) => (
       <div className="w-[140px] text-center">
-        {format(row.getValue("createdAt"), "yyyy-MM-dd HH:mm:ss")}
+        {format(row.getValue('createdAt'), 'yyyy-MM-dd HH:mm:ss')}
       </div>
     ),
   },
   {
-    accessorKey: "siteName",
+    accessorKey: 'siteName',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
     enableSorting: false,
     cell: ({ row, getValue }) => {
-      const { siteUrl, siteFavicon, isTop, siteTitle } = row.original;
-      const name = getValue<string>();
+      const { siteUrl, siteFavicon, isTop, siteTitle } = row.original
+      const name = getValue<string>()
 
       return (
         <div className="flex items-center space-x-2">
@@ -95,47 +95,31 @@ export const columns = (
             </div>
           </div>
         </div>
-      );
+      )
     },
   },
   {
-    accessorKey: "likes",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Likes" />
-    ),
-    cell: ({ getValue }) => {
-      const likes = getValue<number>();
-
-      return (
-        <div className="flex w-[100px] items-center space-x-2">
-          <LikeIcon className="text-xl" />
-          <span>{likes}</span>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "visits",
+    accessorKey: 'visits',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Visits" />
     ),
     cell: ({ getValue }) => {
-      const visits = getValue<number>();
+      const visits = getValue<number>()
 
       return (
         <div className="flex w-[100px] items-center space-x-2">
           <VisitIcon className="text-xl" />
           <span>{visits}</span>
         </div>
-      );
+      )
     },
   },
   {
-    id: "actions",
+    id: 'actions',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Actions" />
     ),
     enableSorting: false,
     cell: ({ row }) => actionSlot(row),
   },
-];
+]

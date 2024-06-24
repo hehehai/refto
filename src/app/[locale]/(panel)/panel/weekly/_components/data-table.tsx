@@ -1,15 +1,15 @@
-"use client";
+'use client'
 
-import * as React from "react";
 import {
   type ColumnFiltersState,
+  type PaginationState,
   type SortingState,
   type VisibilityState,
   flexRender,
   getCoreRowModel,
   useReactTable,
-  type PaginationState,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table'
+import * as React from 'react'
 
 import {
   Table,
@@ -18,72 +18,75 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table'
 
-import { DataTablePagination } from "@/components/shared/data-table-pagination";
-import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
-import { api } from "@/lib/trpc/react";
-import { Spinner } from "@/components/shared/icons";
-import { Button } from "@/components/ui/button";
-import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
-import { columns } from "./columns";
-import { DataTableRowActions } from "./data-table-row-actions";
-import { type Weekly } from "@prisma/client";
-import { useToast } from "@/components/ui/use-toast";
-import { useAtom } from "jotai";
-import { weeklyDialogAtom, weeklyDialogEmitter } from "../../../_store/dialog.store";
+import { DataTableFacetedFilter } from '@/components/shared/data-table-faceted-filter'
+import { DataTablePagination } from '@/components/shared/data-table-pagination'
+import { DataTableToolbar } from '@/components/shared/data-table-toolbar'
+import { Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/trpc/react'
+import type { Weekly } from '@prisma/client'
+import { useAtom } from 'jotai'
+import {
+  weeklyDialogAtom,
+  weeklyDialogEmitter,
+} from '../../../_store/dialog.store'
+import { columns } from './columns'
+import { DataTableRowActions } from './data-table-row-actions'
 
 export function DataTable() {
-  const { toast } = useToast();
+  const { toast } = useToast()
 
-  const [_, setStatus] = useAtom(weeklyDialogAtom);
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [_, setStatus] = useAtom(weeklyDialogAtom)
+  const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({})
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  })
+  const [globalFilter, setGlobalFilter] = React.useState('')
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
-  );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  )
+  const [sorting, setSorting] = React.useState<SortingState>([])
 
   const tableQuery = api.weekly.query.useQuery(
     {
       limit: pagination.pageSize,
       search: globalFilter,
-      orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
+      orderBy: sorting.map(({ id, desc }) => `${desc ? '-' : '+'}${id}`),
       page: pagination.pageIndex,
       status: columnFilters[0]?.value as any,
     },
     {
       refetchOnWindowFocus: false,
     },
-  );
+  )
 
   const unSubRow = api.subscriber.unsubscribeBatch.useMutation({
     onSuccess: () => {
-      tableQuery.refetch();
+      tableQuery.refetch()
       toast({
-        title: "Success",
-        description: "unSubscribe",
-      });
+        title: 'Success',
+        description: 'unSubscribe',
+      })
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-      });
+      })
     },
-  });
+  })
 
   const tableColumns = React.useMemo(() => {
     return columns((row) => {
-      return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />;
-    });
-  }, [tableQuery.refetch]);
+      return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />
+    })
+  }, [tableQuery.refetch])
 
   const table = useReactTable<Weekly>({
     data: (tableQuery.data?.rows as any) || [],
@@ -113,14 +116,14 @@ export function DataTable() {
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     onPaginationChange: setPagination,
-  });
+  })
 
   React.useEffect(() => {
-    weeklyDialogEmitter.on("success", tableQuery.refetch);
+    weeklyDialogEmitter.on('success', tableQuery.refetch)
     return () => {
-      weeklyDialogEmitter.off("success", tableQuery.refetch);
-    };
-  }, [tableQuery.refetch]);
+      weeklyDialogEmitter.off('success', tableQuery.refetch)
+    }
+  }, [tableQuery.refetch])
 
   return (
     <div className="space-y-4">
@@ -132,18 +135,18 @@ export function DataTable() {
             value={(table.getState().columnFilters[0]?.value as string[]) ?? []}
             title="Status"
             options={[
-              { label: "Active", value: "subscribed" },
-              { label: "Inactive", value: "unsubscribed" },
+              { label: 'Active', value: 'subscribed' },
+              { label: 'Inactive', value: 'unsubscribed' },
             ]}
             onChange={(value) =>
-              table.setColumnFilters([{ id: "status", value }])
+              table.setColumnFilters([{ id: 'status', value }])
             }
           />
         }
         actionsSlot={
           <Button
             onClick={() => {
-              setStatus({ show: true, isAdd: true, id: null });
+              setStatus({ show: true, isAdd: true, id: null })
             }}
           >
             Create Week
@@ -170,7 +173,7 @@ export function DataTable() {
                               header.getContext(),
                             )}
                       </TableHead>
-                    );
+                    )
                   })}
                 </TableRow>
               ))}
@@ -180,7 +183,7 @@ export function DataTable() {
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
+                    data-state={row.getIsSelected() && 'selected'}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -212,8 +215,8 @@ export function DataTable() {
           <>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <Button
-                size={"xs"}
-                variant={"destructive"}
+                size={'xs'}
+                variant={'destructive'}
                 disabled={unSubRow.isLoading}
               >
                 {unSubRow.isLoading && <Spinner className="mr-2" />}
@@ -224,5 +227,5 @@ export function DataTable() {
         }
       />
     </div>
-  );
+  )
 }

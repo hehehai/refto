@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
 // import { api } from "@/lib/trpc/react";
-import React from "react";
+import type React from 'react'
 
-interface VisitLinkProps extends React.ComponentPropsWithoutRef<"a"> {
-  id: string;
-  count?: number;
+interface VisitLinkProps extends React.ComponentPropsWithoutRef<'a'> {
+  id: string
+  count?: number
 }
 
 export const VisitLink = ({ id, count, ...props }: VisitLinkProps) => {
@@ -23,9 +23,5 @@ export const VisitLink = ({ id, count, ...props }: VisitLinkProps) => {
   //   }
   // };
 
-  return (
-    <a {...props}>
-      {props.children}
-    </a>
-  );
-};
+  return <a {...props}>{props.children}</a>
+}

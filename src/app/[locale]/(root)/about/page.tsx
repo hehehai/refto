@@ -1,7 +1,7 @@
 const faqs: Record<string, { title: string; content: JSX.Element[] }[]> = {
   en: [
     {
-      title: "Why was it created?",
+      title: 'Why was it created?',
       content: [
         <p key={1}>
           During my journey of learning web design and interaction, I came
@@ -16,26 +16,33 @@ const faqs: Record<string, { title: string; content: JSX.Element[] }[]> = {
       ],
     },
     {
-      title: "Who am I?",
+      title: 'Who am I?',
       content: [
         <p key={1}>
           Hello everyone, I am "
-          <a href="https://hehehai.cn" target="_blank" className="underline">
+          <a
+            href="https://hehehai.cn"
+            target="_blank"
+            className="underline"
+            rel="noreferrer"
+          >
             一块木头
           </a>
-          " and you can find me on{" "}
+          " and you can find me on{' '}
           <a
             href="https://twitter.com/riverhohai"
             target="_blank"
             className="underline"
+            rel="noreferrer"
           >
             X
-          </a>{" "}
-          or{" "}
+          </a>{' '}
+          or{' '}
           <a
             href="https://github.com/hehehai"
             target="_blank"
             className="underline"
+            rel="noreferrer"
           >
             Github
           </a>
@@ -46,7 +53,7 @@ const faqs: Record<string, { title: string; content: JSX.Element[] }[]> = {
       ],
     },
     {
-      title: "When and what will the emails be sent?",
+      title: 'When and what will the emails be sent?',
       content: [
         <p key={1}>
           I will send emails every Monday, according to the Shanghai time zone.
@@ -56,7 +63,7 @@ const faqs: Record<string, { title: string; content: JSX.Element[] }[]> = {
       ],
     },
     {
-      title: "How can websites be submitted?",
+      title: 'How can websites be submitted?',
       content: [
         <p key={1}>
           You can click the "Submit" button at the top of the webpage, which
@@ -73,29 +80,30 @@ const faqs: Record<string, { title: string; content: JSX.Element[] }[]> = {
       ],
     },
     {
-      title: "How can I stay updated on the latest trends?",
+      title: 'How can I stay updated on the latest trends?',
       content: [
         <p key={1}>
-          You can subscribe to the weekly trend{" "}
+          You can subscribe to the weekly trend{' '}
           <a href="mailto:riverhohai@gmail.com" className="underline">
             email
-          </a>{" "}
-          or follow my{" "}
+          </a>{' '}
+          or follow my{' '}
           <a
             href="https://twitter.com/riverhohai"
             target="_blank"
             className="underline"
+            rel="noreferrer"
           >
             X
-          </a>{" "}
+          </a>{' '}
           account to be the first to receive the latest trend updates.
         </p>,
       ],
     },
   ],
-  "zh-CN": [
+  'zh-CN': [
     {
-      title: "为什么创建它?",
+      title: '为什么创建它?',
       content: [
         <p key={1}>
           在我学习网页设计和互动的旅程中，我遇到了许多美丽、有趣且令人惊叹的网站。为了展示并快速找到这些鼓舞人心的网站，我创建了refto。
@@ -106,26 +114,33 @@ const faqs: Record<string, { title: string; content: JSX.Element[] }[]> = {
       ],
     },
     {
-      title: "我是谁?",
+      title: '我是谁?',
       content: [
         <p key={1}>
           大家好，我是“
-          <a href="https://hehehai.cn" target="_blank" className="underline">
+          <a
+            href="https://hehehai.cn"
+            target="_blank"
+            className="underline"
+            rel="noreferrer"
+          >
             一块木头
           </a>
-          ” 你可以找到我{" "}
+          ” 你可以找到我{' '}
           <a
             href="https://twitter.com/riverhohai"
             target="_blank"
             className="underline"
+            rel="noreferrer"
           >
             X
-          </a>{" "}
-          或者{" "}
+          </a>{' '}
+          或者{' '}
           <a
             href="https://github.com/hehehai"
             target="_blank"
             className="underline"
+            rel="noreferrer"
           >
             Github
           </a>
@@ -135,7 +150,7 @@ const faqs: Record<string, { title: string; content: JSX.Element[] }[]> = {
       ],
     },
     {
-      title: "电子邮件将于何时以及发送内容?",
+      title: '电子邮件将于何时以及发送内容?',
       content: [
         <p key={1}>
           我每周一都会根据上海时区发送电子邮件。电子邮件内容将包括上周精选的亮点和推荐的热门网站。
@@ -143,7 +158,7 @@ const faqs: Record<string, { title: string; content: JSX.Element[] }[]> = {
       ],
     },
     {
-      title: "如何提交网站?",
+      title: '如何提交网站?',
       content: [
         <p key={1}>
           您可以点击网页顶部的“提交”按钮，将打开电子邮件提交页面。或者，您可以直接发送电子邮件至“
@@ -156,27 +171,28 @@ const faqs: Record<string, { title: string; content: JSX.Element[] }[]> = {
       ],
     },
     {
-      title: "如何了解最新趋势?",
+      title: '如何了解最新趋势?',
       content: [
         <p key={1}>
-          您可以订阅每周趋势{" "}
+          您可以订阅每周趋势{' '}
           <a href="mailto:riverhohai@gmail.com" className="underline">
             email
-          </a>{" "}
-          或者关注我的{" "}
+          </a>{' '}
+          或者关注我的{' '}
           <a
             href="https://twitter.com/riverhohai"
             target="_blank"
             className="underline"
+            rel="noreferrer"
           >
             X
-          </a>{" "}
+          </a>{' '}
           帐户将成为第一个接收最新趋势更新的帐户。
         </p>,
       ],
     },
   ],
-};
+}
 
 export default function AboutPage({ params }: { params: { locale: string } }) {
   return (
@@ -192,5 +208,5 @@ export default function AboutPage({ params }: { params: { locale: string } }) {
         ))}
       </div>
     </div>
-  );
+  )
 }

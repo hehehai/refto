@@ -1,20 +1,20 @@
-"use client";
+'use client'
 
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { type Row } from "@tanstack/react-table";
-import { type SubmitSite } from "@prisma/client";
-import { Button } from "@/components/ui/button";
+import { Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Spinner } from "@/components/shared/icons";
+} from '@/components/ui/dropdown-menu'
+import type { SubmitSite } from '@prisma/client'
+import { DotsHorizontalIcon } from '@radix-ui/react-icons'
+import type { Row } from '@tanstack/react-table'
 
 interface DataTableRowActionsProps {
-  row: Row<SubmitSite>;
-  onRefresh?: () => void;
+  row: Row<SubmitSite>
+  onRefresh?: () => void
 }
 
 export function DataTableRowActions({}: DataTableRowActionsProps) {
@@ -41,5 +41,5 @@ export function DataTableRowActions({}: DataTableRowActionsProps) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

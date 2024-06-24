@@ -1,14 +1,15 @@
-import { cn } from "@/lib/utils";
-import { type SVGProps } from "react";
+import { cn } from '@/lib/utils'
+import type { SVGProps } from 'react'
 
 export const BoxUserIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -30,17 +31,18 @@ export const BoxUserIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const AppIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 23 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -50,17 +52,18 @@ export const AppIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const AboutIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -82,17 +85,18 @@ export const AboutIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const MenuIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -108,17 +112,18 @@ export const MenuIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const ExpandIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -134,17 +139,18 @@ export const ExpandIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const DocIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -160,17 +166,18 @@ export const DocIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const BoxAddIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -192,17 +199,18 @@ export const BoxAddIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const SendIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -214,17 +222,18 @@ export const SendIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const SearchIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -234,17 +243,18 @@ export const SearchIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const ArrowUpIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -260,17 +270,18 @@ export const ArrowUpIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const ArrowDownIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -286,17 +297,18 @@ export const ArrowDownIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const DashboardIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -312,17 +324,18 @@ export const DashboardIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const ListIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -338,17 +351,18 @@ export const ListIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const WeeklyIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -374,17 +388,18 @@ export const WeeklyIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const SubscriberIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -400,17 +415,18 @@ export const SubscriberIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const FilterIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -418,17 +434,18 @@ export const FilterIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const LikeIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -436,17 +453,18 @@ export const LikeIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const VisitIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -454,17 +472,18 @@ export const VisitIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const UserIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -474,17 +493,18 @@ export const UserIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const BoxImageUploadIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -512,17 +532,18 @@ export const BoxImageUploadIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const BoxUploadIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -544,17 +565,18 @@ export const BoxUploadIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const BoxSyncIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -570,17 +592,18 @@ export const BoxSyncIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const BoxCloseIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       viewBox="0 0 22 22"
       fill="none"
-      width={"1em"}
-      height={"1em"}
+      width={'1em'}
+      height={'1em'}
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       {...props}
     >
       <path
@@ -602,18 +625,19 @@ export const BoxCloseIcon = (props: SVGProps<SVGSVGElement>) => {
         fill="currentColor"
       />
     </svg>
-  );
-};
+  )
+}
 
 export const Spinner = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
+      role="graphics-symbol"
       width="1em"
       height="1em"
       viewBox="0 0 24 24"
       {...props}
-      className={cn("animate-spin", props.className)}
+      className={cn('animate-spin', props.className)}
     >
       <path
         fill="none"
@@ -622,7 +646,7 @@ export const Spinner = (props: SVGProps<SVGSVGElement>) => {
         strokeLinejoin="round"
         strokeWidth="2"
         d="M21 12a9 9 0 1 1-6.219-8.56"
-      ></path>
+      />
     </svg>
-  );
-};
+  )
+}

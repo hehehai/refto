@@ -1,15 +1,15 @@
-"use client";
+'use client'
 
-import * as React from "react";
 import {
   type ColumnFiltersState,
+  type PaginationState,
   type SortingState,
   type VisibilityState,
   flexRender,
   getCoreRowModel,
   useReactTable,
-  type PaginationState,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table'
+import * as React from 'react'
 
 import {
   Table,
@@ -18,50 +18,50 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table'
 
-import { DataTablePagination } from "@/components/shared/data-table-pagination";
-import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
-import { api } from "@/lib/trpc/react";
-import { Spinner } from "@/components/shared/icons";
-import { Button } from "@/components/ui/button";
-import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
-import { columns, statuses } from "./columns";
-import { DataTableRowActions } from "./data-table-row-actions";
-import { type SubmitSite } from "@prisma/client";
+import { DataTableFacetedFilter } from '@/components/shared/data-table-faceted-filter'
+import { DataTablePagination } from '@/components/shared/data-table-pagination'
+import { DataTableToolbar } from '@/components/shared/data-table-toolbar'
+import { Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
+import { api } from '@/lib/trpc/react'
+import type { SubmitSite } from '@prisma/client'
+import { columns, statuses } from './columns'
+import { DataTableRowActions } from './data-table-row-actions'
 
 export function DataTable() {
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({})
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  })
+  const [globalFilter, setGlobalFilter] = React.useState('')
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
-  );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  )
+  const [sorting, setSorting] = React.useState<SortingState>([])
 
   const tableQuery = api.submitSite.query.useQuery(
     {
       limit: pagination.pageSize,
       search: globalFilter,
-      orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
+      orderBy: sorting.map(({ id, desc }) => `${desc ? '-' : '+'}${id}`),
       page: pagination.pageIndex,
       status: columnFilters[0]?.value as any,
     },
     {
       refetchOnWindowFocus: false,
     },
-  );
+  )
 
   const tableColumns = React.useMemo(() => {
     return columns((row) => {
-      return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />;
-    });
-  }, [tableQuery.refetch]);
+      return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />
+    })
+  }, [tableQuery.refetch])
 
   const table = useReactTable<SubmitSite>({
     data: (tableQuery.data?.rows as any) || [],
@@ -91,7 +91,7 @@ export function DataTable() {
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     onPaginationChange: setPagination,
-  });
+  })
 
   return (
     <div className="space-y-4">
@@ -104,7 +104,7 @@ export function DataTable() {
             title="Status"
             options={statuses}
             onChange={(value) =>
-              table.setColumnFilters([{ id: "status", value }])
+              table.setColumnFilters([{ id: 'status', value }])
             }
           />
         }
@@ -129,7 +129,7 @@ export function DataTable() {
                               header.getContext(),
                             )}
                       </TableHead>
-                    );
+                    )
                   })}
                 </TableRow>
               ))}
@@ -139,7 +139,7 @@ export function DataTable() {
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
+                    data-state={row.getIsSelected() && 'selected'}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -171,8 +171,8 @@ export function DataTable() {
           <>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <Button
-                size={"xs"}
-                variant={"destructive"}
+                size={'xs'}
+                variant={'destructive'}
                 onClick={() => {
                   // empty
                 }}
@@ -185,5 +185,5 @@ export function DataTable() {
         }
       />
     </div>
-  );
+  )
 }

@@ -1,46 +1,46 @@
-import { db } from "@/lib/db";
-import { pagination } from "@/lib/pagination";
-import {
-  type QueryRefSite,
-  type QueryWithCursorRefSite,
-} from "@/lib/validations/ref-site";
-import { Prisma, type RefSite } from "@prisma/client";
+import { db } from '@/lib/db'
+import { pagination } from '@/lib/pagination'
+import type {
+  QueryRefSite,
+  QueryWithCursorRefSite,
+} from '@/lib/validations/ref-site'
+import { Prisma, type RefSite } from '@prisma/client'
 
 export async function queryWithCursor(input: QueryWithCursorRefSite) {
-  const { search, limit, cursor, orderBy, tags, hasTop } = input;
+  const { search, limit, cursor, orderBy, tags, hasTop } = input
 
   const whereInput: Prisma.RefSiteWhereInput = {
     deletedAt: null,
-    isTop: hasTop ? true : false,
-  };
+    isTop: !!hasTop,
+  }
 
   if (search) {
     whereInput.OR = [
       {
         siteName: {
           contains: search,
-          mode: "insensitive",
+          mode: 'insensitive',
         },
       },
       {
         siteTitle: {
           contains: search,
-          mode: "insensitive",
+          mode: 'insensitive',
         },
       },
       {
         siteUrl: {
           contains: search,
-          mode: "insensitive",
+          mode: 'insensitive',
         },
       },
-    ];
+    ]
   }
 
   if (tags.length) {
     whereInput.siteTags = {
       hasSome: tags,
-    };
+    }
   }
 
   const rows = await db.refSite.findMany({
@@ -53,7 +53,6 @@ export async function queryWithCursor(input: QueryWithCursorRefSite) {
       siteCover: true,
       siteCoverHeight: true,
       siteCoverWidth: true,
-      likes: true,
       visits: true,
     },
     cursor: cursor ? { id: cursor } : undefined,
@@ -62,54 +61,54 @@ export async function queryWithCursor(input: QueryWithCursorRefSite) {
       (acc, item) => ({ ...acc, [item.key]: item.dir }),
       {},
     ),
-  });
+  })
 
-  let nextCursor: typeof cursor | undefined = undefined;
+  let nextCursor: typeof cursor | undefined = undefined
   if (rows && rows.length > limit) {
-    const nextItem = rows.pop();
-    nextCursor = nextItem?.id;
+    const nextItem = rows.pop()
+    nextCursor = nextItem?.id
   }
 
   return {
     rows,
     nextCursor: nextCursor ?? undefined,
-  };
+  }
 }
 
 export async function query(input: QueryRefSite) {
-  const { search, limit, page, orderBy, tags } = input;
+  const { search, limit, page, orderBy, tags } = input
 
   const whereInput: Prisma.RefSiteWhereInput = {
     deletedAt: null,
-  };
+  }
 
   if (search) {
     whereInput.OR = [
       {
         siteName: {
           contains: search,
-          mode: "insensitive",
+          mode: 'insensitive',
         },
       },
       {
         siteTitle: {
           contains: search,
-          mode: "insensitive",
+          mode: 'insensitive',
         },
       },
       {
         siteUrl: {
           contains: search,
-          mode: "insensitive",
+          mode: 'insensitive',
         },
       },
-    ];
+    ]
   }
 
   if (tags.length) {
     whereInput.siteTags = {
       hasSome: tags,
-    };
+    }
   }
 
   const rows = await db.refSite.findMany({
@@ -121,7 +120,6 @@ export async function query(input: QueryRefSite) {
       siteTitle: true,
       siteFavicon: true,
       createdAt: true,
-      likes: true,
       visits: true,
       isTop: true,
     },
@@ -131,30 +129,30 @@ export async function query(input: QueryRefSite) {
       (acc, item) => ({ ...acc, [item.key]: item.dir }),
       {},
     ),
-  });
+  })
 
   const total = await db.refSite.count({
     where: whereInput,
-  });
+  })
 
   return {
     rows,
     ...pagination(page, limit, total),
-  };
+  }
 }
 
 export async function detail(id: string) {
-  "use server";
+  'use server'
   return db.refSite.findUnique({
     where: {
       id,
       deletedAt: null,
     },
-  });
+  })
 }
 
 export async function correlation(tags: string[], excludeIds?: string[]) {
-  "use server";
+  'use server'
 
   const sql = Prisma.sql`SELECT
 	*
@@ -173,9 +171,9 @@ ORDER BY
 			t IN(${Prisma.join(tags)})    
   ) DESC
 	LIMIT 6;
-`;
+`
 
-  const sites: RefSite[] = await db.$queryRaw(sql);
+  const sites: RefSite[] = await db.$queryRaw(sql)
 
   return sites.map((site) => ({
     id: site.id,
@@ -185,7 +183,6 @@ ORDER BY
     siteCover: site.siteCover,
     siteCoverWidth: site.siteCoverWidth,
     siteCoverHeight: site.siteCoverHeight,
-    likes: site.likes,
     visits: site.visits,
-  }));
+  }))
 }

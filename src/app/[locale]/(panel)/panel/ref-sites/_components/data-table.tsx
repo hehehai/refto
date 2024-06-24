@@ -1,21 +1,21 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import {
+  refSiteDetailSheetAtom,
+  refSiteDialogAtom,
+  refSiteDialogEmitter,
+} from '@/app/[locale]/(panel)/_store/dialog.store'
 import {
   type ColumnFiltersState,
+  type PaginationState,
   type SortingState,
   type VisibilityState,
   flexRender,
   getCoreRowModel,
   useReactTable,
-  type PaginationState,
-} from "@tanstack/react-table";
-import { useAtom } from "jotai";
-import {
-  refSiteDetailSheetAtom,
-  refSiteDialogAtom,
-  refSiteDialogEmitter,
-} from "@/app/[locale]/(panel)/_store/dialog.store";
+} from '@tanstack/react-table'
+import { useAtom } from 'jotai'
+import * as React from 'react'
 
 import {
   Table,
@@ -24,82 +24,82 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table'
 
-import { DataTablePagination } from "@/components/shared/data-table-pagination";
-import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
-import { api } from "@/lib/trpc/react";
-import { Spinner } from "@/components/shared/icons";
-import { Button } from "@/components/ui/button";
-import { siteTagMap } from "@/lib/constants";
-import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
-import { columns } from "./columns";
-import { DataTableRowActions } from "./data-table-row-actions";
-import { type RefSite } from "@prisma/client";
-import { useToast } from "@/components/ui/use-toast";
+import { DataTableFacetedFilter } from '@/components/shared/data-table-faceted-filter'
+import { DataTablePagination } from '@/components/shared/data-table-pagination'
+import { DataTableToolbar } from '@/components/shared/data-table-toolbar'
+import { Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/use-toast'
+import { siteTagMap } from '@/lib/constants'
+import { api } from '@/lib/trpc/react'
+import type { RefSite } from '@prisma/client'
+import { columns } from './columns'
+import { DataTableRowActions } from './data-table-row-actions'
 
 const statusOptions = Object.entries(siteTagMap).map(([value, item]) => ({
   label: `${item.en} / ${item['zh-CN']}`,
   value,
-}));
+}))
 
 export function DataTable() {
-  const { toast } = useToast();
-  const [_, setDetailStatus] = useAtom(refSiteDetailSheetAtom);
-  const [rowSelection, setRowSelection] = React.useState({});
+  const { toast } = useToast()
+  const [_, setDetailStatus] = useAtom(refSiteDetailSheetAtom)
+  const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({})
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  })
+  const [globalFilter, setGlobalFilter] = React.useState('')
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
-  );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  )
+  const [sorting, setSorting] = React.useState<SortingState>([])
 
   const tableQuery = api.refSites.query.useQuery(
     {
       limit: pagination.pageSize,
       search: globalFilter,
-      orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
+      orderBy: sorting.map(({ id, desc }) => `${desc ? '-' : '+'}${id}`),
       page: pagination.pageIndex,
     },
     {
       refetchOnWindowFocus: false,
     },
-  );
+  )
 
   const deleteRow = api.refSites.delete.useMutation({
     onSuccess: () => {
-      tableQuery.refetch();
+      tableQuery.refetch()
       toast({
-        title: "Success",
-        description: "Ref Site deleted",
-      });
+        title: 'Success',
+        description: 'Ref Site deleted',
+      })
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-      });
+      })
     },
-  });
+  })
 
   const tableColumns = React.useMemo(() => {
     return columns(
       (row) => {
-        return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />;
+        return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />
       },
       {
         onDetail: setDetailStatus,
       },
-    );
-  }, [tableQuery.refetch, setDetailStatus]);
+    )
+  }, [tableQuery.refetch, setDetailStatus])
 
   const table = useReactTable<RefSite>({
-    data: (tableQuery.data?.rows as RefSite[]) || [],
+    data: (tableQuery.data?.rows as unknown as RefSite[]) || [],
     pageCount: (tableQuery.data as any)?.maxPage + 1 || 0,
     columns: tableColumns,
     state: {
@@ -126,16 +126,16 @@ export function DataTable() {
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     onPaginationChange: setPagination,
-  });
+  })
 
-  const [status, setStatus] = useAtom(refSiteDialogAtom);
+  const [status, setStatus] = useAtom(refSiteDialogAtom)
 
   React.useEffect(() => {
-    refSiteDialogEmitter.on("success", tableQuery.refetch);
+    refSiteDialogEmitter.on('success', tableQuery.refetch)
     return () => {
-      refSiteDialogEmitter.off("success", tableQuery.refetch);
-    };
-  }, [tableQuery.refetch]);
+      refSiteDialogEmitter.off('success', tableQuery.refetch)
+    }
+  }, [tableQuery.refetch])
 
   return (
     <div className="space-y-4">
@@ -156,7 +156,7 @@ export function DataTable() {
             title="Tags"
             options={statusOptions}
             onChange={(value) =>
-              table.setColumnFilters([{ id: "tags", value }])
+              table.setColumnFilters([{ id: 'tags', value }])
             }
           />
         }
@@ -181,7 +181,7 @@ export function DataTable() {
                               header.getContext(),
                             )}
                       </TableHead>
-                    );
+                    )
                   })}
                 </TableRow>
               ))}
@@ -191,7 +191,7 @@ export function DataTable() {
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
+                    data-state={row.getIsSelected() && 'selected'}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -224,21 +224,21 @@ export function DataTable() {
           <>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <Button
-                size={"xs"}
-                variant={"destructive"}
+                size={'xs'}
+                variant={'destructive'}
                 disabled={deleteRow.isLoading}
                 onClick={() => {
                   const ids = table
                     .getFilteredSelectedRowModel()
                     .rows.filter((row) => !row.original.deletedAt)
-                    .map((row) => row.original.id);
+                    .map((row) => row.original.id)
                   if (!ids.length) {
                     return toast({
-                      title: "Error",
-                      description: "No can be deleted",
-                    });
+                      title: 'Error',
+                      description: 'No can be deleted',
+                    })
                   }
-                  deleteRow.mutate({ ids });
+                  deleteRow.mutate({ ids })
                 }}
               >
                 {deleteRow.isLoading && <Spinner className="mr-2" />}
@@ -249,5 +249,5 @@ export function DataTable() {
         }
       />
     </div>
-  );
+  )
 }

@@ -1,15 +1,14 @@
-"use client";
+'use client'
 
-import { Spinner } from "@/components/shared/icons";
-import { Button } from "@/components/ui/button";
-import { weeklyDialogAtom, weeklyDialogEmitter } from "../_store/dialog.store";
+import { Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -17,124 +16,125 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
-import { api } from "@/lib/trpc/react";
-import { weeklySchema } from "@/lib/validations/weekly";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type Weekly } from "@prisma/client";
-import { useAtom } from "jotai";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { type z } from "zod";
-import { WeekPicker } from "./week-picker";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/trpc/react'
+import { weeklySchema } from '@/lib/validations/weekly'
+import { zodResolver } from '@hookform/resolvers/zod'
+import type { Weekly } from '@prisma/client'
+import { useAtom } from 'jotai'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
+import { weeklyDialogAtom, weeklyDialogEmitter } from '../_store/dialog.store'
+import { WeekPicker } from './week-picker'
 
 const emptyData = {
-  title: "",
+  title: '',
   sites: [],
-};
+}
 
 export function WeeklyUpsetDialog() {
-  const utils = api.useUtils();
-  const { toast } = useToast();
+  const utils = api.useUtils()
+  const { toast } = useToast()
 
-  const [status, setStatus] = useAtom(weeklyDialogAtom);
-  const statusId = useMemo(() => status.id, [status.id]);
-  const [detailData, setDetailData] = useState<Partial<Weekly>>(emptyData);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [saveLoading, setSaveLoading] = useState(false);
-  const isEdit = status.isAdd === false && status.id !== null;
+  const [status, setStatus] = useAtom(weeklyDialogAtom)
+  const statusId = useMemo(() => status.id, [status.id])
+  const [detailData, setDetailData] = useState<Partial<Weekly>>(emptyData)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [saveLoading, setSaveLoading] = useState(false)
+  const isEdit = status.isAdd === false && status.id !== null
 
   const form = useForm<z.infer<typeof weeklySchema>>({
     resolver: zodResolver(weeklySchema),
     defaultValues: {
       ...emptyData,
     },
-  });
+  })
 
   const handleInitData = useCallback(async () => {
     if (!statusId) {
-      setDetailData(emptyData);
-      return;
+      setDetailData(emptyData)
+      return
     }
 
     try {
-      setDetailLoading(true);
-      const detail = await utils.weekly.detail.fetch({ id: statusId });
+      setDetailLoading(true)
+      const detail = await utils.weekly.detail.fetch({ id: statusId })
       if (!detail) {
-        throw new Error("Detail not found");
+        throw new Error('Detail not found')
       }
-      setDetailData(detail);
-      form.reset({ ...detail });
+      setDetailData(detail)
+      form.reset({ ...detail })
     } catch (err: any) {
       toast({
-        title: "Fetch detail err",
-        description: err?.message ?? "Please try agin",
-      });
+        title: 'Fetch detail err',
+        description: err?.message ?? 'Please try agin',
+      })
     } finally {
-      setDetailLoading(false);
+      setDetailLoading(false)
     }
-  }, [statusId, setDetailData, utils, form, toast]);
+  }, [statusId, utils, form, toast])
 
   useEffect(() => {
-    handleInitData();
-  }, [statusId, handleInitData]);
+    handleInitData()
+  }, [handleInitData])
 
   const handleClose = useCallback(
     (value: boolean) => {
       if (!value) {
-        form.reset({ ...emptyData });
-        setStatus({ show: false, isAdd: true, id: null });
+        form.reset({ ...emptyData })
+        setStatus({ show: false, isAdd: true, id: null })
       }
     },
     [setStatus, form],
-  );
+  )
 
   const onSubmit = useCallback(
     async (values: z.infer<typeof weeklySchema>, thenAdd = false) => {
-      const title = isEdit ? "Save" : "Create";
+      const title = isEdit ? 'Save' : 'Create'
       try {
-        setSaveLoading(true);
+        setSaveLoading(true)
         if (isEdit) {
           await utils.client.weekly.update.mutate({
             ...values,
             id: statusId!,
-          });
+          })
         } else {
-          await utils.client.weekly.create.mutate(values);
+          await utils.client.weekly.create.mutate(values)
         }
         toast({
           title: `${title} success`,
           description: `${title} success`,
-        });
-        weeklyDialogEmitter.emit("success");
+        })
+        weeklyDialogEmitter.emit('success')
         if (!isEdit && thenAdd) {
-          form.reset({ ...emptyData });
+          form.reset({ ...emptyData })
         } else {
-          handleClose(false);
+          handleClose(false)
         }
       } catch (err: any) {
-        console.log("ref site submit err", err);
+        console.log('ref site submit err', err)
         toast({
           title: `${title} failed`,
-          description: err.message || "Please try again",
-          variant: "destructive",
-        });
+          description: err.message || 'Please try again',
+          variant: 'destructive',
+        })
       } finally {
-        setSaveLoading(false);
+        setSaveLoading(false)
       }
     },
     [isEdit, statusId, handleClose, form, utils, toast],
-  );
+  )
 
   return (
     <Dialog open={status.show} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            <span>{isEdit ? "Edit Weekly" : "Create Weekly"}</span>
+            <span>{isEdit ? 'Edit Weekly' : 'Create Weekly'}</span>
             {detailLoading && <Spinner className="ml-2" />}
           </DialogTitle>
         </DialogHeader>
@@ -167,7 +167,7 @@ export function WeeklyUpsetDialog() {
                         value={field.value as [Date, Date]}
                         placeholder="Pick a week"
                         onChange={(value) => {
-                          field.onChange(value);
+                          field.onChange(value)
                         }}
                       />
                     </FormControl>
@@ -186,9 +186,9 @@ export function WeeklyUpsetDialog() {
                       <Textarea
                         {...field}
                         placeholder="Type sites id, separated by ','"
-                        value={field.value.join(",")}
+                        value={field.value.join(',')}
                         onChange={(e) => {
-                          field.onChange(e.target.value.split(","));
+                          field.onChange(e.target.value.split(','))
                         }}
                       />
                     </FormControl>
@@ -200,15 +200,15 @@ export function WeeklyUpsetDialog() {
             <DialogFooter className="mt-4">
               <Button
                 type="button"
-                variant={"outline"}
+                variant={'outline'}
                 disabled={saveLoading}
                 onClick={() => {
                   if (statusId) {
                     form.reset({
                       ...detailData,
-                    });
+                    })
                   } else {
-                    form.reset({ ...emptyData });
+                    form.reset({ ...emptyData })
                   }
                 }}
               >
@@ -223,9 +223,9 @@ export function WeeklyUpsetDialog() {
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
-WeeklyUpsetDialog.displayName = "WeeklyUpsetDialog";
+WeeklyUpsetDialog.displayName = 'WeeklyUpsetDialog'
 
-export default WeeklyUpsetDialog;
+export default WeeklyUpsetDialog

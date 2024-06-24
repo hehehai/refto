@@ -1,23 +1,22 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/ui/button";
+import { Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  refSiteDialogAtom,
-  refSiteDialogEmitter,
-} from "../_store/dialog.store";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Spinner } from "@/components/shared/icons";
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { refSiteDialogAtom, refSiteDialogEmitter } from '../_store/dialog.store'
 
+import { MediaUploader } from '@/components/shared/media-uploader'
+import { Badge } from '@/components/ui/badge'
 import {
   Form,
   FormControl,
@@ -25,125 +24,126 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { api } from "@/lib/trpc/react";
-import { useToast } from "@/components/ui/use-toast";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ImageUploader } from "@/components/shared/image-uploader";
-import { MultiSelect } from "@/components/ui/multi-select";
-import { Badge } from "@/components/ui/badge";
-import { siteTagKeys, siteTagMap } from "@/lib/constants";
-import { type RefSite } from "@prisma/client";
-import { useAtom } from "jotai";
-import { Separator } from "@/components/ui/separator";
-import { refSiteSchema } from "@/lib/validations/ref-site";
+} from '@/components/ui/form'
+import { MultiSelect } from '@/components/ui/multi-select'
+import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/use-toast'
+import { siteTagKeys, siteTagMap } from '@/lib/constants'
+import { api } from '@/lib/trpc/react'
+import { refSiteSchema } from '@/lib/validations/ref-site'
+import type { RefSite } from '@prisma/client'
+import { useAtom } from 'jotai'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 const emptyData = {
-  siteName: "",
-  siteTitle: "",
-  siteDescription: "",
-  siteFavicon: "",
-  siteUrl: "",
-  siteCover: "",
+  siteName: '',
+  siteTitle: '',
+  siteDescription: '',
+  siteFavicon: '',
+  siteUrl: '',
+  siteCover: '',
   siteCoverHeight: 0,
-  siteScreenshot: "",
-  siteOGImage: "",
+  siteScreenshot: '',
+  siteOGImage: '',
   siteTags: [],
-};
+}
 
 export function RefSiteUpsetDialog() {
-  const utils = api.useUtils();
-  const { toast } = useToast();
+  const utils = api.useUtils()
+  const { toast } = useToast()
 
-  const [status, setStatus] = useAtom(refSiteDialogAtom);
-  const statusId = useMemo(() => status.id, [status.id]);
-  const [detailData, setDetailData] = useState<Partial<RefSite>>(emptyData);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [saveLoading, setSaveLoading] = useState(false);
-  const isEdit = status.isAdd === false && status.id !== null;
+  const [status, setStatus] = useAtom(refSiteDialogAtom)
+  const statusId = useMemo(() => status.id, [status.id])
+  const [detailData, setDetailData] = useState<Partial<RefSite>>(emptyData)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [saveLoading, setSaveLoading] = useState(false)
+  const isEdit = status.isAdd === false && status.id !== null
 
   const form = useForm<z.infer<typeof refSiteSchema>>({
     resolver: zodResolver(refSiteSchema),
     defaultValues: {
       ...emptyData,
     },
-  });
+  })
 
   const handleInitData = useCallback(async () => {
     if (!statusId) {
-      setDetailData(emptyData);
-      return;
+      setDetailData(emptyData)
+      return
     }
 
     try {
-      setDetailLoading(true);
-      const detail = await utils.refSites.detail.fetch({ id: statusId });
+      setDetailLoading(true)
+      const detail = await utils.refSites.detail.fetch({ id: statusId })
       if (!detail) {
-        throw new Error("Detail not found");
+        throw new Error('Detail not found')
       }
-      setDetailData(detail);
+      setDetailData(detail)
       form.reset({
         ...detail,
-        siteOGImage: detail.siteOGImage ?? "",
-        siteScreenshot: detail.siteScreenshot ?? "",
-      });
-    } catch (err: any) {
+        siteOGImage: detail.siteOGImage ?? '',
+        siteScreenshot: detail.siteScreenshot ?? '',
+      })
+    } catch (err: unknown) {
       toast({
-        title: "Fetch detail err",
-        description: err?.message ?? "Please try agin",
-      });
+        title: 'Fetch detail err',
+        description: err instanceof Error ? err?.message : 'Please try agin',
+      })
     } finally {
-      setDetailLoading(false);
+      setDetailLoading(false)
     }
-  }, [statusId, setDetailData, toast, utils.refSites.detail, form]);
+  }, [statusId, toast, utils.refSites.detail, form])
 
   useEffect(() => {
-    handleInitData();
-  }, [statusId, handleInitData]);
+    handleInitData()
+  }, [handleInitData])
 
   const handleClose = useCallback(
     (value: boolean) => {
       if (!value) {
-        form.reset({ ...emptyData });
-        setStatus({ show: false, isAdd: true, id: null });
+        form.reset({ ...emptyData })
+        setStatus({ show: false, isAdd: true, id: null })
       }
     },
     [setStatus, form],
-  );
+  )
 
   const onSubmit = useCallback(
     async (values: z.infer<typeof refSiteSchema>, thenAdd = false) => {
-      const title = isEdit ? "Save" : "Create";
+      const title = isEdit ? 'Save' : 'Create'
+      if (!statusId) {
+        return
+      }
       try {
-        setSaveLoading(true);
+        setSaveLoading(true)
         if (isEdit) {
           await utils.client.refSites.update.mutate({
             ...values,
-            id: statusId!,
-          });
+            id: statusId,
+          })
         } else {
-          await utils.client.refSites.create.mutate(values);
+          await utils.client.refSites.create.mutate(values)
         }
         toast({
           title: `${title} success`,
           description: `${title} success`,
-        });
-        refSiteDialogEmitter.emit("success");
+        })
+        refSiteDialogEmitter.emit('success')
         if (!isEdit && thenAdd) {
-          form.reset({ ...emptyData });
+          form.reset({ ...emptyData })
         } else {
-          handleClose(false);
+          handleClose(false)
         }
-      } catch (err: any) {
-        console.log("ref site submit err", err);
+      } catch (err: unknown) {
+        console.log('ref site submit err', err)
         toast({
           title: `${title} failed`,
-          description: err.message || "Please try again",
-          variant: "destructive",
-        });
+          description: err instanceof Error ? err.message : 'Please try again',
+          variant: 'destructive',
+        })
       } finally {
-        setSaveLoading(false);
+        setSaveLoading(false)
       }
     },
     [
@@ -155,34 +155,34 @@ export function RefSiteUpsetDialog() {
       utils.client.refSites.update,
       utils.client.refSites.create,
     ],
-  );
+  )
 
-  const [getUrlLoading, setGetUrlLoading] = useState(false);
+  const [getUrlLoading, setGetUrlLoading] = useState(false)
 
   const handleGetUrlMeta = useCallback(
     async (e: React.SyntheticEvent<HTMLButtonElement>) => {
-      e.preventDefault();
-      const currentUrl = form.getValues("siteUrl");
-      const validUrl = z.string().trim().url().safeParse(currentUrl);
+      e.preventDefault()
+      const currentUrl = form.getValues('siteUrl')
+      const validUrl = z.string().trim().url().safeParse(currentUrl)
       if (!validUrl.success) {
         toast({
-          title: "Error",
-          description: "Please input site url",
-          variant: "destructive",
-        });
-        return;
+          title: 'Error',
+          description: 'Please input site url',
+          variant: 'destructive',
+        })
+        return
       }
-      setGetUrlLoading(true);
+      setGetUrlLoading(true)
       try {
-        const data = await utils.siteMeta.meta.fetch({ url: validUrl.data });
+        const data = await utils.siteMeta.meta.fetch({ url: validUrl.data })
 
         if (!data) {
           toast({
-            title: "Error",
-            description: "Failed to get site meta",
-            variant: "destructive",
-          });
-          return;
+            title: 'Error',
+            description: 'Failed to get site meta',
+            variant: 'destructive',
+          })
+          return
         }
 
         form.reset({
@@ -192,20 +192,20 @@ export function RefSiteUpsetDialog() {
           siteDescription: data.siteDescription,
           siteFavicon: data.siteFavicon,
           siteOGImage: data.siteOGImage,
-        });
+        })
       } finally {
-        setGetUrlLoading(false);
+        setGetUrlLoading(false)
       }
     },
     [form, utils.siteMeta.meta, toast],
-  );
+  )
 
   return (
     <Dialog open={status.show} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>
-            <span>{isEdit ? "Edit Ref Site" : "Create Ref Site"}</span>
+            <span>{isEdit ? 'Edit Ref Site' : 'Create Ref Site'}</span>
             {detailLoading && <Spinner className="ml-2" />}
           </DialogTitle>
         </DialogHeader>
@@ -304,15 +304,16 @@ export function RefSiteUpsetDialog() {
                             <button
                               className="ml-1 inline-flex items-center rounded-full leading-none outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
                               onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  methods.remove();
+                                if (e.key === 'Enter') {
+                                  methods.remove()
                                 }
                               }}
                               onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
+                                e.preventDefault()
+                                e.stopPropagation()
                               }}
                               onClick={() => methods.remove()}
+                              type="button"
                             >
                               <span className="i-lucide-x text-muted-foreground hover:text-foreground" />
                             </button>
@@ -320,7 +321,7 @@ export function RefSiteUpsetDialog() {
                         )}
                         renderOption={(key) => (
                           <div>
-                            {siteTagMap[key]?.en} / {siteTagMap[key]?.["zh-CN"]}
+                            {siteTagMap[key]?.en} / {siteTagMap[key]?.['zh-CN']}
                           </div>
                         )}
                       />
@@ -336,7 +337,7 @@ export function RefSiteUpsetDialog() {
                   render={({ field, fieldState }) => (
                     <div className="col-span-3">
                       <p className="mb-1 text-sm font-medium">Site Favicon</p>
-                      <ImageUploader
+                      <MediaUploader
                         {...field}
                         autoUpload={true}
                         disabled={field.disabled}
@@ -344,10 +345,10 @@ export function RefSiteUpsetDialog() {
                         placeholder="Upload site favicon"
                         errorMessage={fieldState.error?.message}
                         onError={(message) => {
-                          form.setError("siteFavicon", {
-                            type: "custom",
+                          form.setError('siteFavicon', {
+                            type: 'custom',
                             message,
-                          });
+                          })
                         }}
                         onChange={(fileUrl) => field.onChange(fileUrl)}
                       />
@@ -361,7 +362,7 @@ export function RefSiteUpsetDialog() {
                   render={({ field, fieldState }) => (
                     <div className="col-span-3">
                       <p className="mb-1 text-sm font-medium">Site OG Image</p>
-                      <ImageUploader
+                      <MediaUploader
                         {...field}
                         autoUpload={true}
                         disabled={field.disabled}
@@ -369,10 +370,10 @@ export function RefSiteUpsetDialog() {
                         placeholder="Upload OG image"
                         errorMessage={fieldState.error?.message}
                         onError={(message) => {
-                          form.setError("siteOGImage", {
-                            type: "custom",
+                          form.setError('siteOGImage', {
+                            type: 'custom',
                             message,
-                          });
+                          })
                         }}
                         onChange={(fileUrl) => field.onChange(fileUrl)}
                       />
@@ -386,7 +387,7 @@ export function RefSiteUpsetDialog() {
                   render={({ field, fieldState }) => (
                     <div className="col-span-3">
                       <p className="mb-1 text-sm font-medium">Site Cover</p>
-                      <ImageUploader
+                      <MediaUploader
                         {...field}
                         autoUpload={true}
                         disabled={field.disabled}
@@ -394,19 +395,19 @@ export function RefSiteUpsetDialog() {
                         placeholder="Upload site cover"
                         errorMessage={fieldState.error?.message}
                         onError={(message) => {
-                          form.setError("siteCover", {
-                            type: "custom",
+                          form.setError('siteCover', {
+                            type: 'custom',
                             message,
-                          });
+                          })
                         }}
                         onChange={(fileUrl) => {
-                          console.log("siteCover fileUrl", typeof fileUrl);
-                          field.onChange(fileUrl);
+                          console.log('siteCover fileUrl', typeof fileUrl)
+                          field.onChange(fileUrl)
                         }}
                         onComputedSize={([width, height]) => {
                           if (height > 0 && width > 0) {
-                            form.setValue("siteCoverHeight", height);
-                            form.setValue("siteCoverWidth", width);
+                            form.setValue('siteCoverHeight', height)
+                            form.setValue('siteCoverWidth', width)
                           }
                         }}
                       />
@@ -422,7 +423,7 @@ export function RefSiteUpsetDialog() {
                       <p className="mb-1 text-sm font-medium">
                         Site Screenshot
                       </p>
-                      <ImageUploader
+                      <MediaUploader
                         {...field}
                         autoUpload={true}
                         disabled={field.disabled}
@@ -430,14 +431,14 @@ export function RefSiteUpsetDialog() {
                         placeholder="Upload site screenshot"
                         errorMessage={fieldState.error?.message}
                         onError={(message) => {
-                          form.setError("siteScreenshot", {
-                            type: "custom",
+                          form.setError('siteScreenshot', {
+                            type: 'custom',
                             message,
-                          });
+                          })
                         }}
                         onChange={(fileUrl) => {
-                          console.log("siteCover fileUrl", fileUrl);
-                          field.onChange(fileUrl);
+                          console.log('siteCover fileUrl', fileUrl)
+                          field.onChange(fileUrl)
                         }}
                       />
                     </div>
@@ -449,24 +450,24 @@ export function RefSiteUpsetDialog() {
             <DialogFooter className="mt-4">
               <Button
                 type="button"
-                variant={"outline"}
+                variant={'outline'}
                 disabled={saveLoading}
                 onClick={() => {
                   if (statusId) {
                     form.reset({
                       ...detailData,
-                      siteOGImage: detailData.siteOGImage ?? "",
-                      siteScreenshot: detailData.siteScreenshot ?? "",
-                    });
+                      siteOGImage: detailData.siteOGImage ?? '',
+                      siteScreenshot: detailData.siteScreenshot ?? '',
+                    })
                   } else {
-                    form.reset({ ...emptyData });
+                    form.reset({ ...emptyData })
                   }
                 }}
               >
                 <span>Reset</span>
               </Button>
               <Button type="submit" disabled={saveLoading}>
-                {saveLoading && <Spinner className="mr-2 text-xl"></Spinner>}
+                {saveLoading && <Spinner className="mr-2 text-xl" />}
                 <span>Submit</span>
               </Button>
               {!isEdit && (
@@ -477,9 +478,7 @@ export function RefSiteUpsetDialog() {
                     disabled={saveLoading}
                     onClick={form.handleSubmit((v) => onSubmit(v, true))}
                   >
-                    {saveLoading && (
-                      <Spinner className="mr-2 text-xl"></Spinner>
-                    )}
+                    {saveLoading && <Spinner className="mr-2 text-xl" />}
                     <span>Submit & Continue</span>
                   </Button>
                 </div>
@@ -489,9 +488,9 @@ export function RefSiteUpsetDialog() {
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
-RefSiteUpsetDialog.displayName = "RefSiteUpsetDialog";
+RefSiteUpsetDialog.displayName = 'RefSiteUpsetDialog'
 
-export default RefSiteUpsetDialog;
+export default RefSiteUpsetDialog

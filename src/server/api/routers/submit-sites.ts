@@ -1,16 +1,16 @@
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { submitSiteCreateSchema } from "@/lib/validations/submit-site";
-import { db } from "@/lib/db";
-import { type Prisma, type SubmitSite, SubmitSiteStatus } from "@prisma/client";
-import { formatOrders, genOrderValidSchema } from "@/lib/utils";
-import { pagination } from "@/lib/pagination";
+import { db } from '@/lib/db'
+import { pagination } from '@/lib/pagination'
+import { formatOrders, genOrderValidSchema } from '@/lib/utils'
+import { submitSiteCreateSchema } from '@/lib/validations/submit-site'
+import { type Prisma, type SubmitSite, SubmitSiteStatus } from '@prisma/client'
+import { z } from 'zod'
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc'
 
 export const submitSitesRouter = createTRPCRouter({
   recommend: publicProcedure
     .input(submitSiteCreateSchema('en'))
     .mutation(async ({ input }) => {
-      const { email, site, title, description } = input;
+      const { email, site, title, description } = input
 
       return db.submitSite.create({
         data: {
@@ -19,13 +19,13 @@ export const submitSitesRouter = createTRPCRouter({
           siteTitle: title,
           siteDescription: description,
         },
-      });
+      })
     }),
 
   // 查询
   query: protectedProcedure
     .meta({
-      requiredRoles: ["ADMIN"],
+      requiredRoles: ['ADMIN'],
     })
     .input(
       z.object({
@@ -37,35 +37,35 @@ export const submitSitesRouter = createTRPCRouter({
           .optional()
           .default(SubmitSiteStatus.PENDING),
         orderBy: genOrderValidSchema<SubmitSite>([
-          "createdAt",
-          "approvedAt",
-          "rejectedAt",
+          'createdAt',
+          'approvedAt',
+          'rejectedAt',
         ])
           .optional()
-          .transform((v) => (v?.length ? v : ["-createdAt"]))
+          .transform((v) => (v?.length ? v : ['-createdAt']))
           .transform(formatOrders),
       }),
     )
     .query(async ({ input }) => {
-      const { search, limit, page, status, orderBy } = input;
+      const { search, limit, page, status, orderBy } = input
 
       const whereInput: Prisma.SubmitSiteWhereInput = {
         OR: [
           {
             email: {
               contains: search,
-              mode: "insensitive",
+              mode: 'insensitive',
             },
           },
           {
             siteUrl: {
               contains: search,
-              mode: "insensitive",
+              mode: 'insensitive',
             },
           },
         ],
         status,
-      };
+      }
 
       const rows = await db.submitSite.findMany({
         where: whereInput,
@@ -75,15 +75,15 @@ export const submitSitesRouter = createTRPCRouter({
           (acc, item) => ({ ...acc, [item.key]: item.dir }),
           {},
         ),
-      });
+      })
 
       const total = await db.submitSite.count({
         where: whereInput,
-      });
+      })
 
       return {
         rows,
         ...pagination(page, limit, total),
-      };
+      }
     }),
-});
+})

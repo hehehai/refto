@@ -1,21 +1,21 @@
-"use client";
+'use client'
 
-import { Masonry } from "react-plock";
-import { api } from "@/lib/trpc/react";
-import { Button } from "@/components/ui/button";
-import { SiteShowcase } from "./site-showcase";
-import { useAtom } from "jotai";
-import { refSiteSheetAtom } from "../_store/sheet.store";
-import { useEffect, useMemo, useRef } from "react";
-import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
-import { useTranslations } from "next-intl";
-import { increment, trackEvent } from "@openpanel/nextjs";
+import { Button } from '@/components/ui/button'
+import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
+import { api } from '@/lib/trpc/react'
+import { increment, trackEvent } from '@openpanel/nextjs'
+import { useAtom } from 'jotai'
+import { useTranslations } from 'next-intl'
+import { useEffect, useMemo, useRef } from 'react'
+import { Masonry } from 'react-plock'
+import { refSiteSheetAtom } from '../_store/sheet.store'
+import { SiteShowcase } from './site-showcase'
 
 interface HomeMasonryProps {
-  search: string;
-  tags: string[];
-  firstSlice?: any[];
-  initNextCursor?: string;
+  search: string
+  tags: string[]
+  firstSlice?: any[]
+  initNextCursor?: string
 }
 
 export const HomeMasonry = ({
@@ -24,14 +24,14 @@ export const HomeMasonry = ({
   firstSlice,
   initNextCursor,
 }: HomeMasonryProps) => {
-  const t = useTranslations("Index.list");
+  const t = useTranslations('Index.list')
 
-  const [_, setStatus] = useAtom(refSiteSheetAtom);
-  const bottomTriggerRef = useRef(null);
+  const [_, setStatus] = useAtom(refSiteSheetAtom)
+  const bottomTriggerRef = useRef(null)
   const inView = useIntersectionObserver(bottomTriggerRef, {
-    rootMargin: "0px 0px 100% 0px",
+    rootMargin: '0px 0px 100% 0px',
     threshold: 0,
-  });
+  })
 
   const [sliceQuery, allSitesQuery] =
     api.refSites.queryWithCursor.useSuspenseInfiniteQuery(
@@ -46,30 +46,30 @@ export const HomeMasonry = ({
         initialCursor: initNextCursor,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
-    );
+    )
 
   const allData = useMemo(() => {
     if (!initNextCursor) {
-      return firstSlice || [];
+      return firstSlice || []
     }
     return (
-      firstSlice?.concat(sliceQuery.pages.map((page) => page.rows).flat()) || []
-    );
-  }, [sliceQuery.pages, firstSlice, initNextCursor]);
+      firstSlice?.concat(sliceQuery.pages.flatMap((page) => page.rows)) || []
+    )
+  }, [sliceQuery.pages, firstSlice, initNextCursor])
 
-  const { isFetchingNextPage, fetchNextPage, hasNextPage } = allSitesQuery;
+  const { isFetchingNextPage, fetchNextPage, hasNextPage } = allSitesQuery
 
   useEffect(() => {
     if (inView) {
-      void fetchNextPage();
+      void fetchNextPage()
     }
-  }, [inView, fetchNextPage]);
+  }, [inView, fetchNextPage])
 
   return (
     <div className="pb-8">
       {allData.length === 0 ? (
         <div className="flex min-h-96 w-full items-center justify-center">
-          <div>{t("empty")}</div>
+          <div>{t('empty')}</div>
         </div>
       ) : (
         <>
@@ -85,9 +85,9 @@ export const HomeMasonry = ({
                 key={item.id}
                 item={item}
                 onClick={() => {
-                  setStatus({ id: item.id });
-                  trackEvent("viewSite", { id: item.id, name: item.siteName });
-                  increment(`viewSite-${item.siteName}`, 1);
+                  setStatus({ id: item.id })
+                  trackEvent('viewSite', { id: item.id, name: item.siteName })
+                  increment(`viewSite-${item.siteName}`, 1)
                 }}
               />
             )}
@@ -96,19 +96,19 @@ export const HomeMasonry = ({
           <div className="mt-8 flex w-full justify-center">
             <Button
               ref={bottomTriggerRef}
-              variant={"secondary"}
+              variant={'secondary'}
               onClick={() => fetchNextPage()}
               disabled={!hasNextPage || isFetchingNextPage}
             >
               {isFetchingNextPage
-                ? t("loading")
+                ? t('loading')
                 : hasNextPage
-                  ? t("more")
-                  : t("nothing")}
+                  ? t('more')
+                  : t('nothing')}
             </Button>
           </div>
         </>
       )}
     </div>
-  );
-};
+  )
+}

@@ -1,3 +1,6 @@
+import { SupportLocale } from '@/i18n'
+import { site } from '@/lib/config/site'
+import { siteTagMap } from '@/lib/constants'
 import {
   Body,
   Column,
@@ -12,44 +15,44 @@ import {
   Row,
   Section,
   Text,
-} from "@react-email/components";
-import { Tailwind } from "@react-email/tailwind";
-import * as React from "react";
-import { config } from "../constants";
-import { Fragment } from "react";
-import { SupportLocale } from "@/i18n";
-import { site } from "@/lib/config/site";
-import { siteTagMap } from "@/lib/constants";
+} from '@react-email/components'
+import { Tailwind } from '@react-email/tailwind'
+import * as React from 'react'
+import { Fragment } from 'react'
 
 const localeMap = {
   [SupportLocale.en]: {
-    title: "Weekly",
-    description: `This week, I was excited to add {{count}} selected websites, which lit up in front of my eyes and burst of inspiration. Check them out now!`,
-    helper: `Do you like the latest news this week? If you have any feedback on refto, please feel free to email us.`,
+    title: 'Weekly',
+    description:
+      'This week, I was excited to add {{count}} selected websites, which lit up in front of my eyes and burst of inspiration. Check them out now!',
+    helper:
+      'Do you like the latest news this week? If you have any feedback on refto, please feel free to email us.',
     slogan: site.description.en,
-    unsubscribe: "Unsubscribe",
+    unsubscribe: 'Unsubscribe',
   },
   [SupportLocale.zh_CN]: {
-    title: "Weekly",
-    description: `本周，我们地添加了 {{count}} 个精选网站，它们让人眼前一亮，迸发出灵感。现在就去看看吧！`,
-    helper: `你喜欢本周的新闻吗？ 如果你有任何关于 refto 的反馈，请随时联系我们。 `,
-    slogan: site.description["zh-CN"],
-    unsubscribe: "取消订阅",
+    title: 'Weekly',
+    description:
+      '本周，我们地添加了 {{count}} 个精选网站，它们让人眼前一亮，迸发出灵感。现在就去看看吧！',
+    helper:
+      '你喜欢本周的新闻吗？ 如果你有任何关于 refto 的反馈，请随时联系我们。 ',
+    slogan: site.description['zh-CN'],
+    unsubscribe: '取消订阅',
   },
-};
+}
 
 interface WeeklyProps {
-  count: number;
+  count: number
   sites: {
-    id: string;
-    cover: string;
-    title: string;
-    url: string;
-    tags: string[];
-  }[];
-  unsubscribeUrl: string;
-  baseUrl: string;
-  locale: SupportLocale;
+    id: string
+    cover: string
+    title: string
+    url: string
+    tags: string[]
+  }[]
+  unsubscribeUrl: string
+  baseUrl: string
+  locale: SupportLocale
 }
 
 export const WeeklyEmail = ({
@@ -63,7 +66,7 @@ export const WeeklyEmail = ({
     <Html>
       <Head />
       <Preview>
-        {localeMap[locale].title} {config.siteName}
+        {localeMap[locale].title} {site.siteName}
       </Preview>
       <Tailwind>
         <Fragment>
@@ -74,16 +77,16 @@ export const WeeklyEmail = ({
                   src={`${baseUrl}/images/logo.png`}
                   width="70"
                   height="70"
-                  alt={config.siteName}
+                  alt={site.siteName}
                   className="mx-auto my-0"
                 />
               </Section>
               <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-medium">
-                {localeMap[locale].title} {config.siteName}
+                {localeMap[locale].title} {site.siteName}
               </Heading>
               <Text className="mb-16 mt-12 leading-[20px]">
                 {localeMap[locale].description.replace(
-                  "{{count}}",
+                  '{{count}}',
                   count.toString(),
                 )}
               </Text>
@@ -123,14 +126,14 @@ export const WeeklyEmail = ({
                           {site.tags
                             .map(
                               (tag) =>
-                                `${siteTagMap[tag]?.[locale as "en" | "zh-CN"] || tag}`,
+                                `${siteTagMap[tag]?.[locale as 'en' | 'zh-CN'] || tag}`,
                             )
-                            .join(", ")}
+                            .join(', ')}
                         </Text>
                       </Column>
                     </Row>
                   </Section>
-                );
+                )
               })}
               <Text className="mt-16 leading-[24px]">
                 {localeMap[locale].helper}
@@ -140,7 +143,7 @@ export const WeeklyEmail = ({
                 <Img
                   src={`${baseUrl}/images/logo-text.png`}
                   height="30"
-                  alt={config.siteName}
+                  alt={site.siteName}
                   className="mx-auto my-0"
                 />
               </Section>
@@ -161,32 +164,32 @@ export const WeeklyEmail = ({
         </Fragment>
       </Tailwind>
     </Html>
-  );
-};
+  )
+}
 
 WeeklyEmail.PreviewProps = {
   count: 24,
   sites: [
     {
-      id: "clu1d5p8j001xwzrbgifl4jpa",
+      id: 'clu1d5p8j001xwzrbgifl4jpa',
       cover:
-        "https://storage.refto.one/24-05-04/17148301251023671e2f8d4be79ea2a1b1ad8bb656506.webp",
-      title: "roasti.co",
-      url: "https://roasti.co",
-      tags: ["design", "agency", "parallax", "fun"],
+        'https://storage.refto.one/24-05-04/17148301251023671e2f8d4be79ea2a1b1ad8bb656506.webp',
+      title: 'roasti.co',
+      url: 'https://roasti.co',
+      tags: ['design', 'agency', 'parallax', 'fun'],
     },
     {
-      id: "clu1d5p8j001xwzrbgifl4jpa",
+      id: 'clu1d5p8j001xwzrbgifl4jpa',
       cover:
-        "https://storage.refto.one/24-03-21/171103344476225a0e552a332a7ef7c51e17f16d66f69.webp",
-      title: "authkit",
-      url: "https://authkit.com",
-      tags: ["development", "dark", "transitions", "gradient"],
+        'https://storage.refto.one/24-03-21/171103344476225a0e552a332a7ef7c51e17f16d66f69.webp',
+      title: 'authkit',
+      url: 'https://authkit.com',
+      tags: ['development', 'dark', 'transitions', 'gradient'],
     },
   ],
-  unsubscribeUrl: "https://refto.one/unsub?email=rivehohai@gmail.com&token=123",
-  baseUrl: "https://refto.one",
-  locale: "zh-CN",
-} as WeeklyProps;
+  unsubscribeUrl: 'https://refto.one/unsub?email=rivehohai@gmail.com&token=123',
+  baseUrl: 'https://refto.one',
+  locale: 'zh-CN',
+} as WeeklyProps
 
-export default WeeklyEmail;
+export default WeeklyEmail

@@ -1,66 +1,66 @@
-"use client";
+'use client'
 
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { type Row } from "@tanstack/react-table";
-import { type RefSite } from "@prisma/client";
-import { Button } from "@/components/ui/button";
-import { useAtom } from "jotai";
+import { refSiteDialogAtom } from '@/app/[locale]/(panel)/_store/dialog.store'
+import { Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { api } from "@/lib/trpc/react";
-import { useToast } from "@/components/ui/use-toast";
-import { Spinner } from "@/components/shared/icons";
-import { refSiteDialogAtom } from "@/app/[locale]/(panel)/_store/dialog.store";
+} from '@/components/ui/dropdown-menu'
+import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/trpc/react'
+import type { RefSite } from '@prisma/client'
+import { DotsHorizontalIcon } from '@radix-ui/react-icons'
+import type { Row } from '@tanstack/react-table'
+import { useAtom } from 'jotai'
 
 interface DataTableRowActionsProps {
-  row: Row<RefSite>;
-  onRefresh?: () => void;
+  row: Row<RefSite>
+  onRefresh?: () => void
 }
 
 export function DataTableRowActions({
   row,
   onRefresh,
 }: DataTableRowActionsProps) {
-  const [dialogStatus, setDialogStatus] = useAtom(refSiteDialogAtom);
-  const { original } = row;
-  const { toast } = useToast();
+  const [dialogStatus, setDialogStatus] = useAtom(refSiteDialogAtom)
+  const { original } = row
+  const { toast } = useToast()
 
   const switchTopRow = api.refSites.switchTop.useMutation({
     onSuccess: ({ isTop }) => {
-      onRefresh?.();
+      onRefresh?.()
       toast({
-        title: "Success",
-        description: `Ref Site current ${isTop ? "TOP" : "NOT TOP"}`,
-      });
+        title: 'Success',
+        description: `Ref Site current ${isTop ? 'TOP' : 'NOT TOP'}`,
+      })
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-      });
+      })
     },
-  });
+  })
 
   const deleteRow = api.refSites.delete.useMutation({
     onSuccess: () => {
-      onRefresh?.();
+      onRefresh?.()
       toast({
-        title: "Success",
-        description: "Ref Site deleted",
-      });
+        title: 'Success',
+        description: 'Ref Site deleted',
+      })
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-      });
+      })
     },
-  });
+  })
 
   return (
     <DropdownMenu>
@@ -97,7 +97,7 @@ export function DataTableRowActions({
           }
         >
           {switchTopRow.isLoading && <Spinner className="mr-2" />}
-          <span>{original.isTop ? "Un Top" : "Set Top"}</span>
+          <span>{original.isTop ? 'Un Top' : 'Set Top'}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {!original.deletedAt && (
@@ -112,5 +112,5 @@ export function DataTableRowActions({
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

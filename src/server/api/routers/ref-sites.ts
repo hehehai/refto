@@ -1,46 +1,46 @@
-import { z } from "zod";
+import { z } from 'zod'
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "@/server/api/trpc";
-import { db } from "@/lib/db";
+import { db } from '@/lib/db'
 import {
   queryRefSiteSchema,
   queryWithCursorRefSiteSchema,
   refSiteSchema,
   updateRefSiteSchema,
-} from "@/lib/validations/ref-site";
+} from '@/lib/validations/ref-site'
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from '@/server/api/trpc'
 import {
   correlation,
   detail,
   query,
   queryWithCursor,
-} from "@/server/functions/ref-sites";
+} from '@/server/functions/ref-sites'
 
 export const refSitesRouter = createTRPCRouter({
   // 列表
   queryWithCursor: publicProcedure
     .input(queryWithCursorRefSiteSchema)
     .query(async ({ input }) => {
-      return queryWithCursor(input);
+      return queryWithCursor(input)
     }),
 
   // 列表
   query: protectedProcedure
     .meta({
-      requiredRoles: ["ADMIN"],
+      requiredRoles: ['ADMIN'],
     })
     .input(queryRefSiteSchema)
     .query(async ({ input }) => {
-      return query(input);
+      return query(input)
     }),
 
   // 创建
   create: protectedProcedure
     .meta({
-      requiredRoles: ["ADMIN"],
+      requiredRoles: ['ADMIN'],
     })
     .input(refSiteSchema)
     .mutation(async ({ ctx, input }) => {
@@ -49,13 +49,13 @@ export const refSitesRouter = createTRPCRouter({
           createdById: ctx.session.user.id,
           ...input,
         },
-      });
+      })
     }),
 
   // 更新
   update: protectedProcedure
     .meta({
-      requiredRoles: ["ADMIN"],
+      requiredRoles: ['ADMIN'],
     })
     .input(updateRefSiteSchema)
     .mutation(async ({ input }) => {
@@ -66,7 +66,7 @@ export const refSitesRouter = createTRPCRouter({
         data: {
           ...input,
         },
-      });
+      })
     }),
 
   // 详情
@@ -77,7 +77,7 @@ export const refSitesRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
-      return detail(input.id);
+      return detail(input.id)
     }),
 
   // 关联
@@ -88,16 +88,16 @@ export const refSitesRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
-      const site = await detail(input.id);
-      if (!site) return null;
+      const site = await detail(input.id)
+      if (!site) return null
 
-      return correlation(site.siteTags, [site.id]);
+      return correlation(site.siteTags, [site.id])
     }),
 
   // 删除
   delete: protectedProcedure
     .meta({
-      requiredRoles: ["ADMIN"],
+      requiredRoles: ['ADMIN'],
     })
     .input(
       z.object({
@@ -115,13 +115,13 @@ export const refSitesRouter = createTRPCRouter({
         data: {
           deletedAt: new Date(),
         },
-      });
+      })
     }),
 
   // 置顶
   switchTop: protectedProcedure
     .meta({
-      requiredRoles: ["ADMIN"],
+      requiredRoles: ['ADMIN'],
     })
     .input(
       z.object({
@@ -138,21 +138,12 @@ export const refSitesRouter = createTRPCRouter({
         data: {
           isTop: input.nextIsTop,
         },
-      });
+      })
     }),
 
   // likes
   incLike: publicProcedure.input(z.string()).mutation(async ({ input }) => {
-    return await db.refSite.update({
-      where: {
-        id: input,
-      },
-      data: {
-        likes: {
-          increment: 1,
-        },
-      },
-    });
+    // TODO
   }),
 
   // visitors
@@ -166,6 +157,6 @@ export const refSitesRouter = createTRPCRouter({
           increment: 1,
         },
       },
-    });
+    })
   }),
-});
+})

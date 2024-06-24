@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { type ReactNode } from "react";
-import { TRPCReactProvider } from "@/lib/trpc/react";
-import { SessionProvider } from "next-auth/react";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from '@/components/ui/toaster'
+import { TRPCReactProvider } from '@/lib/trpc/react'
+import { SessionProvider } from 'next-auth/react'
+import type { ReactNode } from 'react'
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -11,5 +11,5 @@ export function Providers({ children }: { children: ReactNode }) {
       <TRPCReactProvider>{children}</TRPCReactProvider>
       <Toaster />
     </SessionProvider>
-  );
+  )
 }

@@ -1,51 +1,51 @@
-"use client";
+'use client'
 
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { type Row } from "@tanstack/react-table";
-import { WeeklySentStatus, type Weekly } from "@prisma/client";
-import { Button } from "@/components/ui/button";
+import { Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { api } from "@/lib/trpc/react";
-import { useToast } from "@/components/ui/use-toast";
-import { Spinner } from "@/components/shared/icons";
+} from '@/components/ui/dropdown-menu'
+import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/trpc/react'
+import { type Weekly, WeeklySentStatus } from '@prisma/client'
+import { DotsHorizontalIcon } from '@radix-ui/react-icons'
+import type { Row } from '@tanstack/react-table'
 
 interface DataTableRowActionsProps {
-  row: Row<Weekly>;
-  onRefresh?: () => void;
+  row: Row<Weekly>
+  onRefresh?: () => void
 }
 
 export function DataTableRowActions({
   row,
   onRefresh,
 }: DataTableRowActionsProps) {
-  const { original } = row;
+  const { original } = row
 
-  const { toast } = useToast();
+  const { toast } = useToast()
 
   if (original.status === WeeklySentStatus.SENT) {
-    return null;
+    return null
   }
 
   const sentRow = api.weekly.send.useMutation({
     onSuccess: () => {
-      onRefresh?.();
+      onRefresh?.()
       toast({
-        title: "Success",
-        description: "Sent weekly emails",
-      });
+        title: 'Success',
+        description: 'Sent weekly emails',
+      })
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-      });
+      })
     },
-  });
+  })
 
   return (
     <DropdownMenu>
@@ -69,5 +69,5 @@ export function DataTableRowActions({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

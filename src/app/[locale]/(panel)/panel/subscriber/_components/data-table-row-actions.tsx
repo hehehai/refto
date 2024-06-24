@@ -1,46 +1,46 @@
-"use client";
+'use client'
 
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { type Row } from "@tanstack/react-table";
-import { type Subscriber } from "@prisma/client";
-import { Button } from "@/components/ui/button";
+import { Spinner } from '@/components/shared/icons'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { api } from "@/lib/trpc/react";
-import { useToast } from "@/components/ui/use-toast";
-import { Spinner } from "@/components/shared/icons";
+} from '@/components/ui/dropdown-menu'
+import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/trpc/react'
+import type { Subscriber } from '@prisma/client'
+import { DotsHorizontalIcon } from '@radix-ui/react-icons'
+import type { Row } from '@tanstack/react-table'
 
 interface DataTableRowActionsProps {
-  row: Row<Subscriber>;
-  onRefresh?: () => void;
+  row: Row<Subscriber>
+  onRefresh?: () => void
 }
 
 export function DataTableRowActions({
   row,
   onRefresh,
 }: DataTableRowActionsProps) {
-  const { original } = row;
-  const { toast } = useToast();
+  const { original } = row
+  const { toast } = useToast()
 
   const unSubRow = api.subscriber.unsubscribeBatch.useMutation({
     onSuccess: () => {
-      onRefresh?.();
+      onRefresh?.()
       toast({
-        title: "Success",
-        description: "unSubscribe",
-      });
+        title: 'Success',
+        description: 'unSubscribe',
+      })
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-      });
+      })
     },
-  });
+  })
 
   return (
     <DropdownMenu>
@@ -66,5 +66,5 @@ export function DataTableRowActions({
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

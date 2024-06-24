@@ -1,65 +1,65 @@
-"use client";
+'use client'
 
-import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet";
-import { useAtom } from "jotai";
-import { refSiteDetailSheetAtom } from "../_store/dialog.store";
-import { X } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { api } from "@/lib/trpc/react";
-import { useState, useCallback, useEffect } from "react";
-import { type RefSite } from "@prisma/client";
-import { Spinner } from "@/components/shared/icons";
-import { SiteDetail } from "@/app/_components/site-detail";
-import { useLocale } from "next-intl";
+import { SiteDetail } from '@/app/_components/site-detail'
+import { Spinner } from '@/components/shared/icons'
+import { Sheet, SheetClose, SheetContent } from '@/components/ui/sheet'
+import { useToast } from '@/components/ui/use-toast'
+import { api } from '@/lib/trpc/react'
+import type { RefSite } from '@prisma/client'
+import { useAtom } from 'jotai'
+import { X } from 'lucide-react'
+import { useLocale } from 'next-intl'
+import { useCallback, useEffect, useState } from 'react'
+import { refSiteDetailSheetAtom } from '../_store/dialog.store'
 
 export function RefSiteDetailSheet() {
-  const locale = useLocale();
-  const [status, setStatus] = useAtom(refSiteDetailSheetAtom);
+  const locale = useLocale()
+  const [status, setStatus] = useAtom(refSiteDetailSheetAtom)
 
-  const { toast } = useToast();
-  const utils = api.useUtils();
-  const [loading, setLoading] = useState(true);
-  const [detailData, setDetailData] = useState<RefSite | null>(null);
+  const { toast } = useToast()
+  const utils = api.useUtils()
+  const [loading, setLoading] = useState(true)
+  const [detailData, setDetailData] = useState<RefSite | null>(null)
 
   const handleFetch = useCallback(
     async (id: string) => {
       if (!id) {
-        return;
+        return
       }
       try {
-        setLoading(true);
-        const data = await utils.refSites.detail.fetch({ id });
+        setLoading(true)
+        const data = await utils.refSites.detail.fetch({ id })
         if (!data) {
-          throw new Error("Data not found");
+          throw new Error('Data not found')
         }
-        setDetailData(data);
+        setDetailData(data)
       } catch (_err: any) {
         toast({
-          title: "Fetch failed.",
-          description: "Please try again.",
-          variant: "destructive",
-        });
+          title: 'Fetch failed.',
+          description: 'Please try again.',
+          variant: 'destructive',
+        })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     },
     [utils, toast],
-  );
+  )
 
   useEffect(() => {
     if (status) {
-      handleFetch(status);
+      handleFetch(status)
     } else {
-      setDetailData(null);
+      setDetailData(null)
     }
-  }, [status, handleFetch]);
+  }, [status, handleFetch])
 
   return (
     <Sheet
       open={!!status}
       onOpenChange={(val) => {
         if (!val) {
-          setStatus(null);
+          setStatus(null)
         }
       }}
     >
@@ -86,9 +86,9 @@ export function RefSiteDetailSheet() {
         </div>
       </SheetContent>
     </Sheet>
-  );
+  )
 }
 
-RefSiteDetailSheet.displayName = "RefSiteDetailSheet";
+RefSiteDetailSheet.displayName = 'RefSiteDetailSheet'
 
-export default RefSiteDetailSheet;
+export default RefSiteDetailSheet
