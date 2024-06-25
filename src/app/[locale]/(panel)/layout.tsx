@@ -9,7 +9,7 @@ const RefSiteUpsetDialog = dynamic(
 const RefSiteDetailSheet = dynamic(
   () => import('./_components/ref-site-detail-sheet'),
 )
-const WeeklyUpsetDialog = dynamic(
+const WeeklyUpsetSheet = dynamic(
   () => import('./_components/weekly-upset-dialog'),
 )
 
@@ -34,7 +34,7 @@ export default async function PanelLayout({
       <main className="h-[calc(100vh-64px)] overflow-auto">{children}</main>
       <RefSiteUpsetDialog />
       <RefSiteDetailSheet />
-      <WeeklyUpsetDialog />
+      <WeeklyUpsetSheet />
     </div>
   )
 }
