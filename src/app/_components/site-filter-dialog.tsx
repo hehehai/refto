@@ -28,14 +28,14 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 export function SiteFilterCommand() {
   const t = useTranslations('Index.Search')
-  const local = useLocale()
+  const locale = useLocale()
 
   const tagOptions = React.useMemo(() => {
     return Object.entries(siteTagMap).map(([value, item]) => ({
-      label: item[local as SiteLocale],
+      label: item[locale as SiteLocale],
       value,
     }))
-  }, [local])
+  }, [locale])
 
   const pathname = usePathname()
   const router = useRouter()
@@ -137,11 +137,14 @@ export function SiteFilterCommand() {
     return (
       <div className="flex items-center space-x-1">
         <div className="max-w-[60px] truncate">{search}</div>
-        {tags.length > 0 && showTags.map((tag) => <span key={tag}>{tag}</span>)}
+        {tags.length > 0 &&
+          showTags.map((tag) => (
+            <span key={tag}>{siteTagMap[tag]?.[locale as SiteLocale]}</span>
+          ))}
         {tags.length > 3 && <span>... ${tags.length - 3}+</span>}
       </div>
     )
-  }, [params, t])
+  }, [params, t, locale])
 
   return (
     <>
