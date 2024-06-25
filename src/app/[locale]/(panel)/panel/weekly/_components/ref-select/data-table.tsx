@@ -4,6 +4,7 @@ import { refSiteDetailSheetAtom } from '@/app/[locale]/(panel)/_store/dialog.sto
 import {
   type ColumnFiltersState,
   type PaginationState,
+  type RowSelectionState,
   type SortingState,
   type VisibilityState,
   flexRender,
@@ -26,22 +27,36 @@ import { DataTableFacetedFilter } from '@/components/shared/data-table-faceted-f
 import { DataTablePagination } from '@/components/shared/data-table-pagination'
 import { DataTableToolbar } from '@/components/shared/data-table-toolbar'
 import { Spinner } from '@/components/shared/icons'
-import { useToast } from '@/components/ui/use-toast'
 import { siteTagMap } from '@/lib/constants'
 import { api } from '@/lib/trpc/react'
 import type { RefSite } from '@prisma/client'
 import { columns } from './columns'
-import { DataTableRowActions } from './data-table-row-actions'
 
 const statusOptions = Object.entries(siteTagMap).map(([value, item]) => ({
   label: `${item.en} / ${item['zh-CN']}`,
   value,
 }))
 
-export function RefSelectDataTable() {
-  const { toast } = useToast()
+interface RefSelectDataTableProps {
+  value?: string[]
+  onChange?: (value: RefSite[]) => void
+  disabled?: boolean
+}
+
+export function RefSelectDataTable({
+  value,
+  onChange,
+  disabled = false,
+}: RefSelectDataTableProps) {
   const [_, setDetailStatus] = useAtom(refSiteDetailSheetAtom)
-  const [rowSelection, setRowSelection] = React.useState({})
+  const rowSelection = React.useMemo<RowSelectionState>(
+    () =>
+      value?.reduce((acc, cur) => {
+        acc[cur] = true
+        return acc
+      }, {} as RowSelectionState) ?? {},
+    [value],
+  )
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -67,17 +82,13 @@ export function RefSelectDataTable() {
   )
 
   const tableColumns = React.useMemo(() => {
-    return columns(
-      (row) => {
-        return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />
-      },
-      {
-        onDetail: setDetailStatus,
-      },
-    )
-  }, [tableQuery.refetch, setDetailStatus])
+    return columns({
+      onDetail: setDetailStatus,
+    })
+  }, [setDetailStatus])
 
   const table = useReactTable<RefSite>({
+    getRowId: (row) => row.id,
     data: (tableQuery.data?.rows as unknown as RefSite[]) || [],
     pageCount: (tableQuery.data as any)?.maxPage + 1 || 0,
     columns: tableColumns,
@@ -94,11 +105,22 @@ export function RefSelectDataTable() {
       size: Number.MAX_SAFE_INTEGER,
       maxSize: Number.MAX_SAFE_INTEGER,
     },
-    enableRowSelection: true,
+    enableRowSelection: !disabled,
     manualPagination: true,
     manualSorting: true,
     enableMultiSort: false,
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange: (updateFn) => {
+      const nextVal = (updateFn as any)(rowSelection)
+      if (onChange) {
+        const nextKeys = [
+          ...new Set(Object.keys(nextVal).filter((key) => nextVal[key])),
+        ]
+        const selectRows = table
+          .getRowModel()
+          .rows.filter((row) => nextKeys.includes(row.id)).map((row) => row.original)
+        onChange(selectRows as unknown as RefSite[])
+      }
+    },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,

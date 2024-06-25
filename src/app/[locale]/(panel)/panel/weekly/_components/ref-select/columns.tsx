@@ -11,13 +11,12 @@ import { VisitIcon } from '@/components/shared/icons'
 import type { RefSite } from '@prisma/client'
 
 interface ColumnsMethods {
-  onDetail: (rowId: string) => void
+  onDetail?: (rowId: string) => void
 }
 
-export const columns = (
-  actionSlot: (row: Row<RefSite>) => React.ReactNode,
-  methods?: ColumnsMethods,
-): ColumnDef<RefSite>[] => [
+export const columns = ({
+  onDetail,
+}: ColumnsMethods = {}): ColumnDef<RefSite>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -27,6 +26,7 @@ export const columns = (
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomePageRowsSelected() && 'indeterminate')
           }
+          disabled={!table.getIsSomePageRowsSelected()}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
           className="translate-y-[2px]"
@@ -37,6 +37,7 @@ export const columns = (
       <div className="w-6 text-center">
         <Checkbox
           checked={row.getIsSelected()}
+          disabled={!row.getIsSelected() && !row.getCanSelect()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
           className="translate-y-[2px]"
@@ -67,7 +68,7 @@ export const columns = (
             <div className="flex items-center space-x-2">
               <div
                 className="cursor-pointer truncate text-[16px] font-medium hover:underline"
-                onClick={() => methods?.onDetail(row.original.id)}
+                onClick={() => onDetail?.(row.original.id)}
               >
                 {name}
               </div>
@@ -101,13 +102,5 @@ export const columns = (
         </div>
       )
     },
-  },
-  {
-    id: 'actions',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Actions" />
-    ),
-    enableSorting: false,
-    cell: ({ row }) => actionSlot(row),
   },
 ]

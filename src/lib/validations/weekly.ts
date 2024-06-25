@@ -4,7 +4,7 @@ import { formatOrders, genOrderValidSchema } from '../utils'
 
 export const weeklySchema = z.object({
   title: z.string().trim().min(1).max(255),
-  sites: z.array(z.string().trim().min(1).max(255)).length(5),
+  sites: z.array(z.any()).length(5),
   weekRange: z.array(z.date()).length(2),
 })
 

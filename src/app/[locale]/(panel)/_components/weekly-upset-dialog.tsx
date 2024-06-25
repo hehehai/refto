@@ -18,12 +18,11 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
 import { api } from '@/lib/trpc/react'
 import { weeklySchema } from '@/lib/validations/weekly'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Weekly } from '@prisma/client'
+import type { RefSite, Weekly } from '@prisma/client'
 import { useAtom } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -34,6 +33,7 @@ import { RefSelectDataTable } from '../panel/weekly/_components/ref-select/data-
 import WeeklyEmail from '@/lib/email/templates/weekly'
 import { SupportLocale } from '@/i18n'
 import { renderAsync } from '@react-email/render'
+import useDebounce from '@/hooks/use-debounce'
 
 const emptyData = {
   title: '',
@@ -42,34 +42,9 @@ const emptyData = {
 
 const emailStatus = {
   count: 24,
-  sites: [
-    {
-      id: 'clu1d5p8j001xwzrbgifl4jpa',
-      cover:
-        'https://storage.refto.one/24-05-04/17148301251023671e2f8d4be79ea2a1b1ad8bb656506.webp',
-      title: 'roasti.co',
-      url: 'https://roasti.co',
-      tags: ['design', 'agency', 'parallax', 'fun'],
-    },
-    {
-      id: 'clu1d5p8j001xwzrbgifl4jpa',
-      cover:
-        'https://storage.refto.one/24-03-21/171103344476225a0e552a332a7ef7c51e17f16d66f69.webp',
-      title: 'authkit',
-      url: 'https://authkit.com',
-      tags: ['development', 'dark', 'transitions', 'gradient'],
-    },
-  ],
   unsubscribeUrl: 'https://refto.one/unsub?email=rivehohai@gmail.com&token=123',
   baseUrl: 'https://refto.one',
   locale: SupportLocale.zh_CN,
-}
-
-export async function getWeeklyMarkup() {
-  const markup = await renderAsync(<WeeklyEmail {...emailStatus} />, {
-    pretty: true,
-  })
-  return markup
 }
 
 export function WeeklyUpsetSheet() {
@@ -165,11 +140,42 @@ export function WeeklyUpsetSheet() {
     [isEdit, statusId, handleClose, form, utils, toast],
   )
 
-  const [mailMark, setMailMark] = useState('')
+  const [previewMark, setPreviewMark] = useState('')
+  const [previewRefreshing, setPreviewRefreshing] = useState(false)
 
-  useEffect(() => {
-    getWeeklyMarkup().then((m) => setMailMark(m))
-  }, [])
+  const handleRefetchPreview = useCallback(
+    async (raws: RefSite[]) => {
+      console.log('handleRefetchPreview', raws)
+      try {
+        setPreviewRefreshing(true)
+        const mailProps = {
+          ...emailStatus,
+          sites: raws.map((site) => ({
+            id: site.id,
+            title: site.siteTitle,
+            url: site.siteUrl,
+            cover: site.siteCover,
+            tags: site.siteTags,
+          })),
+        }
+        const mark = await renderAsync(<WeeklyEmail {...mailProps} />, {
+          pretty: true,
+        })
+        setPreviewMark(mark)
+      } catch (err) {
+        toast({
+          title: 'Refresh preview failed',
+          description: err instanceof Error ? err?.message : 'Please try again',
+          variant: 'destructive',
+        })
+      } finally {
+        setPreviewRefreshing(false)
+      }
+    },
+    [toast],
+  )
+
+  const debouncedHandleRefetchPreview = useDebounce(handleRefetchPreview, 300)
 
   return (
     <Sheet open={status.show} onOpenChange={handleClose}>
@@ -180,21 +186,27 @@ export function WeeklyUpsetSheet() {
             {detailLoading && <Spinner className="ml-2" />}
           </SheetTitle>
         </SheetHeader>
-        <div className="flex">
-          <div className="w-[540px] mr-3">
+        <div className="flex space-x-4">
+          <div className="w-[540px]">
             <div className="text-sm font-medium mb-2">Preview</div>
-            <iframe
-              srcDoc={mailMark}
-              title="Weekly"
-              className="h-[calc(100vh_-_180px)] w-full border border-input rounded-lg"
-            />
+            <div className="h-[calc(100vh_-_196px)] w-full border border-input rounded-lg flex items-center justify-center">
+              {previewRefreshing ? (
+                <Spinner className="w-6 h-6 animate-spin" />
+              ) : (
+                <iframe
+                  srcDoc={previewMark}
+                  title="Weekly"
+                  className="h-full w-full"
+                />
+              )}
+            </div>
           </div>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit((v) => onSubmit(v, false))}
               className="flex-grow flex flex-col max-w-[45vw]"
             >
-              <div className="space-y-2 h-[calc(100dvh-144px)] overflow-y-auto px-3 -mx-3 mb-6">
+              <div className="space-y-2 h-[calc(100dvh-148px)] overflow-y-auto px-3 -mx-3 mb-6">
                 <FormField
                   control={form.control}
                   name="title"
@@ -237,15 +249,15 @@ export function WeeklyUpsetSheet() {
                     <FormItem key={field.name}>
                       <FormLabel>Sites</FormLabel>
                       <FormControl>
-                        {/* <Textarea
-                          {...field}
-                          placeholder="Type sites id, separated by ','"
-                          value={field.value.join(',')}
-                          onChange={(e) => {
-                            field.onChange(e.target.value.split(','))
+                        <RefSelectDataTable
+                          disabled={field.disabled || field.value.length >= 5}
+                          value={field.value.map((s) => s.id)}
+                          onChange={(raws) => {
+                            const limitSelected = raws.slice(0, 5)
+                            field.onChange(limitSelected)
+                            debouncedHandleRefetchPreview(limitSelected)
                           }}
-                        /> */}
-                        <RefSelectDataTable />
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

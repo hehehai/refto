@@ -69,6 +69,7 @@
     "framer-motion": "^11.0.6",
     "input-otp": "0.3.31-beta",
     "jotai": "^2.7.0",
+    "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "lru-cache": "^10.2.0",
     "lucide-react": "^0.341.0",
