@@ -35,24 +35,25 @@ const imageMime = [
   'image/png',
   'image/jpeg',
   'image/webp',
+  'image/gif',
   'image/svg+xml',
   'image/x-icon',
   'image/vnd.microsoft.icon',
 ]
-const videoMime = ['video/mp4']
+const videoMime = ['video/mp4', "video/webm"]
 
 const mediaTypes = {
   image: {
     mime: imageMime,
-    type: ['PNG', 'JPG', 'WEBP', 'SVG', 'ICO'],
+    type: ['PNG', 'JPG', 'WEBP', 'GIF', 'SVG', 'ICO'],
   },
   video: {
     mime: videoMime,
-    type: ['MP4'],
+    type: ['MP4', "WEBM"],
   },
   mix: {
     mime: [...imageMime, ...videoMime],
-    type: ['PNG', 'JPG', 'WEBP', 'SVG', 'ICO', 'MP4'],
+    type: ['PNG', 'JPG', 'WEBP', 'GIF', 'SVG', 'ICO', 'MP4', 'WEBM'],
   },
 }
 

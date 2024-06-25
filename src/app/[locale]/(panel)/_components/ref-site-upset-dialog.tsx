@@ -73,15 +73,10 @@ export function RefSiteUpsetDialog() {
     },
   })
 
-  const handleInitData = useCallback(async () => {
-    if (!statusId) {
-      setDetailData(emptyData)
-      return
-    }
-
+  const handleInitData = useCallback(async (detailId: string) => {
     try {
       setDetailLoading(true)
-      const detail = await utils.refSites.detail.fetch({ id: statusId })
+      const detail = await utils.refSites.detail.fetch({ id: detailId })
       if (!detail) {
         throw new Error('Detail not found')
       }
@@ -102,11 +97,17 @@ export function RefSiteUpsetDialog() {
     } finally {
       setDetailLoading(false)
     }
-  }, [statusId, toast, utils.refSites.detail, form])
+  }, [toast, utils.refSites.detail, form.reset])
 
   useEffect(() => {
-    handleInitData()
-  }, [handleInitData])
+    if (statusId) {
+      if (detailData.id !== statusId) {
+        handleInitData(statusId)
+      }
+    } else {
+      setDetailData(emptyData)
+    }
+  }, [statusId, handleInitData, detailData.id])
 
   const handleClose = useCallback(
     (value: boolean) => {
@@ -115,7 +116,7 @@ export function RefSiteUpsetDialog() {
         setStatus({ show: false, isAdd: true, id: null })
       }
     },
-    [setStatus, form],
+    [setStatus, form.reset],
   )
 
   const onSubmit = useCallback(
@@ -206,16 +207,16 @@ export function RefSiteUpsetDialog() {
         setGetUrlLoading(false)
       }
     },
-    [form, utils.siteMeta.meta, toast],
+    [form.reset, form.getValues, utils.siteMeta.meta, toast],
   )
 
   return (
     <Sheet open={status.show} onOpenChange={handleClose}>
       <SheetContent side="left" className="sm:max-w-[700px] flex flex-col">
         <SheetHeader>
-          <SheetTitle>
+          <SheetTitle className='flex items-center space-x-3'>
             <span>{isEdit ? 'Edit Ref Site' : 'Create Ref Site'}</span>
-            {detailLoading && <Spinner className="ml-2" />}
+            {detailLoading && <Spinner className="w-4 h-4 animate-spin" />}
           </SheetTitle>
         </SheetHeader>
         <Form {...form}>

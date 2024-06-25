@@ -14,7 +14,7 @@ export const uploadRouter = createTRPCRouter({
             const suffix = value.split('.').pop()
             return (
               suffix &&
-              ['jpg', 'jpeg', 'png', 'svg', 'webp', 'ico', 'mp4'].includes(
+              ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'ico', 'mp4', 'webm'].includes(
                 suffix,
               )
             )
