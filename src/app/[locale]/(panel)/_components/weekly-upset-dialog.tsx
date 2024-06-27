@@ -111,10 +111,14 @@ export function WeeklyUpsetSheet() {
         if (isEdit) {
           await utils.client.weekly.update.mutate({
             ...values,
+            sites: values.sites.map((s) => s.id),
             id: statusId!,
           })
         } else {
-          await utils.client.weekly.create.mutate(values)
+          await utils.client.weekly.create.mutate({
+            ...values,
+            sites: values.sites.map((s) => s.id),
+          })
         }
         toast({
           title: `${title} success`,

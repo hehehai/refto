@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import type { RefSite } from '@prisma/client'
 import { memo, useMemo } from 'react'
 import { VisitLink } from './visit-link'
+import { VideoWrapper } from '@/components/shared/video-wrapper'
 
 interface SiteDetailProps extends React.ComponentPropsWithoutRef<'div'> {
   item: RefSite
@@ -110,7 +111,7 @@ export const SiteDetail = memo(
               />
             )}
             {item.siteRecord ? (
-              <video src={item.siteRecord} muted autoPlay />
+              <VideoWrapper src={item.siteRecord} cover={item.siteCover} width={'100%'} height={'auto'} />
             ) : (
               (item.siteScreenshot || item.siteCover) && (
                 <img
