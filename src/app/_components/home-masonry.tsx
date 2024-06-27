@@ -84,7 +84,7 @@ export const HomeMasonry = ({
               <SiteShowcase
                 key={item.id}
                 item={item}
-                onClick={() => {
+                onDetail={() => {
                   setStatus({ id: item.id })
                   trackEvent('viewSite', { id: item.id, name: item.siteName })
                   increment(`viewSite-${item.siteName}`, 1)

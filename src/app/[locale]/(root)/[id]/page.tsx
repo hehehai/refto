@@ -1,9 +1,9 @@
+import SiteCorrelation from '@/app/_components/site-correlation'
 import { SiteDetail } from '@/app/_components/site-detail'
 import { SiteShowcase } from '@/app/_components/site-showcase'
 import { Separator } from '@/components/ui/separator'
 import { correlation, detail } from '@/server/functions/ref-sites'
 import { getTranslations } from 'next-intl/server'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 export const revalidate = 7200
@@ -33,18 +33,7 @@ export default async function SitePage({
             <div className="mb-3 text-lg md:mb-6 md:text-2xl">
               {t('correlation.title')}
             </div>
-            <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:gap-8">
-              {sites.map((item) => (
-                <Link
-                  href={`/${item.id}`}
-                  key={item.id}
-                  className="w-full"
-                  legacyBehavior
-                >
-                  <SiteShowcase item={item} fixedHeight={280} />
-                </Link>
-              ))}
-            </div>
+            <SiteCorrelation sites={sites} />
           </div>
         )}
       </div>

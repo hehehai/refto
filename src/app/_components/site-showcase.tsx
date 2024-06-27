@@ -17,17 +17,18 @@ interface SiteShowcaseProps extends React.ComponentPropsWithoutRef<'div'> {
     visits: number
   }
   fixedHeight?: number
+  onDetail?: (id: string) => void
 }
 
 export const SiteShowcase = ({
   item,
   fixedHeight,
+  onDetail,
   ...props
 }: SiteShowcaseProps) => {
   return (
     <div
       key={item.id}
-      {...props}
       className={cn(
         'flex w-full cursor-pointer flex-col rounded-[14px] p-1 transition-all hover:bg-zinc-50',
         props.className,
@@ -36,6 +37,7 @@ export const SiteShowcase = ({
       <div
         className="relative w-full overflow-hidden rounded-xl border border-[rgb(232,238,241)]"
         style={{ height: fixedHeight ? `${fixedHeight}px` : undefined }}
+        onClick={() => onDetail?.(item.id)}
       >
         {item.siteCoverRecord ? (
           <VideoWrapper

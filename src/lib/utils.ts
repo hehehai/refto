@@ -123,3 +123,10 @@ export const getImageSizeByUrl = async (url: string) => {
     img.src = url
   })
 }
+
+export const linkWithRef = (url: string, ref: string) => {
+  const link = new URL(url)
+  link.searchParams.set('ref', ref)
+
+  return link.href
+}

@@ -2,7 +2,12 @@
 
 import { Spinner } from '@/components/shared/icons'
 import { Separator } from '@/components/ui/separator'
-import { Sheet, SheetClose, SheetContent } from '@/components/ui/sheet'
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTitle,
+} from '@/components/ui/sheet'
 import { useToast } from '@/components/ui/use-toast'
 import { api } from '@/lib/trpc/react'
 import type { RefSite } from '@prisma/client'
@@ -90,6 +95,7 @@ export const SiteShowcaseSheet = () => {
         showClose={false}
         className="h-[calc(100dvh-52px)] rounded-t-2xl border-0 p-0"
       >
+        <SheetTitle className="sr-only">{detailData?.siteTitle}</SheetTitle>
         <div className="relative h-full w-full">
           <div
             ref={contentRef}

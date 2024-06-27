@@ -35,7 +35,7 @@ const localeMap = {
     description:
       '本周，我们地添加了 {{count}} 个精选网站，它们让人眼前一亮，迸发出灵感。现在就去看看吧！',
     helper:
-      '你喜欢本周的新闻吗？ 如果你有任何关于 refto 的反馈，请随时联系我们。 ',
+      '你喜欢本周的精选吗？ 如果你有任何关于 refto 的反馈，请随时联系我们。 ',
     slogan: site.description['zh-CN'],
     unsubscribe: '取消订阅',
   },
