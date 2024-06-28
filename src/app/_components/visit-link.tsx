@@ -31,7 +31,7 @@ export const VisitLink = ({ id, count, href, ...props }: VisitLinkProps) => {
         visitInc(id)
       }}
     >
-      <a {...props} href={linkWithRef(href, 'refto')}>
+      <a {...props} href={linkWithRef(href, 'refto.one')}>
         {props.children}
       </a>
     </span>
