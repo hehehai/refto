@@ -30,12 +30,12 @@ export const SiteShowcase = ({
     <div
       key={item.id}
       className={cn(
-        'flex w-full cursor-pointer flex-col rounded-[14px] p-1 transition-all hover:bg-zinc-50',
+        'flex w-full cursor-pointer flex-col rounded-[14px] p-1 bg-transparent transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800 duration-300',
         props.className,
       )}
     >
       <div
-        className="relative w-full overflow-hidden rounded-xl border border-[rgb(232,238,241)]"
+        className="relative w-full overflow-hidden rounded-xl border border-[rgba(241,245,248,0.80)] dark:border-zinc-800"
         style={{ height: fixedHeight ? `${fixedHeight}px` : undefined }}
         onClick={() => onDetail?.(item.id)}
       >
@@ -45,6 +45,7 @@ export const SiteShowcase = ({
             cover={item.siteCover}
             width={item.siteCoverWidth}
             height={item.siteCoverHeight}
+            className='hover:scale-[1.02] duration-500'
           />
         ) : fixedHeight ? (
           <BlurImage
@@ -52,7 +53,7 @@ export const SiteShowcase = ({
             alt={item.siteName}
             fill={true}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover object-top"
+            className="object-cover object-top hover:scale-[1.02]"
           />
         ) : (
           <BlurImage
@@ -60,6 +61,7 @@ export const SiteShowcase = ({
             alt={item.siteName}
             width={item.siteCoverWidth}
             height={item.siteCoverHeight}
+            className='hover:scale-[1.02]'
           />
         )}
       </div>

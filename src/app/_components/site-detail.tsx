@@ -56,7 +56,7 @@ export const SiteDetail = memo(
         <div className="container mb-6 mt-4 text-3xl font-medium leading-normal sm:text-4xl md:mt-14 lg:text-5xl">
           {item.siteTitle}
         </div>
-        <div className="sticky inset-x-0 top-0 z-40 w-full bg-white py-5">
+        <div className="sticky inset-x-0 top-0 z-40 w-full bg-background py-5">
           <div className="container justify-between space-y-5 md:flex md:space-y-0">
             <div className="flex flex-grow space-x-2">
               {item.siteFavicon && (
@@ -107,7 +107,7 @@ export const SiteDetail = memo(
               <img
                 src={item.siteOGImage}
                 alt={item.siteName}
-                className="mx-auto block rounded-lg ring-1 ring-zinc-100"
+                className="mx-auto block rounded-lg ring-1 ring-zinc-100 dark:ring-zinc-900"
               />
             )}
             {item.siteRecord ? (
@@ -117,7 +117,7 @@ export const SiteDetail = memo(
                 <img
                   src={item.siteScreenshot || item.siteCover}
                   alt={item.siteName}
-                  className="mx-auto block rounded-lg ring-1 ring-zinc-100"
+                  className="mx-auto block rounded-lg ring-1 ring-zinc-100 dark:ring-zinc-900"
                 />
               )
             )}

@@ -8,11 +8,15 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { supportedLanguages } from '@/i18n'
-import { useTranslations } from 'next-intl'
+import { cn } from '@/lib/utils'
+import { useLocale, useTranslations } from 'next-intl'
+import { useTheme } from 'next-themes'
 import Link from 'next/link'
 
 export const SiteMenu = () => {
   const t = useTranslations('Header')
+  const locale = useLocale()
+  const { setTheme, theme = 'system' } = useTheme()
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -22,7 +26,7 @@ export const SiteMenu = () => {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="flex flex-col space-y-2 rounded-2xl border-zinc-100 text-right shadow-none"
+        className="flex flex-col space-y-2 rounded-2xl border-zinc-100 dark:border-zinc-900 text-right shadow-none"
         align="end"
         sideOffset={10}
       >
@@ -32,21 +36,36 @@ export const SiteMenu = () => {
           </Link>
           <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
         </div>
-        {supportedLanguages.map((lang) => (
-          <div
-            className="group inline-flex items-center justify-end space-x-4"
-            key={lang.id}
-          >
+        <div className="group inline-flex items-center justify-end space-x-4">
+          {supportedLanguages.map((lang) => (
             <Link
-              className="cursor-pointer"
+              key={lang.id}
+              className={cn('cursor-pointer hover:text-foreground', {
+                'text-foreground/55': lang.locale !== locale,
+              })}
               href={`/${lang.locale}`}
               locale={lang.locale}
             >
               {lang.title}
             </Link>
-            <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
-          </div>
-        ))}
+          ))}
+          <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
+        </div>
+        <div className="group inline-flex items-center justify-end space-x-4">
+          {['light', 'dark', 'system'].map((mode) => (
+            <button
+              className={cn('cursor-pointer hover:text-foreground capitalize', {
+                'text-foreground/55': theme !== mode,
+              })}
+              type="button"
+              onClick={() => setTheme(mode)}
+              key={mode}
+            >
+              {mode}
+            </button>
+          ))}
+          <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
+        </div>
       </PopoverContent>
     </Popover>
   )

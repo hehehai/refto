@@ -16,7 +16,7 @@ export const HomeMasonrySkeleton = () => {
             <div
               key={item.key}
               style={{ height: `${item.height}px` }}
-              className="w-full rounded-lg bg-zinc-50"
+              className="w-full rounded-lg bg-zinc-50 dark:bg-zinc-900"
             />
           ))}
         </div>

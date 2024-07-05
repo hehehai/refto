@@ -64,7 +64,7 @@ export default async function Home({
                 <VideoWrapper
                   cover={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-holder-1.mp4`}
                   src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-1.mp4`}
-                  className="rounded-lg border border-zinc-50"
+                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
                 />
               </Suspense>
             </div>
@@ -75,7 +75,7 @@ export default async function Home({
                 <VideoWrapper
                   cover={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-holder-3.mp4`}
                   src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-3.mp4`}
-                  className="rounded-lg border border-zinc-50"
+                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
                 />
               </Suspense>
             </div>

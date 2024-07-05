@@ -151,13 +151,13 @@ export function SiteFilterCommand() {
       <div
         className={cn(
           buttonVariants({ variant: 'outline' }),
-          'relative cursor-pointer rounded-full border-zinc-200 pr-12 hover:border-foreground hover:bg-background',
+          'relative cursor-pointer rounded-full border-zinc-200 dark:border-zinc-700 pr-12 hover:border-foreground hover:bg-background',
         )}
         onClick={() => setOpen(true)}
       >
         <div className="hidden sm:block">{filterPreview}</div>
         <div className="sm:hidden">{t('holder')}</div>
-        <div className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-foreground text-white">
+        <div className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-foreground text-background">
           <FilterIcon className="text-lg" />
         </div>
       </div>
@@ -219,7 +219,7 @@ export function SiteFilterCommand() {
             ))}
           </CommandGroup>
         </CommandList>
-        <div className="flex items-center justify-between border-t border-zinc-200 p-3 max-md:hidden">
+        <div className="flex items-center justify-between border-t border-zinc-200 dark:border-zinc-800 p-3 max-md:hidden">
           <div>
             <span className="flex items-center space-x-1">
               <CommandShortcut className="px-0.5 py-0.5">
@@ -228,7 +228,7 @@ export function SiteFilterCommand() {
               <CommandShortcut className="px-0.5 py-0.5">
                 <ArrowDownIcon className="text-md" />
               </CommandShortcut>
-              <span className="text-xs text-zinc-700">
+              <span className="text-xs text-zinc-700 dark:text-foreground/40">
                 {t('controls.move')}
               </span>
             </span>
@@ -236,26 +236,26 @@ export function SiteFilterCommand() {
           <div className="flex items-center space-x-4">
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">Space</CommandShortcut>
-              <span className="text-xs text-zinc-700">
+              <span className="text-xs text-zinc-700 dark:text-foreground/40">
                 {t('controls.select')}
               </span>
             </span>
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">Enter</CommandShortcut>
-              <span className="text-xs text-zinc-700">
+              <span className="text-xs text-zinc-700 dark:text-foreground/40">
                 {t('controls.confirm')}
               </span>
             </span>
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">ESC</CommandShortcut>
-              <span className="text-xs text-zinc-700">
+              <span className="text-xs text-zinc-700 dark:text-foreground/40">
                 {t('controls.cancel')}
               </span>
             </span>
           </div>
         </div>
         <div
-          className="border-t border-zinc-200 p-3 md:hidden"
+          className="border-t border-zinc-200 dark:border-zinc-800 p-3 md:hidden"
           onClick={() => {
             if (!inputLock) {
               handleConfirm()

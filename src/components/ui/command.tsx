@@ -63,12 +63,12 @@ const CommandInput = React.forwardRef<
 >(({ wrapperClassname, className, children, ...props }, ref) => (
   <div
     className={cn(
-      'flex items-center border-b border-zinc-200 px-3',
+      'flex items-center border-b border-zinc-200 dark:border-zinc-800 px-3',
       wrapperClassname,
     )}
     cmdk-input-wrapper=""
   >
-    <SearchIcon className="mr-3 shrink-0 text-slate-600" />
+    <SearchIcon className="mr-3 shrink-0 text-zinc-600" />
     <CommandPrimitive.Input
       ref={ref}
       className={cn(
@@ -163,7 +163,7 @@ const CommandShortcut = ({
   return (
     <span
       className={cn(
-        'ml-auto rounded-sm border border-zinc-100 bg-transparent px-1.5 text-xs tracking-widest text-muted-foreground text-zinc-700 max-md:hidden',
+        'ml-auto rounded-sm border border-zinc-100 dark:border-zinc-800 bg-transparent px-1.5 text-xs tracking-widest text-muted-foreground max-md:hidden',
         className,
       )}
       {...props}
