@@ -342,7 +342,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
       <div
         ref={ref}
         {...props}
-        className={cn('rounded-lg bg-zinc-100 p-1', props.className)}
+        className={cn('rounded-lg bg-zinc-100 dark:bg-zinc-800 p-1', props.className)}
         onClick={(e: React.MouseEvent<HTMLDivElement>) => {
           e.stopPropagation()
           e.nativeEvent.stopImmediatePropagation()
@@ -355,11 +355,11 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
             onDragOver={(e) => handleDrag(e, true)}
             onDragLeave={(e) => handleDrag(e, false)}
             className={cn(
-              'relative flex h-24 items-center justify-center overflow-hidden rounded-md border border-transparent bg-white focus-within:ring-2 focus-within:ring-slate-700 focus-within:ring-offset-2 hover:border-slate-700',
+              'relative flex h-24 items-center justify-center overflow-hidden rounded-md border border-transparent bg-background focus-within:ring-2 focus-within:ring-zinc-700 dark:focus-within:ring-zinc-200 focus-within:ring-offset-2 hover:border-zinc-700 dark:hover:border-zinc-200',
               {
                 'cursor-not-allowed opacity-50': disabled,
                 'cursor-pointer': !disabled,
-                'border-slate-700': dragActive,
+                'border-zinc-700 dark:border-zinc-200': dragActive,
               },
             )}
           >
@@ -380,7 +380,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
                 )}
                 <IconButton
                   type="button"
-                  className="text-md invisible absolute right-1 top-1 bg-slate-950/45 backdrop-blur-sm group-hover:visible"
+                  className="text-md invisible absolute right-1 top-1 bg-zinc-950/45 dark:bg-slate-200/45 backdrop-blur-sm group-hover:visible"
                   onClick={handleExpandView}
                 >
                   <ExpandIcon />
@@ -388,7 +388,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
               </div>
             ) : (
               <div className="text-center">
-                <div className="text-sm text-zinc-700">
+                <div className="text-sm text-zinc-700 dark:text-zinc-200">
                   Click to upload or drag and drop
                 </div>
                 <div className="text-xs text-zinc-500">{subDescription}</div>
@@ -420,7 +420,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
                   </div>
                 )
               ) : (
-                <div className="ml-1 py-1 text-slate-500">{placeholder}</div>
+                <div className="ml-1 py-1 text-zinc-500">{placeholder}</div>
               )}
             </div>
           )}
@@ -431,7 +431,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
                   type="button"
                   onClick={() => handleSaveFile(file)}
                   variant="ghost"
-                  className="hover:bg-white"
+                  className="hover:bg-white dark:hover:bg-zinc-900"
                 >
                   {uploadLoading ? <Spinner /> : <BoxUploadIcon />}
                 </IconButton>
@@ -440,7 +440,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
                 <IconButton
                   type="button"
                   variant="ghost"
-                  className="hover:bg-white"
+                  className="hover:bg-white dark:hover:bg-zinc-900"
                   onClick={handleSyncFile}
                 >
                   {syncLoading ? <Spinner /> : <BoxSyncIcon />}
@@ -451,7 +451,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
                   type="button"
                   onClick={handleCleanFile}
                   variant="ghost"
-                  className="hover:bg-white"
+                  className="hover:bg-white dark:hover:bg-zinc-900"
                 >
                   <BoxCloseIcon />
                 </IconButton>

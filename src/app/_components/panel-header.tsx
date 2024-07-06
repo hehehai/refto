@@ -13,7 +13,7 @@ interface PanelHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const PanelHeader = ({ user }: PanelHeaderProps) => {
   return (
-    <div className="sticky inset-x-0 top-0 flex h-16 w-full items-center justify-between border-b border-zinc-100 px-5">
+    <div className="sticky inset-x-0 top-0 flex h-16 w-full items-center justify-between border-b border-zinc-100 dark:border-zinc-900 px-5">
       <div>
         <Link
           href={'/'}

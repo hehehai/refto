@@ -79,7 +79,7 @@ export const PanelNav = (props: PanelNavProps) => {
           {item.path.endsWith(active) && (
             <motion.div
               layoutId="underline"
-              className="absolute bottom-0 left-0 right-0 h-[3px] rounded-t-xl bg-gray-950"
+              className="absolute bottom-0 left-0 right-0 h-[3px] rounded-t-xl bg-gray-950 dark:bg-zinc-500"
             />
           )}
         </Link>
