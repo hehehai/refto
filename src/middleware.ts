@@ -3,16 +3,12 @@ import { type NextRequestWithAuth, withAuth } from 'next-auth/middleware'
 import createIntlMiddleware from 'next-intl/middleware'
 import type { NextFetchEvent, NextRequest } from 'next/server'
 
-import { i18n } from './i18n'
+import { routing } from './i18n/routing'
 
 // const publicPages = ["/", "/*", "/login", "/register"];
 const protectionPages = ['/panel']
 
-const intlMiddleware = createIntlMiddleware({
-  locales: i18n.locales,
-  defaultLocale: i18n.defaultLocale,
-  localePrefix: 'as-needed',
-})
+const intlMiddleware = createIntlMiddleware(routing)
 
 const authMiddleware = withAuth(
   async function onSuccess(req) {
@@ -29,7 +25,7 @@ const authMiddleware = withAuth(
 
 export default function middleware(req: NextRequest, event: NextFetchEvent) {
   const protectionPathnameRegex = RegExp(
-    `^(/(${i18n.locales.join('|')}))?(${protectionPages
+    `^(/(${routing.locales.join('|')}))?(${protectionPages
       .flatMap((p) => (p === '/' ? ['', '/'] : p))
       .join('|')})/?$`,
     'i',

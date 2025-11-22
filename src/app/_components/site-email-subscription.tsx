@@ -8,7 +8,6 @@ import { useToast } from '@/components/ui/use-toast'
 import type { SupportLocale } from '@/i18n'
 import { api } from '@/lib/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { trackEvent } from '@openpanel/nextjs'
 import { useLocale, useTranslations } from 'next-intl'
 import type { HTMLAttributes } from 'react'
 import { useForm } from 'react-hook-form'
@@ -68,7 +67,6 @@ export const SiteEmailSubscription = ({
       email: values.email,
       locale: locale as SupportLocale,
     })
-    trackEvent('subscribe', { email: values.email })
   }
 
   return (

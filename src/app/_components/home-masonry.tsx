@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button'
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
 import { api } from '@/lib/trpc/react'
-import { increment, trackEvent } from '@openpanel/nextjs'
 import { useAtom } from 'jotai'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useRef } from 'react'
@@ -86,8 +85,6 @@ export const HomeMasonry = ({
                 item={item}
                 onDetail={() => {
                   setStatus({ id: item.id })
-                  trackEvent('viewSite', { id: item.id, name: item.siteName })
-                  increment(`viewSite-${item.siteName}`, 1)
                 }}
               />
             )}

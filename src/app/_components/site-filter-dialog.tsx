@@ -21,7 +21,6 @@ import {
 import type { SiteLocale } from '@/i18n'
 import { siteTagMap } from '@/lib/constants'
 import { cn, getSearchParams } from '@/lib/utils'
-import { trackEvent } from '@openpanel/nextjs'
 import { X } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -71,10 +70,6 @@ export function SiteFilterCommand() {
     newSearchParams.set('tags', selected.join(','))
     router.push(`${pathname}?${newSearchParams.toString()}`)
     setOpen(false)
-    trackEvent('filter', {
-      search,
-      tags: selected,
-    })
   }, [search, selected, searchParams, pathname, router])
 
   const handleKeyDown = React.useCallback(

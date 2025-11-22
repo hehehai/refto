@@ -32,7 +32,7 @@ import { WeekPicker } from './week-picker'
 import { RefSelectDataTable } from '../panel/weekly/_components/ref-select/data-table'
 import WeeklyEmail from '@/lib/email/templates/weekly'
 import { SupportLocale } from '@/i18n'
-import { renderAsync } from '@react-email/render'
+import { render } from '@react-email/render'
 import useDebounce from '@/hooks/use-debounce'
 
 const emptyData = {
@@ -162,7 +162,7 @@ export function WeeklyUpsetSheet() {
             tags: site.siteTags,
           })),
         }
-        const mark = await renderAsync(<WeeklyEmail {...mailProps} />, {
+        const mark = await render(<WeeklyEmail {...mailProps} />, {
           pretty: true,
         })
         setPreviewMark(mark)

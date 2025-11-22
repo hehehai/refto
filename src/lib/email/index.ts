@@ -1,7 +1,7 @@
 'use server'
 
 import { env } from '@/env'
-import { type Options, renderAsync } from '@react-email/render'
+import { type Options, render } from '@react-email/render'
 import type { JSXElementConstructor, ReactElement } from 'react'
 import { Resend } from 'resend'
 import { site } from '../config/site'
@@ -22,7 +22,7 @@ export async function sendEmail({
   renderOptions,
 }: SendEmailOptions) {
   try {
-    const emailHtml = await renderAsync(renderData, renderOptions)
+    const emailHtml = await render(renderData, renderOptions)
 
     const status = await resend.emails.send({
       from: `${site.name} <${env.EMAIL_USER}>`,
@@ -53,7 +53,7 @@ export async function batchSendEmail({
   renderOptions,
 }: BatchSendEmailOptions) {
   try {
-    const emailHtml = renderData.map((item) => renderAsync(item, renderOptions))
+    const emailHtml = renderData.map((item) => render(item, renderOptions))
 
     const mailTask = to.map(async (email, idx) => ({
       from: `${site.name} <${env.EMAIL_USER}>`,

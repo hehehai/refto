@@ -9,6 +9,8 @@ const withNextIntl = createNextIntlPlugin()
 
 /** @type {import("next").NextConfig} */
 const config = {
+  // Disable Turbopack for build due to @egoist/tailwindcss-icons incompatibility
+  // with dynamic require statements
   images: {
     remotePatterns: [
       {

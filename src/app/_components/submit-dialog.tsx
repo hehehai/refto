@@ -29,7 +29,6 @@ import {
   submitSiteCreateSchema,
 } from '@/lib/validations/submit-site'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { increment, trackEvent } from '@openpanel/nextjs'
 import { useLocale, useTranslations } from 'next-intl'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -77,7 +76,6 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
   const onSubmit = useCallback(
     async (values: SubmitSiteCreate) => {
       submitAction.mutate(values)
-      trackEvent('submit', { url: values.site })
     },
     [submitAction],
   )
@@ -85,7 +83,6 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
   const handleGetUrlMeta = useCallback(
     async (e: React.SyntheticEvent<HTMLButtonElement>) => {
       e.preventDefault()
-      increment('submit.get-url', 1)
       const currentUrl = form.getValues('site')
       const validUrl = z.string().trim().url().safeParse(currentUrl)
       if (!validUrl.success) {
