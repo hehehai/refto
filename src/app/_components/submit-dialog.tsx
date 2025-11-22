@@ -1,7 +1,12 @@
-'use client'
+"use client";
 
-import { Spinner } from '@/components/shared/icons'
-import { Button } from '@/components/ui/button'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocale, useTranslations } from "next-intl";
+import { useCallback, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Spinner } from "@/components/shared/icons";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -19,121 +24,113 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { useToast } from '@/components/ui/use-toast'
-import { api } from '@/lib/trpc/react'
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+import { api } from "@/lib/trpc/react";
 import {
   type SubmitSiteCreate,
   submitSiteCreateSchema,
-} from '@/lib/validations/submit-site'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { increment, trackEvent } from '@openpanel/nextjs'
-import { useLocale, useTranslations } from 'next-intl'
-import { useCallback, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+} from "@/lib/validations/submit-site";
 
 const emptyData = {
-  email: '',
-  site: '',
-  title: '',
-  description: '',
-}
+  email: "",
+  site: "",
+  title: "",
+  description: "",
+};
 
 export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
-  const t = useTranslations('Submit')
-  const locale = useLocale()
-  const utils = api.useUtils()
-  const { toast } = useToast()
+  const t = useTranslations("Submit");
+  const locale = useLocale();
+  const utils = api.useUtils();
+  const { toast } = useToast();
 
   const form = useForm<SubmitSiteCreate>({
     resolver: zodResolver(submitSiteCreateSchema(locale)),
     defaultValues: {
       ...emptyData,
     },
-  })
+  });
 
   const submitAction = api.submitSite.recommend.useMutation({
     onSuccess: () => {
       toast({
-        title: t('success.title'),
-        description: t('success.description'),
-      })
-      form.reset({ ...emptyData })
+        title: t("success.title"),
+        description: t("success.description"),
+      });
+      form.reset({ ...emptyData });
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
-      })
+        variant: "destructive",
+      });
     },
-  })
+  });
 
-  const [getUrlLoading, setGetUrlLoading] = useState(false)
+  const [getUrlLoading, setGetUrlLoading] = useState(false);
 
   const onSubmit = useCallback(
     async (values: SubmitSiteCreate) => {
-      submitAction.mutate(values)
-      trackEvent('submit', { url: values.site })
+      submitAction.mutate(values);
     },
-    [submitAction],
-  )
+    [submitAction]
+  );
 
   const handleGetUrlMeta = useCallback(
     async (e: React.SyntheticEvent<HTMLButtonElement>) => {
-      e.preventDefault()
-      increment('submit.get-url', 1)
-      const currentUrl = form.getValues('site')
-      const validUrl = z.string().trim().url().safeParse(currentUrl)
+      e.preventDefault();
+      const currentUrl = form.getValues("site");
+      const validUrl = z.string().trim().url().safeParse(currentUrl);
       if (!validUrl.success) {
         toast({
-          title: 'Error',
-          description: 'Please input site url',
-          variant: 'destructive',
-        })
-        return
+          title: "Error",
+          description: "Please input site url",
+          variant: "destructive",
+        });
+        return;
       }
-      setGetUrlLoading(true)
+      setGetUrlLoading(true);
       try {
-        const data = await utils.siteMeta.meta.fetch({ url: validUrl.data })
+        const data = await utils.siteMeta.meta.fetch({ url: validUrl.data });
 
         if (!data) {
           toast({
-            title: 'Error',
-            description: 'Failed to get site meta',
-            variant: 'destructive',
-          })
-          return
+            title: "Error",
+            description: "Failed to get site meta",
+            variant: "destructive",
+          });
+          return;
         }
 
         form.reset({
-          email: form.getValues('email'),
+          email: form.getValues("email"),
           site: validUrl.data,
           title: data.siteTitle,
           description: data.siteDescription,
-        })
+        });
       } finally {
-        setGetUrlLoading(false)
+        setGetUrlLoading(false);
       }
     },
-    [form, toast, utils.siteMeta.meta],
-  )
+    [form, toast, utils.siteMeta.meta]
+  );
 
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="flex flex-col max-sm:h-[100dvh] max-sm:border-none max-sm:shadow-none sm:grid sm:max-w-[526px]">
+      <DialogContent className="flex flex-col max-sm:h-dvh max-sm:border-none max-sm:shadow-none sm:grid sm:max-w-[526px]">
         <DialogHeader>
-          <DialogTitle>{t('title')}</DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
+            className="flex flex-col max-sm:mt-3 max-sm:grow"
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col max-sm:mt-3 max-sm:flex-grow"
           >
             <div className="space-y-2">
               <FormField
@@ -141,15 +138,15 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('email.label')}</FormLabel>
+                    <FormLabel>{t("email.label")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder={t('email.placeholder')}
+                        placeholder={t("email.placeholder")}
                         {...field}
                         disabled={getUrlLoading}
                       />
                     </FormControl>
-                    <FormDescription>{t('email.msg')}</FormDescription>
+                    <FormDescription>{t("email.msg")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -159,20 +156,20 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                 name="site"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('siteUrl.label')}</FormLabel>
+                    <FormLabel>{t("siteUrl.label")}</FormLabel>
                     <FormControl>
                       <div className="flex space-x-2">
                         <Input
-                          placeholder={t('siteUrl.placeholder')}
+                          placeholder={t("siteUrl.placeholder")}
                           {...field}
                           disabled={getUrlLoading}
                         />
                         <Button
-                          onClick={handleGetUrlMeta}
                           disabled={getUrlLoading}
+                          onClick={handleGetUrlMeta}
                         >
                           {getUrlLoading && <Spinner className="mr-1" />}
-                          <span>{t('siteUrl.button')}</span>
+                          <span>{t("siteUrl.button")}</span>
                         </Button>
                       </div>
                     </FormControl>
@@ -185,10 +182,10 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('siteTitle.label')}</FormLabel>
+                    <FormLabel>{t("siteTitle.label")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder={t('siteTitle.placeholder')}
+                        placeholder={t("siteTitle.placeholder")}
                         {...field}
                         disabled
                       />
@@ -202,10 +199,10 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('siteDescription.label')}</FormLabel>
+                    <FormLabel>{t("siteDescription.label")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder={t('siteDescription.placeholder')}
+                        placeholder={t("siteDescription.placeholder")}
                         {...field}
                         disabled
                       />
@@ -217,17 +214,17 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
             </div>
             <DialogFooter className="mt-auto sm:mt-4">
               <Button
-                type="submit"
-                disabled={submitAction.isLoading}
                 className="max-sm:w-full"
+                disabled={submitAction.isPending}
+                type="submit"
               >
-                {submitAction.isLoading && <Spinner className="mr-2 text-xl" />}
-                <span>{t('button.submit')}</span>
+                {submitAction.isPending && <Spinner className="mr-2 text-xl" />}
+                <span>{t("button.submit")}</span>
               </Button>
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};

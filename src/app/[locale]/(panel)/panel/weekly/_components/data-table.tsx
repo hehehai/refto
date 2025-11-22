@@ -1,16 +1,26 @@
-'use client'
+"use client";
 
+import type { Weekly } from "@prisma/client";
 import {
   type ColumnFiltersState,
-  type PaginationState,
-  type SortingState,
-  type VisibilityState,
   flexRender,
   getCoreRowModel,
+  type PaginationState,
+  type SortingState,
   useReactTable,
-} from '@tanstack/react-table'
-import * as React from 'react'
-
+  type VisibilityState,
+} from "@tanstack/react-table";
+import { useAtom } from "jotai";
+import * as React from "react";
+import {
+  weeklyDialogAtom,
+  weeklyDialogEmitter,
+} from "@/app/[locale]/(panel)/_store/dialog.store";
+import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
+import { Spinner } from "@/components/shared/icons";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -18,75 +28,65 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-
-import { DataTableFacetedFilter } from '@/components/shared/data-table-faceted-filter'
-import { DataTablePagination } from '@/components/shared/data-table-pagination'
-import { DataTableToolbar } from '@/components/shared/data-table-toolbar'
-import { Spinner } from '@/components/shared/icons'
-import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/use-toast'
-import { api } from '@/lib/trpc/react'
-import type { Weekly } from '@prisma/client'
-import { useAtom } from 'jotai'
-import {
-  weeklyDialogAtom,
-  weeklyDialogEmitter,
-} from '../../../_store/dialog.store'
-import { columns } from './columns'
-import { DataTableRowActions } from './data-table-row-actions'
+} from "@/components/ui/table";
+import { useToast } from "@/components/ui/use-toast";
+import { api } from "@/lib/trpc/react";
+import { columns } from "./columns";
+import { DataTableRowActions } from "./data-table-row-actions";
 
 export function DataTable() {
-  const { toast } = useToast()
+  const { toast } = useToast();
 
-  const [_, setStatus] = useAtom(weeklyDialogAtom)
-  const [rowSelection, setRowSelection] = React.useState({})
+  const [_, setStatus] = useAtom(weeklyDialogAtom);
+  const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+    React.useState<VisibilityState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  })
-  const [globalFilter, setGlobalFilter] = React.useState('')
+  });
+  const [globalFilter, setGlobalFilter] = React.useState("");
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  )
-  const [sorting, setSorting] = React.useState<SortingState>([])
+    []
+  );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const tableQuery = api.weekly.query.useQuery(
     {
       limit: pagination.pageSize,
       search: globalFilter,
-      orderBy: sorting.map(({ id, desc }) => `${desc ? '-' : '+'}${id}`),
+      orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
       page: pagination.pageIndex,
       status: columnFilters[0]?.value as any,
     },
     {
       refetchOnWindowFocus: false,
-    },
-  )
+    }
+  );
 
   const unSubRow = api.subscriber.unsubscribeBatch.useMutation({
     onSuccess: () => {
-      tableQuery.refetch()
+      tableQuery.refetch();
       toast({
-        title: 'Success',
-        description: 'unSubscribe',
-      })
+        title: "Success",
+        description: "unSubscribe",
+      });
     },
     onError: (error) => {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-      })
+      });
     },
-  })
+  });
 
-  const tableColumns = React.useMemo(() => {
-    return columns((row) => {
-      return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />
-    })
-  }, [tableQuery.refetch])
+  const tableColumns = React.useMemo(
+    () =>
+      columns((row) => (
+        <DataTableRowActions onRefresh={tableQuery.refetch} row={row} />
+      )),
+    [tableQuery.refetch]
+  );
 
   const table = useReactTable<Weekly>({
     data: (tableQuery.data?.rows as any) || [],
@@ -116,45 +116,45 @@ export function DataTable() {
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     onPaginationChange: setPagination,
-  })
+  });
 
   React.useEffect(() => {
-    weeklyDialogEmitter.on('success', tableQuery.refetch)
+    weeklyDialogEmitter.on("success", tableQuery.refetch);
     return () => {
-      weeklyDialogEmitter.off('success', tableQuery.refetch)
-    }
-  }, [tableQuery.refetch])
+      weeklyDialogEmitter.off("success", tableQuery.refetch);
+    };
+  }, [tableQuery.refetch]);
 
   return (
     <div className="space-y-4">
       <DataTableToolbar
-        searchPlaceholder="Search email"
-        table={table}
-        filterSlot={
-          <DataTableFacetedFilter
-            value={(table.getState().columnFilters[0]?.value as string[]) ?? []}
-            title="Status"
-            options={[
-              { label: 'Active', value: 'subscribed' },
-              { label: 'Inactive', value: 'unsubscribed' },
-            ]}
-            onChange={(value) =>
-              table.setColumnFilters([{ id: 'status', value }])
-            }
-          />
-        }
         actionsSlot={
           <Button
             onClick={() => {
-              setStatus({ show: true, isAdd: true, id: null })
+              setStatus({ show: true, isAdd: true, id: null });
             }}
           >
             Create Week
           </Button>
         }
+        filterSlot={
+          <DataTableFacetedFilter
+            onChange={(value) =>
+              table.setColumnFilters([{ id: "status", value }])
+            }
+            options={[
+              { label: "Active", value: "subscribed" },
+              { label: "Inactive", value: "unsubscribed" },
+            ]}
+            title="Status"
+            value={(table.getState().columnFilters[0]?.value as string[]) ?? []}
+          />
+        }
+        searchPlaceholder="Search email"
+        table={table}
       />
       <div className="rounded-lg border">
-        {tableQuery.isLoading ? (
+        {tableQuery.isPending ? (
           <div className="flex min-h-[300px] w-full items-center justify-center">
             <Spinner className="text-2xl" />
           </div>
@@ -163,18 +163,16 @@ export function DataTable() {
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id} colSpan={header.colSpan}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                      </TableHead>
-                    )
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead colSpan={header.colSpan} key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
@@ -182,14 +180,14 @@ export function DataTable() {
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
+                    data-state={row.getIsSelected() && "selected"}
                     key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext(),
+                          cell.getContext()
                         )}
                       </TableCell>
                     ))}
@@ -198,8 +196,8 @@ export function DataTable() {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={tableColumns.length}
                     className="h-24 text-center"
+                    colSpan={tableColumns.length}
                   >
                     No results.
                   </TableCell>
@@ -210,22 +208,22 @@ export function DataTable() {
         )}
       </div>
       <DataTablePagination
-        table={table}
         footerActions={
           <>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <Button
-                size={'xs'}
-                variant={'destructive'}
-                disabled={unSubRow.isLoading}
+                disabled={unSubRow.isPending}
+                size={"sm"}
+                variant={"destructive"}
               >
-                {unSubRow.isLoading && <Spinner className="mr-2" />}
+                {unSubRow.isPending && <Spinner className="mr-2" />}
                 <span>Unsubscribe</span>
               </Button>
             )}
           </>
         }
+        table={table}
       />
     </div>
-  )
+  );
 }

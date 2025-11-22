@@ -1,46 +1,45 @@
-'use client'
+"use client";
 
-import type { ColumnDef, Row } from '@tanstack/react-table'
+import type { RefSite } from "@prisma/client";
+import type { ColumnDef, Row } from "@tanstack/react-table";
+import { format } from "date-fns";
 
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-
-import { BlurImage } from '@/components/shared/blur-image'
-import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
-import { LikeIcon, VisitIcon } from '@/components/shared/icons'
-import type { RefSite } from '@prisma/client'
-import { format } from 'date-fns'
+import { BlurImage } from "@/components/shared/blur-image";
+import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
+import { VisitIcon } from "@/components/shared/icons";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ColumnsMethods {
-  onDetail: (rowId: string) => void
+  onDetail: (rowId: string) => void;
 }
 
 export const columns = (
   actionSlot: (row: Row<RefSite>) => React.ReactNode,
-  methods?: ColumnsMethods,
+  methods?: ColumnsMethods
 ): ColumnDef<RefSite>[] => [
   {
-    id: 'select',
+    id: "select",
     header: ({ table }) => (
       <div className="w-6 text-center">
         <Checkbox
+          aria-label="Select all"
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
+            (table.getIsSomePageRowsSelected() && "indeterminate")
           }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
           className="translate-y-[2px]"
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
       </div>
     ),
     cell: ({ row }) => (
       <div className="w-6 text-center">
         <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
+          checked={row.getIsSelected()}
           className="translate-y-[2px]"
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
         />
       </div>
     ),
@@ -48,43 +47,43 @@ export const columns = (
     enableHiding: false,
   },
   {
-    accessorKey: 'createdAt',
+    accessorKey: "createdAt",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="CreatedAt" />
     ),
     cell: ({ row }) => (
       <div className="w-[140px] text-center">
-        {format(row.getValue('createdAt'), 'yyyy-MM-dd HH:mm:ss')}
+        {format(row.getValue("createdAt"), "yyyy-MM-dd HH:mm:ss")}
       </div>
     ),
   },
   {
-    accessorKey: 'siteName',
+    accessorKey: "siteName",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
     enableSorting: false,
     cell: ({ row, getValue }) => {
-      const { siteUrl, siteFavicon, isTop, siteTitle } = row.original
-      const name = getValue<string>()
+      const { siteUrl, siteFavicon, isTop, siteTitle } = row.original;
+      const name = getValue<string>();
 
       return (
         <div className="flex items-center space-x-2">
           {siteFavicon && (
             <div className="overflow-hidden rounded-md">
-              <BlurImage src={siteFavicon} width={34} height={34} alt={name} />
+              <BlurImage alt={name} height={34} src={siteFavicon} width={34} />
             </div>
           )}
           <div className="max-w-[500px]">
             <div className="flex items-center space-x-2">
               <div
-                className="cursor-pointer truncate text-[16px] font-medium hover:underline"
+                className="cursor-pointer truncate font-medium text-[16px] hover:underline"
                 onClick={() => methods?.onDetail(row.original.id)}
               >
                 {name}
               </div>
               {siteUrl && (
-                <a href={siteUrl} target="_blank" rel="noreferrer">
+                <a href={siteUrl} rel="noreferrer" target="_blank">
                   <VisitIcon className="text-lg" />
                 </a>
               )}
@@ -95,31 +94,31 @@ export const columns = (
             </div>
           </div>
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: 'visits',
+    accessorKey: "visits",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Visits" />
     ),
     cell: ({ getValue }) => {
-      const visits = getValue<number>()
+      const visits = getValue<number>();
 
       return (
         <div className="flex w-[100px] items-center space-x-2">
           <VisitIcon className="text-xl" />
           <span>{visits}</span>
         </div>
-      )
+      );
     },
   },
   {
-    id: 'actions',
+    id: "actions",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Actions" />
     ),
     enableSorting: false,
     cell: ({ row }) => actionSlot(row),
   },
-]
+];

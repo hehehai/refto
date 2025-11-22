@@ -1,16 +1,22 @@
-'use client'
+"use client";
 
+import type { SubmitSite } from "@prisma/client";
 import {
   type ColumnFiltersState,
-  type PaginationState,
-  type SortingState,
-  type VisibilityState,
   flexRender,
   getCoreRowModel,
+  type PaginationState,
+  type SortingState,
   useReactTable,
-} from '@tanstack/react-table'
-import * as React from 'react'
+  type VisibilityState,
+} from "@tanstack/react-table";
+import * as React from "react";
 
+import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
+import { Spinner } from "@/components/shared/icons";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -18,50 +24,45 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-
-import { DataTableFacetedFilter } from '@/components/shared/data-table-faceted-filter'
-import { DataTablePagination } from '@/components/shared/data-table-pagination'
-import { DataTableToolbar } from '@/components/shared/data-table-toolbar'
-import { Spinner } from '@/components/shared/icons'
-import { Button } from '@/components/ui/button'
-import { api } from '@/lib/trpc/react'
-import type { SubmitSite } from '@prisma/client'
-import { columns, statuses } from './columns'
-import { DataTableRowActions } from './data-table-row-actions'
+} from "@/components/ui/table";
+import { api } from "@/lib/trpc/react";
+import { columns, statuses } from "./columns";
+import { DataTableRowActions } from "./data-table-row-actions";
 
 export function DataTable() {
-  const [rowSelection, setRowSelection] = React.useState({})
+  const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+    React.useState<VisibilityState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  })
-  const [globalFilter, setGlobalFilter] = React.useState('')
+  });
+  const [globalFilter, setGlobalFilter] = React.useState("");
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  )
-  const [sorting, setSorting] = React.useState<SortingState>([])
+    []
+  );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const tableQuery = api.submitSite.query.useQuery(
     {
       limit: pagination.pageSize,
       search: globalFilter,
-      orderBy: sorting.map(({ id, desc }) => `${desc ? '-' : '+'}${id}`),
+      orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
       page: pagination.pageIndex,
       status: columnFilters[0]?.value as any,
     },
     {
       refetchOnWindowFocus: false,
-    },
-  )
+    }
+  );
 
-  const tableColumns = React.useMemo(() => {
-    return columns((row) => {
-      return <DataTableRowActions row={row} onRefresh={tableQuery.refetch} />
-    })
-  }, [tableQuery.refetch])
+  const tableColumns = React.useMemo(
+    () =>
+      columns((row) => (
+        <DataTableRowActions onRefresh={tableQuery.refetch} row={row} />
+      )),
+    [tableQuery.refetch]
+  );
 
   const table = useReactTable<SubmitSite>({
     data: (tableQuery.data?.rows as any) || [],
@@ -91,26 +92,26 @@ export function DataTable() {
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     onPaginationChange: setPagination,
-  })
+  });
 
   return (
     <div className="space-y-4">
       <DataTableToolbar
-        searchPlaceholder="Search email & site url"
-        table={table}
         filterSlot={
           <DataTableFacetedFilter
-            value={(table.getState().columnFilters[0]?.value as string[]) ?? []}
-            title="Status"
-            options={statuses}
             onChange={(value) =>
-              table.setColumnFilters([{ id: 'status', value }])
+              table.setColumnFilters([{ id: "status", value }])
             }
+            options={statuses}
+            title="Status"
+            value={(table.getState().columnFilters[0]?.value as string[]) ?? []}
           />
         }
+        searchPlaceholder="Search email & site url"
+        table={table}
       />
       <div className="rounded-lg border">
-        {tableQuery.isLoading ? (
+        {tableQuery.isPending ? (
           <div className="flex min-h-[300px] w-full items-center justify-center">
             <Spinner className="text-2xl" />
           </div>
@@ -119,18 +120,16 @@ export function DataTable() {
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id} colSpan={header.colSpan}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                      </TableHead>
-                    )
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead colSpan={header.colSpan} key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
@@ -138,14 +137,14 @@ export function DataTable() {
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
+                    data-state={row.getIsSelected() && "selected"}
                     key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext(),
+                          cell.getContext()
                         )}
                       </TableCell>
                     ))}
@@ -154,8 +153,8 @@ export function DataTable() {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={tableColumns.length}
                     className="h-24 text-center"
+                    colSpan={tableColumns.length}
                   >
                     No results.
                   </TableCell>
@@ -166,16 +165,15 @@ export function DataTable() {
         )}
       </div>
       <DataTablePagination
-        table={table}
         footerActions={
           <>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <Button
-                size={'xs'}
-                variant={'destructive'}
                 onClick={() => {
                   // empty
                 }}
+                size={"sm"}
+                variant={"destructive"}
               >
                 <Spinner className="mr-2" />
                 <span>Switch</span>
@@ -183,7 +181,8 @@ export function DataTable() {
             )}
           </>
         }
+        table={table}
       />
     </div>
-  )
+  );
 }

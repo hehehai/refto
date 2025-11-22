@@ -1,39 +1,38 @@
-'use client'
+"use client";
 
-import type { ColumnDef, Row } from '@tanstack/react-table'
+import type { Weekly } from "@prisma/client";
+import type { ColumnDef, Row } from "@tanstack/react-table";
+import { format } from "date-fns";
 
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-
-import { DataTableColumnHeader } from '@/components/shared/data-table-column-header'
-import type { Weekly } from '@prisma/client'
-import { format } from 'date-fns'
+import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const columns = (
-  actionSlot: (row: Row<Weekly>) => React.ReactNode,
+  actionSlot: (row: Row<Weekly>) => React.ReactNode
 ): ColumnDef<Weekly>[] => [
   {
-    id: 'select',
+    id: "select",
     header: ({ table }) => (
       <div className="w-6 text-center">
         <Checkbox
+          aria-label="Select all"
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
+            (table.getIsSomePageRowsSelected() && "indeterminate")
           }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
           className="translate-y-[2px]"
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
       </div>
     ),
     cell: ({ row }) => (
       <div className="w-6 text-center">
         <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
+          checked={row.getIsSelected()}
           className="translate-y-[2px]"
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
         />
       </div>
     ),
@@ -41,51 +40,51 @@ export const columns = (
     enableHiding: false,
   },
   {
-    accessorKey: 'weekStart',
+    accessorKey: "weekStart",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Week Date" />
     ),
     cell: ({ row }) => {
-      const weekStart = row.original?.weekStart
-      const weekEnd = row.original?.weekEnd
+      const weekStart = row.original?.weekStart;
+      const weekEnd = row.original?.weekEnd;
       return (
         <div className="w-[200px] text-left">
-          {weekStart ? format(weekStart, 'yyyy-MM-dd') : 'unknown'}
-          {' ~ '}
-          {weekEnd ? format(weekEnd, 'yyyy-MM-dd') : 'unknown'}
+          {weekStart ? format(weekStart, "yyyy-MM-dd") : "unknown"}
+          {" ~ "}
+          {weekEnd ? format(weekEnd, "yyyy-MM-dd") : "unknown"}
         </div>
-      )
+      );
     },
   },
   {
-    accessorKey: 'title',
+    accessorKey: "title",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
     enableSorting: false,
     cell: ({ getValue }) => {
-      const title = getValue<string>()
+      const title = getValue<string>();
 
-      return <div className="flex items-center space-x-1">{title}</div>
+      return <div className="flex items-center space-x-1">{title}</div>;
     },
   },
   {
-    accessorKey: 'status',
+    accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ getValue }) => {
-      const status = getValue<number>()
+      const status = getValue<number>();
 
-      return <Badge variant={'outline'}>{status}</Badge>
+      return <Badge variant={"outline"}>{status}</Badge>;
     },
   },
   {
-    id: 'actions',
+    id: "actions",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Actions" />
     ),
     enableSorting: false,
     cell: ({ row }) => actionSlot(row),
   },
-]
+];

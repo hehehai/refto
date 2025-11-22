@@ -1,30 +1,29 @@
-import '@/styles/globals.css'
+import "@/styles/globals.css";
 
-import { Providers } from '@/app/_components/providers'
-import { OpenpanelProvider } from '@openpanel/nextjs'
-
-import type { SiteLocale } from '@/i18n'
-import { site } from '@/lib/config/site'
-import { outfit } from '@/lib/font'
-import { cn } from '@/lib/utils'
-import type { Metadata } from 'next'
-import { NextIntlClientProvider, useMessages } from 'next-intl'
-import { getTranslations } from 'next-intl/server'
+import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, getTranslations } from "next-intl/server";
+import { Providers } from "@/app/_components/providers";
+import type { SiteLocale } from "@/i18n";
+import { site } from "@/lib/config/site";
+import { outfit } from "@/lib/font";
+import { cn } from "@/lib/utils";
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string }
-}) {
-  const t = await getTranslations({ locale, namespace: 'Meta' })
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Meta" });
 
   const metadata: Metadata = {
     metadataBase: new URL(site.url),
     title: {
-      default: `${site.name} - ${t('title')}`,
+      default: `${site.name} - ${t("title")}`,
       template: `%s | ${site.name}`,
     },
-    description: t('description'),
+    description: t("description"),
     keywords: site.keywords[locale as SiteLocale],
     icons: site.icons,
     openGraph: {
@@ -32,8 +31,8 @@ export async function generateMetadata({
       description: site.description[locale as SiteLocale],
       url: site.url,
       siteName: site.name,
-      locale: locale,
-      type: 'website',
+      locale,
+      type: "website",
       images: [
         {
           url: site.ogImage,
@@ -42,44 +41,40 @@ export async function generateMetadata({
         },
       ],
     },
-  }
+  };
 
-  return metadata
+  return metadata;
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-  params: { locale },
+  params,
 }: {
-  children: React.ReactNode
-  params: { locale: string }
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-  const messages = useMessages()
+  const { locale } = await params;
+  const messages = await getMessages();
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
         className={cn(
-          'min-h-screen bg-background font-sans antialiased',
-          outfit.variable,
+          "min-h-screen bg-background font-sans antialiased",
+          outfit.variable
         )}
       >
-        {locale === 'zh-CN' && (
+        {locale === "zh-CN" && (
           <link
-            rel="stylesheet"
             crossOrigin="anonymous"
             href="https://cdn.jsdelivr.net/npm/misans@4.0.0/lib/Normal/MiSans-Regular.min.css"
+            rel="stylesheet"
           />
         )}
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>
-      <OpenpanelProvider
-        clientId="404650eb-ce2c-4136-84ed-c68f1166e7b6"
-        trackScreenViews={true}
-        trackAttributes={true}
-        trackOutgoingLinks={true}
-      />
     </html>
-  )
+  );
 }
