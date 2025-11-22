@@ -5,4 +5,4 @@ export {
   type SiteLocale,
   SupportLocale,
   supportedLanguages,
-} from './i18n/routing'
+} from "./i18n/routing";

@@ -27,7 +27,7 @@ export const VisitLink = ({ id, count, href, ...props }: VisitLinkProps) => {
 
   return (
     <span
-      onClick={(e) => {
+      onClick={() => {
         visitInc(id);
       }}
     >

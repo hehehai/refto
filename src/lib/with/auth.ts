@@ -26,13 +26,13 @@ type WithWrapperHandler = ({
 }) => Promise<Response>;
 
 export const withAuthWrapper =
-  (
+  async (
     handler: WithWrapperHandler,
     {
       requiredRole = ["USER", "ADMIN"],
       allowAnonymous, // special case for /api/links (POST /api/links) – allow no session
     }: {
-      requiredRole?: Array<Role>;
+      requiredRole?: Role[];
       allowAnonymous?: boolean;
     } = {}
   ) =>
@@ -70,7 +70,7 @@ export const withAuthWrapper =
   };
 
 export const withSessionWrapper =
-  (handler: WithWrapperHandler) =>
+  async (handler: WithWrapperHandler) =>
   async (
     req: Request,
     { params }: { params: Record<string, string> | undefined }

@@ -137,13 +137,16 @@ export function UserAuthForm({
                   <>
                     <InputOTPGroup>
                       {slots.slice(0, 3).map((slot, index) => (
-                        <InputOTPSlot key={index} {...slot} />
+                        <InputOTPSlot key={index as React.Key} {...slot} />
                       ))}{" "}
                     </InputOTPGroup>
                     <InputOTPSeparator />
                     <InputOTPGroup>
                       {slots.slice(3).map((slot, index) => (
-                        <InputOTPSlot key={index + 3} {...slot} />
+                        <InputOTPSlot
+                          key={(index + 3) as React.Key}
+                          {...slot}
+                        />
                       ))}
                     </InputOTPGroup>
                   </>

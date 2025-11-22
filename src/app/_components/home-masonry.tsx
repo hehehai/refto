@@ -60,7 +60,7 @@ export const HomeMasonry = ({
 
   useEffect(() => {
     if (inView) {
-      void fetchNextPage();
+      fetchNextPage();
     }
   }, [inView, fetchNextPage]);
 

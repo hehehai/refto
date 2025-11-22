@@ -1,39 +1,37 @@
-'use server'
-
 import {
   createTRPCProxyClient,
   loggerLink,
   TRPCClientError,
-} from '@trpc/client'
-import { callTRPCProcedure } from '@trpc/server'
-import { observable } from '@trpc/server/observable'
-import type { TRPCErrorResponse } from '@trpc/server/rpc'
-import { headers } from 'next/headers'
-import { cache } from 'react'
+} from "@trpc/client";
+import { callTRPCProcedure } from "@trpc/server";
+import { observable } from "@trpc/server/observable";
+import type { TRPCErrorResponse } from "@trpc/server/rpc";
+import { headers } from "next/headers";
+import { cache } from "react";
 
-import { type AppRouter, appRouter } from '@/server/api/root'
-import { createTRPCContext } from '@/server/api/trpc'
+import { type AppRouter, appRouter } from "@/server/api/root";
+import { createTRPCContext } from "@/server/api/trpc";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
  * handling a tRPC call from a React Server Component.
  */
 const createContext = cache(async () => {
-  const headersList = await headers()
-  const heads = new Headers(headersList)
-  heads.set('x-trpc-source', 'rsc')
+  const headersList = await headers();
+  const heads = new Headers(headersList);
+  heads.set("x-trpc-source", "rsc");
 
   return createTRPCContext({
     headers: heads,
-  })
-})
+  });
+});
 
 export const api = createTRPCProxyClient<AppRouter>({
   links: [
     loggerLink({
       enabled: (op) =>
-        process.env.NODE_ENV === 'development' ||
-        (op.direction === 'down' && op.result instanceof Error),
+        process.env.NODE_ENV === "development" ||
+        (op.direction === "down" && op.result instanceof Error),
     }),
     /**
      * Custom RSC link that lets us invoke procedures without using http requests. Since Server
@@ -42,7 +40,7 @@ export const api = createTRPCProxyClient<AppRouter>({
     () =>
       ({ op }) =>
         observable((observer) => {
-          const ac = new AbortController()
+          const ac = new AbortController();
           createContext()
             .then((ctx) =>
               callTRPCProcedure({
@@ -52,19 +50,19 @@ export const api = createTRPCProxyClient<AppRouter>({
                 ctx,
                 type: op.type,
                 signal: ac.signal,
-              }),
+              })
             )
             .then((data) => {
-              observer.next({ result: { data } })
-              observer.complete()
+              observer.next({ result: { data } });
+              observer.complete();
             })
             .catch((cause: TRPCErrorResponse) => {
-              observer.error(TRPCClientError.from(cause))
-            })
+              observer.error(TRPCClientError.from(cause));
+            });
 
           return () => {
-            ac.abort()
-          }
+            ac.abort();
+          };
         }),
   ],
-})
+});

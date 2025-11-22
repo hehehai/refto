@@ -17,7 +17,7 @@ interface DataTableRowActionsProps {
   onRefresh?: () => void;
 }
 
-export function DataTableRowActions({}: DataTableRowActionsProps) {
+export function DataTableRowActions(_props: DataTableRowActionsProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,7 +29,7 @@ export function DataTableRowActions({}: DataTableRowActionsProps) {
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
+      <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuItem
           className="text-red-600 focus:text-red-500"
           onClick={() => {

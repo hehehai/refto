@@ -140,7 +140,7 @@ export const refSitesRouter = createTRPCRouter({
     ),
 
   // likes
-  incLike: publicProcedure.input(z.string()).mutation(async ({ input }) => {
+  incLike: publicProcedure.input(z.string()).mutation(async () => {
     // TODO
   }),
 

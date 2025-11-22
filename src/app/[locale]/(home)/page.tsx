@@ -1,33 +1,33 @@
-import { getTranslations } from 'next-intl/server'
-import { Suspense } from 'react'
-import { HomeMasonry } from '@/app/_components/home-masonry'
-import { VideoWrapper } from '@/components/shared/video-wrapper'
-import { env } from '@/env'
-import { queryWithCursorRefSiteSchema } from '@/lib/validations/ref-site'
-import { queryWithCursor } from '@/server/functions/ref-sites'
-import { HomeMasonrySkeleton } from '../../_components/home-masonry-skeleton'
-import { SiteEmailSubscription } from '../../_components/site-email-subscription'
-import { SiteShowcaseSheet } from '../../_components/site-showcase-sheet'
+import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
+import { HomeMasonry } from "@/app/_components/home-masonry";
+import { VideoWrapper } from "@/components/shared/video-wrapper";
+import { env } from "@/env";
+import { queryWithCursorRefSiteSchema } from "@/lib/validations/ref-site";
+import { queryWithCursor } from "@/server/functions/ref-sites";
+import { HomeMasonrySkeleton } from "../../_components/home-masonry-skeleton";
+import { SiteEmailSubscription } from "../../_components/site-email-subscription";
+import { SiteShowcaseSheet } from "../../_components/site-showcase-sheet";
 
-export const revalidate = 7200
+export const revalidate = 7200;
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string>>
+  searchParams: Promise<Record<string, string>>;
 }) {
-  const t = await getTranslations()
-  const resolvedSearchParams = await searchParams
-  const search = resolvedSearchParams.s || ''
-  const tags = resolvedSearchParams.tags?.split(',').filter(Boolean) || []
+  const t = await getTranslations();
+  const resolvedSearchParams = await searchParams;
+  const search = resolvedSearchParams.s || "";
+  const tags = resolvedSearchParams.tags?.split(",").filter(Boolean) || [];
 
   const initParams = queryWithCursorRefSiteSchema.parse({
     search,
     tags,
     limit: 10,
-  })
+  });
 
-  const siteQuery = await queryWithCursor(initParams)
+  const siteQuery = await queryWithCursor(initParams);
 
   return (
     <div className="w-full">
@@ -36,16 +36,16 @@ export default async function Home({
           <div className="col-span-2 flex flex-col">
             <div className="">
               <h2 className="text-nowrap text-3xl leading-tight md:text-5xl lg:text-6xl">
-                {t('Index.slogan.s1')}
+                {t("Index.slogan.s1")}
                 <br />
-                {t('Index.slogan.s2')}
+                {t("Index.slogan.s2")}
               </h2>
               <ul className="mt-10 space-y-1.5">
-                <li>✦ {t('Index.features.f1')}</li>
-                <li>✦ {t('Index.features.f2')}</li>
-                <li>✦ {t('Index.features.f3')}</li>
+                <li>✦ {t("Index.features.f1")}</li>
+                <li>✦ {t("Index.features.f2")}</li>
+                <li>✦ {t("Index.features.f3")}</li>
                 <li>
-                  ✦ {t('Index.features.f4')}{' '}
+                  ✦ {t("Index.features.f4")}{" "}
                   <a
                     className="hover:underline"
                     href="https://twitter.com/riverhohai"
@@ -61,7 +61,7 @@ export default async function Home({
           </div>
           <div className="col-span-1 flex flex-col">
             <div className="mt-auto">
-              <Suspense fallback={<div>{t('Site.loading')}...</div>}>
+              <Suspense fallback={<div>{t("Site.loading")}...</div>}>
                 <VideoWrapper
                   className="rounded-lg border border-zinc-50 dark:border-zinc-900"
                   cover={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-holder-1.mp4`}
@@ -72,7 +72,7 @@ export default async function Home({
           </div>
           <div className="col-span-1 flex flex-col md:hidden lg:block">
             <div className="mt-auto space-y-6 lg:min-h-[387px]">
-              <Suspense fallback={<div>{t('Site.loading')}...</div>}>
+              <Suspense fallback={<div>{t("Site.loading")}...</div>}>
                 <VideoWrapper
                   className="rounded-lg border border-zinc-50 dark:border-zinc-900"
                   cover={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-holder-3.mp4`}
@@ -97,5 +97,5 @@ export default async function Home({
         <SiteShowcaseSheet />
       </Suspense>
     </div>
-  )
+  );
 }

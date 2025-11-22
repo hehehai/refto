@@ -69,8 +69,8 @@ export const WeeklyEmail = ({
     <Tailwind>
       <Fragment>
         <Body className="mx-auto my-auto px-2 font-sans">
-          <Container className="mx-auto my-[40px] max-w-[500px] py-8 text-[#1C1C1C] text-[14px]">
-            <Section className="mt-[32px]">
+          <Container className="mx-auto my-10 max-w-[500px] py-8 text-[#1C1C1C] text-[14px]">
+            <Section className="mt-8">
               <Img
                 alt={site.siteName}
                 className="mx-auto my-0"
@@ -82,7 +82,7 @@ export const WeeklyEmail = ({
             <Heading className="mx-0 my-[30px] p-0 text-center font-medium text-[24px]">
               {localeMap[locale].title} {site.siteName}
             </Heading>
-            <Text className="mt-12 mb-16 leading-[20px]">
+            <Text className="mt-12 mb-16 leading-5">
               {localeMap[locale].description.replace(
                 "{{count}}",
                 count.toString()
@@ -90,7 +90,7 @@ export const WeeklyEmail = ({
             </Text>
 
             {sites.map((site, idx) => (
-              <Section className="mb-10 text-center" key={idx}>
+              <Section className="mb-10 text-center" key={idx as React.Key}>
                 <Link
                   className="text-blue-600 no-underline"
                   href={`${baseUrl}/${site.id}`}
@@ -131,9 +131,7 @@ export const WeeklyEmail = ({
                 </Row>
               </Section>
             ))}
-            <Text className="mt-16 leading-[24px]">
-              {localeMap[locale].helper}
-            </Text>
+            <Text className="mt-16 leading-6">{localeMap[locale].helper}</Text>
             <Hr className="mx-0 mt-12 mb-5 w-full border border-zinc-100 border-solid" />
             <Section className="mb-4">
               <Img
@@ -144,10 +142,10 @@ export const WeeklyEmail = ({
               />
             </Section>
 
-            <Text className="text-center leading-[24px]">
+            <Text className="text-center leading-6">
               {localeMap[locale].slogan}
             </Text>
-            <Text className="text-center text-[12px] leading-[24px]">
+            <Text className="text-center text-[12px] leading-6">
               <Link
                 className="text-[#666666] no-underline"
                 href={unsubscribeUrl}

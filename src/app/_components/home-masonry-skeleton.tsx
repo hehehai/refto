@@ -10,7 +10,10 @@ const items = Array.from({ length: 4 }, (_, i) =>
 export const HomeMasonrySkeleton = () => (
   <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-4 lg:grid-cols-4 lg:gap-6">
     {items.map((cols, idx) => (
-      <div className="flex flex-col gap-3 md:gap-4 lg:gap-6" key={idx}>
+      <div
+        className="flex flex-col gap-3 md:gap-4 lg:gap-6"
+        key={idx as React.Key}
+      >
         {cols.map((item) => (
           <div
             className="w-full rounded-lg bg-zinc-50 dark:bg-zinc-900"

@@ -203,10 +203,10 @@ export default async function AboutPage({
 }) {
   const { locale } = await params;
   return (
-    <div className="my-[80px] md:my-[120px]">
+    <div className="my-20 md:my-[120px]">
       <div className="container max-w-(--breakpoint-md) space-y-12 md:space-y-32 md:text-center">
         {faqs[locale]!.map((faq, idx) => (
-          <section key={idx}>
+          <section key={idx as React.Key}>
             <h3 className="section-mark-title mb-6 text-2xl md:mb-10 md:text-4xl">
               {faq.title}
             </h3>

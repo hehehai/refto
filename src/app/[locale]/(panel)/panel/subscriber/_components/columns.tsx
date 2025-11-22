@@ -21,7 +21,7 @@ export const columns = (
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
-          className="translate-y-[2px]"
+          className="translate-y-0.5"
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
       </div>
@@ -31,7 +31,7 @@ export const columns = (
         <Checkbox
           aria-label="Select row"
           checked={row.getIsSelected()}
-          className="translate-y-[2px]"
+          className="translate-y-0.5"
           onCheckedChange={(value) => row.toggleSelected(!!value)}
         />
       </div>
