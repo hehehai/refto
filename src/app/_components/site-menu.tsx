@@ -34,7 +34,7 @@ export const SiteMenu = () => {
           <Link href="/about">
             <span>{t('about')}</span>
           </Link>
-          <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
+          <span className="h-px w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
         </div>
         <div className="group inline-flex items-center justify-end space-x-4">
           {supportedLanguages.map((lang) => (
@@ -49,7 +49,7 @@ export const SiteMenu = () => {
               {lang.title}
             </Link>
           ))}
-          <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
+          <span className="h-px w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
         </div>
         <div className="group inline-flex items-center justify-end space-x-4">
           {['light', 'dark', 'system'].map((mode) => (
@@ -64,7 +64,7 @@ export const SiteMenu = () => {
               {mode}
             </button>
           ))}
-          <span className="h-[1px] w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
+          <span className="h-px w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
         </div>
       </PopoverContent>
     </Popover>

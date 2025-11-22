@@ -122,7 +122,7 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="flex flex-col max-sm:h-[100dvh] max-sm:border-none max-sm:shadow-none sm:grid sm:max-w-[526px]">
+      <DialogContent className="flex flex-col max-sm:h-dvh max-sm:border-none max-sm:shadow-none sm:grid sm:max-w-[526px]">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
@@ -130,7 +130,7 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col max-sm:mt-3 max-sm:flex-grow"
+            className="flex flex-col max-sm:mt-3 max-sm:grow"
           >
             <div className="space-y-2">
               <FormField

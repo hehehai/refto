@@ -380,7 +380,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
                 )}
                 <IconButton
                   type="button"
-                  className="text-md invisible absolute right-1 top-1 bg-zinc-950/45 dark:bg-slate-200/45 backdrop-blur-sm group-hover:visible"
+                  className="text-md invisible absolute right-1 top-1 bg-zinc-950/45 dark:bg-slate-200/45 backdrop-blur-xs group-hover:visible"
                   onClick={handleExpandView}
                 >
                   <ExpandIcon />
@@ -402,7 +402,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
               {errorMessage}
             </div>
           ) : (
-            <div className="max-w-[72%] flex-grow text-sm">
+            <div className="max-w-[72%] grow text-sm">
               {file || fileUrl ? (
                 syncLoading ? (
                   <Progress
@@ -425,7 +425,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
             </div>
           )}
           {!disabled && (
-            <div className="flex flex-shrink-0 items-center space-x-2">
+            <div className="flex shrink-0 items-center space-x-2">
               {file && !fileUrl && (
                 <IconButton
                   type="button"

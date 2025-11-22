@@ -193,7 +193,7 @@ export function WeeklyUpsetSheet() {
         <div className="flex space-x-4">
           <div className="w-[540px]">
             <div className="text-sm font-medium mb-2">Preview</div>
-            <div className="h-[calc(100vh_-_196px)] w-full border border-input rounded-lg flex items-center justify-center">
+            <div className="h-[calc(100vh-196px)] w-full border border-input rounded-lg flex items-center justify-center">
               {previewRefreshing ? (
                 <Spinner className="w-6 h-6 animate-spin" />
               ) : (
@@ -208,7 +208,7 @@ export function WeeklyUpsetSheet() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit((v) => onSubmit(v, false))}
-              className="flex-grow flex flex-col max-w-[45vw]"
+              className="grow flex flex-col max-w-[45vw]"
             >
               <div className="space-y-2 h-[calc(100dvh-148px)] overflow-y-auto px-3 -mx-3 mb-6">
                 <FormField

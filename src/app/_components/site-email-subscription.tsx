@@ -86,7 +86,7 @@ export const SiteEmailSubscription = ({
                 {...field}
                 className="w-full rounded-full sm:w-[300px] md:w-[324px] lg:w-[384px] lg:max-w-sm"
               />
-              <div className="left-0 top-[100%] pl-3 md:absolute">
+              <div className="left-0 top-full pl-3 md:absolute">
                 <FormMessage />
               </div>
             </FormItem>

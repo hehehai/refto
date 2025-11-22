@@ -197,7 +197,7 @@ const faqs: Record<string, { title: string; content: JSX.Element[] }[]> = {
 export default function AboutPage({ params }: { params: { locale: string } }) {
   return (
     <div className="my-[80px] md:my-[120px]">
-      <div className="container max-w-screen-md space-y-12 md:space-y-32 md:text-center">
+      <div className="container max-w-(--breakpoint-md) space-y-12 md:space-y-32 md:text-center">
         {faqs[params.locale]!.map((faq, idx) => (
           <section key={idx}>
             <h3 className="section-mark-title mb-6 text-2xl md:mb-10 md:text-4xl">

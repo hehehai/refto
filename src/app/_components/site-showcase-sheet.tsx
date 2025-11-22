@@ -122,14 +122,14 @@ export const SiteShowcaseSheet = () => {
           </div>
 
           <div className="absolute -top-10 right-6 z-50 flex items-center justify-center space-x-3">
-            <SheetClose className=" rounded-sm text-white opacity-80 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-background/20 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+            <SheetClose className=" rounded-sm text-white opacity-80 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-background/20 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
               <X className="h-5 w-5 md:h-6 md:w-6" />
               <span className="sr-only">Close</span>
             </SheetClose>
             <Link
               href={`/${status.id}`}
               prefetch={true}
-              className="rounded-sm p-1 text-white opacity-80 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-background/20 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
+              className="rounded-sm p-1 text-white opacity-80 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-background/20 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
             >
               <Maximize2 className="h-4 w-4 md:h-5 md:w-5" />
               <span className="sr-only">Expand</span>

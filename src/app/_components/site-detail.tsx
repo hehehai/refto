@@ -58,7 +58,7 @@ export const SiteDetail = memo(
         </div>
         <div className="sticky inset-x-0 top-0 z-40 w-full bg-background py-5">
           <div className="container justify-between space-y-5 md:flex md:space-y-0">
-            <div className="flex flex-grow space-x-2">
+            <div className="flex grow space-x-2">
               {item.siteFavicon && (
                 <div className="overflow-hidden rounded-sm">
                   <BlurImage
@@ -75,22 +75,22 @@ export const SiteDetail = memo(
                   href={item.siteUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xl hover:underline flex-shrink-0"
+                  className="text-xl hover:underline shrink-0"
                 >
                   {item.siteName}
                 </VisitLink>
                 {item.isTop && (
-                  <Badge className="ml-auto px-3 py-0.5 flex-shrink-0">
+                  <Badge className="ml-auto px-3 py-0.5 shrink-0">
                     TOP
                   </Badge>
                 )}
                 <div className="hidden md:block">{tagsNode}</div>
-                <div className="md:hidden flex-shrink-0 ml-4">{metaNode}</div>
+                <div className="md:hidden shrink-0 ml-4">{metaNode}</div>
               </div>
             </div>
 
             <div className="md:hidden">{tagsNode}</div>
-            <div className="hidden md:block flex-shrink-0 ml-4">{metaNode}</div>
+            <div className="hidden md:block shrink-0 ml-4">{metaNode}</div>
           </div>
         </div>
         <div className="container">

@@ -222,7 +222,7 @@ export function RefSiteUpsetDialog() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit((v) => onSubmit(v, false))}
-            className="flex-grow flex flex-col"
+            className="grow flex flex-col"
           >
             <div className="space-y-2 h-[calc(100dvh-144px)] overflow-y-auto px-3 -mx-3 mb-6">
               <FormField
@@ -315,7 +315,7 @@ export function RefSiteUpsetDialog() {
                           <Badge variant="secondary">
                             <span>{siteTagMap[key]?.en}</span>
                             <button
-                              className="ml-1 inline-flex items-center rounded-full leading-none outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                              className="ml-1 inline-flex items-center rounded-full leading-none outline-hidden ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   methods.remove()

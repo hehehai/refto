@@ -25,7 +25,7 @@ export const PanelHeader = ({ user }: PanelHeaderProps) => {
           {site.name}
         </Link>
       </div>
-      <div className="container h-full flex-grow">
+      <div className="container h-full grow">
         <PanelNav className="flex h-full items-stretch space-x-8 px-8 lg:px-[82px]" />
       </div>
       <div className="flex-center flex space-x-3">

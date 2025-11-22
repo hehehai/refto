@@ -66,7 +66,7 @@ export const SiteShowcase = ({
         )}
       </div>
       <div className="flex w-full items-center justify-between">
-        <div className="flex flex-grow items-center space-x-1">
+        <div className="flex grow items-center space-x-1">
           {item.siteFavicon && (
             <div className="overflow-hidden rounded-sm">
               <BlurImage
