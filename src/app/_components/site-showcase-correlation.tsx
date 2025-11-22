@@ -7,17 +7,20 @@ import { SiteShowcase } from "./site-showcase";
 
 const correlationSkeleton = () =>
   Array.from({ length: 6 }, (_, i) => (
-    <Skeleton className="h-[400px] w-full rounded-xl bg-slate-200" key={i} />
+    <Skeleton
+      className="h-[400px] w-full rounded-xl bg-slate-200"
+      key={i as React.Key}
+    />
   ));
 
 export const SiteShowcaseCorrelationSkeleton = () => correlationSkeleton();
 
 export const SiteShowcaseCorrelation = ({
   id,
-  onDetail,
+  onDetailAction,
 }: {
   id: string;
-  onDetail?: (id: string) => void;
+  onDetailAction?: (id: string) => void;
 }) => {
   const t = useTranslations("Detail.correlation");
   const sitesQuery = api.refSites.correlation.useQuery({ id });
@@ -34,7 +37,7 @@ export const SiteShowcaseCorrelation = ({
               fixedHeight={280}
               item={item}
               key={item.id}
-              onDetail={() => onDetail?.(item.id)}
+              onDetail={() => onDetailAction?.(item.id)}
             />
           ))
         )}

@@ -115,7 +115,7 @@ export const SiteShowcaseSheet = () => {
               {status.id && (
                 <SiteShowcaseCorrelation
                   id={status.id}
-                  onDetail={(id) => setStatus({ id })}
+                  onDetailAction={(id) => setStatus({ id })}
                 />
               )}
             </div>
