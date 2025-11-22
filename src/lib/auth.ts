@@ -4,11 +4,11 @@ import { verifyEmail } from "@devmehq/email-validator-js";
 import type { NextAuthOptions } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
 import { env } from "@/env";
+import { site } from "@/lib/config/site";
 import { db } from "@/lib/db";
-import { site } from "./config/site";
-import { sendEmail } from "./email";
-import UserAuthEmail from "./email/templates/auth";
-import { getBaseUrl } from "./utils";
+import { sendEmail } from "@/lib/email";
+import UserAuthEmail from "@/lib/email/templates/auth";
+import { getBaseUrl } from "@/lib/utils";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db as any) as any,

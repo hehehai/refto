@@ -1,13 +1,13 @@
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { HomeMasonry } from "@/app/_components/home-masonry";
+import { HomeMasonrySkeleton } from "@/app/_components/home-masonry-skeleton";
+import { SiteEmailSubscription } from "@/app/_components/site-email-subscription";
+import { SiteShowcaseSheet } from "@/app/_components/site-showcase-sheet";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
 import { env } from "@/env";
 import { queryWithCursorRefSiteSchema } from "@/lib/validations/ref-site";
 import { queryWithCursor } from "@/server/functions/ref-sites";
-import { HomeMasonrySkeleton } from "../../_components/home-masonry-skeleton";
-import { SiteEmailSubscription } from "../../_components/site-email-subscription";
-import { SiteShowcaseSheet } from "../../_components/site-showcase-sheet";
 
 export const revalidate = 7200;
 

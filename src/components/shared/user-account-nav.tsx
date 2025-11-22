@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "../ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 interface UserAccountNavProps extends React.ComponentPropsWithoutRef<"div"> {
   user: Session["user"];

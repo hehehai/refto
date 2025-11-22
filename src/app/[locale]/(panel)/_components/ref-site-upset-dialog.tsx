@@ -7,6 +7,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { match } from "ts-pattern";
 import { z } from "zod";
+import {
+  refSiteDialogAtom,
+  refSiteDialogEmitter,
+} from "@/app/[locale]/(panel)/_store/dialog.store";
 import { Spinner } from "@/components/shared/icons";
 import { MediaUploader } from "@/components/shared/media-uploader";
 import { Badge } from "@/components/ui/badge";
@@ -36,10 +40,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { siteTagKeys, siteTagMap } from "@/lib/constants";
 import { api } from "@/lib/trpc/react";
 import { refSiteSchema } from "@/lib/validations/ref-site";
-import {
-  refSiteDialogAtom,
-  refSiteDialogEmitter,
-} from "../_store/dialog.store";
 
 const emptyData = {
   siteName: "",

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { refSiteSheetAtom } from "@/app/_store/sheet.store";
 import { Spinner } from "@/components/shared/icons";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -17,7 +18,6 @@ import {
 } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/lib/trpc/react";
-import { refSiteSheetAtom } from "../_store/sheet.store";
 import { SiteDetail } from "./site-detail";
 import { SiteShowcaseCorrelation } from "./site-showcase-correlation";
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { getSiteMetaByUrl } from "@/lib/site-meta";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 
 export const siteMetaRouter = createTRPCRouter({
   // meta

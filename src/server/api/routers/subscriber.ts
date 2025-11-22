@@ -5,8 +5,12 @@ import { SupportLocale } from "@/i18n";
 import { db } from "@/lib/db";
 import { pagination } from "@/lib/pagination";
 import { formatOrders, genOrderValidSchema } from "@/lib/utils";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { subscribe, unsubscribe } from "@/server/functions/subscriber";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const subscriberRouter = createTRPCRouter({
   // 查询

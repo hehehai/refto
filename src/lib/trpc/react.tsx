@@ -5,9 +5,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { useState } from "react";
-
+import { getUrl, transformer } from "@/lib/trpc/shared";
 import type { AppRouter } from "@/server/api/root";
-import { getUrl, transformer } from "./shared";
 
 const createQueryClient = () =>
   new QueryClient({

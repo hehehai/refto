@@ -5,7 +5,13 @@ import { Command as CommandPrimitive } from "cmdk";
 import * as React from "react";
 import { SearchIcon } from "@/components/shared/icons";
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 const Command = React.forwardRef<
@@ -33,6 +39,10 @@ const CommandDialog = ({
   ...props
 }: CommandDialogProps) => (
   <Dialog {...props}>
+    <DialogHeader className="sr-only">
+      <DialogTitle>Command</DialogTitle>
+      <DialogDescription>Command Description</DialogDescription>
+    </DialogHeader>
     <DialogContent
       className="max-w-2xl overflow-hidden p-0 shadow-lg max-md:top-0 max-md:h-dvh max-md:translate-y-0 max-md:border-none max-md:shadow-none"
       showCloseButton={false}

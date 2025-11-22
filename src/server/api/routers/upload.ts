@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { getR2SignedUploadUrl } from "@/lib/upload";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 
 export const uploadRouter = createTRPCRouter({
   getUploadUrl: protectedProcedure

@@ -4,7 +4,7 @@ import type { NextFetchEvent, NextRequest } from "next/server";
 import { type NextRequestWithAuth, withAuth } from "next-auth/middleware";
 import createIntlMiddleware from "next-intl/middleware";
 
-import { routing } from "./i18n/routing";
+import { routing } from "@/i18n/routing";
 
 // const publicPages = ["/", "/*", "/login", "/register"];
 const protectionPages = ["/panel"];

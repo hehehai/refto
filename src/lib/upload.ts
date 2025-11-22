@@ -8,7 +8,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { format } from "date-fns";
 import { env } from "@/env";
-import { getSafeFilename } from "./utils.server";
+import { getSafeFilename } from "@/lib/utils.server";
 
 const r2 = new S3Client({
   region: "auto",

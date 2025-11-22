@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import { notFound, redirect } from "next/navigation";
+import { PanelHeader } from "@/app/_components/panel-header";
 import { getSession } from "@/lib/session";
-import { PanelHeader } from "../../_components/panel-header";
 
 const RefSiteUpsetDialog = dynamic(
   () => import("./_components/ref-site-upset-dialog")

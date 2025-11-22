@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
@@ -10,7 +11,7 @@ export async function generateMetadata({
   params: { locale },
 }: {
   params: { locale: string };
-}) {
+}): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: "Auth" });
 
   return {

@@ -7,6 +7,11 @@ import { useAtom } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
+import {
+  weeklyDialogAtom,
+  weeklyDialogEmitter,
+} from "@/app/[locale]/(panel)/_store/dialog.store";
+import { RefSelectDataTable } from "@/app/[locale]/(panel)/panel/weekly/_components/ref-select/data-table";
 import { Spinner } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,8 +36,6 @@ import { SupportLocale } from "@/i18n";
 import WeeklyEmail from "@/lib/email/templates/weekly";
 import { api } from "@/lib/trpc/react";
 import { weeklySchema } from "@/lib/validations/weekly";
-import { weeklyDialogAtom, weeklyDialogEmitter } from "../_store/dialog.store";
-import { RefSelectDataTable } from "../panel/weekly/_components/ref-select/data-table";
 import { WeekPicker } from "./week-picker";
 
 const emptyData = {

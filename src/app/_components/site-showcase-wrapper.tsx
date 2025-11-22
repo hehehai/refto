@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtom } from "jotai";
-import { refSiteSheetAtom } from "../_store/sheet.store";
+import { refSiteSheetAtom } from "@/app/_store/sheet.store";
 
 export const SiteShowcaseWrapper = ({
   id,

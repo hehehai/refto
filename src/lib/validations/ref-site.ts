@@ -1,7 +1,7 @@
 import type { RefSite } from "@prisma/client";
 import { z } from "zod";
 import { env } from "@/env";
-import { formatOrders, genOrderValidSchema } from "../utils";
+import { formatOrders, genOrderValidSchema } from "@/lib/utils";
 
 export const refSiteSchema = z.object({
   siteName: z.string().trim().min(1).max(255),

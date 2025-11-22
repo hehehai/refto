@@ -2,8 +2,8 @@
 
 import type { Role } from "@prisma/client";
 import type { Session } from "next-auth";
-import { getSession } from "../session";
-import { getSearchParams } from "../utils";
+import { getSession } from "@/lib/session";
+import { getSearchParams } from "@/lib/utils";
 
 export async function isAdmin() {
   const session = await getSession();

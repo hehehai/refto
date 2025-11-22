@@ -6,11 +6,11 @@ import { X } from "lucide-react";
 import { useLocale } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { SiteDetail } from "@/app/_components/site-detail";
+import { refSiteDetailSheetAtom } from "@/app/[locale]/(panel)/_store/dialog.store";
 import { Spinner } from "@/components/shared/icons";
 import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/lib/trpc/react";
-import { refSiteDetailSheetAtom } from "../_store/dialog.store";
 
 export function RefSiteDetailSheet() {
   const locale = useLocale();

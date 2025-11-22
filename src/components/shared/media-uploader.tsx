@@ -11,6 +11,9 @@ import {
   useRef,
   useState,
 } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/components/ui/use-toast";
 import { env } from "@/env";
 import { api } from "@/lib/trpc/react";
 import {
@@ -19,9 +22,6 @@ import {
   getPathnameByUrl,
   needLocalFile,
 } from "@/lib/utils";
-import { Badge } from "../ui/badge";
-import { Progress } from "../ui/progress";
-import { useToast } from "../ui/use-toast";
 import { IconButton } from "./icon-button";
 import {
   BoxCloseIcon,
@@ -410,11 +410,11 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
               {file || fileUrl ? (
                 syncLoading ? (
                   <Progress
-                    className="max-w-[240px]"
+                    className="max-w-60"
                     value={(syncProgress + uploadProgress) / 2}
                   />
                 ) : uploadLoading ? (
-                  <Progress className="max-w-[240px]" value={uploadProgress} />
+                  <Progress className="max-w-60" value={uploadProgress} />
                 ) : (
                   <div className="flex max-w-1/2 items-center space-x-2">
                     {previewInfo?.type && <Badge>{previewInfo.type}</Badge>}

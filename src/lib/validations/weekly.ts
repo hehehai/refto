@@ -1,6 +1,6 @@
 import { type Weekly, WeeklySentStatus } from "@prisma/client";
 import { z } from "zod";
-import { formatOrders, genOrderValidSchema } from "../utils";
+import { formatOrders, genOrderValidSchema } from "@/lib/utils";
 
 export const weeklySchema = z.object({
   title: z.string().trim().min(1).max(255),

@@ -1,4 +1,4 @@
-import { SiteHeader } from "../../_components/site-header";
+import { SiteHeader } from "@/app/_components/site-header";
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <div>

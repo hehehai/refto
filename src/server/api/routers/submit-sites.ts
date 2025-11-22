@@ -4,7 +4,11 @@ import { db } from "@/lib/db";
 import { pagination } from "@/lib/pagination";
 import { formatOrders, genOrderValidSchema } from "@/lib/utils";
 import { submitSiteCreateSchema } from "@/lib/validations/submit-site";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 
 export const submitSitesRouter = createTRPCRouter({
   recommend: publicProcedure

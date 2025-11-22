@@ -1,9 +1,9 @@
 "use client";
 
 import { useAtom } from "jotai";
+import { refSiteDialogAtom } from "@/app/[locale]/(panel)/_store/dialog.store";
 import { BoxAddIcon } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
-import { refSiteDialogAtom } from "../[locale]/(panel)/_store/dialog.store";
 
 export function AddSiteButton() {
   const [status, setStatus] = useAtom(refSiteDialogAtom);

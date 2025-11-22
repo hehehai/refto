@@ -4,7 +4,7 @@ import { type Options, render } from "@react-email/render";
 import type { JSXElementConstructor, ReactElement } from "react";
 import { Resend } from "resend";
 import { env } from "@/env";
-import { site } from "../config/site";
+import { site } from "@/lib/config/site";
 
 const resend = new Resend(env.RESEND_API_KEY);
 

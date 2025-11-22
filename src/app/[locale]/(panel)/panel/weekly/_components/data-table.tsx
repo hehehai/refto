@@ -12,6 +12,10 @@ import {
 } from "@tanstack/react-table";
 import { useAtom } from "jotai";
 import * as React from "react";
+import {
+  weeklyDialogAtom,
+  weeklyDialogEmitter,
+} from "@/app/[locale]/(panel)/_store/dialog.store";
 import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
@@ -27,10 +31,6 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/lib/trpc/react";
-import {
-  weeklyDialogAtom,
-  weeklyDialogEmitter,
-} from "../../../_store/dialog.store";
 import { columns } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
 

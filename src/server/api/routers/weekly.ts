@@ -8,8 +8,8 @@ import { WeeklyEmail } from "@/lib/email/templates/weekly";
 import { pagination } from "@/lib/pagination";
 import { formatOrders, genOrderValidSchema, getBaseUrl } from "@/lib/utils";
 import { updateWeeklySchema, weeklySchema } from "@/lib/validations/weekly";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { detail } from "@/server/functions/weekly";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const weeklyRouter = createTRPCRouter({
   // 列表

@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { twMerge } from "tailwind-merge";
 import { z } from "zod";
 import { env } from "@/env";
-import { site } from "./config/site";
+import { site } from "@/lib/config/site";
 
 export function getBaseUrl() {
   if (typeof window !== "undefined") return "";
