@@ -1,25 +1,25 @@
-import { defineRouting } from 'next-intl/routing'
+import { defineRouting } from "next-intl/routing";
 
-export type SiteLocale = 'en' | 'zh-CN'
+export type SiteLocale = "en" | "zh-CN";
 
 // Can be imported from a shared config
 export const supportedLanguages = [
-  { id: 'en', locale: 'en', title: 'English', isDefault: true },
-  { id: 'zh_CN', locale: 'zh-CN', title: '简体中文' },
-]
+  { id: "en", locale: "en", title: "English", isDefault: true },
+  { id: "zh_CN", locale: "zh-CN", title: "简体中文" },
+];
 
 export enum SupportLocale {
-  en = 'en',
-  zh_CN = 'zh-CN',
+  en = "en",
+  zh_CN = "zh-CN",
 }
 
-const baseLanguage = supportedLanguages.find((l) => l.isDefault)!
+const baseLanguage = supportedLanguages.find((l) => l.isDefault)!;
 
 export const routing = defineRouting({
   locales: supportedLanguages.map((l) => l.locale),
   defaultLocale: baseLanguage.locale,
-  localePrefix: 'as-needed',
-})
+  localePrefix: "as-needed",
+});
 
 // Legacy export for compatibility
 export const i18n = {
@@ -28,4 +28,4 @@ export const i18n = {
   defaultId: baseLanguage.id,
   defaultLocale: baseLanguage.locale,
   languages: supportedLanguages,
-}
+};

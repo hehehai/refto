@@ -1,10 +1,10 @@
-import { refSitesRouter } from '@/server/api/routers/ref-sites'
-import { createTRPCRouter } from '@/server/api/trpc'
-import { siteMetaRouter } from './routers/site-meta'
-import { submitSitesRouter } from './routers/submit-sites'
-import { subscriberRouter } from './routers/subscriber'
-import { uploadRouter } from './routers/upload'
-import { weeklyRouter } from './routers/weekly'
+import { refSitesRouter } from "@/server/api/routers/ref-sites";
+import { createTRPCRouter } from "@/server/api/trpc";
+import { siteMetaRouter } from "./routers/site-meta";
+import { submitSitesRouter } from "./routers/submit-sites";
+import { subscriberRouter } from "./routers/subscriber";
+import { uploadRouter } from "./routers/upload";
+import { weeklyRouter } from "./routers/weekly";
 
 /**
  * This is the primary router for your server.
@@ -18,7 +18,7 @@ export const appRouter = createTRPCRouter({
   upload: uploadRouter,
   siteMeta: siteMetaRouter,
   submitSite: submitSitesRouter,
-})
+});
 
 // export type definition of API
-export type AppRouter = typeof appRouter
+export type AppRouter = typeof appRouter;

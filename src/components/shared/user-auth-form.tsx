@@ -1,41 +1,40 @@
-'use client'
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import * as React from 'react'
-import { useForm } from 'react-hook-form'
-import type * as z from 'zod'
-
-import { buttonVariants } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { zodResolver } from "@hookform/resolvers/zod";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import type * as z from "zod";
+import { buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from '@/components/ui/input-otp'
-import { Label } from '@/components/ui/label'
-import { toast } from '@/components/ui/use-toast'
-import { cn } from '@/lib/utils'
-import { userAuthSchema } from '@/lib/validations/auth'
-import { REGEXP_ONLY_DIGITS } from 'input-otp'
-import { useTranslations } from 'next-intl'
-import { Spinner } from './icons'
+} from "@/components/ui/input-otp";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
+import { userAuthSchema } from "@/lib/validations/auth";
+import { Spinner } from "./icons";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
-  isLogin: boolean
+  isLogin: boolean;
 }
 
-type FormData = z.infer<typeof userAuthSchema>
+type FormData = z.infer<typeof userAuthSchema>;
 
 export function UserAuthForm({
   isLogin,
   className,
   ...props
 }: UserAuthFormProps) {
-  const t = useTranslations('Auth')
-  const tSpace = `${isLogin ? 'login' : 'register'}`
+  const t = useTranslations("Auth");
+  const tSpace = `${isLogin ? "login" : "register"}`;
   const {
     register,
     handleSubmit,
@@ -43,104 +42,103 @@ export function UserAuthForm({
     getValues,
   } = useForm<FormData>({
     resolver: zodResolver(userAuthSchema),
-  })
-  const router = useRouter()
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const searchParams = useSearchParams()
-  const [showOtpForm, setShowOtpForm] = React.useState<boolean>(false)
+  });
+  const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const searchParams = useSearchParams();
+  const [showOtpForm, setShowOtpForm] = React.useState<boolean>(false);
 
-  const otpInputRef = React.useRef<HTMLInputElement>(null)
-  const [otpValue, setOtpValue] = React.useState<string>('')
-  const [otpLoading, setOtpLoading] = React.useState<boolean>(false)
+  const otpInputRef = React.useRef<HTMLInputElement>(null);
+  const [otpValue, setOtpValue] = React.useState<string>("");
+  const [otpLoading, setOtpLoading] = React.useState<boolean>(false);
 
   async function onSubmit(data: FormData) {
-    setIsLoading(true)
+    setIsLoading(true);
 
-    const signInResult = await signIn('email', {
+    const signInResult = await signIn("email", {
       email: data.email.toLowerCase(),
       redirect: false,
-    })
+    });
 
-    setIsLoading(false)
+    setIsLoading(false);
 
     if (signInResult?.error) {
       return toast({
-        title: t('status.error.title'),
-        description: t('status.error.description'),
-        variant: 'destructive',
-      })
+        title: t("status.error.title"),
+        description: t("status.error.description"),
+        variant: "destructive",
+      });
     }
 
-    setOtpValue('')
-    setShowOtpForm(true)
+    setOtpValue("");
+    setShowOtpForm(true);
 
     toast({
-      title: t('status.success.title'),
-      description: t('status.success.description'),
-    })
+      title: t("status.success.title"),
+      description: t("status.success.description"),
+    });
 
     setTimeout(() => {
-      otpInputRef.current?.focus()
-    }, 20)
+      otpInputRef.current?.focus();
+    }, 20);
   }
 
   const handleVerifyOtp = async (e?: React.FormEvent<HTMLFormElement>) => {
-    e?.preventDefault?.()
+    e?.preventDefault?.();
 
     try {
-      setOtpLoading(true)
-      const { email } = getValues()
+      setOtpLoading(true);
+      const { email } = getValues();
 
       const res = await fetch(
-        `/api/auth/callback/email?email=${encodeURIComponent(email)}&token=${otpValue}`,
-      )
+        `/api/auth/callback/email?email=${encodeURIComponent(email)}&token=${otpValue}`
+      );
       if (res.status !== 200) {
-        setOtpLoading(false)
+        setOtpLoading(false);
         toast({
-          title: t('otp.error.title'),
-          description: t('otp.error.description'),
-          variant: 'destructive',
-        })
+          title: t("otp.error.title"),
+          description: t("otp.error.description"),
+          variant: "destructive",
+        });
         setTimeout(() => {
-          otpInputRef.current?.focus()
-        }, 20)
-        return
+          otpInputRef.current?.focus();
+        }, 20);
+        return;
       }
 
-      setOtpLoading(false)
-      toast({ title: t('otp.success.title') })
-      router.replace(searchParams?.get('from')?.trim() || '/')
+      setOtpLoading(false);
+      toast({ title: t("otp.success.title") });
+      router.replace(searchParams?.get("from")?.trim() || "/");
     } catch (err) {
-      console.log('OTP err', err)
+      console.log("OTP err", err);
     } finally {
-      setOtpLoading(false)
+      setOtpLoading(false);
     }
-  }
+  };
 
   return (
-    <div className={cn('grid gap-6', className)} {...props}>
+    <div className={cn("grid gap-6", className)} {...props}>
       {showOtpForm ? (
         <form onSubmit={handleVerifyOtp}>
           <div className="grid gap-3">
             <div className="grid gap-1">
               <Label className="sr-only" htmlFor="otp">
-                {t('otp.title')}
+                {t("otp.title")}
               </Label>
               <InputOTP
-                maxLength={6}
-                disabled={otpLoading}
-                onComplete={handleVerifyOtp}
-                ref={otpInputRef}
-                value={otpValue}
-                onChange={setOtpValue}
-                pattern={REGEXP_ONLY_DIGITS}
                 className="w-full"
+                disabled={otpLoading}
+                maxLength={6}
+                onChange={setOtpValue}
+                onComplete={handleVerifyOtp}
+                pattern={REGEXP_ONLY_DIGITS}
+                ref={otpInputRef}
                 render={({ slots }) => (
                   <>
                     <InputOTPGroup>
                       {slots.slice(0, 3).map((slot, index) => (
                         <InputOTPSlot key={index} {...slot} />
-                      ))}{' '}
+                      ))}{" "}
                     </InputOTPGroup>
                     <InputOTPSeparator />
                     <InputOTPGroup>
@@ -150,14 +148,15 @@ export function UserAuthForm({
                     </InputOTPGroup>
                   </>
                 )}
+                value={otpValue}
               />
             </div>
             <button
-              className={cn(buttonVariants({ variant: 'secondary' }))}
+              className={cn(buttonVariants({ variant: "secondary" }))}
               disabled={otpLoading}
               onClick={() => {
-                setOtpValue('')
-                setShowOtpForm(false)
+                setOtpValue("");
+                setShowOtpForm(false);
               }}
               type="button"
             >
@@ -166,7 +165,7 @@ export function UserAuthForm({
               ) : (
                 <span className="i-lucide-arrow-left mr-2" />
               )}
-              <span>{t('otp.try')}</span>
+              <span>{t("otp.try")}</span>
             </button>
           </div>
         </form>
@@ -178,17 +177,17 @@ export function UserAuthForm({
                 {t(`${tSpace}.label`)}
               </Label>
               <Input
-                id="email"
-                placeholder={t(`${tSpace}.m1`)}
-                type="email"
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
                 disabled={isLoading}
-                {...register('email')}
+                id="email"
+                placeholder={t(`${tSpace}.m1`)}
+                type="email"
+                {...register("email")}
               />
               {errors?.email && (
-                <p className="px-1 text-xs text-red-600">
+                <p className="px-1 text-red-600 text-xs">
                   {errors.email.message}
                 </p>
               )}
@@ -215,5 +214,5 @@ export function UserAuthForm({
         </div>
       </div>
     </div>
-  )
+  );
 }

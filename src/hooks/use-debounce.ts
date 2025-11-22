@@ -1,18 +1,19 @@
-import { useRef, useEffect } from 'react'
-import { debounce } from 'lodash'
+import { debounce } from "lodash";
+import { useEffect, useRef } from "react";
 
-type AsyncCallback = (...args: any[]) => Promise<any>
+type AsyncCallback = (...args: any[]) => Promise<any>;
 
 function useDebounce<T extends AsyncCallback>(callback: T, delay: number): T {
-  const debouncedFunction = useRef(debounce(callback, delay))
+  const debouncedFunction = useRef(debounce(callback, delay));
 
-  useEffect(() => {
-    return () => {
-      debouncedFunction.current.cancel()
-    }
-  }, [])
+  useEffect(
+    () => () => {
+      debouncedFunction.current.cancel();
+    },
+    []
+  );
 
-  return debouncedFunction.current as unknown as T
+  return debouncedFunction.current as unknown as T;
 }
 
-export default useDebounce
+export default useDebounce;

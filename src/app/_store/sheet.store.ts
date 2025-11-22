@@ -1,9 +1,9 @@
-import { atom } from 'jotai'
+import { atom } from "jotai";
 
 interface RefSiteSheetState {
-  id: string | null
+  id: string | null;
 }
 
 export const refSiteSheetAtom = atom<RefSiteSheetState>({
   id: null,
-})
+});

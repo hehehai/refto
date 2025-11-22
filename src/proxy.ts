@@ -1,7 +1,8 @@
 // import { getToken } from "next-auth/jwt";
+
+import type { NextFetchEvent, NextRequest } from 'next/server'
 import { type NextRequestWithAuth, withAuth } from 'next-auth/middleware'
 import createIntlMiddleware from 'next-intl/middleware'
-import type { NextFetchEvent, NextRequest } from 'next/server'
 
 import { routing } from './i18n/routing'
 
@@ -16,14 +17,12 @@ const authMiddleware = withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => {
-        return !!token
-      },
+      authorized: ({ token }) => !!token,
     },
   },
 )
 
-export default function middleware(req: NextRequest, event: NextFetchEvent) {
+export default function proxy(req: NextRequest, event: NextFetchEvent) {
   const protectionPathnameRegex = RegExp(
     `^(/(${routing.locales.join('|')}))?(${protectionPages
       .flatMap((p) => (p === '/' ? ['', '/'] : p))

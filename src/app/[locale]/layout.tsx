@@ -1,20 +1,20 @@
 import '@/styles/globals.css'
 
+import type { Metadata } from 'next'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages, getTranslations } from 'next-intl/server'
 import { Providers } from '@/app/_components/providers'
-
 import type { SiteLocale } from '@/i18n'
 import { site } from '@/lib/config/site'
 import { outfit } from '@/lib/font'
 import { cn } from '@/lib/utils'
-import type { Metadata } from 'next'
-import { NextIntlClientProvider, useMessages } from 'next-intl'
-import { getTranslations } from 'next-intl/server'
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string }
-}) {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'Meta' })
 
   const metadata: Metadata = {
@@ -31,7 +31,7 @@ export async function generateMetadata({
       description: site.description[locale as SiteLocale],
       url: site.url,
       siteName: site.name,
-      locale: locale,
+      locale,
       type: 'website',
       images: [
         {
@@ -46,14 +46,16 @@ export async function generateMetadata({
   return metadata
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-  params: { locale },
+  params,
 }: {
   children: React.ReactNode
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }) {
-  const messages = useMessages()
+  const { locale } = await params
+  const messages = await getMessages()
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
@@ -64,9 +66,9 @@ export default function RootLayout({
       >
         {locale === 'zh-CN' && (
           <link
-            rel="stylesheet"
             crossOrigin="anonymous"
             href="https://cdn.jsdelivr.net/npm/misans@4.0.0/lib/Normal/MiSans-Regular.min.css"
+            rel="stylesheet"
           />
         )}
         <NextIntlClientProvider locale={locale} messages={messages}>

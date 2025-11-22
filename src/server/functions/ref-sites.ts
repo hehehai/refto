@@ -1,46 +1,46 @@
-import { db } from '@/lib/db'
-import { pagination } from '@/lib/pagination'
+import { Prisma, type RefSite } from "@prisma/client";
+import { db } from "@/lib/db";
+import { pagination } from "@/lib/pagination";
 import type {
   QueryRefSite,
   QueryWithCursorRefSite,
-} from '@/lib/validations/ref-site'
-import { Prisma, type RefSite } from '@prisma/client'
+} from "@/lib/validations/ref-site";
 
 export async function queryWithCursor(input: QueryWithCursorRefSite) {
-  const { search, limit, cursor, orderBy, tags, hasTop } = input
+  const { search, limit, cursor, orderBy, tags, hasTop } = input;
 
   const whereInput: Prisma.RefSiteWhereInput = {
     deletedAt: null,
     isTop: !!hasTop,
-  }
+  };
 
   if (search) {
     whereInput.OR = [
       {
         siteName: {
           contains: search,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
       {
         siteTitle: {
           contains: search,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
       {
         siteUrl: {
           contains: search,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
-    ]
+    ];
   }
 
   if (tags.length) {
     whereInput.siteTags = {
       hasSome: tags,
-    }
+    };
   }
 
   const rows = await db.refSite.findMany({
@@ -60,56 +60,56 @@ export async function queryWithCursor(input: QueryWithCursorRefSite) {
     take: limit + 1,
     orderBy: orderBy?.reduce(
       (acc, item) => ({ ...acc, [item.key]: item.dir }),
-      {},
+      {}
     ),
-  })
+  });
 
-  let nextCursor: typeof cursor | undefined = undefined
+  let nextCursor: typeof cursor | undefined;
   if (rows && rows.length > limit) {
-    const nextItem = rows.pop()
-    nextCursor = nextItem?.id
+    const nextItem = rows.pop();
+    nextCursor = nextItem?.id;
   }
 
   return {
     rows,
     nextCursor: nextCursor ?? undefined,
-  }
+  };
 }
 
 export async function query(input: QueryRefSite) {
-  const { search, limit, page, orderBy, tags } = input
+  const { search, limit, page, orderBy, tags } = input;
 
   const whereInput: Prisma.RefSiteWhereInput = {
     deletedAt: null,
-  }
+  };
 
   if (search) {
     whereInput.OR = [
       {
         siteName: {
           contains: search,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
       {
         siteTitle: {
           contains: search,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
       {
         siteUrl: {
           contains: search,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
       },
-    ]
+    ];
   }
 
   if (tags.length) {
     whereInput.siteTags = {
       hasSome: tags,
-    }
+    };
   }
 
   const rows = await db.refSite.findMany({
@@ -130,32 +130,32 @@ export async function query(input: QueryRefSite) {
     take: limit,
     orderBy: orderBy?.reduce(
       (acc, item) => ({ ...acc, [item.key]: item.dir }),
-      {},
+      {}
     ),
-  })
+  });
 
   const total = await db.refSite.count({
     where: whereInput,
-  })
+  });
 
   return {
     rows,
     ...pagination(page, limit, total),
-  }
+  };
 }
 
 export async function detail(id: string) {
-  'use server'
+  "use server";
   return db.refSite.findUnique({
     where: {
       id,
       deletedAt: null,
     },
-  })
+  });
 }
 
 export async function correlation(tags: string[], excludeIds?: string[]) {
-  'use server'
+  "use server";
 
   const sql = Prisma.sql`SELECT
 	*
@@ -174,9 +174,9 @@ ORDER BY
 			t IN(${Prisma.join(tags)})    
   ) DESC
 	LIMIT 6;
-`
+`;
 
-  const sites: RefSite[] = await db.$queryRaw(sql)
+  const sites: RefSite[] = await db.$queryRaw(sql);
 
   return sites.map((site) => ({
     id: site.id,
@@ -184,9 +184,9 @@ ORDER BY
     siteName: site.siteName,
     siteFavicon: site.siteFavicon,
     siteCover: site.siteCover,
-    siteCoverRecord: site.siteCoverRecord ?? '',
+    siteCoverRecord: site.siteCoverRecord ?? "",
     siteCoverWidth: site.siteCoverWidth,
     siteCoverHeight: site.siteCoverHeight,
     visits: site.visits,
-  }))
+  }));
 }

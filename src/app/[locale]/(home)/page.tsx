@@ -1,10 +1,10 @@
+import { getTranslations } from 'next-intl/server'
+import { Suspense } from 'react'
 import { HomeMasonry } from '@/app/_components/home-masonry'
 import { VideoWrapper } from '@/components/shared/video-wrapper'
 import { env } from '@/env'
 import { queryWithCursorRefSiteSchema } from '@/lib/validations/ref-site'
 import { queryWithCursor } from '@/server/functions/ref-sites'
-import { getTranslations } from 'next-intl/server'
-import { Suspense } from 'react'
 import { HomeMasonrySkeleton } from '../../_components/home-masonry-skeleton'
 import { SiteEmailSubscription } from '../../_components/site-email-subscription'
 import { SiteShowcaseSheet } from '../../_components/site-showcase-sheet'
@@ -14,11 +14,12 @@ export const revalidate = 7200
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Record<string, string>
+  searchParams: Promise<Record<string, string>>
 }) {
   const t = await getTranslations()
-  const search = searchParams.s || ''
-  const tags = searchParams.tags?.split(',').filter(Boolean) || []
+  const resolvedSearchParams = await searchParams
+  const search = resolvedSearchParams.s || ''
+  const tags = resolvedSearchParams.tags?.split(',').filter(Boolean) || []
 
   const initParams = queryWithCursorRefSiteSchema.parse({
     search,
@@ -46,10 +47,10 @@ export default async function Home({
                 <li>
                   ✦ {t('Index.features.f4')}{' '}
                   <a
-                    href="https://twitter.com/riverhohai"
-                    target="_blank"
                     className="hover:underline"
+                    href="https://twitter.com/riverhohai"
                     rel="noreferrer"
+                    target="_blank"
                   >
                     X.com
                   </a>
@@ -62,9 +63,9 @@ export default async function Home({
             <div className="mt-auto">
               <Suspense fallback={<div>{t('Site.loading')}...</div>}>
                 <VideoWrapper
+                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
                   cover={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-holder-1.mp4`}
                   src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-1.mp4`}
-                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
                 />
               </Suspense>
             </div>
@@ -73,9 +74,9 @@ export default async function Home({
             <div className="mt-auto space-y-6 lg:min-h-[387px]">
               <Suspense fallback={<div>{t('Site.loading')}...</div>}>
                 <VideoWrapper
+                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
                   cover={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-holder-3.mp4`}
                   src={`${env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL}/video-cover-3.mp4`}
-                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
                 />
               </Suspense>
             </div>
@@ -84,10 +85,10 @@ export default async function Home({
         <section className="mt-16 md:mt-24">
           <Suspense fallback={<HomeMasonrySkeleton />}>
             <HomeMasonry
-              search={search}
-              tags={tags}
               firstSlice={siteQuery.rows}
               initNextCursor={siteQuery.nextCursor}
+              search={search}
+              tags={tags}
             />
           </Suspense>
         </section>

@@ -1,42 +1,46 @@
-'use client'
+"use client";
 
-import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
-import { cn } from '@/lib/utils'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from "react";
+import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
+import { cn } from "@/lib/utils";
 
-interface VideoWrapper extends React.ComponentPropsWithoutRef<'video'> {
-  cover: string
+interface VideoWrapper {
+  className?: string;
+  src?: string;
+  cover: string;
+  height?: string | number;
+  width?: string | number;
 }
 
 export const VideoWrapper = ({ className, src, cover }: VideoWrapper) => {
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null);
   const inView = useIntersectionObserver(videoRef, {
-    rootMargin: '50% 0px 50% 0px',
+    rootMargin: "50% 0px 50% 0px",
     threshold: 0,
-  })
+  });
 
   useEffect(() => {
     if (inView) {
-      videoRef.current?.play()
+      videoRef.current?.play();
     } else {
-      videoRef.current?.pause()
+      videoRef.current?.pause();
     }
-  }, [inView])
+  }, [inView]);
 
   return (
     <video
-      ref={videoRef}
-      className={cn('block w-full', className)}
+      aria-label="Video player"
       autoPlay={false}
+      className={cn("block w-full", className)}
       loop
       muted
       playsInline
-      preload="none"
-      aria-label="Video player"
       poster={cover}
+      preload="none"
+      ref={videoRef}
     >
       <source src={src} type="video/mp4" />
       Your browser does not support the video tag.
     </video>
-  )
-}
+  );
+};

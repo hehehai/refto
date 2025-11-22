@@ -1,30 +1,29 @@
-import crypto from 'node:crypto'
-import { PrismaAdapter } from '@auth/prisma-adapter'
-import type { NextAuthOptions } from 'next-auth'
-import EmailProvider from 'next-auth/providers/email'
-
-import { env } from '@/env'
-import { db } from '@/lib/db'
-import { verifyEmail } from '@devmehq/email-validator-js'
-import { site } from './config/site'
-import { sendEmail } from './email'
-import UserAuthEmail from './email/templates/auth'
-import { getBaseUrl } from './utils'
+import crypto from "node:crypto";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { verifyEmail } from "@devmehq/email-validator-js";
+import type { NextAuthOptions } from "next-auth";
+import EmailProvider from "next-auth/providers/email";
+import { env } from "@/env";
+import { db } from "@/lib/db";
+import { site } from "./config/site";
+import { sendEmail } from "./email";
+import UserAuthEmail from "./email/templates/auth";
+import { getBaseUrl } from "./utils";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db as any) as any,
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   pages: {
-    signIn: '/login',
+    signIn: "/login",
   },
   providers: [
     EmailProvider({
       from: env.EMAIL_USER,
       generateVerificationToken: () => {
         // Generate a random 6-digit code (OTP)
-        return crypto.randomInt(100000, 999999).toString()
+        return crypto.randomInt(100_000, 999_999).toString();
       },
       sendVerificationRequest: async ({ identifier, url, token }) => {
         try {
@@ -35,31 +34,31 @@ export const authOptions: NextAuthOptions = {
             select: {
               emailVerified: true,
             },
-          })
+          });
 
           if (!user) {
             const { validFormat, validMx } = await verifyEmail({
               emailAddress: identifier,
               verifyMx: true,
-              timeout: 10000,
-            })
+              timeout: 10_000,
+            });
 
-            if (!validFormat || !validMx) {
-              throw new Error('Invalid email address')
+            if (!(validFormat && validMx)) {
+              throw new Error("Invalid email address");
             }
           }
 
-          const sendTitle = user ? 'Sign in' : 'Sign up'
+          const sendTitle = user ? "Sign in" : "Sign up";
 
-          if (process.env.NODE_ENV === 'development') {
-            console.log('sendVerificationRequest', {
+          if (process.env.NODE_ENV === "development") {
+            console.log("sendVerificationRequest", {
               sendTitle,
               identifier,
               url,
-            })
+            });
           }
 
-          const [name = identifier] = identifier.split('@')
+          const [name = identifier] = identifier.split("@");
 
           await sendEmail({
             to: identifier,
@@ -70,12 +69,12 @@ export const authOptions: NextAuthOptions = {
               verifyCode: token,
               baseUrl: getBaseUrl(),
             }),
-          })
+          });
 
-          return undefined
+          return;
         } catch (err) {
-          console.error('[Email] Error sending:', err)
-          throw new Error('Error sending verification email')
+          console.error("[Email] Error sending:", err);
+          throw new Error("Error sending verification email");
         }
       },
     }),
@@ -83,27 +82,27 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({ token, session }) {
       if (token) {
-        session.user.id = token.id
-        session.user.name = token.name
-        session.user.email = token.email
-        session.user.role = token.role
-        session.user.image = token.picture
+        session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.email = token.email;
+        session.user.role = token.role;
+        session.user.image = token.picture;
       }
 
-      return session
+      return session;
     },
     async jwt({ token, user }) {
       const dbUser = await db.user.findFirst({
         where: {
           email: token.email,
         },
-      })
+      });
 
       if (!dbUser) {
         if (user) {
-          token.id = user?.id
+          token.id = user?.id;
         }
-        return token
+        return token;
       }
 
       return {
@@ -112,7 +111,7 @@ export const authOptions: NextAuthOptions = {
         email: dbUser.email,
         role: dbUser.role,
         picture: dbUser.image,
-      }
+      };
     },
   },
-}
+};

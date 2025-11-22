@@ -1,7 +1,8 @@
+"use strict";
 const config = {
   plugins: {
-    '@tailwindcss/postcss': {},
+    "@tailwindcss/postcss": {},
   },
-}
+};
 
-module.exports = config
+module.exports = config;

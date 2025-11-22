@@ -1,8 +1,8 @@
 // Re-export from new location for backward compatibility
 export {
-  type SiteLocale,
-  supportedLanguages,
-  SupportLocale,
-  routing,
   i18n,
+  routing,
+  type SiteLocale,
+  SupportLocale,
+  supportedLanguages,
 } from './i18n/routing'

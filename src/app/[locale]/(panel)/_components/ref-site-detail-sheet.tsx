@@ -1,72 +1,72 @@
-'use client'
+"use client";
 
-import { SiteDetail } from '@/app/_components/site-detail'
-import { Spinner } from '@/components/shared/icons'
-import { Sheet, SheetClose, SheetContent } from '@/components/ui/sheet'
-import { useToast } from '@/components/ui/use-toast'
-import { api } from '@/lib/trpc/react'
-import type { RefSite } from '@prisma/client'
-import { useAtom } from 'jotai'
-import { X } from 'lucide-react'
-import { useLocale } from 'next-intl'
-import { useCallback, useEffect, useState } from 'react'
-import { refSiteDetailSheetAtom } from '../_store/dialog.store'
+import type { RefSite } from "@prisma/client";
+import { useAtom } from "jotai";
+import { X } from "lucide-react";
+import { useLocale } from "next-intl";
+import { useCallback, useEffect, useState } from "react";
+import { SiteDetail } from "@/app/_components/site-detail";
+import { Spinner } from "@/components/shared/icons";
+import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet";
+import { useToast } from "@/components/ui/use-toast";
+import { api } from "@/lib/trpc/react";
+import { refSiteDetailSheetAtom } from "../_store/dialog.store";
 
 export function RefSiteDetailSheet() {
-  const locale = useLocale()
-  const [status, setStatus] = useAtom(refSiteDetailSheetAtom)
+  const locale = useLocale();
+  const [status, setStatus] = useAtom(refSiteDetailSheetAtom);
 
-  const { toast } = useToast()
-  const utils = api.useUtils()
-  const [loading, setLoading] = useState(true)
-  const [detailData, setDetailData] = useState<RefSite | null>(null)
+  const { toast } = useToast();
+  const utils = api.useUtils();
+  const [loading, setLoading] = useState(true);
+  const [detailData, setDetailData] = useState<RefSite | null>(null);
 
   const handleFetch = useCallback(
     async (id: string) => {
       if (!id) {
-        return
+        return;
       }
       try {
-        setLoading(true)
-        const data = await utils.refSites.detail.fetch({ id })
+        setLoading(true);
+        const data = await utils.refSites.detail.fetch({ id });
         if (!data) {
-          throw new Error('Data not found')
+          throw new Error("Data not found");
         }
-        setDetailData(data)
+        setDetailData(data);
       } catch (_err: any) {
         toast({
-          title: 'Fetch failed.',
-          description: 'Please try again.',
-          variant: 'destructive',
-        })
+          title: "Fetch failed.",
+          description: "Please try again.",
+          variant: "destructive",
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     },
-    [utils, toast],
-  )
+    [utils, toast]
+  );
 
   useEffect(() => {
     if (status) {
-      handleFetch(status)
+      handleFetch(status);
     } else {
-      setDetailData(null)
+      setDetailData(null);
     }
-  }, [status, handleFetch])
+  }, [status, handleFetch]);
 
   return (
     <Sheet
-      open={!!status}
       onOpenChange={(val) => {
         if (!val) {
-          setStatus(null)
+          setStatus(null);
         }
       }}
+      open={!!status}
     >
       <SheetContent
-        side="bottom"
-        showClose={false}
         className="h-[calc(100dvh-64px)] overflow-auto rounded-t-2xl border-0 p-0"
+        showClose={false}
+        side="bottom"
       >
         <div className="relative h-full w-full">
           <div className="h-full w-full overflow-auto scroll-smooth pb-20">
@@ -79,16 +79,16 @@ export function RefSiteDetailSheet() {
             ) : null}
           </div>
 
-          <SheetClose className="absolute right-6 top-6 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+          <SheetClose className="absolute top-6 right-6 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
             <X className="h-5 w-5" />
             <span className="sr-only">Close</span>
           </SheetClose>
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }
 
-RefSiteDetailSheet.displayName = 'RefSiteDetailSheet'
+RefSiteDetailSheet.displayName = "RefSiteDetailSheet";
 
-export default RefSiteDetailSheet
+export default RefSiteDetailSheet;
