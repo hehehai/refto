@@ -4,7 +4,7 @@ import { publicProcedure } from "@/server/api/orpc";
 
 // 获取网站元数据
 const metaProcedure = publicProcedure
-  .input(z.object({ url: z.string().url() }))
+  .input(z.object({ url: z.url() }))
   .handler(async ({ input }) => getSiteMetaByUrl(input.url));
 
 export const siteMetaRouter = {

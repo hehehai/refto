@@ -8,10 +8,10 @@ export const submitSiteCreateSchema = (locale: string) =>
     site: z.string().url({
       message: { en: "Site is invalid", "zh-CN": "网站格式不正确" }[locale],
     }),
-    title: z.string().optional().or(z.literal("")).default(""),
-    description: z.string().optional().or(z.literal("")).default(""),
+    title: z.string().default(""),
+    description: z.string().default(""),
   });
 
-export type SubmitSiteCreate = z.infer<
+export type SubmitSiteCreate = z.input<
   ReturnType<typeof submitSiteCreateSchema>
 >;

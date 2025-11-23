@@ -106,8 +106,8 @@ const queryProcedure = adminProcedure
 const subscribeProcedure = publicProcedure
   .input(
     z.object({
-      email: z.string().email(),
-      locale: z.nativeEnum(SupportLocale).optional().default(SupportLocale.en),
+      email: z.email(),
+      locale: z.enum(SupportLocale).optional().default(SupportLocale.en),
     })
   )
   .handler(async ({ input }) => subscribe(input.email, input.locale));
@@ -116,7 +116,7 @@ const subscribeProcedure = publicProcedure
 const unsubscribeProcedure = publicProcedure
   .input(
     z.object({
-      email: z.string().email(),
+      email: z.email(),
       token: z.string(),
     })
   )
@@ -126,7 +126,7 @@ const unsubscribeProcedure = publicProcedure
 const unsubscribeBatchProcedure = adminProcedure
   .input(
     z.object({
-      emails: z.array(z.string().email()).min(1).max(50),
+      emails: z.array(z.email()).min(1).max(50),
     })
   )
   .handler(async ({ input }) => {

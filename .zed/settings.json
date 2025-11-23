@@ -3,7 +3,16 @@
   "format_on_save": "on",
   "languages": {
     "CSS": {
-      "language_servers": ["tailwindcss-language-server"]
+      "language_servers": ["tailwindcss-language-server"],
+      "formatter": {
+        "language_server": {
+          "name": "biome"
+        }
+      },
+      "code_actions_on_format": {
+        "source.fixAll.biome": true,
+        "source.organizeImports.biome": true
+      }
     },
     "JavaScript": {
       "formatter": {
@@ -46,6 +55,13 @@
       }
     },
     "JSONC": {
+      "formatter": {
+        "language_server": {
+          "name": "biome"
+        }
+      }
+    },
+    "Markdown": {
       "formatter": {
         "language_server": {
           "name": "biome"
