@@ -8,11 +8,7 @@ import {
   refSiteSchema,
   updateRefSiteSchema,
 } from "@/lib/validations/ref-site";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "@/server/api/trpc";
+import { adminProcedure, publicProcedure } from "@/server/api/orpc";
 import {
   correlation,
   detail,
@@ -20,133 +16,101 @@ import {
   queryWithCursor,
 } from "@/server/functions/ref-sites";
 
-export const refSitesRouter = createTRPCRouter({
-  // 列表
-  queryWithCursor: publicProcedure
-    .input(queryWithCursorRefSiteSchema)
-    .query(async ({ input }) => queryWithCursor(input)),
+// 游标分页查询（公开）
+const queryWithCursorProcedure = publicProcedure
+  .input(queryWithCursorRefSiteSchema)
+  .handler(async ({ input }) => queryWithCursor(input));
 
-  // 列表
-  query: protectedProcedure
-    .meta({
-      requiredRoles: ["ADMIN"],
-    })
-    .input(queryRefSiteSchema)
-    .query(async ({ input }) => query(input)),
+// 管理后台分页查询
+const queryProcedure = adminProcedure
+  .input(queryRefSiteSchema)
+  .handler(async ({ input }) => query(input));
 
-  // 创建
-  create: protectedProcedure
-    .meta({
-      requiredRoles: ["ADMIN"],
-    })
-    .input(refSiteSchema)
-    .mutation(async ({ ctx, input }) => {
-      const id = crypto.randomUUID();
-      const [newSite] = await db
-        .insert(refSite)
-        .values({
-          id,
-          createdById: ctx.session.user.id,
-          ...input,
-        })
-        .returning();
-      return newSite;
-    }),
-
-  // 更新
-  update: protectedProcedure
-    .meta({
-      requiredRoles: ["ADMIN"],
-    })
-    .input(updateRefSiteSchema)
-    .mutation(async ({ input }) => {
-      const { id, ...data } = input;
-      const [updated] = await db
-        .update(refSite)
-        .set({
-          ...data,
-          updatedAt: new Date(),
-        })
-        .where(eq(refSite.id, id))
-        .returning();
-      return updated;
-    }),
-
-  // 详情
-  detail: publicProcedure
-    .input(
-      z.object({
-        id: z.string(),
+// 创建
+const createProcedure = adminProcedure
+  .input(refSiteSchema)
+  .handler(async ({ context, input }) => {
+    const id = crypto.randomUUID();
+    const [newSite] = await db
+      .insert(refSite)
+      .values({
+        id,
+        createdById: context.session!.user.id,
+        ...input,
       })
-    )
-    .query(async ({ input }) => detail(input.id)),
+      .returning();
+    return newSite;
+  });
 
-  // 关联
-  correlation: publicProcedure
-    .input(
-      z.object({
-        id: z.string(),
+// 更新
+const updateProcedure = adminProcedure
+  .input(updateRefSiteSchema)
+  .handler(async ({ input }) => {
+    const { id, ...data } = input;
+    const [updated] = await db
+      .update(refSite)
+      .set({
+        ...data,
+        updatedAt: new Date(),
       })
-    )
-    .query(async ({ input }) => {
-      const site = await detail(input.id);
-      if (!site) return null;
+      .where(eq(refSite.id, id))
+      .returning();
+    return updated;
+  });
 
-      return correlation(site.siteTags, [site.id]);
-    }),
+// 详情
+const detailProcedure = publicProcedure
+  .input(z.object({ id: z.string() }))
+  .handler(async ({ input }) => detail(input.id));
 
-  // 删除
-  delete: protectedProcedure
-    .meta({
-      requiredRoles: ["ADMIN"],
-    })
-    .input(
-      z.object({
-        ids: z.array(z.string()).min(1).max(50),
+// 关联
+const correlationProcedure = publicProcedure
+  .input(z.object({ id: z.string() }))
+  .handler(async ({ input }) => {
+    const site = await detail(input.id);
+    if (!site) return null;
+    return correlation(site.siteTags, [site.id]);
+  });
+
+// 删除（软删除）
+const deleteProcedure = adminProcedure
+  .input(z.object({ ids: z.array(z.string()).min(1).max(50) }))
+  .handler(async ({ input }) => {
+    const result = await db
+      .update(refSite)
+      .set({
+        deletedAt: new Date(),
+        updatedAt: new Date(),
       })
-    )
-    .mutation(async ({ input }) => {
-      const result = await db
-        .update(refSite)
-        .set({
-          deletedAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(and(inArray(refSite.id, input.ids), isNull(refSite.deletedAt)))
-        .returning({ id: refSite.id });
-      return { count: result.length };
-    }),
+      .where(and(inArray(refSite.id, input.ids), isNull(refSite.deletedAt)))
+      .returning({ id: refSite.id });
+    return { count: result.length };
+  });
 
-  // 置顶
-  switchTop: protectedProcedure
-    .meta({
-      requiredRoles: ["ADMIN"],
-    })
-    .input(
-      z.object({
-        id: z.string(),
-        nextIsTop: z.boolean(),
+// 置顶切换
+const switchTopProcedure = adminProcedure
+  .input(z.object({ id: z.string(), nextIsTop: z.boolean() }))
+  .handler(async ({ input }) => {
+    const [updated] = await db
+      .update(refSite)
+      .set({
+        isTop: input.nextIsTop,
+        updatedAt: new Date(),
       })
-    )
-    .mutation(async ({ input }) => {
-      const [updated] = await db
-        .update(refSite)
-        .set({
-          isTop: input.nextIsTop,
-          updatedAt: new Date(),
-        })
-        .where(and(eq(refSite.id, input.id), isNull(refSite.deletedAt)))
-        .returning();
-      return updated;
-    }),
+      .where(and(eq(refSite.id, input.id), isNull(refSite.deletedAt)))
+      .returning();
+    return updated;
+  });
 
-  // likes
-  incLike: publicProcedure.input(z.string()).mutation(async () => {
-    // TODO
-  }),
+// 点赞（待实现）
+const incLikeProcedure = publicProcedure.input(z.string()).handler(async () => {
+  // TODO
+});
 
-  // visitors
-  incVisit: publicProcedure.input(z.string()).mutation(async ({ input }) => {
+// 访问量增加
+const incVisitProcedure = publicProcedure
+  .input(z.string())
+  .handler(async ({ input }) => {
     const [updated] = await db
       .update(refSite)
       .set({
@@ -154,7 +118,18 @@ export const refSitesRouter = createTRPCRouter({
       })
       .where(eq(refSite.id, input))
       .returning();
-
     return updated;
-  }),
-});
+  });
+
+export const refSitesRouter = {
+  queryWithCursor: queryWithCursorProcedure,
+  query: queryProcedure,
+  create: createProcedure,
+  update: updateProcedure,
+  detail: detailProcedure,
+  correlation: correlationProcedure,
+  delete: deleteProcedure,
+  switchTop: switchTopProcedure,
+  incLike: incLikeProcedure,
+  incVisit: incVisitProcedure,
+};

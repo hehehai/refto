@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -27,7 +28,7 @@ import {
 } from "@/components/ui/table";
 import type { RefSite } from "@/db/schema";
 import { siteTagMap } from "@/lib/constants";
-import { api } from "@/lib/trpc/react";
+import { orpc } from "@/lib/orpc/react";
 import { columns } from "./columns";
 
 const statusOptions = Object.entries(siteTagMap).map(([value, item]) => ({
@@ -67,17 +68,17 @@ export function RefSelectDataTable({
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const tableQuery = api.refSites.query.useQuery(
-    {
-      limit: pagination.pageSize,
-      search: globalFilter,
-      orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
-      page: pagination.pageIndex,
-    },
-    {
-      refetchOnWindowFocus: false,
-    }
-  );
+  const tableQuery = useQuery({
+    ...orpc.refSites.query.queryOptions({
+      input: {
+        limit: pagination.pageSize,
+        search: globalFilter,
+        orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
+        page: pagination.pageIndex,
+      },
+    }),
+    refetchOnWindowFocus: false,
+  });
 
   const tableColumns = React.useMemo(
     () =>

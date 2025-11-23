@@ -1,14 +1,12 @@
 import { z } from "zod";
 import { getSiteMetaByUrl } from "@/lib/site-meta";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { publicProcedure } from "@/server/api/orpc";
 
-export const siteMetaRouter = createTRPCRouter({
-  // meta
-  meta: publicProcedure
-    .input(
-      z.object({
-        url: z.string().url(),
-      })
-    )
-    .query(async ({ input }) => getSiteMetaByUrl(input.url)),
-});
+// 获取网站元数据
+const metaProcedure = publicProcedure
+  .input(z.object({ url: z.string().url() }))
+  .handler(async ({ input }) => getSiteMetaByUrl(input.url));
+
+export const siteMetaRouter = {
+  meta: metaProcedure,
+};

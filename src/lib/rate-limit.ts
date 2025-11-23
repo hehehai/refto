@@ -36,7 +36,7 @@ export default function rateLimit(options?: Options) {
   };
 }
 
-export const trpcApiLimit = rateLimit({
+export const rpcApiLimit = rateLimit({
   interval: 60 * 1000, // 60 seconds
   uniqueTokenPerInterval: 500, // Max 500 users per second
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { api } from "@/lib/trpc/react";
+import { client } from "@/lib/orpc/client";
 import { linkWithRef } from "@/lib/utils";
 
 interface VisitLinkProps extends React.ComponentPropsWithoutRef<"a"> {
@@ -11,7 +11,6 @@ interface VisitLinkProps extends React.ComponentPropsWithoutRef<"a"> {
 }
 
 export const VisitLink = ({ id, count, href, ...props }: VisitLinkProps) => {
-  const utils = api.useUtils();
   const [_count, setCount] = React.useState(count ?? 0);
 
   React.useEffect(() => {
@@ -19,7 +18,7 @@ export const VisitLink = ({ id, count, href, ...props }: VisitLinkProps) => {
   }, [count]);
 
   const visitInc = async (id: string) => {
-    await utils.client.refSites.incVisit.mutate(id);
+    await client.refSites.incVisit(id);
     if (count) {
       setCount((prev) => prev + 1);
     }

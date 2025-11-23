@@ -1,8 +1,9 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/lib/trpc/react";
+import { orpc } from "@/lib/orpc/react";
 import { SiteShowcase } from "./site-showcase";
 
 const correlationSkeleton = () =>
@@ -23,7 +24,9 @@ export const SiteShowcaseCorrelation = ({
   onDetailAction?: (id: string) => void;
 }) => {
   const t = useTranslations("Detail.correlation");
-  const sitesQuery = api.refSites.correlation.useQuery({ id });
+  const sitesQuery = useQuery(
+    orpc.refSites.correlation.queryOptions({ input: { id } })
+  );
 
   return (
     <div>

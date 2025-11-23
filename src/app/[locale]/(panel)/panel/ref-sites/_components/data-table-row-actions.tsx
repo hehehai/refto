@@ -1,8 +1,10 @@
 "use client";
 
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { useMutation } from "@tanstack/react-query";
 import type { Row } from "@tanstack/react-table";
 import { useAtom } from "jotai";
+import { toast } from "sonner";
 import { refSiteDialogAtom } from "@/app/[locale]/(panel)/_store/dialog.store";
 import { Spinner } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
@@ -13,9 +15,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/components/ui/use-toast";
 import type { RefSite } from "@/db/schema";
-import { api } from "@/lib/trpc/react";
+import { orpc } from "@/lib/orpc/react";
 
 interface DataTableRowActionsProps {
   row: Row<RefSite>;
@@ -28,37 +29,29 @@ export function DataTableRowActions({
 }: DataTableRowActionsProps) {
   const [dialogStatus, setDialogStatus] = useAtom(refSiteDialogAtom);
   const { original } = row;
-  const { toast } = useToast();
 
-  const switchTopRow = api.refSites.switchTop.useMutation({
+  // @ts-expect-error - oRPC mutationFn returns T | undefined, TanStack expects T
+  const switchTopRow = useMutation({
+    ...orpc.refSites.switchTop.mutationOptions(),
     onSuccess: (data) => {
       onRefresh?.();
-      toast({
-        title: "Success",
-        description: `Ref Site current ${data?.isTop ? "TOP" : "NOT TOP"}`,
-      });
+      toast.success(
+        `Ref Site current ${(data as { isTop?: boolean } | undefined)?.isTop ? "TOP" : "NOT TOP"}`
+      );
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-      });
+      toast.error(error.message);
     },
   });
 
-  const deleteRow = api.refSites.delete.useMutation({
+  const deleteRow = useMutation({
+    ...orpc.refSites.delete.mutationOptions(),
     onSuccess: () => {
       onRefresh?.();
-      toast({
-        title: "Success",
-        description: "Ref Site deleted",
-      });
+      toast.success("Ref Site deleted");
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-      });
+      toast.error(error.message);
     },
   });
 
@@ -73,7 +66,7 @@ export function DataTableRowActions({
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
+      <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuItem
           disabled={dialogStatus.show}
           onClick={() =>

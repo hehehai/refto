@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -24,7 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { SubmitSite } from "@/db/schema";
-import { api } from "@/lib/trpc/react";
+import { getQueryClient, orpc } from "@/lib/orpc/react";
 import { columns, statuses } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
 
@@ -42,25 +43,41 @@ export function DataTable() {
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const tableQuery = api.submitSite.query.useQuery(
-    {
+  const queryClient = getQueryClient();
+  const input = React.useMemo(
+    () => ({
       limit: pagination.pageSize,
       search: globalFilter,
       orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
       page: pagination.pageIndex,
       status: columnFilters[0]?.value as any,
-    },
-    {
-      refetchOnWindowFocus: false,
-    }
+    }),
+    [
+      pagination.pageSize,
+      pagination.pageIndex,
+      globalFilter,
+      sorting,
+      columnFilters,
+    ]
   );
+
+  const tableQuery = useQuery({
+    ...orpc.submitSite.query.queryOptions({ input }),
+    refetchOnWindowFocus: false,
+  });
+
+  const handleRefresh = React.useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: orpc.submitSite.query.key({ input }),
+    });
+  }, [queryClient, input]);
 
   const tableColumns = React.useMemo(
     () =>
       columns((row) => (
-        <DataTableRowActions onRefresh={tableQuery.refetch} row={row} />
+        <DataTableRowActions onRefresh={handleRefresh} row={row} />
       )),
-    [tableQuery.refetch]
+    [handleRefresh]
   );
 
   const table = useReactTable<SubmitSite>({

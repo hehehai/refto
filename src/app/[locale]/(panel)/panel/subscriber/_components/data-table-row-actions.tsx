@@ -1,7 +1,9 @@
 "use client";
 
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { useMutation } from "@tanstack/react-query";
 import type { Row } from "@tanstack/react-table";
+import { toast } from "sonner";
 import { Spinner } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/components/ui/use-toast";
 import type { Subscriber } from "@/db/schema";
-import { api } from "@/lib/trpc/react";
+import { orpc } from "@/lib/orpc/react";
 
 interface DataTableRowActionsProps {
   row: Row<Subscriber>;
@@ -24,21 +25,15 @@ export function DataTableRowActions({
   onRefresh,
 }: DataTableRowActionsProps) {
   const { original } = row;
-  const { toast } = useToast();
 
-  const unSubRow = api.subscriber.unsubscribeBatch.useMutation({
+  const unSubRow = useMutation({
+    ...orpc.subscriber.unsubscribeBatch.mutationOptions(),
     onSuccess: () => {
       onRefresh?.();
-      toast({
-        title: "Success",
-        description: "unSubscribe",
-      });
+      toast.success("unSubscribe");
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-      });
+      toast.error(error.message);
     },
   });
 
@@ -53,7 +48,7 @@ export function DataTableRowActions({
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
+      <DropdownMenuContent align="end" className="w-40">
         {!original.unSubDate && (
           <DropdownMenuItem
             className="text-red-600 focus:text-red-500"

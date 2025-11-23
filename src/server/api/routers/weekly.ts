@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import {
   and,
   asc,
@@ -27,7 +28,7 @@ import { WeeklyEmail } from "@/lib/email/templates/weekly";
 import { pagination } from "@/lib/pagination";
 import { formatOrders, genOrderValidSchema, getBaseUrl } from "@/lib/utils";
 import { updateWeeklySchema, weeklySchema } from "@/lib/validations/weekly";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { adminProcedure, protectedProcedure } from "@/server/api/orpc";
 import { detail } from "@/server/functions/weekly";
 
 type OrderByItem = { key: string; dir: "asc" | "desc" };
@@ -52,233 +53,217 @@ function buildWeeklyOrderByClause(orderBy: OrderByItem[] | undefined): SQL[] {
     .filter((item): item is SQL => item !== null);
 }
 
-export const weeklyRouter = createTRPCRouter({
-  // 列表
-  query: protectedProcedure
-    .meta({
-      requiredRoles: ["ADMIN"],
+// 列表查询
+const queryProcedure = adminProcedure
+  .input(
+    z.object({
+      search: z.coerce.string().trim().max(1024).optional(),
+      limit: z.number().min(1).max(50).optional().default(10),
+      page: z.number().min(0).optional().default(0),
+      status: z.enum(["AWAITING", "PENDING", "SENT"] as const).optional(),
+      orderBy: genOrderValidSchema<Weekly>(["weekStart", "sentDate"])
+        .optional()
+        .default(["-weekStart"])
+        .transform(formatOrders),
     })
-    .input(
-      z.object({
-        search: z.coerce.string().trim().max(1024).optional(),
-        limit: z.number().min(1).max(50).optional().default(10),
-        page: z.number().min(0).optional().default(0),
-        status: z.enum(["AWAITING", "PENDING", "SENT"] as const).optional(),
-        orderBy: genOrderValidSchema<Weekly>(["weekStart", "sentDate"])
-          .optional()
-          .default(["-weekStart"])
-          .transform(formatOrders),
+  )
+  .handler(async ({ input }) => {
+    const { search, limit, page, status, orderBy } = input;
+
+    const conditions: SQL[] = [];
+
+    if (search) {
+      conditions.push(ilike(weekly.title, `%${search}%`));
+    }
+
+    if (status) {
+      conditions.push(eq(weekly.status, status as WeeklySentStatus));
+    }
+
+    const orderByClause = buildWeeklyOrderByClause(orderBy);
+
+    const rows = await db
+      .select({
+        id: weekly.id,
+        title: weekly.title,
+        weekStart: weekly.weekStart,
+        weekEnd: weekly.weekEnd,
+        status: weekly.status,
       })
-    )
-    .query(async ({ input }) => {
-      const { search, limit, page, status, orderBy } = input;
+      .from(weekly)
+      .where(conditions.length ? and(...conditions) : undefined)
+      .orderBy(...orderByClause)
+      .limit(limit)
+      .offset(page * limit);
 
-      const conditions: SQL[] = [];
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(weekly)
+      .where(conditions.length ? and(...conditions) : undefined);
 
-      if (search) {
-        conditions.push(ilike(weekly.title, `%${search}%`));
-      }
+    const total = totalResult?.count ?? 0;
 
-      if (status) {
-        conditions.push(eq(weekly.status, status as WeeklySentStatus));
-      }
+    return {
+      rows,
+      ...pagination(page, limit, total),
+    };
+  });
 
-      const orderByClause = buildWeeklyOrderByClause(orderBy);
+// 创建
+const createProcedure = adminProcedure
+  .input(weeklySchema)
+  .handler(async ({ input }) => {
+    const [weekStart, weekEnd] = input.weekRange as [Date, Date];
+    const id = crypto.randomUUID();
 
-      const rows = await db
-        .select({
-          id: weekly.id,
-          title: weekly.title,
-          weekStart: weekly.weekStart,
-          weekEnd: weekly.weekEnd,
-          status: weekly.status,
-        })
-        .from(weekly)
-        .where(conditions.length ? and(...conditions) : undefined)
-        .orderBy(...orderByClause)
-        .limit(limit)
-        .offset(page * limit);
-
-      const [totalResult] = await db
-        .select({ count: count() })
-        .from(weekly)
-        .where(conditions.length ? and(...conditions) : undefined);
-
-      const total = totalResult?.count ?? 0;
-
-      return {
-        rows,
-        ...pagination(page, limit, total),
-      };
-    }),
-
-  // 创建
-  create: protectedProcedure
-    .meta({
-      requiredRoles: ["ADMIN"],
-    })
-    .input(weeklySchema)
-    .mutation(async ({ input }) => {
-      const [weekStart, weekEnd] = input.weekRange as [Date, Date];
-      const id = crypto.randomUUID();
-
-      const [newWeekly] = await db
-        .insert(weekly)
-        .values({
-          id,
-          title: input.title,
-          weekStart,
-          weekEnd,
-          sites: input.sites.filter(Boolean),
-        })
-        .returning();
-
-      return newWeekly;
-    }),
-
-  // 详情
-  detail: protectedProcedure
-    .input(
-      z.object({
-        id: z.string(),
+    const [newWeekly] = await db
+      .insert(weekly)
+      .values({
+        id,
+        title: input.title,
+        weekStart,
+        weekEnd,
+        sites: input.sites.filter(Boolean),
       })
-    )
-    .query(async ({ input }) => detail(input.id)),
+      .returning();
 
-  // 更新
-  update: protectedProcedure
-    .meta({
-      requiredRoles: ["ADMIN"],
-    })
-    .input(updateWeeklySchema)
-    .mutation(async ({ input }) => {
-      const [weekStart, weekEnd] = input.weekRange as [Date, Date];
+    return newWeekly;
+  });
 
-      const [updated] = await db
-        .update(weekly)
-        .set({
-          title: input.title,
-          weekStart,
-          weekEnd,
-          sites: input.sites?.filter(Boolean),
-          updatedAt: new Date(),
-        })
-        .where(eq(weekly.id, input.id))
-        .returning();
+// 详情
+const detailProcedure = protectedProcedure
+  .input(z.object({ id: z.string() }))
+  .handler(async ({ input }) => detail(input.id));
 
-      return updated;
-    }),
+// 更新
+const updateProcedure = adminProcedure
+  .input(updateWeeklySchema)
+  .handler(async ({ input }) => {
+    const [weekStart, weekEnd] = input.weekRange as [Date, Date];
 
-  // 删除
-  delete: protectedProcedure
-    .meta({
-      requiredRoles: ["ADMIN"],
-    })
-    .input(
-      z.object({
-        id: z.string(),
+    const [updated] = await db
+      .update(weekly)
+      .set({
+        title: input.title,
+        weekStart,
+        weekEnd,
+        sites: input.sites?.filter(Boolean),
+        updatedAt: new Date(),
       })
-    )
-    .mutation(async () => {
-      // 周内容是否已发送，或正在发送
-      // 无法删除
-    }),
+      .where(eq(weekly.id, input.id))
+      .returning();
 
-  // 发送
-  send: protectedProcedure
-    .meta({
-      requiredRoles: ["ADMIN"],
-    })
-    .input(
-      z.object({
-        id: z.string(),
-      })
-    )
-    .mutation(async ({ input }) => {
-      const weeklyData = await db.query.weekly.findFirst({
-        where: eq(weekly.id, input.id),
+    return updated;
+  });
+
+// 删除
+const deleteProcedure = adminProcedure
+  .input(z.object({ id: z.string() }))
+  .handler(async () => {
+    // 周内容是否已发送，或正在发送
+    // 无法删除
+  });
+
+// 发送
+const sendProcedure = adminProcedure
+  .input(z.object({ id: z.string() }))
+  .handler(async ({ input }) => {
+    const weeklyData = await db.query.weekly.findFirst({
+      where: eq(weekly.id, input.id),
+    });
+
+    if (!weeklyData) {
+      throw new ORPCError("NOT_FOUND", { message: "Weekly not found" });
+    }
+    if (weeklyData.status === "PENDING") {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Weekly is pending, can not be sent",
       });
+    }
+    if (weeklyData.status === "SENT") {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Weekly is sent, can not be sent again",
+      });
+    }
 
-      if (!weeklyData) {
-        throw new Error("Weekly not found");
-      }
-      if (weeklyData.status === "PENDING") {
-        throw new Error("Weekly is pending, can not be sent");
-      }
-      if (weeklyData.status === "SENT") {
-        throw new Error("Weekly is sent, can not be sent again");
-      }
+    const currentSubscribers = await db
+      .select({
+        id: subscriber.id,
+        email: subscriber.email,
+        unSubSign: subscriber.unSubSign,
+        locale: subscriber.locale,
+      })
+      .from(subscriber)
+      .where(isNull(subscriber.unSubDate));
 
-      const currentSubscribers = await db
-        .select({
-          id: subscriber.id,
-          email: subscriber.email,
-          unSubSign: subscriber.unSubSign,
-          locale: subscriber.locale,
-        })
-        .from(subscriber)
-        .where(isNull(subscriber.unSubDate));
+    if (currentSubscribers.length === 0) {
+      return null;
+    }
 
-      if (currentSubscribers.length === 0) {
-        return null;
-      }
+    const sites = await db
+      .select({
+        id: refSite.id,
+        siteTitle: refSite.siteTitle,
+        siteUrl: refSite.siteUrl,
+        siteCover: refSite.siteCover,
+        siteTags: refSite.siteTags,
+      })
+      .from(refSite)
+      .where(inArray(refSite.id, weeklyData.sites));
 
-      const sites = await db
-        .select({
-          id: refSite.id,
-          siteTitle: refSite.siteTitle,
-          siteUrl: refSite.siteUrl,
-          siteCover: refSite.siteCover,
-          siteTags: refSite.siteTags,
-        })
-        .from(refSite)
-        .where(inArray(refSite.id, weeklyData.sites));
+    if (sites.length === 0) {
+      throw new ORPCError("NOT_FOUND", { message: "Weekly sites not found" });
+    }
 
-      if (sites.length === 0) {
-        throw new Error("Weekly sites not found");
-      }
+    // 如果数量大于 100， 则按 100 切块
+    const chunkSize = 100;
+    let chunks = [currentSubscribers];
+    if (currentSubscribers.length > chunkSize) {
+      chunks = chunk(currentSubscribers, chunkSize);
+    }
 
-      // 如果数量大于 100， 则按 100 切块
-      const chunkSize = 100;
-      let chunks = [currentSubscribers];
-      if (currentSubscribers.length > chunkSize) {
-        chunks = chunk(currentSubscribers, chunkSize);
-      }
+    const baseUrl = getBaseUrl();
 
-      const baseUrl = getBaseUrl();
+    for (const chunkItem of chunks) {
+      await batchSendEmail({
+        subject: weeklyData.title,
+        to: chunkItem.map((item) => item.email),
+        renderData: chunkItem.map((item) =>
+          WeeklyEmail({
+            count: 24,
+            sites: sites.map((site) => ({
+              id: site.id,
+              cover: site.siteCover,
+              title: site.siteTitle,
+              url: site.siteUrl,
+              tags: site.siteTags,
+            })),
+            unsubscribeUrl: `${baseUrl}/unsub?email=${item.email}&token=${item.unSubSign}`,
+            baseUrl,
+            locale: item.locale as SupportLocale,
+          })
+        ),
+      });
+    }
 
-      for (const chunkItem of chunks) {
-        await batchSendEmail({
-          subject: weeklyData.title,
-          to: chunkItem.map((item) => item.email),
-          renderData: chunkItem.map((item) =>
-            WeeklyEmail({
-              count: 24,
-              sites: sites.map((site) => ({
-                id: site.id,
-                cover: site.siteCover,
-                title: site.siteTitle,
-                url: site.siteUrl,
-                tags: site.siteTags,
-              })),
-              unsubscribeUrl: `${baseUrl}/unsub?email=${item.email}&token=${item.unSubSign}`,
-              baseUrl,
-              locale: item.locale as SupportLocale,
-            })
-          ),
-        });
-      }
+    const [updated] = await db
+      .update(weekly)
+      .set({
+        status: "SENT",
+        sentDate: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(weekly.id, input.id))
+      .returning();
 
-      const [updated] = await db
-        .update(weekly)
-        .set({
-          status: "SENT",
-          sentDate: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(eq(weekly.id, input.id))
-        .returning();
+    return updated;
+  });
 
-      return updated;
-    }),
-});
+export const weeklyRouter = {
+  query: queryProcedure,
+  create: createProcedure,
+  detail: detailProcedure,
+  update: updateProcedure,
+  delete: deleteProcedure,
+  send: sendProcedure,
+};

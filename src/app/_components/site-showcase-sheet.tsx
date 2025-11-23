@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { refSiteSheetAtom } from "@/app/_store/sheet.store";
 import { Spinner } from "@/components/shared/icons";
 import { Separator } from "@/components/ui/separator";
@@ -15,9 +16,8 @@ import {
   SheetContent,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { useToast } from "@/components/ui/use-toast";
 import type { RefSite } from "@/db/schema";
-import { api } from "@/lib/trpc/react";
+import { client } from "@/lib/orpc/client";
 import { SiteDetail } from "./site-detail";
 import { SiteShowcaseCorrelation } from "./site-showcase-correlation";
 
@@ -27,35 +27,26 @@ export const SiteShowcaseSheet = () => {
   const [status, setStatus] = useAtom(refSiteSheetAtom);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const { toast } = useToast();
-  const utils = api.useUtils();
   const [loading, setLoading] = useState(true);
   const [detailData, setDetailData] = useState<RefSite | null>(null);
 
-  const handleFetch = useCallback(
-    async (id: string) => {
-      if (!id) {
-        return;
+  const handleFetch = useCallback(async (id: string) => {
+    if (!id) {
+      return;
+    }
+    try {
+      setLoading(true);
+      const data = await client.refSites.detail({ id });
+      if (!data) {
+        throw new Error("Data not found");
       }
-      try {
-        setLoading(true);
-        const data = await utils.refSites.detail.fetch({ id });
-        if (!data) {
-          throw new Error("Data not found");
-        }
-        setDetailData(data);
-      } catch (_err: any) {
-        toast({
-          title: "Fetch failed.",
-          description: "Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    },
-    [utils, toast]
-  );
+      setDetailData(data);
+    } catch (_err: any) {
+      toast.error("Please try again.", { description: "Fetch failed." });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (status.id) {

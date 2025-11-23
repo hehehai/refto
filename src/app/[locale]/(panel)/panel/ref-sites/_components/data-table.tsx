@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -11,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { useAtom } from "jotai";
 import * as React from "react";
+import { toast } from "sonner";
 import {
   refSiteDetailSheetAtom,
   refSiteDialogAtom,
@@ -29,10 +31,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useToast } from "@/components/ui/use-toast";
 import type { RefSite } from "@/db/schema";
 import { siteTagMap } from "@/lib/constants";
-import { api } from "@/lib/trpc/react";
+import { getQueryClient, orpc } from "@/lib/orpc/react";
 import { columns } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
 
@@ -42,7 +43,6 @@ const statusOptions = Object.entries(siteTagMap).map(([value, item]) => ({
 }));
 
 export function DataTable() {
-  const { toast } = useToast();
   const [_, setDetailStatus] = useAtom(refSiteDetailSheetAtom);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -56,32 +56,30 @@ export function DataTable() {
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const queryClient = getQueryClient();
 
-  const tableQuery = api.refSites.query.useQuery(
-    {
-      limit: pagination.pageSize,
-      search: globalFilter,
-      orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
-      page: pagination.pageIndex,
-    },
-    {
-      refetchOnWindowFocus: false,
-    }
-  );
+  const queryInput = {
+    limit: pagination.pageSize,
+    search: globalFilter,
+    orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
+    page: pagination.pageIndex,
+  };
 
-  const deleteRow = api.refSites.delete.useMutation({
+  const tableQuery = useQuery({
+    ...orpc.refSites.query.queryOptions({ input: queryInput }),
+    refetchOnWindowFocus: false,
+  });
+
+  const deleteRow = useMutation({
+    ...orpc.refSites.delete.mutationOptions(),
     onSuccess: () => {
-      tableQuery.refetch();
-      toast({
-        title: "Success",
-        description: "Ref Site deleted",
+      queryClient.invalidateQueries({
+        queryKey: orpc.refSites.query.key({ input: queryInput }),
       });
+      toast.success("Ref Site deleted");
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-      });
+      toast.error(error.message);
     },
   });
 
@@ -227,10 +225,8 @@ export function DataTable() {
                     .rows.filter((row) => !row.original.deletedAt)
                     .map((row) => row.original.id);
                   if (!ids.length) {
-                    return toast({
-                      title: "Error",
-                      description: "No can be deleted",
-                    });
+                    toast.error("No can be deleted");
+                    return;
                   }
                   deleteRow.mutate({ ids });
                 }}

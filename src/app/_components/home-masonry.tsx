@@ -1,5 +1,6 @@
 "use client";
 
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef } from "react";
@@ -7,7 +8,7 @@ import { Masonry } from "react-plock";
 import { refSiteSheetAtom } from "@/app/_store/sheet.store";
 import { Button } from "@/components/ui/button";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
-import { api } from "@/lib/trpc/react";
+import { orpc } from "@/lib/orpc/react";
 import { SiteShowcase } from "./site-showcase";
 
 interface HomeMasonryProps {
@@ -32,20 +33,22 @@ export const HomeMasonry = ({
     threshold: 0,
   });
 
-  const [sliceQuery, allSitesQuery] =
-    api.refSites.queryWithCursor.useSuspenseInfiniteQuery(
-      {
+  const allSitesQuery = useSuspenseInfiniteQuery(
+    orpc.refSites.queryWithCursor.infiniteOptions({
+      input: (pageParam) => ({
         limit: 16,
         search,
         tags,
-      },
-      {
-        retry: 2,
-        refetchOnWindowFocus: false,
-        initialCursor: initNextCursor,
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-      }
-    );
+        cursor: pageParam,
+      }),
+      initialPageParam: initNextCursor,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      retry: 2,
+      refetchOnWindowFocus: false,
+    })
+  );
+
+  const sliceQuery = allSitesQuery.data;
 
   const allData = useMemo(() => {
     if (!initNextCursor) {

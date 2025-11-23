@@ -1,17 +1,18 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Spinner } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
 import type { SupportLocale } from "@/i18n";
-import { api } from "@/lib/trpc/react";
+import { orpc } from "@/lib/orpc/react";
 
 const subscribeSchema = (locale: string) =>
   z.object({
@@ -35,7 +36,6 @@ export const SiteEmailSubscription = ({
 }: SiteEmailSubscriptionProps) => {
   const t = useTranslations("Index");
   const locale = useLocale();
-  const { toast } = useToast();
 
   const form = useForm<SubscribeSchema>({
     resolver: zodResolver(subscribeSchema(locale)),
@@ -44,21 +44,17 @@ export const SiteEmailSubscription = ({
     },
   });
 
-  const submitAction = api.subscriber.subscribe.useMutation({
+  // @ts-expect-error - oRPC mutationFn returns T | undefined, TanStack expects T
+  const submitAction = useMutation({
+    ...orpc.subscriber.subscribe.mutationOptions(),
     onSuccess: () => {
-      toast({
-        title: t("subscribe.success.title"),
-        description: t("subscribe.success.description"),
+      toast.success(t("subscribe.success.description"), {
+        description: t("subscribe.success.title"),
       });
-
       form.reset();
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message);
     },
   });
 

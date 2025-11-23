@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -10,6 +11,7 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
+import { toast } from "sonner";
 import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
@@ -23,14 +25,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useToast } from "@/components/ui/use-toast";
 import type { Subscriber } from "@/db/schema";
-import { api } from "@/lib/trpc/react";
+import { getQueryClient, orpc } from "@/lib/orpc/react";
 import { columns } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
 
 export function DataTable() {
-  const { toast } = useToast();
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -43,33 +43,31 @@ export function DataTable() {
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const queryClient = getQueryClient();
 
-  const tableQuery = api.subscriber.query.useQuery(
-    {
-      limit: pagination.pageSize,
-      search: globalFilter,
-      orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
-      page: pagination.pageIndex,
-      status: columnFilters[0]?.value as any,
-    },
-    {
-      refetchOnWindowFocus: false,
-    }
-  );
+  const queryInput = {
+    limit: pagination.pageSize,
+    search: globalFilter,
+    orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
+    page: pagination.pageIndex,
+    status: columnFilters[0]?.value as any,
+  };
 
-  const unSubRow = api.subscriber.unsubscribeBatch.useMutation({
+  const tableQuery = useQuery({
+    ...orpc.subscriber.query.queryOptions({ input: queryInput }),
+    refetchOnWindowFocus: false,
+  });
+
+  const unSubRow = useMutation({
+    ...orpc.subscriber.unsubscribeBatch.mutationOptions(),
     onSuccess: () => {
-      tableQuery.refetch();
-      toast({
-        title: "Success",
-        description: "unSubscribe",
+      queryClient.invalidateQueries({
+        queryKey: orpc.subscriber.query.key({ input: queryInput }),
       });
+      toast.success("unSubscribe");
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-      });
+      toast.error(error.message);
     },
   });
 
@@ -196,10 +194,8 @@ export function DataTable() {
                     .rows.filter((row) => !row.original.unSubDate)
                     .map((row) => row.original.email);
                   if (!emails.length) {
-                    return toast({
-                      title: "Error",
-                      description: "No can be deleted",
-                    });
+                    toast.error("No can be deleted");
+                    return;
                   }
                   unSubRow.mutate({ emails });
                 }}

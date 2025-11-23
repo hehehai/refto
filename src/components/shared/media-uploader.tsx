@@ -11,11 +11,11 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/components/ui/use-toast";
 import { env } from "@/env";
-import { api } from "@/lib/trpc/react";
+import { client } from "@/lib/orpc/client";
 import {
   cn,
   getImageSizeByUrl,
@@ -102,8 +102,6 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
     },
     ref
   ) => {
-    const utils = api.useUtils();
-    const { toast } = useToast();
     const [fileUrl, setFileUrl] = useState<string | null>(value || null);
 
     const [uploadLoading, setUploadLoading] = useState(false);
@@ -183,7 +181,7 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
             onError?.("Failed to get file of url");
             return;
           }
-          const uploadUtil = await utils.upload.getUploadUrl.fetch(filename);
+          const uploadUtil = await client.upload.getUploadUrl(filename);
 
           if (!uploadUtil.uploadUrl) {
             onError?.("Failed to get upload url");
@@ -223,18 +221,18 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
           }
         } catch (err: unknown) {
           console.log("upload media file", err);
-          toast({
-            title: "Upload failed",
-            description:
-              err instanceof Error ? err?.message : "Please try again",
-            variant: "destructive",
-          });
+          toast.error(
+            err instanceof Error ? err?.message : "Please try again",
+            {
+              description: "Upload failed",
+            }
+          );
         } finally {
           setUploadLoading(false);
           uploadAbortController.current = null;
         }
       },
-      [utils, disabled, onError, onChange, onComputedSize, toast]
+      [disabled, onError, onChange, onComputedSize]
     );
 
     // 设置文件
@@ -313,16 +311,14 @@ export const MediaUploader = forwardRef<HTMLDivElement, MediaUploaderProps>(
         await handleSaveFile(saveFile);
       } catch (err: unknown) {
         console.log("sync media file", err);
-        toast({
-          title: "Sync failed",
-          description: err instanceof Error ? err?.message : "Please try again",
-          variant: "destructive",
+        toast.error(err instanceof Error ? err?.message : "Please try again", {
+          description: "Sync failed",
         });
       } finally {
         setSyncLoading(false);
         downloadAbortController.current = null;
       }
-    }, [disabled, fileUrl, handleSaveFile, urlNeedSyncStorage, toast]);
+    }, [disabled, fileUrl, handleSaveFile, urlNeedSyncStorage]);
 
     const handleExpandView = () => {
       if (previewInfo) {

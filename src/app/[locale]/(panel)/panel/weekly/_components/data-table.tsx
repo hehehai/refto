@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -11,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { useAtom } from "jotai";
 import * as React from "react";
+import { toast } from "sonner";
 import {
   weeklyDialogAtom,
   weeklyDialogEmitter,
@@ -28,15 +30,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useToast } from "@/components/ui/use-toast";
 import type { Weekly } from "@/db/schema";
-import { api } from "@/lib/trpc/react";
+import { getQueryClient, orpc } from "@/lib/orpc/react";
 import { columns } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
 
 export function DataTable() {
-  const { toast } = useToast();
-
   const [_, setStatus] = useAtom(weeklyDialogAtom);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -50,33 +49,31 @@ export function DataTable() {
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const queryClient = getQueryClient();
 
-  const tableQuery = api.weekly.query.useQuery(
-    {
-      limit: pagination.pageSize,
-      search: globalFilter,
-      orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
-      page: pagination.pageIndex,
-      status: columnFilters[0]?.value as any,
-    },
-    {
-      refetchOnWindowFocus: false,
-    }
-  );
+  const queryInput = {
+    limit: pagination.pageSize,
+    search: globalFilter,
+    orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
+    page: pagination.pageIndex,
+    status: columnFilters[0]?.value as any,
+  };
 
-  const unSubRow = api.subscriber.unsubscribeBatch.useMutation({
+  const tableQuery = useQuery({
+    ...orpc.weekly.query.queryOptions({ input: queryInput }),
+    refetchOnWindowFocus: false,
+  });
+
+  const unSubRow = useMutation({
+    ...orpc.subscriber.unsubscribeBatch.mutationOptions(),
     onSuccess: () => {
-      tableQuery.refetch();
-      toast({
-        title: "Success",
-        description: "unSubscribe",
+      queryClient.invalidateQueries({
+        queryKey: orpc.weekly.query.key({ input: queryInput }),
       });
+      toast.success("unSubscribe");
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-      });
+      toast.error(error.message);
     },
   });
 

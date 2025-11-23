@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAtom } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { match } from "ts-pattern";
 import { z } from "zod";
 import {
@@ -35,10 +36,9 @@ import {
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
 import type { RefSite } from "@/db/schema";
 import { siteTagKeys, siteTagMap } from "@/lib/constants";
-import { api } from "@/lib/trpc/react";
+import { client } from "@/lib/orpc/client";
 import { refSiteSchema } from "@/lib/validations/ref-site";
 
 const emptyData = {
@@ -57,9 +57,6 @@ const emptyData = {
 };
 
 export function RefSiteUpsetDialog() {
-  const utils = api.useUtils();
-  const { toast } = useToast();
-
   const [status, setStatus] = useAtom(refSiteDialogAtom);
   const statusId = useMemo(() => status.id, [status.id]);
   const [detailData, setDetailData] = useState<Partial<RefSite>>(emptyData);
@@ -79,7 +76,7 @@ export function RefSiteUpsetDialog() {
     async (detailId: string) => {
       try {
         setDetailLoading(true);
-        const detail = await utils.refSites.detail.fetch({ id: detailId });
+        const detail = await client.refSites.detail({ id: detailId });
         if (!detail) {
           throw new Error("Detail not found");
         }
@@ -93,15 +90,14 @@ export function RefSiteUpsetDialog() {
         });
         setIsVideo(!!detail.siteRecord);
       } catch (err: unknown) {
-        toast({
-          title: "Fetch detail err",
-          description: err instanceof Error ? err?.message : "Please try agin",
+        toast.error(err instanceof Error ? err?.message : "Please try agin", {
+          description: "Fetch detail err",
         });
       } finally {
         setDetailLoading(false);
       }
     },
-    [toast, utils.refSites.detail, form.reset]
+    [form.reset]
   );
 
   useEffect(() => {
@@ -133,17 +129,14 @@ export function RefSiteUpsetDialog() {
           if (!statusId) {
             return;
           }
-          await utils.client.refSites.update.mutate({
+          await client.refSites.update({
             ...values,
             id: statusId,
           });
         } else {
-          await utils.client.refSites.create.mutate(values);
+          await client.refSites.create(values);
         }
-        toast({
-          title: `${title} success`,
-          description: `${title} success`,
-        });
+        toast.success(`${title} success`);
         refSiteDialogEmitter.emit("success");
         if (!isEdit && thenAdd) {
           form.reset({ ...emptyData });
@@ -152,24 +145,14 @@ export function RefSiteUpsetDialog() {
         }
       } catch (err: unknown) {
         console.log("ref site submit err", err);
-        toast({
-          title: `${title} failed`,
-          description: err instanceof Error ? err.message : "Please try again",
-          variant: "destructive",
+        toast.error(err instanceof Error ? err.message : "Please try again", {
+          description: `${title} failed`,
         });
       } finally {
         setSaveLoading(false);
       }
     },
-    [
-      isEdit,
-      statusId,
-      handleClose,
-      form,
-      toast,
-      utils.client.refSites.update,
-      utils.client.refSites.create,
-    ]
+    [isEdit, statusId, handleClose, form]
   );
 
   const [getUrlLoading, setGetUrlLoading] = useState(false);
@@ -180,23 +163,15 @@ export function RefSiteUpsetDialog() {
       const currentUrl = form.getValues("siteUrl");
       const validUrl = z.string().trim().url().safeParse(currentUrl);
       if (!validUrl.success) {
-        toast({
-          title: "Error",
-          description: "Please input site url",
-          variant: "destructive",
-        });
+        toast.error("Please input site url");
         return;
       }
       setGetUrlLoading(true);
       try {
-        const data = await utils.siteMeta.meta.fetch({ url: validUrl.data });
+        const data = await client.siteMeta.meta({ url: validUrl.data });
 
         if (!data) {
-          toast({
-            title: "Error",
-            description: "Failed to get site meta",
-            variant: "destructive",
-          });
+          toast.error("Failed to get site meta");
           return;
         }
 
@@ -212,7 +187,7 @@ export function RefSiteUpsetDialog() {
         setGetUrlLoading(false);
       }
     },
-    [form.reset, form.getValues, utils.siteMeta.meta, toast]
+    [form.reset, form.getValues]
   );
 
   return (

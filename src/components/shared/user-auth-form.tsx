@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import * as React from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type * as z from "zod";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,6 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/use-toast";
 import { emailOtp } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { userAuthSchema } from "@/lib/validations/auth";
@@ -64,19 +64,17 @@ export function UserAuthForm({
       setIsLoading(false);
 
       if (error) {
-        return toast({
-          title: t("status.error.title"),
-          description: error.message || t("status.error.description"),
-          variant: "destructive",
+        toast.error(error.message || t("status.error.description"), {
+          description: t("status.error.title"),
         });
+        return;
       }
 
       setOtpValue("");
       setShowOtpForm(true);
 
-      toast({
-        title: t("status.success.title"),
-        description: t("status.success.description"),
+      toast.success(t("status.success.description"), {
+        description: t("status.success.title"),
       });
 
       setTimeout(() => {
@@ -85,10 +83,8 @@ export function UserAuthForm({
     } catch (err) {
       setIsLoading(false);
       console.error("Send OTP error:", err);
-      toast({
-        title: t("status.error.title"),
-        description: t("status.error.description"),
-        variant: "destructive",
+      toast.error(t("status.error.description"), {
+        description: t("status.error.title"),
       });
     }
   }
@@ -107,10 +103,8 @@ export function UserAuthForm({
 
       if (error) {
         setOtpLoading(false);
-        toast({
-          title: t("otp.error.title"),
-          description: error.message || t("otp.error.description"),
-          variant: "destructive",
+        toast.error(error.message || t("otp.error.description"), {
+          description: t("otp.error.title"),
         });
         setTimeout(() => {
           otpInputRef.current?.focus();
@@ -119,16 +113,14 @@ export function UserAuthForm({
       }
 
       setOtpLoading(false);
-      toast({ title: t("otp.success.title") });
+      toast.success(t("otp.success.title"));
       router.replace(searchParams?.get("from")?.trim() || "/");
       router.refresh();
     } catch (err) {
       console.error("OTP verification error:", err);
       setOtpLoading(false);
-      toast({
-        title: t("otp.error.title"),
-        description: t("otp.error.description"),
-        variant: "destructive",
+      toast.error(t("otp.error.description"), {
+        description: t("otp.error.title"),
       });
     }
   };

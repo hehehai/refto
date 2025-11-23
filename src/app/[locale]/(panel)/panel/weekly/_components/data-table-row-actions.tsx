@@ -1,7 +1,9 @@
 "use client";
 
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { useMutation } from "@tanstack/react-query";
 import type { Row } from "@tanstack/react-table";
+import { toast } from "sonner";
 import { Spinner } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/components/ui/use-toast";
 import type { Weekly } from "@/db/schema";
-import { api } from "@/lib/trpc/react";
+import { orpc } from "@/lib/orpc/react";
 
 interface DataTableRowActionsProps {
   row: Row<Weekly>;
@@ -25,27 +26,21 @@ export function DataTableRowActions({
 }: DataTableRowActionsProps) {
   const { original } = row;
 
-  const { toast } = useToast();
+  // @ts-expect-error - oRPC mutationFn returns T | undefined, TanStack expects T
+  const sentRow = useMutation({
+    ...orpc.weekly.send.mutationOptions(),
+    onSuccess: () => {
+      onRefresh?.();
+      toast.success("Sent weekly emails");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   if (original.status === "SENT") {
     return null;
   }
-
-  const sentRow = api.weekly.send.useMutation({
-    onSuccess: () => {
-      onRefresh?.();
-      toast({
-        title: "Success",
-        description: "Sent weekly emails",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-      });
-    },
-  });
 
   return (
     <DropdownMenu>

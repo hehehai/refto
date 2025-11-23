@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import React, { useCallback } from "react";
+import { toast } from "sonner";
 import { BoxUserIcon, Spinner } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/components/ui/use-toast";
 import { signOut } from "@/lib/auth-client";
 
 interface UserAccountNavProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -23,7 +23,6 @@ interface UserAccountNavProps extends React.ComponentPropsWithoutRef<"div"> {
 }
 
 export function UserAccountNav({ user }: UserAccountNavProps) {
-  const { toast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = React.useState<boolean>(false);
   const userName = user.name || user.email?.split("@")[0];
@@ -42,16 +41,14 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
           },
         });
       } catch (_err) {
-        toast({
-          title: "Something went wrong.",
-          description: "Your sign out request failed. Please try again.",
-          variant: "destructive",
+        toast.error("Your sign out request failed. Please try again.", {
+          description: "Something went wrong.",
         });
       } finally {
         setLoading(false);
       }
     },
-    [toast, router]
+    [router]
   );
 
   return (

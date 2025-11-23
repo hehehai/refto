@@ -1,5 +1,5 @@
 export type Role = "USER" | "ADMIN";
 
-export interface TrpcMeta {
+export interface RpcMeta {
   requiredRoles?: Role[];
 }

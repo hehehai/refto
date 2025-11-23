@@ -4,47 +4,38 @@ import { useAtom } from "jotai";
 import { X } from "lucide-react";
 import { useLocale } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { SiteDetail } from "@/app/_components/site-detail";
 import { refSiteDetailSheetAtom } from "@/app/[locale]/(panel)/_store/dialog.store";
 import { Spinner } from "@/components/shared/icons";
 import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet";
-import { useToast } from "@/components/ui/use-toast";
 import type { RefSite } from "@/db/schema";
-import { api } from "@/lib/trpc/react";
+import { client } from "@/lib/orpc/client";
 
 export function RefSiteDetailSheet() {
   const locale = useLocale();
   const [status, setStatus] = useAtom(refSiteDetailSheetAtom);
 
-  const { toast } = useToast();
-  const utils = api.useUtils();
   const [loading, setLoading] = useState(true);
   const [detailData, setDetailData] = useState<RefSite | null>(null);
 
-  const handleFetch = useCallback(
-    async (id: string) => {
-      if (!id) {
-        return;
+  const handleFetch = useCallback(async (id: string) => {
+    if (!id) {
+      return;
+    }
+    try {
+      setLoading(true);
+      const data = await client.refSites.detail({ id });
+      if (!data) {
+        throw new Error("Data not found");
       }
-      try {
-        setLoading(true);
-        const data = await utils.refSites.detail.fetch({ id });
-        if (!data) {
-          throw new Error("Data not found");
-        }
-        setDetailData(data);
-      } catch (_err: any) {
-        toast({
-          title: "Fetch failed.",
-          description: "Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    },
-    [utils, toast]
-  );
+      setDetailData(data);
+    } catch (_err: any) {
+      toast.error("Please try again.", { description: "Fetch failed." });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (status) {

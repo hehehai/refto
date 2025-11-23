@@ -43,17 +43,25 @@ export const SignIn = () => {
 
   const handlePasswordSubmit = async (data: SignInPasswordFormData) => {
     try {
-      const { data: result, error } = await authClient.signIn.email({
+      const response = await authClient.signIn.email({
         email: data.email,
         password: data.password,
       });
-      if (error) {
-        toast.error(error.message || "Failed to sign in");
-      } else if (result?.twoFactorRedirect) {
-        toast.info("Two-factor authentication required");
-      } else {
-        router.push("/");
+      if (response.error) {
+        toast.error(
+          response.error.message ||
+            (response.error as { statusText?: string }).statusText ||
+            "Invalid email or password"
+        );
+        return;
       }
+      if (
+        (response.data as { twoFactorRedirect?: boolean })?.twoFactorRedirect
+      ) {
+        toast.info("Two-factor authentication required");
+        return;
+      }
+      router.push("/");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to sign in");
     }

@@ -5,6 +5,7 @@ import { render } from "@react-email/render";
 import { useAtom } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 import {
   weeklyDialogAtom,
@@ -29,12 +30,11 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { useToast } from "@/components/ui/use-toast";
 import type { RefSite, Weekly } from "@/db/schema";
 import useDebounce from "@/hooks/use-debounce";
 import { SupportLocale } from "@/i18n";
 import WeeklyEmail from "@/lib/email/templates/weekly";
-import { api } from "@/lib/trpc/react";
+import { client } from "@/lib/orpc/client";
 import { weeklySchema } from "@/lib/validations/weekly";
 import { WeekPicker } from "./week-picker";
 
@@ -51,9 +51,6 @@ const emailStatus = {
 };
 
 export function WeeklyUpsetSheet() {
-  const utils = api.useUtils();
-  const { toast } = useToast();
-
   const [status, setStatus] = useAtom(weeklyDialogAtom);
   const statusId = useMemo(() => status.id, [status.id]);
   const [detailData, setDetailData] = useState<Partial<Weekly>>(emptyData);
@@ -76,21 +73,20 @@ export function WeeklyUpsetSheet() {
 
     try {
       setDetailLoading(true);
-      const detail = await utils.weekly.detail.fetch({ id: statusId });
+      const detail = await client.weekly.detail({ id: statusId });
       if (!detail) {
         throw new Error("Detail not found");
       }
       setDetailData(detail);
       form.reset({ ...detail });
     } catch (err: any) {
-      toast({
-        title: "Fetch detail err",
-        description: err?.message ?? "Please try agin",
+      toast.error(err?.message ?? "Please try agin", {
+        description: "Fetch detail err",
       });
     } finally {
       setDetailLoading(false);
     }
-  }, [statusId, utils, form, toast]);
+  }, [statusId, form]);
 
   useEffect(() => {
     handleInitData();
@@ -112,21 +108,18 @@ export function WeeklyUpsetSheet() {
       try {
         setSaveLoading(true);
         if (isEdit) {
-          await utils.client.weekly.update.mutate({
+          await client.weekly.update({
             ...values,
             sites: values.sites.map((s) => s.id),
             id: statusId!,
           });
         } else {
-          await utils.client.weekly.create.mutate({
+          await client.weekly.create({
             ...values,
             sites: values.sites.map((s) => s.id),
           });
         }
-        toast({
-          title: `${title} success`,
-          description: `${title} success`,
-        });
+        toast.success(`${title} success`);
         weeklyDialogEmitter.emit("success");
         if (!isEdit && thenAdd) {
           form.reset({ ...emptyData });
@@ -135,52 +128,45 @@ export function WeeklyUpsetSheet() {
         }
       } catch (err: any) {
         console.log("ref site submit err", err);
-        toast({
-          title: `${title} failed`,
-          description: err.message || "Please try again",
-          variant: "destructive",
+        toast.error(err.message || "Please try again", {
+          description: `${title} failed`,
         });
       } finally {
         setSaveLoading(false);
       }
     },
-    [isEdit, statusId, handleClose, form, utils, toast]
+    [isEdit, statusId, handleClose, form]
   );
 
   const [previewMark, setPreviewMark] = useState("");
   const [previewRefreshing, setPreviewRefreshing] = useState(false);
 
-  const handleRefetchPreview = useCallback(
-    async (raws: RefSite[]) => {
-      console.log("handleRefetchPreview", raws);
-      try {
-        setPreviewRefreshing(true);
-        const mailProps = {
-          ...emailStatus,
-          sites: raws.map((site) => ({
-            id: site.id,
-            title: site.siteTitle,
-            url: site.siteUrl,
-            cover: site.siteCover,
-            tags: site.siteTags,
-          })),
-        };
-        const mark = await render(<WeeklyEmail {...mailProps} />, {
-          pretty: true,
-        });
-        setPreviewMark(mark);
-      } catch (err) {
-        toast({
-          title: "Refresh preview failed",
-          description: err instanceof Error ? err?.message : "Please try again",
-          variant: "destructive",
-        });
-      } finally {
-        setPreviewRefreshing(false);
-      }
-    },
-    [toast]
-  );
+  const handleRefetchPreview = useCallback(async (raws: RefSite[]) => {
+    console.log("handleRefetchPreview", raws);
+    try {
+      setPreviewRefreshing(true);
+      const mailProps = {
+        ...emailStatus,
+        sites: raws.map((site) => ({
+          id: site.id,
+          title: site.siteTitle,
+          url: site.siteUrl,
+          cover: site.siteCover,
+          tags: site.siteTags,
+        })),
+      };
+      const mark = await render(<WeeklyEmail {...mailProps} />, {
+        pretty: true,
+      });
+      setPreviewMark(mark);
+    } catch (err) {
+      toast.error(err instanceof Error ? err?.message : "Please try again", {
+        description: "Refresh preview failed",
+      });
+    } finally {
+      setPreviewRefreshing(false);
+    }
+  }, []);
 
   const debouncedHandleRefetchPreview = useDebounce(handleRefetchPreview, 300);
 

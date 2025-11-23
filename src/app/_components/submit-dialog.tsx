@@ -1,9 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Spinner } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
@@ -27,8 +29,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
-import { api } from "@/lib/trpc/react";
+import { client } from "@/lib/orpc/client";
+import { orpc } from "@/lib/orpc/react";
 import {
   type SubmitSiteCreate,
   submitSiteCreateSchema,
@@ -44,8 +46,6 @@ const emptyData = {
 export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
   const t = useTranslations("Submit");
   const locale = useLocale();
-  const utils = api.useUtils();
-  const { toast } = useToast();
 
   const form = useForm<SubmitSiteCreate>({
     resolver: zodResolver(submitSiteCreateSchema(locale)),
@@ -54,20 +54,17 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
     },
   });
 
-  const submitAction = api.submitSite.recommend.useMutation({
+  // @ts-expect-error - oRPC mutationFn returns T | undefined, TanStack expects T
+  const submitAction = useMutation({
+    ...orpc.submitSite.recommend.mutationOptions(),
     onSuccess: () => {
-      toast({
-        title: t("success.title"),
-        description: t("success.description"),
+      toast.success(t("success.description"), {
+        description: t("success.title"),
       });
       form.reset({ ...emptyData });
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message);
     },
   });
 
@@ -86,23 +83,15 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
       const currentUrl = form.getValues("site");
       const validUrl = z.string().trim().url().safeParse(currentUrl);
       if (!validUrl.success) {
-        toast({
-          title: "Error",
-          description: "Please input site url",
-          variant: "destructive",
-        });
+        toast.error("Please input site url");
         return;
       }
       setGetUrlLoading(true);
       try {
-        const data = await utils.siteMeta.meta.fetch({ url: validUrl.data });
+        const data = await client.siteMeta.meta({ url: validUrl.data });
 
         if (!data) {
-          toast({
-            title: "Error",
-            description: "Failed to get site meta",
-            variant: "destructive",
-          });
+          toast.error("Failed to get site meta");
           return;
         }
 
@@ -116,7 +105,7 @@ export const SubmitDialog = ({ children }: { children: React.ReactNode }) => {
         setGetUrlLoading(false);
       }
     },
-    [form, toast, utils.siteMeta.meta]
+    [form]
   );
 
   return (

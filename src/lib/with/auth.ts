@@ -2,7 +2,7 @@
 
 import { getSession, type Session } from "@/lib/session";
 import { getSearchParams } from "@/lib/utils";
-import type { Role } from "@/types/trpc";
+import type { Role } from "@/types/rpc";
 
 export async function isAdmin() {
   const session = await getSession();

@@ -1,13 +1,14 @@
 "use client";
 
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { useMutation } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Spinner } from "@/components/shared/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { api } from "@/lib/trpc/react";
+import { orpc } from "@/lib/orpc/react";
 
 const unSubSchema = z.object({
   email: z
@@ -19,24 +20,18 @@ const unSubSchema = z.object({
 
 export default function UnSubPage() {
   const searchParams = useSearchParams();
-  const { toast } = useToast();
   const valid = unSubSchema.safeParse({
     email: searchParams.get("email") || "",
     token: searchParams.get("token") || "",
   });
 
-  const ubSubAction = api.subscriber.unsubscribe.useMutation({
+  const ubSubAction = useMutation({
+    ...orpc.subscriber.unsubscribe.mutationOptions(),
     onSuccess: () => {
-      toast({
-        title: "You are Unsubscribe",
-      });
+      toast.success("You are Unsubscribe");
     },
     onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message);
     },
   });
 
