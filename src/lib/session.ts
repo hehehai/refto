@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 
 import { db, user } from "@/db";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/config";
 
 export type SessionUser = {
   id: string;

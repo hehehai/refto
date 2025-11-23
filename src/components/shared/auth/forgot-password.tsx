@@ -14,9 +14,11 @@ export const ForgotPassword = () => {
   const router = useRouter();
   const [emailSent, setEmailSent] = useState(false);
   const [email, setEmail] = useState("");
+  const [isPending, setIsPending] = useState(false);
 
   const handleEmailSubmit = async (data: ResetPasswordEmailFormData) => {
     setEmail(data.email);
+    setIsPending(true);
 
     try {
       const { error } = await authClient.emailOtp.sendVerificationOtp({
@@ -35,6 +37,8 @@ export const ForgotPassword = () => {
           ? err.message
           : "Failed to send password reset code"
       );
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -101,8 +105,8 @@ export const ForgotPassword = () => {
         </p>
       </header>
       <ForgotPasswordEmail onSubmit={handleEmailSubmit}>
-        <Button className="w-full" type="submit">
-          Send reset code
+        <Button className="w-full" disabled={isPending} type="submit">
+          {isPending ? "Sending..." : "Send reset code"}
         </Button>
       </ForgotPasswordEmail>
       <footer className="mt-10">

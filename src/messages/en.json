@@ -141,6 +141,14 @@
     "forgotPassword": {
       "title": "Forgot Password",
       "description": "Reset your password"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "Set your new password"
+    },
+    "verifyEmail": {
+      "title": "Verify Email",
+      "description": "Verify your email address"
     }
   },
   "NotFound": {

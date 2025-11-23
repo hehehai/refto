@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
@@ -22,8 +23,10 @@ export const SignIn = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const mode = (searchParams.get("mode") as SignInMode) ?? "email";
+  const [isPending, setIsPending] = useState(false);
 
   const handleEmailSubmit = async (data: SignInEmailFormData) => {
+    setIsPending(true);
     try {
       const { error } = await authClient.signIn.magicLink({
         email: data.email,
@@ -38,10 +41,13 @@ export const SignIn = () => {
       toast.error(
         err instanceof Error ? err.message : "Failed to send magic link"
       );
+    } finally {
+      setIsPending(false);
     }
   };
 
   const handlePasswordSubmit = async (data: SignInPasswordFormData) => {
+    setIsPending(true);
     try {
       const response = await authClient.signIn.email({
         email: data.email,
@@ -64,11 +70,14 @@ export const SignIn = () => {
       router.push("/");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to sign in");
+    } finally {
+      setIsPending(false);
     }
   };
 
   const handleOtpSubmit = async (data: SignInOtpFormData) => {
     if (data.otp) {
+      setIsPending(true);
       try {
         const { error } = await authClient.signIn.emailOtp({
           email: data.email,
@@ -83,24 +92,8 @@ export const SignIn = () => {
         toast.error(
           err instanceof Error ? err.message : "Failed to verify OTP"
         );
-      }
-    } else {
-      try {
-        const { error } = await authClient.emailOtp.sendVerificationOtp({
-          email: data.email,
-          type: "sign-in",
-        });
-        if (error) {
-          toast.error(error.message || "Failed to send verification code");
-        } else {
-          toast.success("Verification code sent to your email");
-        }
-      } catch (err) {
-        toast.error(
-          err instanceof Error
-            ? err.message
-            : "Failed to send verification code"
-        );
+      } finally {
+        setIsPending(false);
       }
     }
   };
@@ -139,8 +132,8 @@ export const SignIn = () => {
   );
 
   const submitButton = (
-    <Button className="w-full" type="submit">
-      {activeMode.submitLabel}
+    <Button className="w-full" disabled={isPending} type="submit">
+      {isPending ? "Processing..." : activeMode.submitLabel}
     </Button>
   );
 

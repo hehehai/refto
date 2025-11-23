@@ -137,6 +137,14 @@
     "forgotPassword": {
       "title": "忘记密码",
       "description": "重置您的密码"
+    },
+    "resetPassword": {
+      "title": "重置密码",
+      "description": "设置您的新密码"
+    },
+    "verifyEmail": {
+      "title": "验证邮箱",
+      "description": "验证您的邮箱地址"
     }
   },
   "NotFound": {

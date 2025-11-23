@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
@@ -12,6 +13,7 @@ import { SignupForm } from "./signup-form";
 
 export const SignUp = () => {
   const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
 
   const convertImageToBase64 = async (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -22,6 +24,7 @@ export const SignUp = () => {
     });
 
   const handleSubmit = async (data: SignUpFormData) => {
+    setIsPending(true);
     const image = data.image ? await convertImageToBase64(data.image) : "";
 
     try {
@@ -41,6 +44,8 @@ export const SignUp = () => {
       toast.error(
         err instanceof Error ? err.message : "Failed to create account"
       );
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -60,8 +65,8 @@ export const SignUp = () => {
         </p>
       </header>
       <SignupForm onSubmit={handleSubmit}>
-        <Button className="w-full" type="submit">
-          Create account
+        <Button className="w-full" disabled={isPending} type="submit">
+          {isPending ? "Creating account..." : "Create account"}
         </Button>
       </SignupForm>
       <SigninThirdAuth />
