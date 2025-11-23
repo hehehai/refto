@@ -116,5 +116,9 @@
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
     "ultracite": "6.3.5"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
   }
 }
