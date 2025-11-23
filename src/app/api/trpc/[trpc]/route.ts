@@ -7,6 +7,9 @@ import { getRealIp } from "@/lib/utils";
 import { appRouter } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";
 
+// Disable Next.js fetch cache to avoid AbortError conflicts with tRPC
+export const fetchCache = "force-no-store";
+
 const createContext = async (req: NextRequest) =>
   createTRPCContext({
     headers: req.headers,

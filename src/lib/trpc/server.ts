@@ -59,10 +59,6 @@ export const api = createTRPCProxyClient<AppRouter>({
             .catch((cause: TRPCErrorResponse) => {
               observer.error(TRPCClientError.from(cause));
             });
-
-          return () => {
-            ac.abort();
-          };
         }),
   ],
 });

@@ -1,5 +1,5 @@
 import { type Prisma, type Weekly, WeeklySentStatus } from "@prisma/client";
-import { chunk } from "lodash-es";
+import { chunk } from "es-toolkit";
 import { z } from "zod";
 import type { SupportLocale } from "@/i18n";
 import { db } from "@/lib/db";

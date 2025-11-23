@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import { debounce } from "es-toolkit";
 import { useEffect, useRef } from "react";
 
 type AsyncCallback = (...args: any[]) => Promise<any>;
