@@ -1,6 +1,5 @@
 "use client";
 
-import type { SubmitSite } from "@prisma/client";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -11,7 +10,6 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
-
 import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
@@ -25,6 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { SubmitSite } from "@/db/schema";
 import { api } from "@/lib/trpc/react";
 import { columns, statuses } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";

@@ -1,6 +1,5 @@
 "use client";
 
-import type { RefSite } from "@prisma/client";
 import { useAtom } from "jotai";
 import { Maximize2, X } from "lucide-react";
 import Link from "next/link";
@@ -17,6 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
+import type { RefSite } from "@/db/schema";
 import { api } from "@/lib/trpc/react";
 import { SiteDetail } from "./site-detail";
 import { SiteShowcaseCorrelation } from "./site-showcase-correlation";

@@ -1,8 +1,27 @@
-import { type Prisma, type Weekly, WeeklySentStatus } from "@prisma/client";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  type SQL,
+} from "drizzle-orm";
+import type { PgColumn } from "drizzle-orm/pg-core";
 import { chunk } from "es-toolkit";
 import { z } from "zod";
+
+import {
+  db,
+  refSite,
+  subscriber,
+  type Weekly,
+  type WeeklySentStatus,
+  weekly,
+} from "@/db";
 import type { SupportLocale } from "@/i18n";
-import { db } from "@/lib/db";
 import { batchSendEmail } from "@/lib/email";
 import { WeeklyEmail } from "@/lib/email/templates/weekly";
 import { pagination } from "@/lib/pagination";
@@ -10,6 +29,28 @@ import { formatOrders, genOrderValidSchema, getBaseUrl } from "@/lib/utils";
 import { updateWeeklySchema, weeklySchema } from "@/lib/validations/weekly";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { detail } from "@/server/functions/weekly";
+
+type OrderByItem = { key: string; dir: "asc" | "desc" };
+
+function buildWeeklyOrderByClause(orderBy: OrderByItem[] | undefined): SQL[] {
+  if (!orderBy?.length) return [];
+
+  const columnMap: Record<string, PgColumn> = {
+    id: weekly.id,
+    weekStart: weekly.weekStart,
+    weekEnd: weekly.weekEnd,
+    sentDate: weekly.sentDate,
+    createdAt: weekly.createdAt,
+  };
+
+  return orderBy
+    .map((item) => {
+      const column = columnMap[item.key];
+      if (!column) return null;
+      return item.dir === "desc" ? desc(column) : asc(column);
+    })
+    .filter((item): item is SQL => item !== null);
+}
 
 export const weeklyRouter = createTRPCRouter({
   // 列表
@@ -22,7 +63,7 @@ export const weeklyRouter = createTRPCRouter({
         search: z.coerce.string().trim().max(1024).optional(),
         limit: z.number().min(1).max(50).optional().default(10),
         page: z.number().min(0).optional().default(0),
-        status: z.nativeEnum(WeeklySentStatus).optional(),
+        status: z.enum(["AWAITING", "PENDING", "SENT"] as const).optional(),
         orderBy: genOrderValidSchema<Weekly>(["weekStart", "sentDate"])
           .optional()
           .default(["-weekStart"])
@@ -32,37 +73,38 @@ export const weeklyRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const { search, limit, page, status, orderBy } = input;
 
-      const whereInput: Prisma.WeeklyWhereInput = {
-        title: {
-          contains: search,
-          mode: "insensitive",
-        },
-      };
+      const conditions: SQL[] = [];
 
-      if (status) {
-        whereInput.status = status;
+      if (search) {
+        conditions.push(ilike(weekly.title, `%${search}%`));
       }
 
-      const rows = await db.weekly.findMany({
-        where: whereInput,
-        select: {
-          id: true,
-          title: true,
-          weekStart: true,
-          weekEnd: true,
-          status: true,
-        },
-        skip: page * limit,
-        take: limit,
-        orderBy: orderBy?.reduce(
-          (acc, item) => ({ ...acc, [item.key]: item.dir }),
-          {}
-        ),
-      });
+      if (status) {
+        conditions.push(eq(weekly.status, status as WeeklySentStatus));
+      }
 
-      const total = await db.weekly.count({
-        where: whereInput,
-      });
+      const orderByClause = buildWeeklyOrderByClause(orderBy);
+
+      const rows = await db
+        .select({
+          id: weekly.id,
+          title: weekly.title,
+          weekStart: weekly.weekStart,
+          weekEnd: weekly.weekEnd,
+          status: weekly.status,
+        })
+        .from(weekly)
+        .where(conditions.length ? and(...conditions) : undefined)
+        .orderBy(...orderByClause)
+        .limit(limit)
+        .offset(page * limit);
+
+      const [totalResult] = await db
+        .select({ count: count() })
+        .from(weekly)
+        .where(conditions.length ? and(...conditions) : undefined);
+
+      const total = totalResult?.count ?? 0;
 
       return {
         rows,
@@ -78,14 +120,20 @@ export const weeklyRouter = createTRPCRouter({
     .input(weeklySchema)
     .mutation(async ({ input }) => {
       const [weekStart, weekEnd] = input.weekRange as [Date, Date];
-      return await db.weekly.create({
-        data: {
+      const id = crypto.randomUUID();
+
+      const [newWeekly] = await db
+        .insert(weekly)
+        .values({
+          id,
           title: input.title,
           weekStart,
           weekEnd,
           sites: input.sites.filter(Boolean),
-        },
-      });
+        })
+        .returning();
+
+      return newWeekly;
     }),
 
   // 详情
@@ -106,17 +154,19 @@ export const weeklyRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const [weekStart, weekEnd] = input.weekRange as [Date, Date];
 
-      return await db.weekly.update({
-        where: {
-          id: input.id,
-        },
-        data: {
+      const [updated] = await db
+        .update(weekly)
+        .set({
           title: input.title,
           weekStart,
           weekEnd,
           sites: input.sites?.filter(Boolean),
-        },
-      });
+          updatedAt: new Date(),
+        })
+        .where(eq(weekly.id, input.id))
+        .returning();
+
+      return updated;
     }),
 
   // 删除
@@ -145,48 +195,45 @@ export const weeklyRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input }) => {
-      const weekly = await db.weekly.findUnique({
-        where: {
-          id: input.id,
-        },
+      const weeklyData = await db.query.weekly.findFirst({
+        where: eq(weekly.id, input.id),
       });
-      if (!weekly) {
+
+      if (!weeklyData) {
         throw new Error("Weekly not found");
       }
-      if (weekly.status === WeeklySentStatus.PENDING) {
+      if (weeklyData.status === "PENDING") {
         throw new Error("Weekly is pending, can not be sent");
       }
-      if (weekly.status === WeeklySentStatus.SENT) {
+      if (weeklyData.status === "SENT") {
         throw new Error("Weekly is sent, can not be sent again");
       }
-      const currentSubscribers = await db.subscriber.findMany({
-        where: {
-          unSubDate: null,
-        },
-        select: {
-          id: true,
-          email: true,
-          unSubSign: true,
-          locale: true,
-        },
-      });
+
+      const currentSubscribers = await db
+        .select({
+          id: subscriber.id,
+          email: subscriber.email,
+          unSubSign: subscriber.unSubSign,
+          locale: subscriber.locale,
+        })
+        .from(subscriber)
+        .where(isNull(subscriber.unSubDate));
+
       if (currentSubscribers.length === 0) {
         return null;
       }
-      const sites = await db.refSite.findMany({
-        where: {
-          id: {
-            in: weekly.sites,
-          },
-        },
-        select: {
-          id: true,
-          siteTitle: true,
-          siteUrl: true,
-          siteCover: true,
-          siteTags: true,
-        },
-      });
+
+      const sites = await db
+        .select({
+          id: refSite.id,
+          siteTitle: refSite.siteTitle,
+          siteUrl: refSite.siteUrl,
+          siteCover: refSite.siteCover,
+          siteTags: refSite.siteTags,
+        })
+        .from(refSite)
+        .where(inArray(refSite.id, weeklyData.sites));
+
       if (sites.length === 0) {
         throw new Error("Weekly sites not found");
       }
@@ -200,11 +247,11 @@ export const weeklyRouter = createTRPCRouter({
 
       const baseUrl = getBaseUrl();
 
-      for (const chunk of chunks) {
+      for (const chunkItem of chunks) {
         await batchSendEmail({
-          subject: weekly.title,
-          to: chunk.map((item) => item.email),
-          renderData: chunk.map((item) =>
+          subject: weeklyData.title,
+          to: chunkItem.map((item) => item.email),
+          renderData: chunkItem.map((item) =>
             WeeklyEmail({
               count: 24,
               sites: sites.map((site) => ({
@@ -222,14 +269,16 @@ export const weeklyRouter = createTRPCRouter({
         });
       }
 
-      return await db.weekly.update({
-        where: {
-          id: input.id,
-        },
-        data: {
-          status: WeeklySentStatus.SENT,
+      const [updated] = await db
+        .update(weekly)
+        .set({
+          status: "SENT",
           sentDate: new Date(),
-        },
-      });
+          updatedAt: new Date(),
+        })
+        .where(eq(weekly.id, input.id))
+        .returning();
+
+      return updated;
     }),
 });

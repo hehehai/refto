@@ -2,9 +2,11 @@
 
 import crypto from "node:crypto";
 import { verifyEmail } from "@devmehq/email-validator-js";
+import { eq } from "drizzle-orm";
+
+import { db, subscriber } from "@/db";
 import { env } from "@/env";
 import type { SupportLocale } from "@/i18n";
-import { db } from "@/lib/db";
 
 // 订阅
 export async function subscribe(email: string, locale: SupportLocale) {
@@ -19,34 +21,39 @@ export async function subscribe(email: string, locale: SupportLocale) {
     throw new Error("Invalid email address");
   }
 
-  const subscriber = await db.subscriber.findUnique({
-    where: {
-      email,
-    },
+  const existingSubscriber = await db.query.subscriber.findFirst({
+    where: eq(subscriber.email, email),
   });
 
-  if (!subscriber) {
+  if (!existingSubscriber) {
     const unSubSign = crypto.randomInt(100_000, 999_999).toString();
+    const id = crypto.randomUUID();
 
-    return await db.subscriber.create({
-      data: {
+    const [newSubscriber] = await db
+      .insert(subscriber)
+      .values({
+        id,
         email,
         locale,
         unSubSign,
-      },
-    });
+      })
+      .returning();
+
+    return newSubscriber;
   }
 
-  if (subscriber?.unSubDate) {
-    return db.subscriber.update({
-      where: {
-        id: subscriber.id,
-      },
-      data: {
+  if (existingSubscriber?.unSubDate) {
+    const [updated] = await db
+      .update(subscriber)
+      .set({
         locale,
         unSubDate: null,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(subscriber.id, existingSubscriber.id))
+      .returning();
+
+    return updated;
   }
 
   throw new Error("Subscriber already subscribed");
@@ -60,27 +67,27 @@ export async function unsubscribe({
   email: string;
   token: string;
 }) {
-  const subscriber = await db.subscriber.findUnique({
-    where: {
-      email,
-    },
+  const existingSubscriber = await db.query.subscriber.findFirst({
+    where: eq(subscriber.email, email),
   });
-  if (!subscriber) {
+
+  if (!existingSubscriber) {
     throw new Error("Subscriber not found");
   }
-  if (subscriber?.unSubDate) {
+  if (existingSubscriber?.unSubDate) {
     return true;
   }
-  if (subscriber.unSubSign !== token) {
+  if (existingSubscriber.unSubSign !== token) {
     throw new Error("Token not match");
   }
-  await db.subscriber.update({
-    where: {
-      id: subscriber.id,
-    },
-    data: {
+
+  await db
+    .update(subscriber)
+    .set({
       unSubDate: new Date(),
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(subscriber.id, existingSubscriber.id));
+
   return true;
 }

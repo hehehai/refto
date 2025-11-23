@@ -1,44 +1,88 @@
-import crypto from "node:crypto";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { verifyEmail } from "@devmehq/email-validator-js";
-import type { NextAuthOptions } from "next-auth";
-import EmailProvider from "next-auth/providers/email";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
+import { admin } from "better-auth/plugins";
+import { emailOTP } from "better-auth/plugins/email-otp";
+import { magicLink } from "better-auth/plugins/magic-link";
+import { eq } from "drizzle-orm";
+
+import { db, user } from "@/db";
 import { env } from "@/env";
 import { site } from "@/lib/config/site";
-import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import UserAuthEmail from "@/lib/email/templates/auth";
 import { getBaseUrl } from "@/lib/utils";
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(db as any) as any,
-  session: {
-    strategy: "jwt",
+export const auth = betterAuth({
+  database: drizzleAdapter(db, {
+    provider: "pg",
+  }),
+
+  baseURL: env.BETTER_AUTH_URL,
+  secret: env.BETTER_AUTH_SECRET,
+
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,
   },
-  pages: {
-    signIn: "/login",
+
+  socialProviders: {
+    ...(env.GITHUB_CLIENT_ID &&
+      env.GITHUB_CLIENT_SECRET && {
+        github: {
+          clientId: env.GITHUB_CLIENT_ID,
+          clientSecret: env.GITHUB_CLIENT_SECRET,
+        },
+      }),
+    ...(env.GOOGLE_CLIENT_ID &&
+      env.GOOGLE_CLIENT_SECRET && {
+        google: {
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET,
+        },
+      }),
   },
-  providers: [
-    EmailProvider({
-      from: env.EMAIL_USER,
-      generateVerificationToken: () => {
-        // Generate a random 6-digit code (OTP)
-        return crypto.randomInt(100_000, 999_999).toString();
+
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "USER",
+        input: false,
       },
-      sendVerificationRequest: async ({ identifier, url, token }) => {
+    },
+    modelName: "user",
+  },
+
+  session: {
+    modelName: "session",
+    expiresIn: 60 * 60 * 24 * 30, // 30 days
+    updateAge: 60 * 60 * 24, // Update session every day
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5, // 5 minutes
+    },
+  },
+
+  account: {
+    modelName: "account",
+  },
+
+  plugins: [
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
         try {
-          const user = await db.user.findUnique({
-            where: {
-              email: identifier,
-            },
-            select: {
-              emailVerified: true,
-            },
+          // Check if user exists
+          const existingUser = await db.query.user.findFirst({
+            where: eq(user.email, email),
+            columns: { emailVerified: true, name: true },
           });
 
-          if (!user) {
+          // For new users, verify email MX records
+          if (!existingUser) {
             const { validFormat, validMx } = await verifyEmail({
-              emailAddress: identifier,
+              emailAddress: email,
               verifyMx: true,
               timeout: 10_000,
             });
@@ -48,70 +92,85 @@ export const authOptions: NextAuthOptions = {
             }
           }
 
-          const sendTitle = user ? "Sign in" : "Sign up";
+          const sendTitle = existingUser ? "Sign in" : "Sign up";
+          const [name = email] = email.split("@");
 
           if (process.env.NODE_ENV === "development") {
-            console.log("sendVerificationRequest", {
+            console.log("sendVerificationOTP", {
               sendTitle,
-              identifier,
-              url,
+              email,
+              otp,
+              type,
             });
           }
 
-          const [name = identifier] = identifier.split("@");
+          const verifyUrl = `${getBaseUrl()}/api/auth/verify-email?email=${encodeURIComponent(email)}&token=${otp}`;
 
           await sendEmail({
-            to: identifier,
+            to: email,
             subject: `${site.name} ${sendTitle} | Verify your email`,
             renderData: UserAuthEmail({
-              name,
-              verifyUrl: url,
-              verifyCode: token,
+              name: existingUser?.name || name,
+              verifyUrl,
+              verifyCode: otp,
               baseUrl: getBaseUrl(),
             }),
           });
-
-          return;
         } catch (err) {
-          console.error("[Email] Error sending:", err);
+          console.error("[Email] Error sending OTP:", err);
           throw new Error("Error sending verification email");
         }
       },
+      otpLength: 6,
+      expiresIn: 600, // 10 minutes
+      sendVerificationOnSignUp: true,
     }),
-  ],
-  callbacks: {
-    async session({ token, session }) {
-      if (token) {
-        session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.role = token.role;
-        session.user.image = token.picture;
-      }
 
-      return session;
-    },
-    async jwt({ token, user }) {
-      const dbUser = await db.user.findFirst({
-        where: {
-          email: token.email,
-        },
-      });
+    magicLink({
+      async sendMagicLink({ email, url }) {
+        try {
+          const existingUser = await db.query.user.findFirst({
+            where: eq(user.email, email),
+            columns: { name: true },
+          });
 
-      if (!dbUser) {
-        if (user) {
-          token.id = user?.id;
+          const [name = email] = email.split("@");
+
+          if (process.env.NODE_ENV === "development") {
+            console.log("sendMagicLink", { email, url });
+          }
+
+          await sendEmail({
+            to: email,
+            subject: `${site.name} | Magic Link Sign In`,
+            renderData: UserAuthEmail({
+              name: existingUser?.name || name,
+              verifyUrl: url,
+              verifyCode: "",
+              baseUrl: getBaseUrl(),
+            }),
+          });
+        } catch (err) {
+          console.error("[Email] Error sending magic link:", err);
+          throw new Error("Error sending magic link email");
         }
-        return token;
-      }
+      },
+      expiresIn: 600, // 10 minutes
+    }),
 
-      return {
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email,
-        role: dbUser.role,
-        picture: dbUser.image,
-      };
-    },
-  },
+    admin({
+      defaultRole: "USER",
+      adminRoles: ["ADMIN"],
+    }),
+
+    // Must be last plugin
+    nextCookies(),
+  ],
+});
+
+export type Session = typeof auth.$Infer.Session & {
+  user: typeof auth.$Infer.Session.user & {
+    role?: string;
+  };
 };
+export type User = Session["user"];

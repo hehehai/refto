@@ -56,19 +56,23 @@ export const genOrderValidSchema = <T = Record<string, unknown>, U = keyof T>(
   return z.array(z.string().regex(regex)).max(keys.length, "Invalid order");
 };
 
-export const formatOrder = (order: string) => {
+export const formatOrder = (
+  order: string
+): { key: string; dir: "asc" | "desc" } => {
   let nOrder = order;
   if (!/^-|\+/.test(nOrder)) {
     nOrder = `+${nOrder}`;
   }
 
   const key = nOrder.slice(1);
-  const dir = nOrder.startsWith("+") ? "asc" : "desc";
+  const dir = (nOrder.startsWith("+") ? "asc" : "desc") as "asc" | "desc";
   return { key, dir };
 };
 
-export const formatOrders = (orders?: string[]) =>
-  orders ? orders.map(formatOrder) : orders;
+export const formatOrders = (
+  orders?: string[]
+): { key: string; dir: "asc" | "desc" }[] | undefined =>
+  orders ? orders.map(formatOrder) : undefined;
 
 export const getPathnameByUrl = (url: string) =>
   new URL(url).pathname.replace(/^\/+/, "");

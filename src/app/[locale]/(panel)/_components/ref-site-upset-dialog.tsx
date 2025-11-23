@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { RefSite } from "@prisma/client";
 import { useAtom } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -37,6 +36,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import type { RefSite } from "@/db/schema";
 import { siteTagKeys, siteTagMap } from "@/lib/constants";
 import { api } from "@/lib/trpc/react";
 import { refSiteSchema } from "@/lib/validations/ref-site";

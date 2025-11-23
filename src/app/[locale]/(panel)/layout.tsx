@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { PanelHeader } from "@/app/_components/panel-header";
 import { getSession } from "@/lib/session";
 
@@ -21,7 +21,7 @@ export default async function PanelLayout({
   const session = await getSession();
 
   if (!session?.user) {
-    return notFound();
+    return redirect("/signin");
   }
 
   if (session.user.role === "USER") {

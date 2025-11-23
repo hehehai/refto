@@ -1,16 +1,17 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
+import { AuthLayout } from "@/components/shared/auth/auth-layout";
 import { getSession } from "@/lib/session";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
 }
 
-export default async function AuthLayout({ children }: AuthLayoutProps) {
+export default async function Layout({ children }: AuthLayoutProps) {
   const session = await getSession();
 
   if (session?.user) {
-    return notFound();
+    return redirect("/");
   }
 
-  return <div className="min-h-screen">{children}</div>;
+  return <AuthLayout>{children}</AuthLayout>;
 }

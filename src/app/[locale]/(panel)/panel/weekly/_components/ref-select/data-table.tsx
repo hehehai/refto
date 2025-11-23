@@ -1,6 +1,5 @@
 "use client";
 
-import type { RefSite } from "@prisma/client";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -14,7 +13,6 @@ import {
 import { useAtom } from "jotai";
 import * as React from "react";
 import { refSiteDetailSheetAtom } from "@/app/[locale]/(panel)/_store/dialog.store";
-
 import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
@@ -27,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { RefSite } from "@/db/schema";
 import { siteTagMap } from "@/lib/constants";
 import { api } from "@/lib/trpc/react";
 import { columns } from "./columns";

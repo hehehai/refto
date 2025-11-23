@@ -1,6 +1,8 @@
-import { type Prisma, type SubmitSite, SubmitSiteStatus } from "@prisma/client";
+import { and, asc, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
+import type { PgColumn } from "drizzle-orm/pg-core";
 import { z } from "zod";
-import { db } from "@/lib/db";
+
+import { db, type SubmitSite, type SubmitSiteStatus, submitSite } from "@/db";
 import { pagination } from "@/lib/pagination";
 import { formatOrders, genOrderValidSchema } from "@/lib/utils";
 import { submitSiteCreateSchema } from "@/lib/validations/submit-site";
@@ -10,20 +12,46 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 
+type OrderByItem = { key: string; dir: "asc" | "desc" };
+
+function buildSubmitSiteOrderByClause(
+  orderBy: OrderByItem[] | undefined
+): SQL[] {
+  if (!orderBy?.length) return [];
+
+  const columnMap: Record<string, PgColumn> = {
+    id: submitSite.id,
+    createdAt: submitSite.createdAt,
+    approvedAt: submitSite.approvedAt,
+    rejectedAt: submitSite.rejectedAt,
+  };
+
+  return orderBy
+    .map((item) => {
+      const column = columnMap[item.key];
+      if (!column) return null;
+      return item.dir === "desc" ? desc(column) : asc(column);
+    })
+    .filter((item): item is SQL => item !== null);
+}
+
 export const submitSitesRouter = createTRPCRouter({
   recommend: publicProcedure
     .input(submitSiteCreateSchema("en"))
     .mutation(async ({ input }) => {
       const { email, site, title, description } = input;
 
-      return db.submitSite.create({
-        data: {
+      const [newSubmit] = await db
+        .insert(submitSite)
+        .values({
           siteUrl: site,
           email,
           siteTitle: title,
           siteDescription: description,
-        },
-      });
+        })
+        .returning();
+
+      return newSubmit;
     }),
 
   // 查询
@@ -37,9 +65,9 @@ export const submitSitesRouter = createTRPCRouter({
         limit: z.number().min(1).max(50).optional().default(10),
         page: z.number().min(0).optional().default(0),
         status: z
-          .nativeEnum(SubmitSiteStatus)
+          .enum(["PENDING", "APPROVED", "REJECTED"] as const)
           .optional()
-          .default(SubmitSiteStatus.PENDING),
+          .default("PENDING"),
         orderBy: genOrderValidSchema<SubmitSite>([
           "createdAt",
           "approvedAt",
@@ -53,37 +81,36 @@ export const submitSitesRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const { search, limit, page, status, orderBy } = input;
 
-      const whereInput: Prisma.SubmitSiteWhereInput = {
-        OR: [
-          {
-            email: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-          {
-            siteUrl: {
-              contains: search,
-              mode: "insensitive",
-            },
-          },
-        ],
-        status,
-      };
+      const conditions: SQL[] = [];
 
-      const rows = await db.submitSite.findMany({
-        where: whereInput,
-        skip: page * limit,
-        take: limit,
-        orderBy: orderBy?.reduce(
-          (acc, item) => ({ ...acc, [item.key]: item.dir }),
-          {}
-        ),
-      });
+      if (search) {
+        const searchCondition = or(
+          ilike(submitSite.email, `%${search}%`),
+          ilike(submitSite.siteUrl, `%${search}%`)
+        );
+        if (searchCondition) {
+          conditions.push(searchCondition);
+        }
+      }
 
-      const total = await db.submitSite.count({
-        where: whereInput,
-      });
+      conditions.push(eq(submitSite.status, status as SubmitSiteStatus));
+
+      const orderByClause = buildSubmitSiteOrderByClause(orderBy);
+
+      const rows = await db
+        .select()
+        .from(submitSite)
+        .where(and(...conditions))
+        .orderBy(...orderByClause)
+        .limit(limit)
+        .offset(page * limit);
+
+      const [totalResult] = await db
+        .select({ count: count() })
+        .from(submitSite)
+        .where(and(...conditions));
+
+      const total = totalResult?.count ?? 0;
 
       return {
         rows,

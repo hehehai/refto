@@ -1,14 +1,13 @@
 "use client";
 
-import type { RefSite } from "@prisma/client";
 import type { ColumnDef, Row } from "@tanstack/react-table";
 import { format } from "date-fns";
-
 import { BlurImage } from "@/components/shared/blur-image";
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { VisitIcon } from "@/components/shared/icons";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import type { RefSite } from "@/db/schema";
 
 interface ColumnsMethods {
   onDetail: (rowId: string) => void;

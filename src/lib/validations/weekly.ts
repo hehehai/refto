@@ -1,6 +1,9 @@
-import { type Weekly, WeeklySentStatus } from "@prisma/client";
 import { z } from "zod";
+import { type Weekly, weeklySentStatusEnum } from "@/db/schema";
 import { formatOrders, genOrderValidSchema } from "@/lib/utils";
+
+// Create a Zod enum from the Drizzle enum values
+const WeeklySentStatusEnum = z.enum(weeklySentStatusEnum.enumValues);
 
 export const weeklySchema = z.object({
   title: z.string().trim().min(1).max(255),
@@ -21,7 +24,7 @@ export const queryWeeklySchema = z.object({
     .default(["-weekStart"])
     .transform((v) => (v?.length ? v : ["-weekStart"]))
     .transform(formatOrders),
-  status: z.nativeEnum(WeeklySentStatus).optional(),
+  status: WeeklySentStatusEnum.optional(),
 });
 
 export type QueryWeekly = z.infer<typeof queryWeeklySchema>;

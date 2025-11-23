@@ -1,5 +1,5 @@
-import type { RefSite } from "@prisma/client";
 import { z } from "zod";
+import type { RefSite } from "@/db/schema";
 import { env } from "@/env";
 import { formatOrders, genOrderValidSchema } from "@/lib/utils";
 

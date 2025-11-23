@@ -1,6 +1,5 @@
 "use client";
 
-import type { RefSite } from "@prisma/client";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { Row } from "@tanstack/react-table";
 import { useAtom } from "jotai";
@@ -15,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
+import type { RefSite } from "@/db/schema";
 import { api } from "@/lib/trpc/react";
 
 interface DataTableRowActionsProps {
@@ -31,11 +31,11 @@ export function DataTableRowActions({
   const { toast } = useToast();
 
   const switchTopRow = api.refSites.switchTop.useMutation({
-    onSuccess: ({ isTop }) => {
+    onSuccess: (data) => {
       onRefresh?.();
       toast({
         title: "Success",
-        description: `Ref Site current ${isTop ? "TOP" : "NOT TOP"}`,
+        description: `Ref Site current ${data?.isTop ? "TOP" : "NOT TOP"}`,
       });
     },
     onError: (error) => {

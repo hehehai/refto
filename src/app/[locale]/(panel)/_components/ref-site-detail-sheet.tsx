@@ -1,6 +1,5 @@
 "use client";
 
-import type { RefSite } from "@prisma/client";
 import { useAtom } from "jotai";
 import { X } from "lucide-react";
 import { useLocale } from "next-intl";
@@ -10,6 +9,7 @@ import { refSiteDetailSheetAtom } from "@/app/[locale]/(panel)/_store/dialog.sto
 import { Spinner } from "@/components/shared/icons";
 import { Sheet, SheetClose, SheetContent } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
+import type { RefSite } from "@/db/schema";
 import { api } from "@/lib/trpc/react";
 
 export function RefSiteDetailSheet() {

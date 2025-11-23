@@ -6,11 +6,11 @@ export const env = createEnv({
     DATABASE_URL: z.string().url(),
     DIRECT_URL: z.string().url(),
     NODE_ENV: z.enum(["development", "production"]).default("development"),
-    NEXTAUTH_SECRET:
+    BETTER_AUTH_SECRET:
       process.env.NODE_ENV === "production"
         ? z.string()
         : z.string().optional(),
-    NEXTAUTH_URL: z.preprocess(
+    BETTER_AUTH_URL: z.preprocess(
       (str) => process.env.VERCEL_URL ?? str,
       process.env.VERCEL ? z.string() : z.string().url()
     ),
@@ -22,6 +22,11 @@ export const env = createEnv({
     CLOUD_FLARE_S3_UPLOAD_KEY: z.string(),
     CLOUD_FLARE_S3_UPLOAD_SECRET: z.string(),
     CLOUD_FLARE_S3_UPLOAD_BUCKET: z.string(),
+    // OAuth providers
+    GITHUB_CLIENT_ID: z.string().optional(),
+    GITHUB_CLIENT_SECRET: z.string().optional(),
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
   },
 
   client: {
@@ -36,8 +41,8 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     DIRECT_URL: process.env.DIRECT_URL,
     NODE_ENV: process.env.NODE_ENV,
-    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASS: process.env.EMAIL_PASS,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
@@ -47,6 +52,11 @@ export const env = createEnv({
     CLOUD_FLARE_S3_UPLOAD_SECRET: process.env.CLOUD_FLARE_S3_UPLOAD_SECRET,
     CLOUD_FLARE_S3_UPLOAD_BUCKET: process.env.CLOUD_FLARE_S3_UPLOAD_BUCKET,
     NEXT_PUBLIC_CLOUD_FLARE_R2_URL: process.env.NEXT_PUBLIC_CLOUD_FLARE_R2_URL,
+    // OAuth providers
+    GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -1,6 +1,7 @@
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 
-import { db } from "@/lib/db";
+import { db, refSite } from "@/db";
 import {
   queryRefSiteSchema,
   queryWithCursorRefSiteSchema,
@@ -39,15 +40,18 @@ export const refSitesRouter = createTRPCRouter({
       requiredRoles: ["ADMIN"],
     })
     .input(refSiteSchema)
-    .mutation(
-      async ({ ctx, input }) =>
-        await db.refSite.create({
-          data: {
-            createdById: ctx.session.user.id,
-            ...input,
-          },
+    .mutation(async ({ ctx, input }) => {
+      const id = crypto.randomUUID();
+      const [newSite] = await db
+        .insert(refSite)
+        .values({
+          id,
+          createdById: ctx.session.user.id,
+          ...input,
         })
-    ),
+        .returning();
+      return newSite;
+    }),
 
   // 更新
   update: protectedProcedure
@@ -55,17 +59,18 @@ export const refSitesRouter = createTRPCRouter({
       requiredRoles: ["ADMIN"],
     })
     .input(updateRefSiteSchema)
-    .mutation(
-      async ({ input }) =>
-        await db.refSite.update({
-          where: {
-            id: input.id,
-          },
-          data: {
-            ...input,
-          },
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      const [updated] = await db
+        .update(refSite)
+        .set({
+          ...data,
+          updatedAt: new Date(),
         })
-    ),
+        .where(eq(refSite.id, id))
+        .returning();
+      return updated;
+    }),
 
   // 详情
   detail: publicProcedure
@@ -100,20 +105,17 @@ export const refSitesRouter = createTRPCRouter({
         ids: z.array(z.string()).min(1).max(50),
       })
     )
-    .mutation(
-      async ({ input }) =>
-        await db.refSite.updateMany({
-          where: {
-            id: {
-              in: input.ids,
-            },
-            deletedAt: null,
-          },
-          data: {
-            deletedAt: new Date(),
-          },
+    .mutation(async ({ input }) => {
+      const result = await db
+        .update(refSite)
+        .set({
+          deletedAt: new Date(),
+          updatedAt: new Date(),
         })
-    ),
+        .where(and(inArray(refSite.id, input.ids), isNull(refSite.deletedAt)))
+        .returning({ id: refSite.id });
+      return { count: result.length };
+    }),
 
   // 置顶
   switchTop: protectedProcedure
@@ -126,18 +128,17 @@ export const refSitesRouter = createTRPCRouter({
         nextIsTop: z.boolean(),
       })
     )
-    .mutation(
-      async ({ input }) =>
-        await db.refSite.update({
-          where: {
-            id: input.id,
-            deletedAt: null,
-          },
-          data: {
-            isTop: input.nextIsTop,
-          },
+    .mutation(async ({ input }) => {
+      const [updated] = await db
+        .update(refSite)
+        .set({
+          isTop: input.nextIsTop,
+          updatedAt: new Date(),
         })
-    ),
+        .where(and(eq(refSite.id, input.id), isNull(refSite.deletedAt)))
+        .returning();
+      return updated;
+    }),
 
   // likes
   incLike: publicProcedure.input(z.string()).mutation(async () => {
@@ -145,17 +146,15 @@ export const refSitesRouter = createTRPCRouter({
   }),
 
   // visitors
-  incVisit: publicProcedure.input(z.string()).mutation(
-    async ({ input }) =>
-      await db.refSite.update({
-        where: {
-          id: input,
-        },
-        data: {
-          visits: {
-            increment: 1,
-          },
-        },
+  incVisit: publicProcedure.input(z.string()).mutation(async ({ input }) => {
+    const [updated] = await db
+      .update(refSite)
+      .set({
+        visits: sql`${refSite.visits} + 1`,
       })
-  ),
+      .where(eq(refSite.id, input))
+      .returning();
+
+    return updated;
+  }),
 });

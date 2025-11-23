@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { Session } from "next-auth";
 import { UserAccountNav } from "@/components/shared/user-account-nav";
 import { site } from "@/lib/config/site";
 import { outfit } from "@/lib/font";
@@ -8,7 +7,12 @@ import { AddSiteButton } from "./add-site-button";
 import { PanelNav } from "./panel-nav";
 
 interface PanelHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  user: Session["user"];
+  user: {
+    id: string;
+    name?: string | null;
+    email: string;
+    image?: string | null;
+  };
 }
 
 export const PanelHeader = ({ user }: PanelHeaderProps) => (

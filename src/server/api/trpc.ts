@@ -4,7 +4,7 @@ import { ZodError } from "zod";
 
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import type { TrpcMeta } from "@/types/trpc";
+import type { Role, TrpcMeta } from "@/types/trpc";
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getSession();
@@ -41,16 +41,17 @@ export const protectedProcedure = t.procedure.use(({ ctx, meta, next }) => {
   if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  if (
-    meta?.requiredRoles?.length &&
-    !meta.requiredRoles.includes(ctx.session.user.role)
-  ) {
+  const userRole = (ctx.session.user.role as Role) || "USER";
+  if (meta?.requiredRoles?.length && !meta.requiredRoles.includes(userRole)) {
     throw new TRPCError({ code: "FORBIDDEN" });
   }
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      session: {
+        ...ctx.session,
+        user: { ...ctx.session.user, role: userRole },
+      },
     },
   });
 });

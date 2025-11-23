@@ -80,7 +80,7 @@ export const SiteEmailSubscription = ({
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem className="relative">
+            <FormItem className="relative md:space-y-0">
               <Input
                 placeholder={t("subscribe.slogan")}
                 {...field}

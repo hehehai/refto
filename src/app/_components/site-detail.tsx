@@ -1,9 +1,9 @@
-import type { RefSite } from "@prisma/client";
 import { memo, useMemo } from "react";
 import { BlurImage } from "@/components/shared/blur-image";
 import { VisitIcon } from "@/components/shared/icons";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
 import { Badge } from "@/components/ui/badge";
+import type { RefSite } from "@/db/schema";
 import { siteTagMap } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { VisitLink } from "./visit-link";

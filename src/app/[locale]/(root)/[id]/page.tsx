@@ -10,13 +10,14 @@ export const revalidate = 7200;
 export default async function SitePage({
   params,
 }: {
-  params: { id: string; locale: string };
+  params: Promise<{ id: string; locale: string }>;
 }) {
+  const { id, locale } = await params;
   const t = await getTranslations({
-    locale: params.locale,
+    locale,
     namespace: "Detail",
   });
-  const site = await detail(params.id);
+  const site = await detail(id);
   if (!site) {
     notFound();
   }
@@ -25,7 +26,7 @@ export default async function SitePage({
 
   return (
     <div className="py-14">
-      <SiteDetail className="relative" item={site} locale={params.locale} />
+      <SiteDetail className="relative" item={site} locale={locale} />
 
       <div className="container">
         <Separator className="my-12 md:my-28" />

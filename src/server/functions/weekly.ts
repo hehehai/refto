@@ -1,10 +1,11 @@
-import { db } from "@/lib/db";
+"use server";
+
+import { eq } from "drizzle-orm";
+
+import { db, weekly } from "@/db";
 
 export async function detail(id: string) {
-  "use server";
-  return db.weekly.findUnique({
-    where: {
-      id,
-    },
+  return db.query.weekly.findFirst({
+    where: eq(weekly.id, id),
   });
 }

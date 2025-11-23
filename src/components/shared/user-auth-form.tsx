@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import * as React from "react";
 import { useForm } from "react-hook-form";
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
+import { emailOtp } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { userAuthSchema } from "@/lib/validations/auth";
 import { Spinner } from "./icons";
@@ -55,32 +55,42 @@ export function UserAuthForm({
   async function onSubmit(data: FormData) {
     setIsLoading(true);
 
-    const signInResult = await signIn("email", {
-      email: data.email.toLowerCase(),
-      redirect: false,
-    });
+    try {
+      const { error } = await emailOtp.sendVerificationOtp({
+        email: data.email.toLowerCase(),
+        type: "sign-in",
+      });
 
-    setIsLoading(false);
+      setIsLoading(false);
 
-    if (signInResult?.error) {
-      return toast({
+      if (error) {
+        return toast({
+          title: t("status.error.title"),
+          description: error.message || t("status.error.description"),
+          variant: "destructive",
+        });
+      }
+
+      setOtpValue("");
+      setShowOtpForm(true);
+
+      toast({
+        title: t("status.success.title"),
+        description: t("status.success.description"),
+      });
+
+      setTimeout(() => {
+        otpInputRef.current?.focus();
+      }, 20);
+    } catch (err) {
+      setIsLoading(false);
+      console.error("Send OTP error:", err);
+      toast({
         title: t("status.error.title"),
         description: t("status.error.description"),
         variant: "destructive",
       });
     }
-
-    setOtpValue("");
-    setShowOtpForm(true);
-
-    toast({
-      title: t("status.success.title"),
-      description: t("status.success.description"),
-    });
-
-    setTimeout(() => {
-      otpInputRef.current?.focus();
-    }, 20);
   }
 
   const handleVerifyOtp = async (e?: React.FormEvent<HTMLFormElement>) => {
@@ -90,14 +100,16 @@ export function UserAuthForm({
       setOtpLoading(true);
       const { email } = getValues();
 
-      const res = await fetch(
-        `/api/auth/callback/email?email=${encodeURIComponent(email)}&token=${otpValue}`
-      );
-      if (res.status !== 200) {
+      const { error } = await emailOtp.verifyEmail({
+        email: email.toLowerCase(),
+        otp: otpValue,
+      });
+
+      if (error) {
         setOtpLoading(false);
         toast({
           title: t("otp.error.title"),
-          description: t("otp.error.description"),
+          description: error.message || t("otp.error.description"),
           variant: "destructive",
         });
         setTimeout(() => {
@@ -109,10 +121,15 @@ export function UserAuthForm({
       setOtpLoading(false);
       toast({ title: t("otp.success.title") });
       router.replace(searchParams?.get("from")?.trim() || "/");
+      router.refresh();
     } catch (err) {
-      console.log("OTP err", err);
-    } finally {
+      console.error("OTP verification error:", err);
       setOtpLoading(false);
+      toast({
+        title: t("otp.error.title"),
+        description: t("otp.error.description"),
+        variant: "destructive",
+      });
     }
   };
 

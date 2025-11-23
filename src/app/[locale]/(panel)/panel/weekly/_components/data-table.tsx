@@ -1,6 +1,5 @@
 "use client";
 
-import type { Weekly } from "@prisma/client";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -30,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
+import type { Weekly } from "@/db/schema";
 import { api } from "@/lib/trpc/react";
 import { columns } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";

@@ -1,7 +1,6 @@
 "use client";
 
-import type { Session } from "next-auth";
-import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import React, { useCallback } from "react";
 import { BoxUserIcon, Spinner } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
@@ -12,13 +11,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
+import { signOut } from "@/lib/auth-client";
 
 interface UserAccountNavProps extends React.ComponentPropsWithoutRef<"div"> {
-  user: Session["user"];
+  user: {
+    id: string;
+    name?: string | null;
+    email: string;
+    image?: string | null;
+  };
 }
 
 export function UserAccountNav({ user }: UserAccountNavProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const [loading, setLoading] = React.useState<boolean>(false);
   const userName = user.name || user.email?.split("@")[0];
 
@@ -28,7 +34,12 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
       try {
         setLoading(true);
         await signOut({
-          callbackUrl: `${window.location.origin}/`,
+          fetchOptions: {
+            onSuccess: () => {
+              router.push("/");
+              router.refresh();
+            },
+          },
         });
       } catch (_err) {
         toast({
@@ -40,7 +51,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
         setLoading(false);
       }
     },
-    [toast]
+    [toast, router]
   );
 
   return (

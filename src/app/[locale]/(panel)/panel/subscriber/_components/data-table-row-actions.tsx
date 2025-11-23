@@ -1,6 +1,5 @@
 "use client";
 
-import type { Subscriber } from "@prisma/client";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { Row } from "@tanstack/react-table";
 import { Spinner } from "@/components/shared/icons";
@@ -12,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
+import type { Subscriber } from "@/db/schema";
 import { api } from "@/lib/trpc/react";
 
 interface DataTableRowActionsProps {

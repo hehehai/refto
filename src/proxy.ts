@@ -1,32 +1,18 @@
-// import { getToken } from "next-auth/jwt";
-
 import type { NextFetchEvent, NextRequest } from "next/server";
-import { type NextRequestWithAuth, withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 
 import { routing } from "@/i18n/routing";
 
-// const publicPages = ["/", "/*", "/login", "/register"];
 const protectionPages = ["/panel"];
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-const authMiddleware = withAuth(
-  async function onSuccess(req) {
-    return intlMiddleware(req as unknown as NextRequest);
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
-  }
-);
-
-export default function proxy(req: NextRequest, event: NextFetchEvent) {
+export default async function proxy(req: NextRequest, _event: NextFetchEvent) {
   const protectionPathnameRegex = new RegExp(
     `^(/(${routing.locales.join("|")}))?(${protectionPages
       .flatMap((p) => (p === "/" ? ["", "/"] : p))
-      .join("|")})/?$`,
+      .join("|")})/?`,
     "i"
   );
 
@@ -35,7 +21,20 @@ export default function proxy(req: NextRequest, event: NextFetchEvent) {
   if (!isProtectionPage) {
     return intlMiddleware(req);
   }
-  return authMiddleware(req as unknown as NextRequestWithAuth, event as any);
+
+  // For protected pages, check if user has a session cookie
+  // Better Auth uses a session token cookie
+  const sessionCookie = req.cookies.get("better-auth.session_token");
+
+  if (!sessionCookie?.value) {
+    // Redirect to login page if no session
+    const loginUrl = new URL("/signin", req.url);
+    loginUrl.searchParams.set("from", req.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // User has session cookie, proceed with intl middleware
+  return intlMiddleware(req);
 }
 
 export const config = {

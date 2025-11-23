@@ -1,6 +1,5 @@
 "use client";
 
-import type { SubmitSite } from "@prisma/client";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { Row } from "@tanstack/react-table";
 import { Spinner } from "@/components/shared/icons";
@@ -11,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { SubmitSite } from "@/db/schema";
 
 interface DataTableRowActionsProps {
   row: Row<SubmitSite>;

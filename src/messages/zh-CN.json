@@ -133,6 +133,10 @@
       "m4": "和",
       "m5": "隐私政策",
       "button": "使用电子邮件注册"
+    },
+    "forgotPassword": {
+      "title": "忘记密码",
+      "description": "重置您的密码"
     }
   },
   "NotFound": {

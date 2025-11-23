@@ -1,142 +1,146 @@
-import { Prisma, type RefSite } from "@prisma/client";
-import { db } from "@/lib/db";
+import {
+  and,
+  arrayOverlaps,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  isNull,
+  notInArray,
+  or,
+  type SQL,
+  sql,
+} from "drizzle-orm";
+import type { PgColumn } from "drizzle-orm/pg-core";
+
+import { db, refSite } from "@/db";
 import { pagination } from "@/lib/pagination";
 import type {
   QueryRefSite,
   QueryWithCursorRefSite,
 } from "@/lib/validations/ref-site";
 
+type OrderByItem = { key: string; dir: "asc" | "desc" };
+
+function buildRefSiteOrderByClause(orderBy: OrderByItem[] | undefined): SQL[] {
+  if (!orderBy?.length) return [];
+
+  const columnMap: Record<string, PgColumn> = {
+    id: refSite.id,
+    createdAt: refSite.createdAt,
+    visits: refSite.visits,
+    siteName: refSite.siteName,
+    siteTitle: refSite.siteTitle,
+    siteUrl: refSite.siteUrl,
+  };
+
+  return orderBy
+    .map((item) => {
+      const column = columnMap[item.key];
+      if (!column) return null;
+      return item.dir === "desc" ? desc(column) : asc(column);
+    })
+    .filter((item): item is SQL => item !== null);
+}
+
 export async function queryWithCursor(input: QueryWithCursorRefSite) {
   const { search, limit, cursor, orderBy, tags, hasTop } = input;
 
-  const whereInput: Prisma.RefSiteWhereInput = {
-    deletedAt: null,
-    isTop: !!hasTop,
-  };
+  const conditions = [isNull(refSite.deletedAt), eq(refSite.isTop, !!hasTop)];
 
   if (search) {
-    whereInput.OR = [
-      {
-        siteName: {
-          contains: search,
-          mode: "insensitive",
-        },
-      },
-      {
-        siteTitle: {
-          contains: search,
-          mode: "insensitive",
-        },
-      },
-      {
-        siteUrl: {
-          contains: search,
-          mode: "insensitive",
-        },
-      },
-    ];
+    conditions.push(
+      or(
+        ilike(refSite.siteName, `%${search}%`),
+        ilike(refSite.siteTitle, `%${search}%`),
+        ilike(refSite.siteUrl, `%${search}%`)
+      )!
+    );
   }
 
   if (tags.length) {
-    whereInput.siteTags = {
-      hasSome: tags,
-    };
+    conditions.push(arrayOverlaps(refSite.siteTags, tags));
   }
 
-  const rows = await db.refSite.findMany({
-    where: whereInput,
-    select: {
-      id: true,
-      siteUrl: true,
-      siteName: true,
-      siteFavicon: true,
-      siteCover: true,
-      siteCoverRecord: true,
-      siteCoverHeight: true,
-      siteCoverWidth: true,
-      visits: true,
-    },
-    cursor: cursor ? { id: cursor } : undefined,
-    take: limit + 1,
-    orderBy: orderBy?.reduce(
-      (acc, item) => ({ ...acc, [item.key]: item.dir }),
-      {}
-    ),
-  });
+  const orderByClause = buildRefSiteOrderByClause(orderBy);
 
-  let nextCursor: typeof cursor | undefined;
-  if (rows && rows.length > limit) {
+  const rows = await db
+    .select({
+      id: refSite.id,
+      siteUrl: refSite.siteUrl,
+      siteName: refSite.siteName,
+      siteFavicon: refSite.siteFavicon,
+      siteCover: refSite.siteCover,
+      siteCoverRecord: refSite.siteCoverRecord,
+      siteCoverHeight: refSite.siteCoverHeight,
+      siteCoverWidth: refSite.siteCoverWidth,
+      visits: refSite.visits,
+    })
+    .from(refSite)
+    .where(and(...conditions))
+    .orderBy(...orderByClause)
+    .limit(limit + 1)
+    .offset(cursor ? 1 : 0);
+
+  let nextCursor: string | undefined;
+  if (rows.length > limit) {
     const nextItem = rows.pop();
     nextCursor = nextItem?.id;
   }
 
   return {
     rows,
-    nextCursor: nextCursor ?? undefined,
+    nextCursor,
   };
 }
 
 export async function query(input: QueryRefSite) {
   const { search, limit, page, orderBy, tags } = input;
 
-  const whereInput: Prisma.RefSiteWhereInput = {
-    deletedAt: null,
-  };
+  const conditions = [isNull(refSite.deletedAt)];
 
   if (search) {
-    whereInput.OR = [
-      {
-        siteName: {
-          contains: search,
-          mode: "insensitive",
-        },
-      },
-      {
-        siteTitle: {
-          contains: search,
-          mode: "insensitive",
-        },
-      },
-      {
-        siteUrl: {
-          contains: search,
-          mode: "insensitive",
-        },
-      },
-    ];
+    conditions.push(
+      or(
+        ilike(refSite.siteName, `%${search}%`),
+        ilike(refSite.siteTitle, `%${search}%`),
+        ilike(refSite.siteUrl, `%${search}%`)
+      )!
+    );
   }
 
   if (tags.length) {
-    whereInput.siteTags = {
-      hasSome: tags,
-    };
+    conditions.push(arrayOverlaps(refSite.siteTags, tags));
   }
 
-  const rows = await db.refSite.findMany({
-    where: whereInput,
-    select: {
-      id: true,
-      siteUrl: true,
-      siteName: true,
-      siteTitle: true,
-      siteFavicon: true,
-      siteCover: true,
-      createdAt: true,
-      visits: true,
-      siteTags: true,
-      isTop: true,
-    },
-    skip: page * limit,
-    take: limit,
-    orderBy: orderBy?.reduce(
-      (acc, item) => ({ ...acc, [item.key]: item.dir }),
-      {}
-    ),
-  });
+  const orderByClause = buildRefSiteOrderByClause(orderBy);
 
-  const total = await db.refSite.count({
-    where: whereInput,
-  });
+  const rows = await db
+    .select({
+      id: refSite.id,
+      siteUrl: refSite.siteUrl,
+      siteName: refSite.siteName,
+      siteTitle: refSite.siteTitle,
+      siteFavicon: refSite.siteFavicon,
+      siteCover: refSite.siteCover,
+      createdAt: refSite.createdAt,
+      visits: refSite.visits,
+      siteTags: refSite.siteTags,
+      isTop: refSite.isTop,
+    })
+    .from(refSite)
+    .where(and(...conditions))
+    .orderBy(...orderByClause)
+    .limit(limit)
+    .offset(page * limit);
+
+  const [totalResult] = await db
+    .select({ count: count() })
+    .from(refSite)
+    .where(and(...conditions));
+
+  const total = totalResult?.count ?? 0;
 
   return {
     rows,
@@ -146,37 +150,41 @@ export async function query(input: QueryRefSite) {
 
 export async function detail(id: string) {
   "use server";
-  return db.refSite.findUnique({
-    where: {
-      id,
-      deletedAt: null,
-    },
+  return db.query.refSite.findFirst({
+    where: and(eq(refSite.id, id), isNull(refSite.deletedAt)),
   });
 }
 
 export async function correlation(tags: string[], excludeIds?: string[]) {
   "use server";
 
-  const sql = Prisma.sql`SELECT
-	*
-FROM
-	ref_sites
-WHERE
-	"siteTags" && ARRAY [${Prisma.join(tags)}] -- 包含任意一个标签
-  ${excludeIds?.length ? Prisma.sql`AND id NOT IN (${Prisma.join(excludeIds)})` : Prisma.empty} -- 排除指定项
-ORDER BY
-	(
-		SELECT
-			COUNT(*) -- 计算匹配项数量
-		FROM
-			unnest("siteTags") AS t
-		WHERE
-			t IN(${Prisma.join(tags)})    
-  ) DESC
-	LIMIT 6;
-`;
+  const conditions = [arrayOverlaps(refSite.siteTags, tags)];
 
-  const sites: RefSite[] = await db.$queryRaw(sql);
+  if (excludeIds?.length) {
+    conditions.push(notInArray(refSite.id, excludeIds));
+  }
+
+  const sites = await db
+    .select({
+      id: refSite.id,
+      siteUrl: refSite.siteUrl,
+      siteName: refSite.siteName,
+      siteFavicon: refSite.siteFavicon,
+      siteCover: refSite.siteCover,
+      siteCoverRecord: refSite.siteCoverRecord,
+      siteCoverWidth: refSite.siteCoverWidth,
+      siteCoverHeight: refSite.siteCoverHeight,
+      visits: refSite.visits,
+      matchCount: sql<number>`(
+        SELECT COUNT(*)
+        FROM unnest(${refSite.siteTags}) AS t
+        WHERE t = ANY(${tags})
+      )`.as("match_count"),
+    })
+    .from(refSite)
+    .where(and(...conditions))
+    .orderBy(desc(sql`match_count`))
+    .limit(6);
 
   return sites.map((site) => ({
     id: site.id,

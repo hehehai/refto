@@ -1,6 +1,5 @@
 "use client";
 
-import { type Weekly, WeeklySentStatus } from "@prisma/client";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import type { Row } from "@tanstack/react-table";
 import { Spinner } from "@/components/shared/icons";
@@ -12,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
+import type { Weekly } from "@/db/schema";
 import { api } from "@/lib/trpc/react";
 
 interface DataTableRowActionsProps {
@@ -27,7 +27,7 @@ export function DataTableRowActions({
 
   const { toast } = useToast();
 
-  if (original.status === WeeklySentStatus.SENT) {
+  if (original.status === "SENT") {
     return null;
   }
 

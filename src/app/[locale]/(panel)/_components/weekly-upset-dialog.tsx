@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { RefSite, Weekly } from "@prisma/client";
 import { render } from "@react-email/render";
 import { useAtom } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -31,6 +30,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
+import type { RefSite, Weekly } from "@/db/schema";
 import useDebounce from "@/hooks/use-debounce";
 import { SupportLocale } from "@/i18n";
 import WeeklyEmail from "@/lib/email/templates/weekly";

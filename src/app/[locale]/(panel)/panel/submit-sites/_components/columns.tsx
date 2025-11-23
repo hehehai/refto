@@ -1,6 +1,5 @@
 "use client";
 
-import { type SubmitSite, SubmitSiteStatus } from "@prisma/client";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import type { ColumnDef, Row } from "@tanstack/react-table";
 import { format } from "date-fns";
@@ -8,20 +7,21 @@ import { ClockIcon } from "lucide-react";
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import type { SubmitSite } from "@/db/schema";
 
 export const statuses = [
   {
-    value: SubmitSiteStatus.PENDING,
+    value: "PENDING" as const,
     label: "Pending",
     icon: ClockIcon,
   },
   {
-    value: SubmitSiteStatus.APPROVED,
+    value: "APPROVED" as const,
     label: "Approved",
     icon: CheckCircledIcon,
   },
   {
-    value: SubmitSiteStatus.REJECTED,
+    value: "REJECTED" as const,
     label: "Rejected",
     icon: CrossCircledIcon,
   },

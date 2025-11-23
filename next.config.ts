@@ -13,6 +13,11 @@ const config: NextConfig = {
         hostname: "storage.refto.one",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+        pathname: "**",
+      },
     ],
   },
 };

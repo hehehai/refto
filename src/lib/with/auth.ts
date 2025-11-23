@@ -1,9 +1,8 @@
 "use server";
 
-import type { Role } from "@prisma/client";
-import type { Session } from "next-auth";
-import { getSession } from "@/lib/session";
+import { getSession, type Session } from "@/lib/session";
 import { getSearchParams } from "@/lib/utils";
+import type { Role } from "@/types/trpc";
 
 export async function isAdmin() {
   const session = await getSession();
@@ -30,7 +29,7 @@ export const withAuthWrapper =
     handler: WithWrapperHandler,
     {
       requiredRole = ["USER", "ADMIN"],
-      allowAnonymous, // special case for /api/links (POST /api/links) – allow no session
+      allowAnonymous, // special case for /api/links (POST /api/links) – allow no session
     }: {
       requiredRole?: Role[];
       allowAnonymous?: boolean;
@@ -51,7 +50,8 @@ export const withAuthWrapper =
 
       if (requiredRole?.length) {
         // 角色验证
-        if (!requiredRole.includes(session.user.role)) {
+        const userRole = (session.user.role as Role) || "USER";
+        if (!requiredRole.includes(userRole)) {
           return new Response("Unauthorized", { status: 401 });
         }
       }

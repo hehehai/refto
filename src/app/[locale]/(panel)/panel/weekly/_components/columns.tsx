@@ -1,12 +1,11 @@
 "use client";
 
-import type { Weekly } from "@prisma/client";
 import type { ColumnDef, Row } from "@tanstack/react-table";
 import { format } from "date-fns";
-
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import type { Weekly } from "@/db/schema";
 
 export const columns = (
   actionSlot: (row: Row<Weekly>) => React.ReactNode
