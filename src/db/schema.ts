@@ -33,6 +33,10 @@ export const user = pgTable("user", {
   emailVerified: boolean("emailVerified").default(false).notNull(),
   image: text("image"),
   role: text("role").default("USER").notNull(),
+  // Admin plugin fields
+  banned: boolean("banned").default(false),
+  banReason: text("banReason"),
+  banExpires: timestamp("banExpires"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
