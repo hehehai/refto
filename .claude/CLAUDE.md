@@ -27,56 +27,77 @@ pnpm email:dev        # Preview email templates (port 3527)
 src/
 ├── app/
 │   ├── (auth)/             # Login/register pages
+│   ├── (account)/          # User account pages (profile, favorites, submissions)
+│   ├── (admin)/            # Admin dashboard with sidebar
 │   ├── (home)/             # Home page
-│   ├── (panel)/panel/      # Admin dashboard
 │   ├── (root)/             # Public pages
 │   └── api/
 │       ├── auth/           # Better Auth endpoint
-│       └── trpc/           # tRPC API handler
+│       └── rpc/            # oRPC API handler
+├── components/
+│   ├── features/           # Feature-specific components
+│   │   ├── account/        # Account management (ProfileCard, PasswordCard, etc.)
+│   │   ├── admin/          # Admin components (sidebars, dialogs)
+│   │   ├── auth/           # Auth components (UserAuthNav)
+│   │   ├── home/           # Home page components (masonry)
+│   │   └── site/           # Site components (showcase, filters, subscription)
+│   ├── shared/             # Reusable components (icons, uploaders)
+│   └── ui/                 # shadcn/ui primitives
 ├── db/
 │   ├── schema.ts           # Drizzle schema definitions
 │   └── index.ts            # Drizzle client singleton
-├── server/
-│   ├── api/
-│   │   ├── root.ts         # tRPC app router
-│   │   ├── trpc.ts         # Context and procedures
-│   │   └── routers/        # Individual routers
-│   └── functions/          # Reusable server functions
+├── hooks/                  # Custom React hooks
+│   ├── use-file-upload.ts  # R2 file upload hook
+│   └── use-url-meta-fetch.ts # URL metadata fetching hook
 ├── lib/
 │   ├── auth.ts             # Better Auth configuration
-│   ├── db.ts               # Re-exports from @/db
-│   ├── trpc/               # tRPC client setup
-│   └── validations/        # Zod schemas
-├── components/
-│   ├── ui/                 # shadcn/ui primitives
-│   └── shared/             # Reusable components
+│   ├── auth-client.ts      # Better Auth client
+│   ├── orpc/               # oRPC client setup (client.ts, react.tsx, server.ts)
+│   ├── error-handler.ts    # Unified error handling utilities
+│   └── validations/        # Zod schemas (common.ts for shared validators)
+├── server/
+│   ├── api/
+│   │   ├── root.ts         # oRPC app router
+│   │   ├── orpc.ts         # Context and procedures
+│   │   └── routers/        # Individual routers
+│   └── functions/          # Reusable server functions
 └── env.js                  # t3-env validation
 ```
 
-### tRPC Setup
+### oRPC Setup
 
-- **Routers**: `refSites`, `weekly`, `subscriber`, `upload`, `siteMeta`, `submitSite`
-- **Procedures**: `publicProcedure` (no auth), `protectedProcedure` (auth required)
-- **Role-based access**: Use `meta.requiredRoles` for admin-only endpoints
-- **Server calls**: Use `src/lib/trpc/server.ts` for RSC, `src/lib/trpc/react.tsx` for client
+- **Routers**: `refSites`, `weekly`, `subscriber`, `upload`, `siteMeta`, `submitSite`, `user`
+- **Procedures**: `publicProcedure` (no auth), `protectedProcedure` (auth required), `adminProcedure` (admin only)
+- **Server calls**: Use `@/lib/orpc/server` for RSC, `@/lib/orpc/react` for client with TanStack Query
 
 ### Key Patterns
 
 - **Path alias**: Use `@/` for imports (e.g., `@/lib/utils`)
-- **Route groups**: `(auth)`, `(home)`, `(panel)`, `(root)` for layout separation
-- **State**: Jotai for local state (`_store/`), React Query via tRPC for server state
-- **Validation**: Zod schemas in `lib/validations/` shared between forms and tRPC
+- **Route groups**: `(auth)`, `(account)`, `(admin)`, `(home)`, `(root)` for layout separation
+- **State**: Jotai for local state (`_store/`), TanStack Query via oRPC for server state
+- **Validation**: Zod schemas in `lib/validations/` shared between forms and oRPC
 - **Server functions**: Extract business logic to `server/functions/` for reuse
+- **Hooks**: Reusable hooks in `src/hooks/` (useFileUpload, useUrlMetaFetch, etc.)
+- **Error handling**: Use `@/lib/error-handler` for consistent error messages
 
 ### Database (Drizzle ORM + PostgreSQL)
 
-Key models: `user`, `refSite`, `weekly`, `subscriber`, `submitSite`
+Key models: `user`, `account`, `refSite`, `weekly`, `subscriber`, `submitSite`
 
 Schema and types are exported from `@/db/schema`.
 
 ### Authentication
 
-Email/OTP via Better Auth with 6-digit verification codes. Roles: `USER`, `ADMIN`.
+Better Auth with multiple providers:
+- Email OTP (6-digit verification codes)
+- GitHub OAuth
+- Google OAuth
+
+Roles: `USER`, `ADMIN`. Use `authClient` from `@/lib/auth-client` for client-side auth operations.
+
+### File Upload
+
+Files are uploaded to Cloudflare R2. Use `useFileUpload` hook or `client.upload.getUploadUrl` to get signed URLs.
 
 ## Code Standards
 
