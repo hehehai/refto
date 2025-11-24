@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 
 import type { Metadata } from "next";
-import { Providers } from "@/app/_components/providers";
+import { Providers } from "@/components/features/providers";
 import { site } from "@/lib/config/site";
 import { outfit } from "@/lib/font";
 import { cn } from "@/lib/utils";

@@ -2,11 +2,17 @@ import { and, asc, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
-import { db, type SubmitSite, type SubmitSiteStatus, submitSite } from "@/db";
+import {
+  db,
+  type SubmitSite,
+  type SubmitSiteStatus,
+  submitSite,
+  user,
+} from "@/db";
 import { pagination } from "@/lib/pagination";
 import { formatOrders, genOrderValidSchema } from "@/lib/utils";
 import { submitSiteCreateSchema } from "@/lib/validations/submit-site";
-import { adminProcedure, publicProcedure } from "@/server/api/orpc";
+import { adminProcedure, protectedProcedure } from "@/server/api/orpc";
 
 type OrderByItem = { key: string; dir: "asc" | "desc" };
 
@@ -31,11 +37,13 @@ function buildSubmitSiteOrderByClause(
     .filter((item): item is SQL => item !== null);
 }
 
-// 推荐网站
-const recommendProcedure = publicProcedure
+// 推荐网站 - 需要登录
+const recommendProcedure = protectedProcedure
   .input(submitSiteCreateSchema)
-  .handler(async ({ input }) => {
-    const { email, site, title, description } = input;
+  .handler(async ({ input, context }) => {
+    const { site, title, description } = input;
+    const userId = context.session!.user.id;
+    const email = context.session!.user.email;
 
     const [newSubmit] = await db
       .insert(submitSite)
@@ -44,6 +52,7 @@ const recommendProcedure = publicProcedure
         email,
         siteTitle: title,
         siteDescription: description,
+        userId,
       })
       .returning();
 
@@ -91,10 +100,75 @@ const queryProcedure = adminProcedure
     const orderByClause = buildSubmitSiteOrderByClause(orderBy);
 
     const rows = await db
+      .select({
+        id: submitSite.id,
+        email: submitSite.email,
+        siteUrl: submitSite.siteUrl,
+        siteTitle: submitSite.siteTitle,
+        siteDescription: submitSite.siteDescription,
+        createdAt: submitSite.createdAt,
+        updatedAt: submitSite.updatedAt,
+        status: submitSite.status,
+        approvedAt: submitSite.approvedAt,
+        rejectedAt: submitSite.rejectedAt,
+        userId: submitSite.userId,
+        submitter: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        },
+      })
+      .from(submitSite)
+      .leftJoin(user, eq(submitSite.userId, user.id))
+      .where(and(...conditions))
+      .orderBy(...orderByClause)
+      .limit(limit)
+      .offset(page * limit);
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(submitSite)
+      .where(and(...conditions));
+
+    const total = totalResult?.count ?? 0;
+
+    return {
+      rows,
+      ...pagination(page, limit, total),
+    };
+  });
+
+// 用户查询自己的提交
+const mySubmissionsProcedure = protectedProcedure
+  .input(
+    z.object({
+      search: z.coerce.string().trim().max(1024).optional(),
+      limit: z.number().min(1).max(50).optional().default(10),
+      page: z.number().min(0).optional().default(0),
+    })
+  )
+  .handler(async ({ input, context }) => {
+    const { search, limit, page } = input;
+    const userId = context.session!.user.id;
+
+    const conditions: SQL[] = [eq(submitSite.userId, userId)];
+
+    if (search) {
+      const searchCondition = or(
+        ilike(submitSite.siteUrl, `%${search}%`),
+        ilike(submitSite.siteTitle, `%${search}%`)
+      );
+      if (searchCondition) {
+        conditions.push(searchCondition);
+      }
+    }
+
+    const rows = await db
       .select()
       .from(submitSite)
       .where(and(...conditions))
-      .orderBy(...orderByClause)
+      .orderBy(desc(submitSite.createdAt))
       .limit(limit)
       .offset(page * limit);
 
@@ -114,4 +188,5 @@ const queryProcedure = adminProcedure
 export const submitSitesRouter = {
   recommend: recommendProcedure,
   query: queryProcedure,
+  mySubmissions: mySubmissionsProcedure,
 };

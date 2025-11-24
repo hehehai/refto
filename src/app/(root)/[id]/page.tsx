@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import SiteCorrelation from "@/app/_components/site-correlation";
-import { SiteDetail } from "@/app/_components/site-detail";
+import SiteCorrelation from "@/components/features/site/site-correlation";
+import { SiteDetail } from "@/components/features/site/site-detail";
 import { Separator } from "@/components/ui/separator";
 import { correlation, detail } from "@/server/functions/ref-sites";
 

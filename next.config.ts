@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
-  // Disable Turbopack for build due to @egoist/tailwindcss-icons incompatibility
-  // with dynamic require statements
+  reactCompiler: true,
   images: {
     remotePatterns: [
       {

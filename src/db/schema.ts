@@ -108,6 +108,7 @@ export const submitSite = pgTable("submit_sites", {
   status: submitSiteStatusEnum("status").default("PENDING").notNull(),
   approvedAt: timestamp("approved_at"),
   rejectedAt: timestamp("rejected_at"),
+  userId: text("userId").references(() => user.id, { onDelete: "set null" }),
 });
 
 export const refSite = pgTable(
@@ -194,6 +195,7 @@ export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   refSites: many(refSite),
   likes: many(refSiteLike),
+  submissions: many(submitSite),
 }));
 
 export const accountRelations = relations(account, ({ one }) => ({
@@ -218,6 +220,10 @@ export const refSiteLikeRelations = relations(refSiteLike, ({ one }) => ({
     references: [refSite.id],
   }),
   user: one(user, { fields: [refSiteLike.userId], references: [user.id] }),
+}));
+
+export const submitSiteRelations = relations(submitSite, ({ one }) => ({
+  user: one(user, { fields: [submitSite.userId], references: [user.id] }),
 }));
 
 // Type exports

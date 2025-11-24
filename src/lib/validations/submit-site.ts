@@ -1,9 +1,6 @@
 import { z } from "zod";
 
 export const submitSiteCreateSchema = z.object({
-  email: z.string().email({
-    message: "Email is invalid",
-  }),
   site: z.string().url({
     message: "Site is invalid",
   }),

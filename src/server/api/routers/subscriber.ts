@@ -101,6 +101,32 @@ const queryProcedure = adminProcedure
     };
   });
 
+// 检查订阅状态
+const checkStatusProcedure = publicProcedure
+  .input(
+    z.object({
+      email: z.email(),
+    })
+  )
+  .handler(async ({ input }) => {
+    const [result] = await db
+      .select({
+        id: subscriber.id,
+        unSubDate: subscriber.unSubDate,
+      })
+      .from(subscriber)
+      .where(ilike(subscriber.email, input.email))
+      .limit(1);
+
+    if (!result) {
+      return { subscribed: false };
+    }
+
+    return {
+      subscribed: !result.unSubDate,
+    };
+  });
+
 // 订阅
 const subscribeProcedure = publicProcedure
   .input(
@@ -155,6 +181,7 @@ const unsubscribeBatchProcedure = adminProcedure
 
 export const subscriberRouter = {
   query: queryProcedure,
+  checkStatus: checkStatusProcedure,
   subscribe: subscribeProcedure,
   unsubscribe: unsubscribeProcedure,
   unsubscribeBatch: unsubscribeBatchProcedure,

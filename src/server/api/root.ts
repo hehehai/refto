@@ -5,6 +5,7 @@ import { siteMetaRouter } from "./routers/site-meta";
 import { submitSitesRouter } from "./routers/submit-sites";
 import { subscriberRouter } from "./routers/subscriber";
 import { uploadRouter } from "./routers/upload";
+import { userRouter } from "./routers/user";
 import { weeklyRouter } from "./routers/weekly";
 
 /**
@@ -19,6 +20,7 @@ export const appRouter = {
   upload: uploadRouter,
   siteMeta: siteMetaRouter,
   submitSite: submitSitesRouter,
+  user: userRouter,
 };
 
 // export type definition of API

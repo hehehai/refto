@@ -1,10 +1,17 @@
-import { SiteHeader } from "@/app/_components/site-header";
+import { SiteHeader } from "@/components/features/site/site-header";
+import { getSession } from "@/lib/session";
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => (
-  <div>
-    <SiteHeader />
-    <main>{children}</main>
-  </div>
-);
+export default async function HomeLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await getSession();
 
-export default RootLayout;
+  return (
+    <div>
+      <SiteHeader user={session?.user} />
+      <main>{children}</main>
+    </div>
+  );
+}

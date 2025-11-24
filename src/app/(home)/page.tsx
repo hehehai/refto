@@ -1,14 +1,15 @@
 import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
-import { HomeMasonry } from "@/app/_components/home-masonry";
-import { HomeMasonrySkeleton } from "@/app/_components/home-masonry-skeleton";
-import { SiteEmailSubscription } from "@/app/_components/site-email-subscription";
-import { SiteShowcaseSheet } from "@/app/_components/site-showcase-sheet";
+import { HomeMasonry } from "@/components/features/home/home-masonry";
+import { HomeMasonrySkeleton } from "@/components/features/home/home-masonry-skeleton";
+import { SiteEmailSubscription } from "@/components/features/site/site-email-subscription";
+import { SiteShowcaseSheet } from "@/components/features/site/site-showcase-sheet";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
 import { env } from "@/env";
 import { homeSearchParamsCache } from "@/lib/search-params";
+import { getSession } from "@/lib/session";
 import { queryWithCursorRefSiteSchema } from "@/lib/validations/ref-site";
-import { queryWithCursor } from "@/server/functions/ref-sites";
+import { getWeeklyCount, queryWithCursor } from "@/server/functions/ref-sites";
 
 export const revalidate = 7200;
 
@@ -25,7 +26,11 @@ export default async function Home({
     limit: 10,
   });
 
-  const siteQuery = await queryWithCursor(initParams);
+  const [siteQuery, session, weeklyCount] = await Promise.all([
+    queryWithCursor(initParams),
+    getSession(),
+    getWeeklyCount(),
+  ]);
 
   return (
     <div className="w-full">
@@ -55,7 +60,11 @@ export default async function Home({
                 </li>
               </ul>
             </div>
-            <SiteEmailSubscription className="mt-6 items-center space-y-3 sm:flex sm:space-x-5 sm:space-y-0 lg:mt-auto" />
+            <SiteEmailSubscription
+              className="mt-6 lg:mt-auto"
+              user={session?.user}
+              weeklyCount={weeklyCount}
+            />
           </div>
           <div className="col-span-1 flex flex-col">
             <div className="mt-auto">

@@ -5,6 +5,7 @@ import {
   count,
   desc,
   eq,
+  gte,
   ilike,
   isNull,
   notInArray,
@@ -153,6 +154,25 @@ export async function detail(id: string) {
   return db.query.refSite.findFirst({
     where: and(eq(refSite.id, id), isNull(refSite.deletedAt)),
   });
+}
+
+export async function getWeeklyCount() {
+  "use server";
+
+  // Get the start of the current week (Monday)
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Adjust for Monday start
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - diff);
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const [result] = await db
+    .select({ count: count() })
+    .from(refSite)
+    .where(and(gte(refSite.createdAt, startOfWeek), isNull(refSite.deletedAt)));
+
+  return result?.count ?? 0;
 }
 
 export async function correlation(tags: string[], excludeIds?: string[]) {

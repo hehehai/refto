@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { db, user } from "@/db";
 import { site } from "@/lib/config/site";
 import { sendEmail } from "@/lib/email";
-import { VerificationEmail } from "@/lib/email/templates/auth";
+import { MagicLinkEmail } from "@/lib/email/templates/auth";
 import { getBaseUrl } from "@/lib/utils";
 
 export const magicLinkPlugin = magicLink({
@@ -23,11 +23,10 @@ export const magicLinkPlugin = magicLink({
 
       await sendEmail({
         to: email,
-        subject: `${site.name} | Magic Link Sign In`,
-        renderData: VerificationEmail({
+        subject: `${site.name} | Sign In`,
+        renderData: MagicLinkEmail({
           name: existingUser?.name || name,
           verifyUrl: url,
-          verifyCode: "",
           baseUrl: getBaseUrl(),
         }),
       });

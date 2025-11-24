@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, count, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db, refSite } from "@/db";
@@ -121,6 +121,24 @@ const incVisitProcedure = publicProcedure
     return updated;
   });
 
+// 获取本周新增数量
+const weeklyCountProcedure = publicProcedure.handler(async () => {
+  // Get the start of the current week (Monday)
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Adjust for Monday start
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - diff);
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const [result] = await db
+    .select({ count: count() })
+    .from(refSite)
+    .where(and(gte(refSite.createdAt, startOfWeek), isNull(refSite.deletedAt)));
+
+  return { count: result?.count ?? 0 };
+});
+
 export const refSitesRouter = {
   queryWithCursor: queryWithCursorProcedure,
   query: queryProcedure,
@@ -132,4 +150,5 @@ export const refSitesRouter = {
   switchTop: switchTopProcedure,
   incLike: incLikeProcedure,
   incVisit: incVisitProcedure,
+  weeklyCount: weeklyCountProcedure,
 };
