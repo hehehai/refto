@@ -178,7 +178,7 @@ export async function correlation(tags: string[], excludeIds?: string[]) {
       matchCount: sql<number>`(
         SELECT COUNT(*)
         FROM unnest(${refSite.siteTags}) AS t
-        WHERE t = ANY(${tags})
+        WHERE t = ANY(${sql.raw(`ARRAY[${tags.map((tag) => `'${tag.replace(/'/g, "''")}'`).join(",")}]`)})
       )`.as("match_count"),
     })
     .from(refSite)
