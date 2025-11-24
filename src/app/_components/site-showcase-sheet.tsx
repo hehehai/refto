@@ -3,7 +3,7 @@
 import { useAtom } from "jotai";
 import { Maximize2, X } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useQueryStates } from "nuqs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { refSiteSheetAtom } from "@/app/_store/sheet.store";
@@ -17,11 +17,20 @@ import {
 } from "@/components/ui/sheet";
 import type { RefSite } from "@/db/schema";
 import { client } from "@/lib/orpc/client";
+import { homeSearchParsers } from "@/lib/search-params";
 import { SiteDetail } from "./site-detail";
 import { SiteShowcaseCorrelation } from "./site-showcase-correlation";
 
+// Build search string from params, filtering out empty values
+function buildSearchString(params: { s: string; tags: string[] }): string {
+  const searchParams = new URLSearchParams();
+  if (params.s) searchParams.set("s", params.s);
+  if (params.tags.length > 0) searchParams.set("tags", params.tags.join(","));
+  return searchParams.toString();
+}
+
 export const SiteShowcaseSheet = () => {
-  const searchParams = useSearchParams();
+  const [params] = useQueryStates(homeSearchParsers);
   const [status, setStatus] = useAtom(refSiteSheetAtom);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -60,15 +69,21 @@ export const SiteShowcaseSheet = () => {
           behavior: "smooth",
         });
       }
+      const searchString = buildSearchString(params);
       window.history.pushState(
         null,
         "",
-        `/${status.id}?${searchParams.toString()}`
+        `/${status.id}${searchString ? `?${searchString}` : ""}`
       );
     } else {
-      window.history.pushState(null, "", `/?${searchParams.toString()}`);
+      const searchString = buildSearchString(params);
+      window.history.pushState(
+        null,
+        "",
+        `/${searchString ? `?${searchString}` : ""}`
+      );
     }
-  }, [status.id, handleFetch, searchParams]);
+  }, [status.id, handleFetch, params]);
 
   return (
     <Sheet

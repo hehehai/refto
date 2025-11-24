@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useQueryState } from "nuqs";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { signInModeParsers } from "@/lib/search-params";
 import type {
   SignInEmailFormData,
   SignInOtpFormData,
@@ -17,12 +19,9 @@ import { SigninEmailOtp } from "./signin-email-otp";
 import { SigninEmailPassword } from "./signin-email-password";
 import { SigninThirdAuth } from "./signin-third-auth";
 
-type SignInMode = "email" | "email-otp" | "password";
-
 export const SignIn = () => {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const mode = (searchParams.get("mode") as SignInMode) ?? "email";
+  const [mode] = useQueryState("mode", signInModeParsers.mode);
   const [isPending, setIsPending] = useState(false);
 
   const handleEmailSubmit = async (data: SignInEmailFormData) => {

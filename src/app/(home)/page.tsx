@@ -1,3 +1,4 @@
+import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
 import { HomeMasonry } from "@/app/_components/home-masonry";
 import { HomeMasonrySkeleton } from "@/app/_components/home-masonry-skeleton";
@@ -5,6 +6,7 @@ import { SiteEmailSubscription } from "@/app/_components/site-email-subscription
 import { SiteShowcaseSheet } from "@/app/_components/site-showcase-sheet";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
 import { env } from "@/env";
+import { homeSearchParamsCache } from "@/lib/search-params";
 import { queryWithCursorRefSiteSchema } from "@/lib/validations/ref-site";
 import { queryWithCursor } from "@/server/functions/ref-sites";
 
@@ -13,11 +15,9 @@ export const revalidate = 7200;
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string>>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const resolvedSearchParams = await searchParams;
-  const search = resolvedSearchParams.s || "";
-  const tags = resolvedSearchParams.tags?.split(",").filter(Boolean) || [];
+  const { s: search, tags } = await homeSearchParamsCache.parse(searchParams);
 
   const initParams = queryWithCursorRefSiteSchema.parse({
     search,

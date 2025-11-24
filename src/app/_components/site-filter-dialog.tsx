@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useQueryStates } from "nuqs";
 import * as React from "react";
 import {
   ArrowDownIcon,
@@ -20,7 +20,8 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 import { siteTagMap } from "@/lib/constants";
-import { cn, getSearchParams } from "@/lib/utils";
+import { homeSearchParsers } from "@/lib/search-params";
+import { cn } from "@/lib/utils";
 
 export function SiteFilterCommand() {
   const tagOptions = React.useMemo(
@@ -32,19 +33,24 @@ export function SiteFilterCommand() {
     []
   );
 
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const params = getSearchParams(searchParams);
+  const [params, setParams] = useQueryStates(homeSearchParsers, {
+    shallow: false,
+  });
 
   const [open, setOpen] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [inputLock, setInputLock] = React.useState(false);
-  const [search, setSearch] = React.useState(params.s || "");
-  const [selected, setSelected] = React.useState<string[]>(
-    params.tags?.split(",").filter(Boolean) || []
-  );
+  // Draft state for dialog - synced from URL params when dialog opens
+  const [draftSearch, setDraftSearch] = React.useState(params.s);
+  const [draftTags, setDraftTags] = React.useState<string[]>(params.tags);
+
+  // Sync draft state when dialog opens
+  React.useEffect(() => {
+    if (open) {
+      setDraftSearch(params.s);
+      setDraftTags(params.tags);
+    }
+  }, [open, params.s, params.tags]);
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -59,12 +65,12 @@ export function SiteFilterCommand() {
   }, []);
 
   const handleConfirm = React.useCallback(() => {
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    newSearchParams.set("s", search);
-    newSearchParams.set("tags", selected.join(","));
-    router.push(`${pathname}?${newSearchParams.toString()}`);
+    setParams({
+      s: draftSearch,
+      tags: draftTags,
+    });
     setOpen(false);
-  }, [search, selected, searchParams, pathname, router]);
+  }, [draftSearch, draftTags, setParams]);
 
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -95,13 +101,11 @@ export function SiteFilterCommand() {
           }
           break;
         case "Escape":
-          setSearch(params.s || "");
-          setSelected(params.tags?.split(",") || []);
           setOpen(false);
           break;
       }
     },
-    [params, inputLock, handleConfirm]
+    [inputLock, handleConfirm]
   );
 
   const commandProps = React.useMemo(
@@ -114,21 +118,19 @@ export function SiteFilterCommand() {
   );
 
   const filterPreview = React.useMemo(() => {
-    const search = params.s || "";
-    const tags = params.tags?.split(",").filter(Boolean) || [];
-    if (!search.trim() && tags.length === 0) {
+    if (!params.s.trim() && params.tags.length === 0) {
       return <div>Search</div>;
     }
-    const showTags = tags.slice(0, 3);
+    const showTags = params.tags.slice(0, 3);
     return (
       <div className="flex items-center space-x-1">
-        <div className="max-w-[60px] truncate">{search}</div>
-        {tags.length > 0 &&
+        <div className="max-w-[60px] truncate">{params.s}</div>
+        {params.tags.length > 0 &&
           showTags.map((tag) => <span key={tag}>{siteTagMap[tag]}</span>)}
-        {tags.length > 3 && <span>... ${tags.length - 3}+</span>}
+        {params.tags.length > 3 && <span>... ${params.tags.length - 3}+</span>}
       </div>
     );
-  }, [params]);
+  }, [params.s, params.tags]);
 
   return (
     <>
@@ -158,10 +160,10 @@ export function SiteFilterCommand() {
           onCompositionStart={() => {
             setInputLock(true);
           }}
-          onInput={(e) => setSearch(e.currentTarget.value)}
+          onInput={(e) => setDraftSearch(e.currentTarget.value)}
           placeholder="Search sites..."
           ref={inputRef}
-          value={search}
+          value={draftSearch}
           wrapperClassname="px-4"
         >
           <CommandShortcut>⌘K</CommandShortcut>
@@ -184,15 +186,15 @@ export function SiteFilterCommand() {
                   htmlFor={tag.value}
                 >
                   <Checkbox
-                    checked={selected.includes(tag.value)}
+                    checked={draftTags.includes(tag.value)}
                     className="h-[18px] w-[18px]"
                     id={tag.value}
                     onCheckedChange={(value) => {
                       if (value) {
-                        setSelected([...selected, tag.value]);
+                        setDraftTags([...draftTags, tag.value]);
                       } else {
-                        setSelected(
-                          selected.filter((item) => item !== tag.value)
+                        setDraftTags(
+                          draftTags.filter((item) => item !== tag.value)
                         );
                       }
                     }}

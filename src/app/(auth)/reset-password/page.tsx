@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import type { SearchParams } from "nuqs/server";
 import { ResetPasswordForm } from "@/components/shared/auth/reset-password-form";
 import { ResetPasswordInvalid } from "@/components/shared/auth/reset-password-invalid";
+import { emailVerificationParamsCache } from "@/lib/search-params";
 
 export const metadata: Metadata = {
   title: "Reset Password",
@@ -10,9 +12,10 @@ export const metadata: Metadata = {
 export default async function ResetPasswordPage({
   searchParams,
 }: {
-  searchParams: Promise<{ email?: string; token?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { email, token } = await searchParams;
+  const { email, token } =
+    await emailVerificationParamsCache.parse(searchParams);
 
   // Validate required params - OTP validation happens on form submit
   if (!(email && token)) {

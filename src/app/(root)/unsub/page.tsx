@@ -2,13 +2,14 @@
 
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { useMutation } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
+import { useQueryStates } from "nuqs";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Spinner } from "@/components/shared/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/lib/orpc/react";
+import { unsubscribeParsers } from "@/lib/search-params";
 
 const unSubSchema = z.object({
   email: z
@@ -19,10 +20,10 @@ const unSubSchema = z.object({
 });
 
 export default function UnSubPage() {
-  const searchParams = useSearchParams();
+  const [params] = useQueryStates(unsubscribeParsers);
   const valid = unSubSchema.safeParse({
-    email: searchParams.get("email") || "",
-    token: searchParams.get("token") || "",
+    email: params.email || "",
+    token: params.token || "",
   });
 
   const ubSubAction = useMutation({

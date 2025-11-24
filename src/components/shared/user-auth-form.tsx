@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useQueryState } from "nuqs";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { emailOtp } from "@/lib/auth-client";
+import { authRedirectParsers } from "@/lib/search-params";
 import { cn } from "@/lib/utils";
 import { userAuthSchema } from "@/lib/validations/auth";
 import { Spinner } from "./icons";
@@ -42,7 +44,7 @@ export function UserAuthForm({
   });
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const searchParams = useSearchParams();
+  const [from] = useQueryState("from", authRedirectParsers.from);
   const [showOtpForm, setShowOtpForm] = React.useState<boolean>(false);
 
   const otpInputRef = React.useRef<HTMLInputElement>(null);
@@ -111,7 +113,7 @@ export function UserAuthForm({
 
       setOtpLoading(false);
       toast.success("Successfully signed in!");
-      router.replace(searchParams?.get("from")?.trim() || "/");
+      router.replace(from?.trim() || "/");
       router.refresh();
     } catch (err) {
       console.error("OTP verification error:", err);

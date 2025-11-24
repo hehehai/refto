@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import type { SearchParams } from "nuqs/server";
 import { VerifyEmailInvalid } from "@/components/shared/auth/verify-email-invalid";
 import { VerifyEmailSuccess } from "@/components/shared/auth/verify-email-success";
 import { auth } from "@/lib/auth/config";
+import { emailVerificationParamsCache } from "@/lib/search-params";
 
 export const metadata: Metadata = {
   title: "Verify Email",
@@ -11,9 +13,10 @@ export const metadata: Metadata = {
 export default async function VerifyEmailPage({
   searchParams,
 }: {
-  searchParams: Promise<{ email?: string; token?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { email, token } = await searchParams;
+  const { email, token } =
+    await emailVerificationParamsCache.parse(searchParams);
 
   // Validate required params
   if (!(email && token)) {
