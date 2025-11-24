@@ -33,7 +33,7 @@ function buildSubmitSiteOrderByClause(
 
 // 推荐网站
 const recommendProcedure = publicProcedure
-  .input(submitSiteCreateSchema("en"))
+  .input(submitSiteCreateSchema)
   .handler(async ({ input }) => {
     const { email, site, title, description } = input;
 

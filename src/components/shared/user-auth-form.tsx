@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -33,8 +32,6 @@ export function UserAuthForm({
   className,
   ...props
 }: UserAuthFormProps) {
-  const t = useTranslations("Auth");
-  const tSpace = `${isLogin ? "login" : "register"}`;
   const {
     register,
     handleSubmit,
@@ -64,8 +61,8 @@ export function UserAuthForm({
       setIsLoading(false);
 
       if (error) {
-        toast.error(error.message || t("status.error.description"), {
-          description: t("status.error.title"),
+        toast.error(error.message || "Something went wrong", {
+          description: "Failed to send verification code",
         });
         return;
       }
@@ -73,8 +70,8 @@ export function UserAuthForm({
       setOtpValue("");
       setShowOtpForm(true);
 
-      toast.success(t("status.success.description"), {
-        description: t("status.success.title"),
+      toast.success("Check your email for the verification code", {
+        description: "Verification code sent",
       });
 
       setTimeout(() => {
@@ -83,8 +80,8 @@ export function UserAuthForm({
     } catch (err) {
       setIsLoading(false);
       console.error("Send OTP error:", err);
-      toast.error(t("status.error.description"), {
-        description: t("status.error.title"),
+      toast.error("Something went wrong", {
+        description: "Failed to send verification code",
       });
     }
   }
@@ -103,8 +100,8 @@ export function UserAuthForm({
 
       if (error) {
         setOtpLoading(false);
-        toast.error(error.message || t("otp.error.description"), {
-          description: t("otp.error.title"),
+        toast.error(error.message || "Invalid verification code", {
+          description: "Verification failed",
         });
         setTimeout(() => {
           otpInputRef.current?.focus();
@@ -113,14 +110,14 @@ export function UserAuthForm({
       }
 
       setOtpLoading(false);
-      toast.success(t("otp.success.title"));
+      toast.success("Successfully signed in!");
       router.replace(searchParams?.get("from")?.trim() || "/");
       router.refresh();
     } catch (err) {
       console.error("OTP verification error:", err);
       setOtpLoading(false);
-      toast.error(t("otp.error.description"), {
-        description: t("otp.error.title"),
+      toast.error("Invalid verification code", {
+        description: "Verification failed",
       });
     }
   };
@@ -132,7 +129,7 @@ export function UserAuthForm({
           <div className="grid gap-3">
             <div className="grid gap-1">
               <Label className="sr-only" htmlFor="otp">
-                {t("otp.title")}
+                Verification Code
               </Label>
               <InputOTP
                 className="w-full"
@@ -177,7 +174,7 @@ export function UserAuthForm({
               ) : (
                 <span className="i-lucide-arrow-left mr-2" />
               )}
-              <span>{t("otp.try")}</span>
+              <span>Try another email</span>
             </button>
           </div>
         </form>
@@ -186,7 +183,7 @@ export function UserAuthForm({
           <div className="grid gap-3">
             <div className="grid gap-1">
               <Label className="sr-only" htmlFor="email">
-                {t(`${tSpace}.label`)}
+                Email
               </Label>
               <Input
                 autoCapitalize="none"
@@ -194,7 +191,7 @@ export function UserAuthForm({
                 autoCorrect="off"
                 disabled={isLoading}
                 id="email"
-                placeholder={t(`${tSpace}.m1`)}
+                placeholder="name@example.com"
                 type="email"
                 {...register("email")}
               />
@@ -210,7 +207,7 @@ export function UserAuthForm({
               type="submit"
             >
               {isLoading && <Spinner className="mr-2" />}
-              {t(`${tSpace}.button`)}
+              {isLogin ? "Sign In with Email" : "Sign Up with Email"}
             </button>
           </div>
         </form>
@@ -221,7 +218,7 @@ export function UserAuthForm({
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 text-muted-foreground">
-            {t(`${tSpace}.or`)}
+            Or continue with
           </span>
         </div>
       </div>

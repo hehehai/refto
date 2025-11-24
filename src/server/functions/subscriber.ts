@@ -6,10 +6,9 @@ import { eq } from "drizzle-orm";
 
 import { db, subscriber } from "@/db";
 import { env } from "@/env";
-import type { SupportLocale } from "@/i18n";
 
 // 订阅
-export async function subscribe(email: string, locale: SupportLocale) {
+export async function subscribe(email: string) {
   const { validFormat, validMx } = await verifyEmail({
     emailAddress: email,
     verifyMx: true,
@@ -34,7 +33,7 @@ export async function subscribe(email: string, locale: SupportLocale) {
       .values({
         id,
         email,
-        locale,
+        locale: "en",
         unSubSign,
       })
       .returning();
@@ -46,7 +45,7 @@ export async function subscribe(email: string, locale: SupportLocale) {
     const [updated] = await db
       .update(subscriber)
       .set({
-        locale,
+        locale: "en",
         unSubDate: null,
         updatedAt: new Date(),
       })

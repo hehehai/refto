@@ -22,7 +22,6 @@ import {
   type WeeklySentStatus,
   weekly,
 } from "@/db";
-import type { SupportLocale } from "@/i18n";
 import { batchSendEmail } from "@/lib/email";
 import { WeeklyEmail } from "@/lib/email/templates/weekly";
 import { pagination } from "@/lib/pagination";
@@ -191,7 +190,6 @@ const sendProcedure = adminProcedure
         id: subscriber.id,
         email: subscriber.email,
         unSubSign: subscriber.unSubSign,
-        locale: subscriber.locale,
       })
       .from(subscriber)
       .where(isNull(subscriber.unSubDate));
@@ -240,7 +238,6 @@ const sendProcedure = adminProcedure
             })),
             unsubscribeUrl: `${baseUrl}/unsub?email=${item.email}&token=${item.unSubSign}`,
             baseUrl,
-            locale: item.locale as SupportLocale,
           })
         ),
       });

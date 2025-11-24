@@ -15,30 +15,8 @@ import {
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
 import { Fragment } from "react";
-import { SupportLocale } from "@/i18n";
 import { site } from "@/lib/config/site";
 import { siteTagMap } from "@/lib/constants";
-
-const localeMap = {
-  [SupportLocale.en]: {
-    title: "Weekly",
-    description:
-      "This week, I was excited to add {{count}} selected websites, which lit up in front of my eyes and burst of inspiration. Check them out now!",
-    helper:
-      "Do you like the latest news this week? If you have any feedback on refto, please feel free to email us.",
-    slogan: site.description.en,
-    unsubscribe: "Unsubscribe",
-  },
-  [SupportLocale.zh_CN]: {
-    title: "Weekly",
-    description:
-      "本周，我们地添加了 {{count}} 个精选网站，它们让人眼前一亮，迸发出灵感。现在就去看看吧！",
-    helper:
-      "你喜欢本周的精选吗？ 如果你有任何关于 refto 的反馈，请随时联系我们。 ",
-    slogan: site.description["zh-CN"],
-    unsubscribe: "取消订阅",
-  },
-};
 
 interface WeeklyProps {
   count: number;
@@ -51,7 +29,6 @@ interface WeeklyProps {
   }[];
   unsubscribeUrl: string;
   baseUrl: string;
-  locale: SupportLocale;
 }
 
 export const WeeklyEmail = ({
@@ -59,13 +36,10 @@ export const WeeklyEmail = ({
   sites,
   baseUrl,
   unsubscribeUrl,
-  locale = SupportLocale.en,
 }: WeeklyProps) => (
   <Html>
     <Head />
-    <Preview>
-      {localeMap[locale].title} {site.siteName}
-    </Preview>
+    <Preview>Weekly {site.siteName}</Preview>
     <Tailwind>
       <Fragment>
         <Body className="mx-auto my-auto px-2 font-sans">
@@ -80,38 +54,37 @@ export const WeeklyEmail = ({
               />
             </Section>
             <Heading className="mx-0 my-[30px] p-0 text-center font-medium text-[24px]">
-              {localeMap[locale].title} {site.siteName}
+              Weekly {site.siteName}
             </Heading>
             <Text className="mt-12 mb-16 leading-5">
-              {localeMap[locale].description.replace(
-                "{{count}}",
-                count.toString()
-              )}
+              This week, I was excited to add {count} selected websites, which
+              lit up in front of my eyes and burst of inspiration. Check them
+              out now!
             </Text>
 
-            {sites.map((site, idx) => (
+            {sites.map((siteItem, idx) => (
               <Section className="mb-10 text-center" key={idx as React.Key}>
                 <Link
                   className="text-blue-600 no-underline"
-                  href={`${baseUrl}/${site.id}`}
+                  href={`${baseUrl}/${siteItem.id}`}
                 >
                   <Img
-                    alt={site.title}
+                    alt={siteItem.title}
                     className="my-0 w-full object-cover object-top"
                     height="300"
-                    src={site.cover}
+                    src={siteItem.cover}
                   />
                 </Link>
                 <Row>
                   <Column className="text-left">
                     <Text className="my-1.5 font-medium text-[16px]">
-                      {site.title}
+                      {siteItem.title}
                     </Text>
                   </Column>
                   <Column className="text-right">
                     <Link
                       className="my-1.5 rounded-full bg-blue-600 px-3 py-0.5 font-normal text-[13px] text-white no-underline"
-                      href={site.url}
+                      href={siteItem.url}
                     >
                       Refto
                     </Link>
@@ -120,18 +93,18 @@ export const WeeklyEmail = ({
                 <Row>
                   <Column className="text-left">
                     <Text className="mt-1 font-normal text-[13px] text-zinc-700">
-                      {site.tags
-                        .map(
-                          (tag) =>
-                            `${siteTagMap[tag]?.[locale as "en" | "zh-CN"] || tag}`
-                        )
+                      {siteItem.tags
+                        .map((tag) => siteTagMap[tag] || tag)
                         .join(", ")}
                     </Text>
                   </Column>
                 </Row>
               </Section>
             ))}
-            <Text className="mt-16 leading-6">{localeMap[locale].helper}</Text>
+            <Text className="mt-16 leading-6">
+              Do you like the latest news this week? If you have any feedback on
+              refto, please feel free to email us.
+            </Text>
             <Hr className="mx-0 mt-12 mb-5 w-full border border-zinc-100 border-solid" />
             <Section className="mb-4">
               <Img
@@ -142,15 +115,13 @@ export const WeeklyEmail = ({
               />
             </Section>
 
-            <Text className="text-center leading-6">
-              {localeMap[locale].slogan}
-            </Text>
+            <Text className="text-center leading-6">{site.description}</Text>
             <Text className="text-center text-[12px] leading-6">
               <Link
                 className="text-[#666666] no-underline"
                 href={unsubscribeUrl}
               >
-                {localeMap[locale].unsubscribe}
+                Unsubscribe
               </Link>
             </Text>
           </Container>
@@ -182,7 +153,6 @@ WeeklyEmail.PreviewProps = {
   ],
   unsubscribeUrl: "https://refto.one/unsub?email=rivehohai@gmail.com&token=123",
   baseUrl: "https://refto.one",
-  locale: "zh-CN",
 } as WeeklyProps;
 
 export default WeeklyEmail;

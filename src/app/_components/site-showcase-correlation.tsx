@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/lib/orpc/react";
 import { SiteShowcase } from "./site-showcase";
@@ -23,14 +22,13 @@ export const SiteShowcaseCorrelation = ({
   id: string;
   onDetailAction?: (id: string) => void;
 }) => {
-  const t = useTranslations("Detail.correlation");
   const sitesQuery = useQuery(
     orpc.refSites.correlation.queryOptions({ input: { id } })
   );
 
   return (
     <div>
-      <div className="mb-3 text-lg md:mb-6 md:text-2xl">{t("title")}</div>
+      <div className="mb-3 text-lg md:mb-6 md:text-2xl">Related Sites</div>
       <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 smg:gap-4 md:grid-cols-3 md:gap-6 lg:gap-8">
         {sitesQuery.isPending ? (
           <SiteShowcaseCorrelationSkeleton />

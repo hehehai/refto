@@ -2,7 +2,6 @@
 
 import { X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
 import * as React from "react";
 import {
   ArrowDownIcon,
@@ -20,21 +19,17 @@ import {
   CommandList,
   CommandShortcut,
 } from "@/components/ui/command";
-import type { SiteLocale } from "@/i18n";
 import { siteTagMap } from "@/lib/constants";
 import { cn, getSearchParams } from "@/lib/utils";
 
 export function SiteFilterCommand() {
-  const t = useTranslations("Index.Search");
-  const locale = useLocale();
-
   const tagOptions = React.useMemo(
     () =>
-      Object.entries(siteTagMap).map(([value, item]) => ({
-        label: item[locale as SiteLocale],
+      Object.entries(siteTagMap).map(([value, label]) => ({
+        label,
         value,
       })),
-    [locale]
+    []
   );
 
   const pathname = usePathname();
@@ -63,8 +58,6 @@ export function SiteFilterCommand() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  // 获取 查询参数， 初始化 search 和 checkbox
-
   const handleConfirm = React.useCallback(() => {
     const newSearchParams = new URLSearchParams(searchParams.toString());
     newSearchParams.set("s", search);
@@ -78,14 +71,11 @@ export function SiteFilterCommand() {
       switch (e.key) {
         case "ArrowDown":
         case "ArrowUp": {
-          // 获取所有 cmdk-group-items 属性元素的子元素，筛选元素 data-selected="true" 的元素，设置聚焦
           const items = document.querySelectorAll<HTMLDivElement>(
             'div[cmdk-group-items] > [data-selected="true"]'
           );
           if (items.length) {
             const [activeEl] = items;
-            // 如果为上， 设置为当前元素的上一个元素， 如果为下，设置为当前元素的下一个元素
-            // 如果上一个元素，不存在， 则需要让 input 聚焦
             if (e.key === "ArrowUp") {
               const prev = activeEl?.previousElementSibling;
               if (prev) {
@@ -127,20 +117,18 @@ export function SiteFilterCommand() {
     const search = params.s || "";
     const tags = params.tags?.split(",").filter(Boolean) || [];
     if (!search.trim() && tags.length === 0) {
-      return <div>{t("holder")}</div>;
+      return <div>Search</div>;
     }
     const showTags = tags.slice(0, 3);
     return (
       <div className="flex items-center space-x-1">
         <div className="max-w-[60px] truncate">{search}</div>
         {tags.length > 0 &&
-          showTags.map((tag) => (
-            <span key={tag}>{siteTagMap[tag]?.[locale as SiteLocale]}</span>
-          ))}
+          showTags.map((tag) => <span key={tag}>{siteTagMap[tag]}</span>)}
         {tags.length > 3 && <span>... ${tags.length - 3}+</span>}
       </div>
     );
-  }, [params, t, locale]);
+  }, [params]);
 
   return (
     <>
@@ -152,7 +140,7 @@ export function SiteFilterCommand() {
         onClick={() => setOpen(true)}
       >
         <div className="hidden sm:block">{filterPreview}</div>
-        <div className="sm:hidden">{t("holder")}</div>
+        <div className="sm:hidden">Search</div>
         <div className="-translate-y-1/2 absolute top-1/2 right-1 flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
           <FilterIcon className="text-lg" />
         </div>
@@ -171,7 +159,7 @@ export function SiteFilterCommand() {
             setInputLock(true);
           }}
           onInput={(e) => setSearch(e.currentTarget.value)}
-          placeholder={t("placeholder")}
+          placeholder="Search sites..."
           ref={inputRef}
           value={search}
           wrapperClassname="px-4"
@@ -183,12 +171,12 @@ export function SiteFilterCommand() {
             type="button"
           >
             <X className="h-3 w-3" />
-            <span className="sr-only">{t("controls.cancel")}</span>
+            <span className="sr-only">Cancel</span>
           </button>
         </CommandInput>
         <CommandList>
-          <CommandEmpty>{t("empty")}</CommandEmpty>
-          <CommandGroup heading={t("tagsLabel")}>
+          <CommandEmpty>No results found</CommandEmpty>
+          <CommandGroup heading="Tags">
             {tagOptions.map((tag) => (
               <CommandItem className="p-0" key={tag.value} value={tag.value}>
                 <label
@@ -225,7 +213,7 @@ export function SiteFilterCommand() {
                 <ArrowDownIcon className="text-md" />
               </CommandShortcut>
               <span className="text-xs text-zinc-700 dark:text-foreground/40">
-                {t("controls.move")}
+                Move
               </span>
             </span>
           </div>
@@ -233,19 +221,19 @@ export function SiteFilterCommand() {
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">Space</CommandShortcut>
               <span className="text-xs text-zinc-700 dark:text-foreground/40">
-                {t("controls.select")}
+                Select
               </span>
             </span>
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">Enter</CommandShortcut>
               <span className="text-xs text-zinc-700 dark:text-foreground/40">
-                {t("controls.confirm")}
+                Confirm
               </span>
             </span>
             <span className="flex items-center space-x-1">
               <CommandShortcut className="py-0.5">ESC</CommandShortcut>
               <span className="text-xs text-zinc-700 dark:text-foreground/40">
-                {t("controls.cancel")}
+                Cancel
               </span>
             </span>
           </div>
@@ -258,7 +246,7 @@ export function SiteFilterCommand() {
             }
           }}
         >
-          <Button className="w-full">{t("controls.confirm")}</Button>
+          <Button className="w-full">Confirm</Button>
         </div>
       </CommandDialog>
     </>

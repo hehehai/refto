@@ -3,8 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLocale } from "next-intl";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   DashboardIcon,
   DocIcon,
@@ -13,45 +12,30 @@ import {
   WeeklyIcon,
 } from "@/components/shared/icons";
 
-const panelNavMap = (local: string) => [
+const panelNav = [
   {
-    path: `/${local}/panel`,
-    label: {
-      en: "Dashboard",
-      "zh-CN": "仪表盘",
-    }[local],
+    path: "/panel",
+    label: "Dashboard",
     icon: DashboardIcon,
   },
   {
-    path: `/${local}/panel/submit-sites`,
-    label: {
-      en: "Submit Sites",
-      "zh-CN": "站点提交",
-    }[local],
+    path: "/panel/submit-sites",
+    label: "Submit Sites",
     icon: DocIcon,
   },
   {
-    path: `/${local}/panel/ref-sites`,
-    label: {
-      en: "Ref Sites",
-      "zh-CN": "引用站点",
-    }[local],
+    path: "/panel/ref-sites",
+    label: "Ref Sites",
     icon: ListIcon,
   },
   {
-    path: `/${local}/panel/weekly`,
-    label: {
-      en: "Weekly",
-      "zh-CN": "每周精彩",
-    }[local],
+    path: "/panel/weekly",
+    label: "Weekly",
     icon: WeeklyIcon,
   },
   {
-    path: `/${local}/panel/subscriber`,
-    label: {
-      en: "Subscriber",
-      "zh-CN": "订阅者",
-    }[local],
+    path: "/panel/subscriber",
+    label: "Subscriber",
     icon: SubscriberIcon,
   },
 ];
@@ -59,14 +43,12 @@ const panelNavMap = (local: string) => [
 interface PanelNavProps extends React.ComponentPropsWithoutRef<"nav"> {}
 
 export const PanelNav = (props: PanelNavProps) => {
-  const local = useLocale();
   const path = usePathname();
   const [active, setActive] = useState(path);
-  const nav = useMemo(() => panelNavMap(local), [local]);
 
   return (
     <nav {...props}>
-      {nav.map((item) => (
+      {panelNav.map((item) => (
         <Link
           className="relative flex items-center pr-1.5 pl-1"
           href={item.path}

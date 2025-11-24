@@ -1,0 +1,247 @@
+"use client";
+
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  type ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  type PaginationState,
+  type SortingState,
+  useReactTable,
+  type VisibilityState,
+} from "@tanstack/react-table";
+import { useAtom } from "jotai";
+import * as React from "react";
+import { toast } from "sonner";
+import {
+  refSiteDetailSheetAtom,
+  refSiteDialogAtom,
+  refSiteDialogEmitter,
+} from "@/app/(panel)/_store/dialog.store";
+import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
+import { Spinner } from "@/components/shared/icons";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type { RefSite } from "@/db/schema";
+import { siteTagMap } from "@/lib/constants";
+import { getQueryClient, orpc } from "@/lib/orpc/react";
+import { columns } from "./columns";
+import { DataTableRowActions } from "./data-table-row-actions";
+
+const statusOptions = Object.entries(siteTagMap).map(([value, label]) => ({
+  label,
+  value,
+}));
+
+export function DataTable() {
+  const [_, setDetailStatus] = useAtom(refSiteDetailSheetAtom);
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const queryClient = getQueryClient();
+
+  const queryInput = {
+    limit: pagination.pageSize,
+    search: globalFilter,
+    orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
+    page: pagination.pageIndex,
+  };
+
+  const tableQuery = useQuery({
+    ...orpc.refSites.query.queryOptions({ input: queryInput }),
+    refetchOnWindowFocus: false,
+  });
+
+  const deleteRow = useMutation({
+    ...orpc.refSites.delete.mutationOptions(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: orpc.refSites.query.key({ input: queryInput }),
+      });
+      toast.success("Ref Site deleted");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const tableColumns = React.useMemo(
+    () =>
+      columns(
+        (row) => (
+          <DataTableRowActions onRefresh={tableQuery.refetch} row={row} />
+        ),
+        {
+          onDetail: setDetailStatus,
+        }
+      ),
+    [tableQuery.refetch, setDetailStatus]
+  );
+
+  const table = useReactTable<RefSite>({
+    data: (tableQuery.data?.rows as unknown as RefSite[]) || [],
+    pageCount: (tableQuery.data as any)?.maxPage + 1 || 0,
+    columns: tableColumns,
+    state: {
+      pagination,
+      globalFilter,
+      sorting,
+      columnVisibility,
+      rowSelection,
+      columnFilters,
+    },
+    defaultColumn: {
+      minSize: 0,
+      size: Number.MAX_SAFE_INTEGER,
+      maxSize: Number.MAX_SAFE_INTEGER,
+    },
+    enableRowSelection: true,
+    manualPagination: true,
+    manualSorting: true,
+    enableMultiSort: false,
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    onPaginationChange: setPagination,
+  });
+
+  const [status, setStatus] = useAtom(refSiteDialogAtom);
+
+  React.useEffect(() => {
+    refSiteDialogEmitter.on("success", tableQuery.refetch);
+    return () => {
+      refSiteDialogEmitter.off("success", tableQuery.refetch);
+    };
+  }, [tableQuery.refetch]);
+
+  return (
+    <div className="space-y-4">
+      <DataTableToolbar
+        actionsSlot={
+          <Button
+            disabled={status.show}
+            onClick={() => setStatus({ show: true, isAdd: true, id: null })}
+          >
+            Crate
+          </Button>
+        }
+        filterSlot={
+          <DataTableFacetedFilter
+            onChange={(value) =>
+              table.setColumnFilters([{ id: "tags", value }])
+            }
+            options={statusOptions}
+            title="Tags"
+            value={(table.getState().columnFilters[0]?.value as string[]) ?? []}
+          />
+        }
+        searchPlaceholder="Search with site name / title / url"
+        table={table}
+      />
+      <div className="rounded-lg border">
+        {tableQuery.isPending ? (
+          <div className="flex min-h-[300px] w-full items-center justify-center">
+            <Spinner className="text-2xl" />
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead colSpan={header.colSpan} key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    data-state={row.getIsSelected() && "selected"}
+                    key={row.id}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    className="h-24 text-center"
+                    colSpan={tableColumns.length}
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        )}
+      </div>
+      <DataTablePagination
+        footerActions={
+          <>
+            {table.getFilteredSelectedRowModel().rows.length > 0 && (
+              <Button
+                disabled={deleteRow.isPending}
+                onClick={() => {
+                  const ids = table
+                    .getFilteredSelectedRowModel()
+                    .rows.filter((row) => !row.original.deletedAt)
+                    .map((row) => row.original.id);
+                  if (!ids.length) {
+                    toast.error("No can be deleted");
+                    return;
+                  }
+                  deleteRow.mutate({ ids });
+                }}
+                size={"sm"}
+                variant={"destructive"}
+              >
+                {deleteRow.isPending && <Spinner className="mr-2" />}
+                <span>Delete</span>
+              </Button>
+            )}
+          </>
+        }
+        table={table}
+        total={tableQuery.data?.total}
+      />
+    </div>
+  );
+}

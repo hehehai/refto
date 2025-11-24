@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { MenuIcon } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
@@ -10,19 +9,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { supportedLanguages } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 export const SiteMenu = () => {
-  const t = useTranslations("Header");
-  const locale = useLocale();
   const { setTheme, theme = "system" } = useTheme();
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button className="space-x-2 rounded-full" variant={"secondary"}>
           <MenuIcon className="text-xl" />
-          <span className="hidden md:inline">{t("menu")}</span>
+          <span className="hidden md:inline">Menu</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -32,24 +28,9 @@ export const SiteMenu = () => {
       >
         <div className="group inline-flex items-center justify-end space-x-4">
           <Link href="/about">
-            <span>{t("about")}</span>
+            <span>About</span>
           </Link>
-          <span className="h-px w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
-        </div>
-        <div className="group inline-flex items-center justify-end space-x-4">
-          {supportedLanguages.map((lang) => (
-            <Link
-              className={cn("cursor-pointer hover:text-foreground", {
-                "text-foreground/55": lang.locale !== locale,
-              })}
-              href={`/${lang.locale}`}
-              key={lang.id}
-              locale={lang.locale}
-            >
-              {lang.title}
-            </Link>
-          ))}
-          <span className="h-px w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
+          <span className="h-px w-5 bg-zinc-700 transition-all group-hover:w-[30px]" />
         </div>
         <div className="group inline-flex items-center justify-end space-x-4">
           {["light", "dark", "system"].map((mode) => (
@@ -64,7 +45,7 @@ export const SiteMenu = () => {
               {mode}
             </button>
           ))}
-          <span className="h-px w-[20px] bg-zinc-700 transition-all group-hover:w-[30px]" />
+          <span className="h-px w-5 bg-zinc-700 transition-all group-hover:w-[30px]" />
         </div>
       </PopoverContent>
     </Popover>

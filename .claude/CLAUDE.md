@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Refto is a curated design reference website built with Next.js App Router, featuring internationalization, email subscriptions, and an admin panel for content management.
+Refto is a curated design reference website built with Next.js App Router, featuring email subscriptions and an admin panel for content management.
 
 ## Development Commands
 
@@ -26,11 +26,10 @@ pnpm email:dev        # Preview email templates (port 3527)
 ```
 src/
 ├── app/
-│   ├── [locale]/           # i18n routing (en, zh-CN)
-│   │   ├── (auth)/         # Login/register pages
-│   │   ├── (home)/         # Home page
-│   │   ├── (panel)/panel/  # Admin dashboard
-│   │   └── (root)/         # Public pages
+│   ├── (auth)/             # Login/register pages
+│   ├── (home)/             # Home page
+│   ├── (panel)/panel/      # Admin dashboard
+│   ├── (root)/             # Public pages
 │   └── api/
 │       ├── auth/           # Better Auth endpoint
 │       └── trpc/           # tRPC API handler
@@ -51,7 +50,6 @@ src/
 ├── components/
 │   ├── ui/                 # shadcn/ui primitives
 │   └── shared/             # Reusable components
-├── messages/               # i18n translations (en.json, zh-CN.json)
 └── env.js                  # t3-env validation
 ```
 
@@ -79,10 +77,6 @@ Schema and types are exported from `@/db/schema`.
 ### Authentication
 
 Email/OTP via Better Auth with 6-digit verification codes. Roles: `USER`, `ADMIN`.
-
-### i18n (next-intl)
-
-Locales: `en` (default), `zh-CN`. Default locale has no URL prefix.
 
 ## Code Standards
 

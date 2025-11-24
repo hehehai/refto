@@ -1,16 +1,12 @@
+import { getSessionCookie } from "better-auth/cookies";
 import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import createIntlMiddleware from "next-intl/middleware";
-
-import { routing } from "@/i18n/routing";
 
 const protectionPages = ["/panel"];
 
-const intlMiddleware = createIntlMiddleware(routing);
-
 export default async function proxy(req: NextRequest, _event: NextFetchEvent) {
   const protectionPathnameRegex = new RegExp(
-    `^(/(${routing.locales.join("|")}))?(${protectionPages
+    `^(${protectionPages
       .flatMap((p) => (p === "/" ? ["", "/"] : p))
       .join("|")})/?`,
     "i"
@@ -19,24 +15,24 @@ export default async function proxy(req: NextRequest, _event: NextFetchEvent) {
   const isProtectionPage = protectionPathnameRegex.test(req.nextUrl.pathname);
 
   if (!isProtectionPage) {
-    return intlMiddleware(req);
+    return NextResponse.next();
   }
 
   // For protected pages, check if user has a session cookie
   // Better Auth uses a session token cookie
-  const sessionCookie = req.cookies.get("better-auth.session_token");
+  const sessionCookie = getSessionCookie(req);
 
-  if (!sessionCookie?.value) {
+  if (!sessionCookie) {
     // Redirect to login page if no session
     const loginUrl = new URL("/signin", req.url);
     loginUrl.searchParams.set("from", req.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // User has session cookie, proceed with intl middleware
-  return intlMiddleware(req);
+  // User has session cookie, proceed
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|.*\\..*).*)"],
+  matcher: ["/panel"],
 };

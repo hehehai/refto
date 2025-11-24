@@ -4,7 +4,6 @@ import { useAtom } from "jotai";
 import { Maximize2, X } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useLocale } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { refSiteSheetAtom } from "@/app/_store/sheet.store";
@@ -22,7 +21,6 @@ import { SiteDetail } from "./site-detail";
 import { SiteShowcaseCorrelation } from "./site-showcase-correlation";
 
 export const SiteShowcaseSheet = () => {
-  const locale = useLocale();
   const searchParams = useSearchParams();
   const [status, setStatus] = useAtom(refSiteSheetAtom);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -97,7 +95,7 @@ export const SiteShowcaseSheet = () => {
                 <Spinner className="text-3xl" />
               </div>
             ) : detailData ? (
-              <SiteDetail item={detailData} locale={locale} />
+              <SiteDetail item={detailData} />
             ) : null}
 
             <div className="container">

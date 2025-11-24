@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtom } from "jotai";
-import { refSiteDialogAtom } from "@/app/[locale]/(panel)/_store/dialog.store";
+import { refSiteDialogAtom } from "@/app/(panel)/_store/dialog.store";
 import { BoxAddIcon } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
 

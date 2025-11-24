@@ -14,7 +14,6 @@ import type { PgColumn } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
 import { db, type Subscriber, subscriber } from "@/db";
-import { SupportLocale } from "@/i18n";
 import { pagination } from "@/lib/pagination";
 import { formatOrders, genOrderValidSchema } from "@/lib/utils";
 import { adminProcedure, publicProcedure } from "@/server/api/orpc";
@@ -107,10 +106,9 @@ const subscribeProcedure = publicProcedure
   .input(
     z.object({
       email: z.email(),
-      locale: z.enum(SupportLocale).optional().default(SupportLocale.en),
     })
   )
-  .handler(async ({ input }) => subscribe(input.email, input.locale));
+  .handler(async ({ input }) => subscribe(input.email));
 
 // 取消订阅
 const unsubscribeProcedure = publicProcedure

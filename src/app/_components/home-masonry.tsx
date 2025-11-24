@@ -2,7 +2,6 @@
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
-import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef } from "react";
 import { Masonry } from "react-plock";
 import { refSiteSheetAtom } from "@/app/_store/sheet.store";
@@ -24,8 +23,6 @@ export const HomeMasonry = ({
   firstSlice,
   initNextCursor,
 }: HomeMasonryProps) => {
-  const t = useTranslations("Index.list");
-
   const [_, setStatus] = useAtom(refSiteSheetAtom);
   const bottomTriggerRef = useRef(null);
   const inView = useIntersectionObserver(bottomTriggerRef, {
@@ -71,7 +68,7 @@ export const HomeMasonry = ({
     <div className="pb-8">
       {allData.length === 0 ? (
         <div className="flex min-h-96 w-full items-center justify-center">
-          <div>{t("empty")}</div>
+          <div>No sites found</div>
         </div>
       ) : (
         <>
@@ -101,10 +98,10 @@ export const HomeMasonry = ({
               variant={"secondary"}
             >
               {isFetchingNextPage
-                ? t("loading")
+                ? "Loading..."
                 : hasNextPage
-                  ? t("more")
-                  : t("nothing")}
+                  ? "Load More"
+                  : "No more sites"}
             </Button>
           </div>
         </>
