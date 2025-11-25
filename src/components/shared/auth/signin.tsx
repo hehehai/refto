@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryState } from "nuqs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
@@ -21,8 +21,29 @@ import { SigninThirdAuth } from "./signin-third-auth";
 
 export const SignIn = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mode] = useQueryState("mode", signInModeParsers.mode);
   const [isPending, setIsPending] = useState(false);
+
+  // Handle OAuth callback errors (e.g., banned user)
+  useEffect(() => {
+    const error = searchParams.get("error");
+    const errorDescription = searchParams.get("error_description");
+
+    if (error) {
+      if (error === "USER_BANNED" || errorDescription?.includes("banned")) {
+        toast.error(
+          errorDescription ||
+            "Your account has been banned. Please contact support.",
+          { duration: 6000 }
+        );
+      } else {
+        toast.error(errorDescription || error || "Authentication failed");
+      }
+      // Clean up URL params
+      router.replace("/signin");
+    }
+  }, [searchParams, router]);
 
   const handleEmailSubmit = async (data: SignInEmailFormData) => {
     setIsPending(true);
@@ -53,6 +74,19 @@ export const SignIn = () => {
         password: data.password,
       });
       if (response.error) {
+        // Handle banned user error
+        const errorCode = (response.error as { code?: string })?.code;
+        if (errorCode === "USER_BANNED") {
+          const banReason = (response.error as { banReason?: string })
+            ?.banReason;
+          toast.error(
+            banReason
+              ? `Your account has been banned: ${banReason}`
+              : "Your account has been banned. Please contact support.",
+            { duration: 6000 }
+          );
+          return;
+        }
         toast.error(
           response.error.message ||
             (response.error as { statusText?: string }).statusText ||
@@ -83,6 +117,18 @@ export const SignIn = () => {
           otp: data.otp,
         });
         if (error) {
+          // Handle banned user error
+          const errorCode = (error as { code?: string })?.code;
+          if (errorCode === "USER_BANNED") {
+            const banReason = (error as { banReason?: string })?.banReason;
+            toast.error(
+              banReason
+                ? `Your account has been banned: ${banReason}`
+                : "Your account has been banned. Please contact support.",
+              { duration: 6000 }
+            );
+            return;
+          }
           toast.error(error.message || "Failed to verify OTP");
         } else {
           router.push("/");

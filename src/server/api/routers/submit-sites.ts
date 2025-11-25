@@ -70,6 +70,7 @@ const queryProcedure = adminProcedure
         .enum(["PENDING", "APPROVED", "REJECTED"] as const)
         .optional()
         .default("PENDING"),
+      userId: z.string().optional(),
       orderBy: genOrderValidSchema<SubmitSite>([
         "createdAt",
         "approvedAt",
@@ -81,7 +82,7 @@ const queryProcedure = adminProcedure
     })
   )
   .handler(async ({ input }) => {
-    const { search, limit, page, status, orderBy } = input;
+    const { search, limit, page, status, userId, orderBy } = input;
 
     const conditions: SQL[] = [];
 
@@ -96,6 +97,11 @@ const queryProcedure = adminProcedure
     }
 
     conditions.push(eq(submitSite.status, status as SubmitSiteStatus));
+
+    // Filter by userId
+    if (userId) {
+      conditions.push(eq(submitSite.userId, userId));
+    }
 
     const orderByClause = buildSubmitSiteOrderByClause(orderBy);
 

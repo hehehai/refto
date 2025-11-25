@@ -1,6 +1,7 @@
 import type { InferRouterInputs, InferRouterOutputs } from "@orpc/server";
 
 import { refSitesRouter } from "@/server/api/routers/ref-sites";
+import { adminUserRouter } from "./routers/admin-user";
 import { siteMetaRouter } from "./routers/site-meta";
 import { submitSitesRouter } from "./routers/submit-sites";
 import { subscriberRouter } from "./routers/subscriber";
@@ -21,6 +22,7 @@ export const appRouter = {
   siteMeta: siteMetaRouter,
   submitSite: submitSitesRouter,
   user: userRouter,
+  adminUser: adminUserRouter,
 };
 
 // export type definition of API

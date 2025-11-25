@@ -10,14 +10,13 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
+import type { DateRange } from "react-day-picker";
 import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
+import { DatePickerWithRange } from "@/components/shared/date-range-picker";
 import { Spinner } from "@/components/shared/icons";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -27,14 +26,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getQueryClient, orpc } from "@/lib/orpc/react";
-import { columns, type SubmitSiteWithSubmitter, statuses } from "./columns";
+import { userEditDialogEmitter } from "../_store/dialog.store";
+import {
+  columns,
+  roles,
+  statuses,
+  subscriptionStatuses,
+  type UserWithMeta,
+} from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
 
 export function DataTable() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const userIdFromUrl = searchParams.get("userId");
-
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -47,41 +49,73 @@ export function DataTable() {
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [dateRange, setDateRange] = React.useState<{
+    from?: Date;
+    to?: Date;
+  }>({});
 
   const queryClient = getQueryClient();
+
+  // Extract filter values from columnFilters
+  const roleFilter = columnFilters.find((f) => f.id === "role")?.value as
+    | string
+    | undefined;
+  const statusFilter = columnFilters.find((f) => f.id === "status")?.value as
+    | string
+    | undefined;
+  const subscriptionFilter = columnFilters.find((f) => f.id === "subscription")
+    ?.value as string | undefined;
+
   const input = React.useMemo(
     () => ({
       limit: pagination.pageSize,
       search: globalFilter,
       orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
       page: pagination.pageIndex,
-      status: columnFilters[0]?.value as any,
-      userId: userIdFromUrl || undefined,
+      role: roleFilter as "USER" | "ADMIN" | undefined,
+      status: statusFilter as "active" | "banned" | undefined,
+      subscribed: subscriptionFilter as
+        | "subscribed"
+        | "unsubscribed"
+        | undefined,
+      createdAtStart: dateRange.from,
+      createdAtEnd: dateRange.to,
     }),
     [
       pagination.pageSize,
       pagination.pageIndex,
       globalFilter,
       sorting,
-      columnFilters,
-      userIdFromUrl,
+      roleFilter,
+      statusFilter,
+      subscriptionFilter,
+      dateRange,
     ]
   );
 
   const tableQuery = useQuery({
-    ...orpc.submitSite.query.queryOptions({ input }),
+    ...orpc.adminUser.query.queryOptions({ input }),
     refetchOnWindowFocus: false,
   });
 
   const handleRefresh = React.useCallback(() => {
     queryClient.invalidateQueries({
-      queryKey: orpc.submitSite.query.key({ input }),
+      queryKey: orpc.adminUser.query.key({ input }),
     });
   }, [queryClient, input]);
 
-  const handleClearUserFilter = React.useCallback(() => {
-    router.push("/admin/submit-sites");
-  }, [router]);
+  // Listen for edit success to refresh data
+  React.useEffect(() => {
+    const handleSuccess = () => {
+      handleRefresh();
+    };
+
+    userEditDialogEmitter.on("success", handleSuccess);
+
+    return () => {
+      userEditDialogEmitter.off("success", handleSuccess);
+    };
+  }, [handleRefresh]);
 
   const tableColumns = React.useMemo(
     () =>
@@ -91,8 +125,8 @@ export function DataTable() {
     [handleRefresh]
   );
 
-  const table = useReactTable<SubmitSiteWithSubmitter>({
-    data: (tableQuery.data?.rows as any) || [],
+  const table = useReactTable<UserWithMeta>({
+    data: (tableQuery.data?.rows as UserWithMeta[]) || [],
     pageCount: (tableQuery.data as any)?.maxPage + 1 || 0,
     columns: tableColumns,
     state: {
@@ -121,34 +155,55 @@ export function DataTable() {
     onPaginationChange: setPagination,
   });
 
+  const handleFilterChange = (id: string, values: string[]) => {
+    setColumnFilters((prev) => {
+      const existing = prev.filter((f) => f.id !== id);
+      // Take only the first value since these are single-select filters
+      const value = values[0];
+      if (value) {
+        return [...existing, { id, value }];
+      }
+      return existing;
+    });
+  };
+
   return (
     <div className="space-y-4">
       <DataTableToolbar
         filterSlot={
           <div className="flex flex-wrap items-center gap-2">
             <DataTableFacetedFilter
-              onChange={(value) =>
-                table.setColumnFilters([{ id: "status", value }])
-              }
+              onChange={(value) => handleFilterChange("role", value)}
+              options={roles}
+              title="Role"
+              value={roleFilter ? [roleFilter] : []}
+            />
+            <DataTableFacetedFilter
+              onChange={(value) => handleFilterChange("status", value)}
               options={statuses}
               title="Status"
+              value={statusFilter ? [statusFilter] : []}
+            />
+            <DataTableFacetedFilter
+              onChange={(value) => handleFilterChange("subscription", value)}
+              options={subscriptionStatuses}
+              title="Subscription"
+              value={subscriptionFilter ? [subscriptionFilter] : []}
+            />
+            <DatePickerWithRange
+              onChange={(range: DateRange | undefined) =>
+                setDateRange({ from: range?.from, to: range?.to })
+              }
+              placeholder="Created Date"
               value={
-                (table.getState().columnFilters[0]?.value as string[]) ?? []
+                dateRange.from
+                  ? { from: dateRange.from, to: dateRange.to }
+                  : undefined
               }
             />
-            {userIdFromUrl && (
-              <Badge
-                className="cursor-pointer gap-1 pr-1"
-                onClick={handleClearUserFilter}
-                variant="secondary"
-              >
-                <span>User: {userIdFromUrl.slice(0, 8)}...</span>
-                <span className="i-lucide-x h-3 w-3" />
-              </Badge>
-            )}
           </div>
         }
-        searchPlaceholder="Search email & site url"
+        searchPlaceholder="Search name & email"
         table={table}
       />
       <div className="rounded-lg border">
@@ -205,25 +260,7 @@ export function DataTable() {
           </Table>
         )}
       </div>
-      <DataTablePagination
-        footerActions={
-          <>
-            {table.getFilteredSelectedRowModel().rows.length > 0 && (
-              <Button
-                onClick={() => {
-                  // empty
-                }}
-                size={"sm"}
-                variant={"destructive"}
-              >
-                <Spinner className="mr-2" />
-                <span>Switch</span>
-              </Button>
-            )}
-          </>
-        }
-        table={table}
-      />
+      <DataTablePagination table={table} />
     </div>
   );
 }

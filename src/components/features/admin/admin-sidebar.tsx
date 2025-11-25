@@ -7,6 +7,7 @@ import {
   Globe,
   LayoutDashboard,
   LogOut,
+  Mail,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -44,6 +45,11 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
+    title: "Users",
+    url: "/admin/users",
+    icon: Users,
+  },
+  {
     title: "Submit Sites",
     url: "/admin/submit-sites",
     icon: FileText,
@@ -61,7 +67,7 @@ const navItems = [
   {
     title: "Subscriber",
     url: "/admin/subscriber",
-    icon: Users,
+    icon: Mail,
   },
 ];
 
