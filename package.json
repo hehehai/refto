@@ -122,5 +122,6 @@
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "license": "AGPL-3.0-only"
 }
