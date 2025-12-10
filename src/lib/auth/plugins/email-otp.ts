@@ -1,9 +1,8 @@
 import { verifyEmail } from "@devmehq/email-validator-js";
 import { emailOTP } from "better-auth/plugins/email-otp";
 import { eq } from "drizzle-orm";
-
-import { db, user } from "@/db";
 import { site } from "@/lib/config/site";
+import { db, user } from "@/lib/db/index";
 import { sendEmail } from "@/lib/email";
 import {
   ResetPasswordEmail,

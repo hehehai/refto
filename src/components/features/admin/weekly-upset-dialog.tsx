@@ -30,12 +30,19 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import type { RefSite, Weekly } from "@/db/schema";
 import useDebounce from "@/hooks/use-debounce";
+import type { Site, Weekly } from "@/lib/db/schema";
 import WeeklyEmail from "@/lib/email/templates/weekly";
 import { client } from "@/lib/orpc/client";
 import { weeklySchema } from "@/lib/validations/weekly";
 import { WeekPicker } from "./week-picker";
+
+// Extended type for Site with query-specific fields
+type SiteWithQueryData = Site & {
+  pageId: string;
+  versionId: string;
+  webCover: string;
+};
 
 const emptyData = {
   title: "",
@@ -107,14 +114,28 @@ export function WeeklyUpsetSheet() {
         setSaveLoading(true);
         if (isEdit) {
           await client.weekly.update({
-            ...values,
-            sites: values.sites.map((s) => s.id),
+            title: values.title,
+            weekRange: values.weekRange,
+            sites: (values.sites as unknown as SiteWithQueryData[]).map(
+              (s) => ({
+                siteId: s.id,
+                pageId: s.pageId,
+                versionId: s.versionId,
+              })
+            ),
             id: statusId!,
           });
         } else {
           await client.weekly.create({
-            ...values,
-            sites: values.sites.map((s) => s.id),
+            title: values.title,
+            weekRange: values.weekRange,
+            sites: (values.sites as unknown as SiteWithQueryData[]).map(
+              (s) => ({
+                siteId: s.id,
+                pageId: s.pageId,
+                versionId: s.versionId,
+              })
+            ),
           });
         }
         toast.success(`${title} success`);
@@ -139,32 +160,35 @@ export function WeeklyUpsetSheet() {
   const [previewMark, setPreviewMark] = useState("");
   const [previewRefreshing, setPreviewRefreshing] = useState(false);
 
-  const handleRefetchPreview = useCallback(async (raws: RefSite[]) => {
-    console.log("handleRefetchPreview", raws);
-    try {
-      setPreviewRefreshing(true);
-      const mailProps = {
-        ...emailStatus,
-        sites: raws.map((site) => ({
-          id: site.id,
-          title: site.siteTitle,
-          url: site.siteUrl,
-          cover: site.siteCover,
-          tags: site.siteTags,
-        })),
-      };
-      const mark = await render(<WeeklyEmail {...mailProps} />, {
-        pretty: true,
-      });
-      setPreviewMark(mark);
-    } catch (err) {
-      toast.error(err instanceof Error ? err?.message : "Please try again", {
-        description: "Refresh preview failed",
-      });
-    } finally {
-      setPreviewRefreshing(false);
-    }
-  }, []);
+  const handleRefetchPreview = useCallback(
+    async (raws: SiteWithQueryData[]) => {
+      console.log("handleRefetchPreview", raws);
+      try {
+        setPreviewRefreshing(true);
+        const mailProps = {
+          ...emailStatus,
+          sites: raws.map((site) => ({
+            id: site.id,
+            title: site.title,
+            url: site.url,
+            cover: site.webCover,
+            tags: site.tags,
+          })),
+        };
+        const mark = await render(<WeeklyEmail {...mailProps} />, {
+          pretty: true,
+        });
+        setPreviewMark(mark);
+      } catch (err) {
+        toast.error(err instanceof Error ? err?.message : "Please try again", {
+          description: "Refresh preview failed",
+        });
+      } finally {
+        setPreviewRefreshing(false);
+      }
+    },
+    []
+  );
 
   const debouncedHandleRefetchPreview = useDebounce(handleRefetchPreview, 300);
 
@@ -241,13 +265,17 @@ export function WeeklyUpsetSheet() {
                       <FormLabel>Sites</FormLabel>
                       <FormControl>
                         <RefSelectDataTable
-                          disabled={field.disabled || field.value.length >= 5}
+                          disabled={
+                            field.disabled || (field.value as any)?.length >= 5
+                          }
                           onChange={(raws) => {
                             const limitSelected = raws.slice(0, 5);
-                            field.onChange(limitSelected);
+                            field.onChange(limitSelected as any);
                             debouncedHandleRefetchPreview(limitSelected);
                           }}
-                          value={field.value.map((s) => s.id)}
+                          value={
+                            (field.value as any)?.map((s: any) => s.id) || []
+                          }
                         />
                       </FormControl>
                       <FormMessage />

@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table";
 import { useAtom } from "jotai";
 import * as React from "react";
-import { refSiteDetailSheetAtom } from "@/app/(admin)/_store/dialog.store";
+import { siteDetailSheetAtom } from "@/app/(admin)/_store/dialog.store";
 import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
@@ -26,10 +26,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { RefSite } from "@/db/schema";
 import { siteTagMap } from "@/lib/constants";
+import type { Site } from "@/lib/db/schema";
 import { orpc } from "@/lib/orpc/react";
 import { columns } from "./columns";
+
+// Extended type for Site with query-specific fields
+type SiteWithQueryData = Site & {
+  pageId: string;
+  versionId: string;
+  webCover: string;
+};
 
 const statusOptions = Object.entries(siteTagMap).map(([value, label]) => ({
   label,
@@ -38,7 +45,7 @@ const statusOptions = Object.entries(siteTagMap).map(([value, label]) => ({
 
 interface RefSelectDataTableProps {
   value?: string[];
-  onChange?: (value: RefSite[]) => void;
+  onChange?: (value: SiteWithQueryData[]) => void;
   disabled?: boolean;
 }
 
@@ -47,7 +54,7 @@ export function RefSelectDataTable({
   onChange,
   disabled = false,
 }: RefSelectDataTableProps) {
-  const [_, setDetailStatus] = useAtom(refSiteDetailSheetAtom);
+  const [_, setDetailStatus] = useAtom(siteDetailSheetAtom);
   const rowSelection = React.useMemo<RowSelectionState>(
     () =>
       value?.reduce((acc, cur) => {
@@ -69,7 +76,7 @@ export function RefSelectDataTable({
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const tableQuery = useQuery({
-    ...orpc.refSites.query.queryOptions({
+    ...orpc.sites.query.queryOptions({
       input: {
         limit: pagination.pageSize,
         search: globalFilter,
@@ -88,9 +95,9 @@ export function RefSelectDataTable({
     [setDetailStatus]
   );
 
-  const table = useReactTable<RefSite>({
+  const table = useReactTable<SiteWithQueryData>({
     getRowId: (row) => row.id,
-    data: (tableQuery.data?.rows as unknown as RefSite[]) || [],
+    data: (tableQuery.data?.rows as unknown as SiteWithQueryData[]) || [],
     pageCount: (tableQuery.data as any)?.maxPage + 1 || 0,
     columns: tableColumns,
     state: {
@@ -120,7 +127,7 @@ export function RefSelectDataTable({
           .getRowModel()
           .rows.filter((row) => nextKeys.includes(row.id))
           .map((row) => row.original);
-        onChange(selectRows as unknown as RefSite[]);
+        onChange(selectRows as unknown as SiteWithQueryData[]);
       }
     },
     onSortingChange: setSorting,

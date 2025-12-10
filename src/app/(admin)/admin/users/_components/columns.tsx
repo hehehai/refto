@@ -26,8 +26,6 @@ export type UserWithMeta = {
   updatedAt: Date;
   emailVerified: boolean;
   submissionCount: number;
-  subscribedAt: Date | null;
-  isSubscribed: boolean;
 };
 
 export const roles = [
@@ -52,19 +50,6 @@ export const statuses = [
   {
     value: "banned" as const,
     label: "Banned",
-    icon: CrossCircledIcon,
-  },
-];
-
-export const subscriptionStatuses = [
-  {
-    value: "subscribed" as const,
-    label: "Subscribed",
-    icon: CheckCircledIcon,
-  },
-  {
-    value: "unsubscribed" as const,
-    label: "Unsubscribed",
     icon: CrossCircledIcon,
   },
 ];
@@ -160,34 +145,6 @@ export const columns = (
           {status?.icon && <status.icon className="mr-1 h-3 w-3" />}
           {status?.label}
         </Badge>
-      );
-    },
-  },
-  {
-    id: "subscription",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Subscription" />
-    ),
-    enableSorting: false,
-    cell: ({ row }) => {
-      const { isSubscribed, subscribedAt } = row.original;
-
-      if (!isSubscribed) {
-        return <span className="text-muted-foreground">-</span>;
-      }
-
-      return (
-        <div className="flex flex-col">
-          <Badge className="w-fit" variant="outline">
-            <CheckCircledIcon className="mr-1 h-3 w-3 text-green-500" />
-            Subscribed
-          </Badge>
-          {subscribedAt && (
-            <span className="text-muted-foreground text-xs">
-              {format(subscribedAt, "yyyy-MM-dd")}
-            </span>
-          )}
-        </div>
       );
     },
   },

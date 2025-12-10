@@ -15,7 +15,7 @@ import {
   SheetContent,
   SheetTitle,
 } from "@/components/ui/sheet";
-import type { RefSite } from "@/db/schema";
+import type { SiteWithQueryData } from "@/lib/db/schema";
 import { client } from "@/lib/orpc/client";
 import { homeSearchParsers } from "@/lib/search-params";
 import { SiteDetail } from "./site-detail";
@@ -35,7 +35,14 @@ export const SiteShowcaseSheet = () => {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const [loading, setLoading] = useState(true);
-  const [detailData, setDetailData] = useState<RefSite | null>(null);
+  const [detailData, setDetailData] = useState<
+    | (SiteWithQueryData & {
+        siteOG?: string;
+        webRecord?: string;
+        mobileRecord?: string;
+      })
+    | null
+  >(null);
 
   const handleFetch = useCallback(async (id: string) => {
     if (!id) {
@@ -43,11 +50,11 @@ export const SiteShowcaseSheet = () => {
     }
     try {
       setLoading(true);
-      const data = await client.refSites.detail({ id });
+      const data = await client.sites.detail({ id });
       if (!data) {
         throw new Error("Data not found");
       }
-      setDetailData(data);
+      setDetailData(data as any);
     } catch (_err: any) {
       toast.error("Please try again.", { description: "Fetch failed." });
     } finally {
@@ -99,7 +106,7 @@ export const SiteShowcaseSheet = () => {
         showClose={false}
         side="bottom"
       >
-        <SheetTitle className="sr-only">{detailData?.siteTitle}</SheetTitle>
+        <SheetTitle className="sr-only">{detailData?.title}</SheetTitle>
         <div className="relative h-full w-full">
           <div
             className="h-full w-full overflow-auto scroll-smooth rounded-t-2xl pb-20"

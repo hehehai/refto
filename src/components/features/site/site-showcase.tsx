@@ -7,13 +7,11 @@ import { VisitLink } from "./visit-link";
 interface SiteShowcaseProps extends React.ComponentPropsWithoutRef<"div"> {
   item: {
     id: string;
-    siteUrl: string;
-    siteName: string;
-    siteFavicon: string;
-    siteCover: string;
-    siteCoverRecord: string;
-    siteCoverWidth?: number;
-    siteCoverHeight?: number;
+    url: string;
+    title: string;
+    logo: string;
+    webCover: string;
+    webRecord: string;
     visits: number;
   };
   fixedHeight?: number;
@@ -39,46 +37,44 @@ export const SiteShowcase = ({
         onClick={() => onDetail?.(item.id)}
         style={{ height: fixedHeight ? `${fixedHeight}px` : undefined }}
       >
-        {item.siteCoverRecord ? (
+        {item.webRecord ? (
           <VideoWrapper
             className="duration-500 hover:scale-[1.02]"
-            cover={item.siteCover}
-            height={item.siteCoverHeight}
-            src={item.siteCoverRecord}
-            width={item.siteCoverWidth}
+            cover={item.webCover}
+            src={item.webRecord}
           />
         ) : fixedHeight ? (
           <BlurImage
-            alt={item.siteName}
+            alt={item.title}
             className="object-cover object-top hover:scale-[1.02]"
             fill={true}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            src={item.siteCover}
+            src={item.webCover}
           />
         ) : (
           <BlurImage
-            alt={item.siteName}
+            alt={item.title}
             className="hover:scale-[1.02]"
-            height={item.siteCoverHeight}
-            src={item.siteCover}
-            width={item.siteCoverWidth}
+            height={600}
+            src={item.webCover}
+            width={800}
           />
         )}
       </div>
       <div className="flex w-full items-center justify-between">
         <div className="flex grow items-center space-x-1">
-          {item.siteFavicon && (
+          {item.logo && (
             <div className="overflow-hidden rounded-sm">
               <BlurImage
-                alt={item.siteName}
+                alt={item.title}
                 height={16}
-                src={item.siteFavicon}
+                src={item.logo}
                 width={16}
               />
             </div>
           )}
           <div className="font-medium text-foreground/80 text-sm">
-            {item.siteName}
+            {item.title}
           </div>
         </div>
         <div className="flex items-center space-x-3 px-0.5 py-1">
@@ -89,7 +85,7 @@ export const SiteShowcase = ({
           <VisitLink
             className="flex items-center space-x-1 opacity-80 transition-opacity hover:opacity-100"
             count={item.visits}
-            href={item.siteUrl}
+            href={item.url}
             id={item.id}
             rel="noreferrer"
             target="_blank"

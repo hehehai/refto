@@ -1,8 +1,7 @@
 import { magicLink } from "better-auth/plugins/magic-link";
 import { eq } from "drizzle-orm";
-
-import { db, user } from "@/db";
 import { site } from "@/lib/config/site";
+import { db, user } from "@/lib/db/index";
 import { sendEmail } from "@/lib/email";
 import { MagicLinkEmail } from "@/lib/email/templates/auth";
 import { getBaseUrl } from "@/lib/utils";

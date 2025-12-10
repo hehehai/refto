@@ -84,11 +84,7 @@ const faqs: { title: string; content: ReactElement[] }[] = [
     title: "How can I stay updated on the latest trends?",
     content: [
       <p key={1}>
-        You can subscribe to the weekly trend{" "}
-        <a className="underline" href="mailto:riverhohai@gmail.com">
-          email
-        </a>{" "}
-        or follow my{" "}
+        Follow my{" "}
         <a
           className="underline"
           href="https://twitter.com/riverhohai"

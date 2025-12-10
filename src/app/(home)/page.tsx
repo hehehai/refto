@@ -2,14 +2,12 @@ import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
 import { HomeMasonry } from "@/components/features/home/home-masonry";
 import { HomeMasonrySkeleton } from "@/components/features/home/home-masonry-skeleton";
-import { SiteEmailSubscription } from "@/components/features/site/site-email-subscription";
 import { SiteShowcaseSheet } from "@/components/features/site/site-showcase-sheet";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
 import { env } from "@/env";
 import { homeSearchParamsCache } from "@/lib/search-params";
-import { getSession } from "@/lib/session";
-import { queryWithCursorRefSiteSchema } from "@/lib/validations/ref-site";
-import { getWeeklyCount, queryWithCursor } from "@/server/functions/ref-sites";
+import { queryWithCursorSiteSchema } from "@/lib/validations/site";
+import { queryWithCursor } from "@/server/functions/sites";
 
 export const revalidate = 7200;
 
@@ -20,17 +18,13 @@ export default async function Home({
 }) {
   const { s: search, tags } = await homeSearchParamsCache.parse(searchParams);
 
-  const initParams = queryWithCursorRefSiteSchema.parse({
+  const initParams = queryWithCursorSiteSchema.parse({
     search,
     tags,
     limit: 10,
   });
 
-  const [siteQuery, session, weeklyCount] = await Promise.all([
-    queryWithCursor(initParams),
-    getSession(),
-    getWeeklyCount(),
-  ]);
+  const siteQuery = await queryWithCursor(initParams);
 
   return (
     <div className="w-full">
@@ -45,7 +39,6 @@ export default async function Home({
               </h2>
               <ul className="mt-10 space-y-1.5">
                 <li>✦ Curated design references</li>
-                <li>✦ Weekly inspiration newsletter</li>
                 <li>✦ High-quality screenshots</li>
                 <li>
                   ✦ Follow us on{" "}
@@ -60,11 +53,6 @@ export default async function Home({
                 </li>
               </ul>
             </div>
-            <SiteEmailSubscription
-              className="mt-6 lg:mt-auto"
-              user={session?.user}
-              weeklyCount={weeklyCount}
-            />
           </div>
           <div className="col-span-1 flex flex-col">
             <div className="mt-auto">

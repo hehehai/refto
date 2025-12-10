@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 
-import { db, weekly } from "@/db";
+import { db, weekly } from "@/lib/db";
 
 export async function detail(id: string) {
   return db.query.weekly.findFirst({

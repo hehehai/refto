@@ -18,7 +18,7 @@ export const VisitLink = ({ id, count, href, ...props }: VisitLinkProps) => {
   }, [count]);
 
   const visitInc = async (id: string) => {
-    await client.refSites.incVisit(id);
+    await client.sites.incVisit(id);
     if (count) {
       setCount((prev) => prev + 1);
     }

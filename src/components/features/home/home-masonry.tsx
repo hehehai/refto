@@ -31,7 +31,7 @@ export const HomeMasonry = ({
   });
 
   const allSitesQuery = useSuspenseInfiniteQuery(
-    orpc.refSites.queryWithCursor.infiniteOptions({
+    orpc.sites.queryWithCursor.infiniteOptions({
       input: (pageParam) => ({
         limit: 16,
         search,
@@ -74,7 +74,7 @@ export const HomeMasonry = ({
         <>
           <Masonry
             config={{
-              columns: [1, 2, 3, 4],
+              columns: [1, 2, 3, 3],
               gap: [8, 12, 16, 24],
               media: [640, 768, 1024, 1280],
             }}

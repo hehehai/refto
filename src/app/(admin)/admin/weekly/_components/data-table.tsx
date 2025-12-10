@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -12,12 +12,10 @@ import {
 } from "@tanstack/react-table";
 import { useAtom } from "jotai";
 import * as React from "react";
-import { toast } from "sonner";
 import {
   weeklyDialogAtom,
   weeklyDialogEmitter,
 } from "@/app/(admin)/_store/dialog.store";
-import { DataTableFacetedFilter } from "@/components/shared/data-table-faceted-filter";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { DataTableToolbar } from "@/components/shared/data-table-toolbar";
 import { Spinner } from "@/components/shared/icons";
@@ -30,8 +28,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Weekly } from "@/db/schema";
-import { getQueryClient, orpc } from "@/lib/orpc/react";
+import type { Weekly } from "@/lib/db";
+import { orpc } from "@/lib/orpc/react";
 import { columns } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
 
@@ -49,32 +47,17 @@ export function DataTable() {
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const queryClient = getQueryClient();
 
   const queryInput = {
     limit: pagination.pageSize,
     search: globalFilter,
     orderBy: sorting.map(({ id, desc }) => `${desc ? "-" : "+"}${id}`),
     page: pagination.pageIndex,
-    status: columnFilters[0]?.value as any,
   };
 
   const tableQuery = useQuery({
     ...orpc.weekly.query.queryOptions({ input: queryInput }),
     refetchOnWindowFocus: false,
-  });
-
-  const unSubRow = useMutation({
-    ...orpc.subscriber.unsubscribeBatch.mutationOptions(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: orpc.weekly.query.key({ input: queryInput }),
-      });
-      toast.success("unSubscribe");
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
   });
 
   const tableColumns = React.useMemo(
@@ -134,19 +117,6 @@ export function DataTable() {
             Create Week
           </Button>
         }
-        filterSlot={
-          <DataTableFacetedFilter
-            onChange={(value) =>
-              table.setColumnFilters([{ id: "status", value }])
-            }
-            options={[
-              { label: "Active", value: "subscribed" },
-              { label: "Inactive", value: "unsubscribed" },
-            ]}
-            title="Status"
-            value={(table.getState().columnFilters[0]?.value as string[]) ?? []}
-          />
-        }
         searchPlaceholder="Search email"
         table={table}
       />
@@ -204,23 +174,7 @@ export function DataTable() {
           </Table>
         )}
       </div>
-      <DataTablePagination
-        footerActions={
-          <>
-            {table.getFilteredSelectedRowModel().rows.length > 0 && (
-              <Button
-                disabled={unSubRow.isPending}
-                size={"sm"}
-                variant={"destructive"}
-              >
-                {unSubRow.isPending && <Spinner className="mr-2" />}
-                <span>Unsubscribe</span>
-              </Button>
-            )}
-          </>
-        }
-        table={table}
-      />
+      <DataTablePagination table={table} />
     </div>
   );
 }

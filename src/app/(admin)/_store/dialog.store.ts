@@ -1,27 +1,27 @@
 import { atom } from "jotai";
 import mitt from "mitt";
 
-// detail
-export const refSiteDetailSheetAtom = atom<string | null>(null);
+// site detail
+export const siteDetailSheetAtom = atom<string | null>(null);
 
-// ref site upset
-interface RefSiteDialogState {
+// site upsert
+interface SiteUpsertSheetState {
   show: boolean;
   isAdd: boolean;
   id: string | null;
 }
 
-export const refSiteDialogAtom = atom<RefSiteDialogState>({
+export const siteUpsertSheetAtom = atom<SiteUpsertSheetState>({
   show: false,
   isAdd: true,
   id: null,
 });
 
-type RefSiteDialogEvents = {
+type SiteUpsertSheetEvents = {
   success: undefined;
 };
 
-export const refSiteDialogEmitter = mitt<RefSiteDialogEvents>();
+export const siteUpsertSheetEmitter = mitt<SiteUpsertSheetEvents>();
 
 // weekly upset
 interface WeeklyDialogState {

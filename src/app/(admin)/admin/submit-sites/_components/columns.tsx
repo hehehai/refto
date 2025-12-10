@@ -8,7 +8,7 @@ import { DataTableColumnHeader } from "@/components/shared/data-table-column-hea
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { SubmitSite } from "@/db/schema";
+import type { SubmitSite } from "@/lib/db/schema";
 
 export type SubmitSiteWithSubmitter = SubmitSite & {
   submitter: {

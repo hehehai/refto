@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import SiteCorrelation from "@/components/features/site/site-correlation";
 import { SiteDetail } from "@/components/features/site/site-detail";
 import { Separator } from "@/components/ui/separator";
-import { correlation, detail } from "@/server/functions/ref-sites";
+import { correlation, detail } from "@/server/functions/sites";
 
 export const revalidate = 7200;
 
@@ -17,7 +17,7 @@ export default async function SitePage({
     notFound();
   }
 
-  const sites = await correlation(site.siteTags, [site.id]);
+  const sites = await correlation(site.tags, [site.id]);
 
   return (
     <div className="py-14">

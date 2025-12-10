@@ -6,7 +6,14 @@ import { DataTableColumnHeader } from "@/components/shared/data-table-column-hea
 import { VisitIcon } from "@/components/shared/icons";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { RefSite } from "@/db/schema";
+import type { Site } from "@/lib/db/schema";
+
+// Extended type for Site with query-specific fields
+type SiteWithQueryData = Site & {
+  pageId: string;
+  versionId: string;
+  webCover: string;
+};
 
 interface ColumnsMethods {
   onDetail?: (rowId: string) => void;
@@ -14,7 +21,7 @@ interface ColumnsMethods {
 
 export const columns = ({
   onDetail,
-}: ColumnsMethods = {}): ColumnDef<RefSite>[] => [
+}: ColumnsMethods = {}): ColumnDef<SiteWithQueryData>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -46,20 +53,20 @@ export const columns = ({
     enableHiding: false,
   },
   {
-    accessorKey: "siteName",
+    accessorKey: "title",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
     enableSorting: false,
     cell: ({ row, getValue }) => {
-      const { siteUrl, siteFavicon, isTop, siteTitle } = row.original;
+      const { url, logo, isPinned, title } = row.original;
       const name = getValue<string>();
 
       return (
         <div className="flex items-center space-x-2">
-          {siteFavicon && (
+          {logo && (
             <div className="overflow-hidden rounded-md">
-              <BlurImage alt={name} height={34} src={siteFavicon} width={34} />
+              <BlurImage alt={name} height={34} src={logo} width={34} />
             </div>
           )}
           <div className="max-w-[500px]">
@@ -70,16 +77,14 @@ export const columns = ({
               >
                 {name}
               </div>
-              {siteUrl && (
-                <a href={siteUrl} rel="noreferrer" target="_blank">
+              {url && (
+                <a href={url} rel="noreferrer" target="_blank">
                   <VisitIcon className="text-lg" />
                 </a>
               )}
-              {isTop && <Badge className="ml-auto px-1.5 py-0">TOP</Badge>}
+              {isPinned && <Badge className="ml-auto px-1.5 py-0">TOP</Badge>}
             </div>
-            <div className="truncate text-[13px] text-slate-500">
-              {siteTitle}
-            </div>
+            <div className="truncate text-[13px] text-slate-500">{title}</div>
           </div>
         </div>
       );

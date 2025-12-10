@@ -1,5 +1,4 @@
-import { and, asc, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
-import type { PgColumn } from "drizzle-orm/pg-core";
+import { and, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
 import { z } from "zod";
 
 import {
@@ -8,34 +7,12 @@ import {
   type SubmitSiteStatus,
   submitSite,
   user,
-} from "@/db";
+} from "@/lib/db";
+import { buildOrderByClause } from "@/lib/db-utils";
 import { pagination } from "@/lib/pagination";
 import { formatOrders, genOrderValidSchema } from "@/lib/utils";
 import { submitSiteCreateSchema } from "@/lib/validations/submit-site";
 import { adminProcedure, protectedProcedure } from "@/server/api/orpc";
-
-type OrderByItem = { key: string; dir: "asc" | "desc" };
-
-function buildSubmitSiteOrderByClause(
-  orderBy: OrderByItem[] | undefined
-): SQL[] {
-  if (!orderBy?.length) return [];
-
-  const columnMap: Record<string, PgColumn> = {
-    id: submitSite.id,
-    createdAt: submitSite.createdAt,
-    approvedAt: submitSite.approvedAt,
-    rejectedAt: submitSite.rejectedAt,
-  };
-
-  return orderBy
-    .map((item) => {
-      const column = columnMap[item.key];
-      if (!column) return null;
-      return item.dir === "desc" ? desc(column) : asc(column);
-    })
-    .filter((item): item is SQL => item !== null);
-}
 
 // 推荐网站 - 需要登录
 const recommendProcedure = protectedProcedure
@@ -103,7 +80,12 @@ const queryProcedure = adminProcedure
       conditions.push(eq(submitSite.userId, userId));
     }
 
-    const orderByClause = buildSubmitSiteOrderByClause(orderBy);
+    const orderByClause = buildOrderByClause(orderBy, {
+      id: submitSite.id,
+      createdAt: submitSite.createdAt,
+      approvedAt: submitSite.approvedAt,
+      rejectedAt: submitSite.rejectedAt,
+    });
 
     const rows = await db
       .select({

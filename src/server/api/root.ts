@@ -1,10 +1,9 @@
 import type { InferRouterInputs, InferRouterOutputs } from "@orpc/server";
 
-import { refSitesRouter } from "@/server/api/routers/ref-sites";
+import { sitesRouter } from "@/server/api/routers/sites";
 import { adminUserRouter } from "./routers/admin-user";
 import { siteMetaRouter } from "./routers/site-meta";
 import { submitSitesRouter } from "./routers/submit-sites";
-import { subscriberRouter } from "./routers/subscriber";
 import { uploadRouter } from "./routers/upload";
 import { userRouter } from "./routers/user";
 import { weeklyRouter } from "./routers/weekly";
@@ -15,9 +14,8 @@ import { weeklyRouter } from "./routers/weekly";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = {
-  refSites: refSitesRouter,
+  sites: sitesRouter,
   weekly: weeklyRouter,
-  subscriber: subscriberRouter,
   upload: uploadRouter,
   siteMeta: siteMetaRouter,
   submitSite: submitSitesRouter,

@@ -3,20 +3,20 @@ import { BlurImage } from "@/components/shared/blur-image";
 import { VisitIcon } from "@/components/shared/icons";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
 import { Badge } from "@/components/ui/badge";
-import type { RefSite } from "@/db/schema";
 import { siteTagMap } from "@/lib/constants";
+import type { SiteDetailData } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 import { VisitLink } from "./visit-link";
 
 interface SiteDetailProps extends React.ComponentPropsWithoutRef<"div"> {
-  item: RefSite;
+  item: SiteDetailData;
 }
 
 export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
   const tagsNode = useMemo(
     () => (
       <div className="flex flex-wrap items-center gap-2">
-        {item.siteTags.map((tag) => (
+        {item.tags.map((tag) => (
           <div
             className="my-[3px] rounded-full border border-zinc-150 px-3 py-0.5 text-sm"
             key={tag}
@@ -26,7 +26,7 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
         ))}
       </div>
     ),
-    [item.siteTags]
+    [item.tags]
   );
 
   const metaNode = useMemo(
@@ -35,7 +35,7 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
         <VisitLink
           className="flex items-center space-x-1 transition-opacity hover:opacity-90"
           count={item.visits}
-          href={item.siteUrl}
+          href={item.url}
           id={item.id}
           rel="noreferrer"
           target="_blank"
@@ -44,23 +44,23 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
         </VisitLink>
       </div>
     ),
-    [item.id, item.siteUrl, item.visits]
+    [item.id, item.url, item.visits]
   );
 
   return (
     <div {...props} className={cn("pb-14 md:pb-20", props.className)}>
       <div className="container mt-4 mb-6 font-medium text-3xl leading-normal sm:text-4xl md:mt-14 lg:text-5xl">
-        {item.siteTitle}
+        {item.title}
       </div>
       <div className="sticky inset-x-0 top-0 z-40 w-full bg-background py-5">
         <div className="container justify-between space-y-5 md:flex md:space-y-0">
           <div className="flex grow space-x-2">
-            {item.siteFavicon && (
+            {item.logo && (
               <div className="overflow-hidden rounded-sm">
                 <BlurImage
-                  alt={item.siteName}
+                  alt={item.title}
                   height={32}
-                  src={item.siteFavicon}
+                  src={item.logo}
                   width={32}
                 />
               </div>
@@ -68,14 +68,14 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
             <div className="flex space-x-4">
               <VisitLink
                 className="shrink-0 text-xl hover:underline"
-                href={item.siteUrl}
+                href={item.url}
                 id={item.id}
                 rel="noreferrer"
                 target="_blank"
               >
-                {item.siteName}
+                {item.title}
               </VisitLink>
-              {item.isTop && (
+              {item.isPinned && (
                 <Badge className="ml-auto shrink-0 px-3 py-0.5">TOP</Badge>
               )}
               <div className="hidden md:block">{tagsNode}</div>
@@ -94,29 +94,29 @@ export const SiteDetail = memo(({ item, ...props }: SiteDetailProps) => {
               {"//"}
             </div>
             <div className="relative z-10 ml-7 md:ml-12 md:text-lg">
-              {item.siteDescription}
+              {item.description}
             </div>
           </div>
-          {item.siteOGImage && (
+          {item.siteOG && (
             <img
-              alt={item.siteName}
+              alt={item.title}
               className="mx-auto block rounded-lg ring-1 ring-zinc-100 dark:ring-zinc-900"
-              src={item.siteOGImage}
+              src={item.siteOG}
             />
           )}
-          {item.siteRecord ? (
+          {item.webRecord && item.webCover ? (
             <VideoWrapper
-              cover={item.siteCover}
+              cover={item.webCover}
               height={"auto"}
-              src={item.siteRecord}
+              src={item.webRecord}
               width={"100%"}
             />
           ) : (
-            (item.siteScreenshot || item.siteCover) && (
+            item.webCover && (
               <img
-                alt={item.siteName}
+                alt={item.title}
                 className="mx-auto block rounded-lg ring-1 ring-zinc-100 dark:ring-zinc-900"
-                src={item.siteScreenshot || item.siteCover}
+                src={item.webCover}
               />
             )
           )}

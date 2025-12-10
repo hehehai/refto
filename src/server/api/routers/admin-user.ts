@@ -1,52 +1,12 @@
 import { ORPCError } from "@orpc/server";
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  gte,
-  ilike,
-  lte,
-  or,
-  type SQL,
-} from "drizzle-orm";
-import type { PgColumn } from "drizzle-orm/pg-core";
+import { and, count, eq, gte, ilike, lte, or, type SQL } from "drizzle-orm";
 import { z } from "zod";
 
-import {
-  account,
-  db,
-  session,
-  submitSite,
-  subscriber,
-  type User,
-  user,
-} from "@/db";
+import { account, db, session, submitSite, type User, user } from "@/lib/db";
+import { buildOrderByClause } from "@/lib/db-utils";
 import { pagination } from "@/lib/pagination";
 import { formatOrders, genOrderValidSchema } from "@/lib/utils";
 import { adminProcedure } from "@/server/api/orpc";
-
-type OrderByItem = { key: string; dir: "asc" | "desc" };
-
-function buildUserOrderByClause(orderBy: OrderByItem[] | undefined): SQL[] {
-  if (!orderBy?.length) return [];
-
-  const columnMap: Record<string, PgColumn> = {
-    id: user.id,
-    createdAt: user.createdAt,
-    name: user.name,
-    email: user.email,
-  };
-
-  return orderBy
-    .map((item) => {
-      const column = columnMap[item.key];
-      if (!column) return null;
-      return item.dir === "desc" ? desc(column) : asc(column);
-    })
-    .filter((item): item is SQL => item !== null);
-}
 
 // Query users with filters
 const queryProcedure = adminProcedure
@@ -57,7 +17,6 @@ const queryProcedure = adminProcedure
       page: z.number().min(0).optional().default(0),
       role: z.enum(["USER", "ADMIN"]).optional(),
       status: z.enum(["active", "banned"]).optional(),
-      subscribed: z.enum(["subscribed", "unsubscribed"]).optional(),
       createdAtStart: z.coerce.date().optional(),
       createdAtEnd: z.coerce.date().optional(),
       orderBy: genOrderValidSchema<User>(["createdAt", "name", "email"])
@@ -73,7 +32,6 @@ const queryProcedure = adminProcedure
       page,
       role,
       status,
-      subscribed,
       createdAtStart,
       createdAtEnd,
       orderBy,
@@ -112,7 +70,12 @@ const queryProcedure = adminProcedure
       conditions.push(lte(user.createdAt, createdAtEnd));
     }
 
-    const orderByClause = buildUserOrderByClause(orderBy);
+    const orderByClause = buildOrderByClause(orderBy, {
+      id: user.id,
+      createdAt: user.createdAt,
+      name: user.name,
+      email: user.email,
+    });
 
     // Get users with submission count
     const rows = await db
@@ -154,42 +117,11 @@ const queryProcedure = adminProcedure
       submissionCounts.map((sc) => [sc.userId, sc.count])
     );
 
-    // Get subscription status for these users
-    const userEmails = rows.map((r) => r.email);
-    const subscriptions = await db
-      .select({
-        email: subscriber.email,
-        createdAt: subscriber.createdAt,
-        unSubDate: subscriber.unSubDate,
-      })
-      .from(subscriber)
-      .where(
-        userEmails.length > 0
-          ? or(...userEmails.map((email) => ilike(subscriber.email, email)))
-          : undefined
-      );
-
-    const subscriptionMap = new Map(
-      subscriptions.map((sub) => [sub.email.toLowerCase(), sub])
-    );
-
     // Combine data
-    let enrichedRows = rows.map((r) => {
-      const sub = subscriptionMap.get(r.email.toLowerCase());
-      return {
-        ...r,
-        submissionCount: submissionCountMap.get(r.id) ?? 0,
-        subscribedAt: sub?.createdAt ?? null,
-        isSubscribed: sub ? !sub.unSubDate : false,
-      };
-    });
-
-    // Filter by subscription status (post-query filter)
-    if (subscribed === "subscribed") {
-      enrichedRows = enrichedRows.filter((r) => r.isSubscribed);
-    } else if (subscribed === "unsubscribed") {
-      enrichedRows = enrichedRows.filter((r) => !r.isSubscribed);
-    }
+    const enrichedRows = rows.map((r) => ({
+      ...r,
+      submissionCount: submissionCountMap.get(r.id) ?? 0,
+    }));
 
     const [totalResult] = await db
       .select({ count: count() })
@@ -224,13 +156,6 @@ const detailProcedure = adminProcedure
       .from(submitSite)
       .where(eq(submitSite.userId, input.id));
 
-    // Get subscription status
-    const [subscription] = await db
-      .select()
-      .from(subscriber)
-      .where(ilike(subscriber.email, userRow.email))
-      .limit(1);
-
     // Get accounts (providers)
     const accounts = await db
       .select({
@@ -244,8 +169,6 @@ const detailProcedure = adminProcedure
     return {
       ...userRow,
       submissionCount: submissionCountResult?.count ?? 0,
-      subscribedAt: subscription?.createdAt ?? null,
-      isSubscribed: subscription ? !subscription.unSubDate : false,
       accounts,
     };
   });

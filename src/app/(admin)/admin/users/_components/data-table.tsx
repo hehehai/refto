@@ -27,13 +27,7 @@ import {
 } from "@/components/ui/table";
 import { getQueryClient, orpc } from "@/lib/orpc/react";
 import { userEditDialogEmitter } from "../_store/dialog.store";
-import {
-  columns,
-  roles,
-  statuses,
-  subscriptionStatuses,
-  type UserWithMeta,
-} from "./columns";
+import { columns, roles, statuses, type UserWithMeta } from "./columns";
 import { DataTableRowActions } from "./data-table-row-actions";
 
 export function DataTable() {
@@ -63,8 +57,6 @@ export function DataTable() {
   const statusFilter = columnFilters.find((f) => f.id === "status")?.value as
     | string
     | undefined;
-  const subscriptionFilter = columnFilters.find((f) => f.id === "subscription")
-    ?.value as string | undefined;
 
   const input = React.useMemo(
     () => ({
@@ -74,10 +66,6 @@ export function DataTable() {
       page: pagination.pageIndex,
       role: roleFilter as "USER" | "ADMIN" | undefined,
       status: statusFilter as "active" | "banned" | undefined,
-      subscribed: subscriptionFilter as
-        | "subscribed"
-        | "unsubscribed"
-        | undefined,
       createdAtStart: dateRange.from,
       createdAtEnd: dateRange.to,
     }),
@@ -88,7 +76,6 @@ export function DataTable() {
       sorting,
       roleFilter,
       statusFilter,
-      subscriptionFilter,
       dateRange,
     ]
   );
@@ -183,12 +170,6 @@ export function DataTable() {
               options={statuses}
               title="Status"
               value={statusFilter ? [statusFilter] : []}
-            />
-            <DataTableFacetedFilter
-              onChange={(value) => handleFilterChange("subscription", value)}
-              options={subscriptionStatuses}
-              title="Subscription"
-              value={subscriptionFilter ? [subscriptionFilter] : []}
             />
             <DatePickerWithRange
               onChange={(range: DateRange | undefined) =>

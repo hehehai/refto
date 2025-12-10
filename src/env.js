@@ -3,8 +3,8 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    DATABASE_URL: z.string().url(),
-    DIRECT_URL: z.string().url(),
+    DATABASE_URL: z.url(),
+    DIRECT_URL: z.url(),
     NODE_ENV: z.enum(["development", "production"]).default("development"),
     BETTER_AUTH_SECRET:
       process.env.NODE_ENV === "production"
@@ -12,7 +12,7 @@ export const env = createEnv({
         : z.string().optional(),
     BETTER_AUTH_URL: z.preprocess(
       (str) => process.env.VERCEL_URL ?? str,
-      process.env.VERCEL ? z.string() : z.string().url()
+      process.env.VERCEL ? z.string() : z.url()
     ),
     EMAIL_USER: z.string(),
     EMAIL_PASS: z.string().optional(),
@@ -30,7 +30,7 @@ export const env = createEnv({
   },
 
   client: {
-    NEXT_PUBLIC_CLOUD_FLARE_R2_URL: z.string().url(),
+    NEXT_PUBLIC_CLOUD_FLARE_R2_URL: z.url(),
   },
 
   /**

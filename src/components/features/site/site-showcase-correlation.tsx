@@ -23,7 +23,7 @@ export const SiteShowcaseCorrelation = ({
   onDetailAction?: (id: string) => void;
 }) => {
   const sitesQuery = useQuery(
-    orpc.refSites.correlation.queryOptions({ input: { id } })
+    orpc.sites.correlation.queryOptions({ input: { id } })
   );
 
   return (

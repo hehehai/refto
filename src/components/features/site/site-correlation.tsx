@@ -8,14 +8,14 @@ export default function SiteCorrelation({
 }: {
   sites: {
     id: string;
-    siteUrl: string;
-    siteName: string;
-    siteFavicon: string;
-    siteCover: string;
-    siteCoverRecord: string;
-    siteCoverWidth: number;
-    siteCoverHeight: number;
+    url: string;
+    title: string;
+    logo: string;
+    pageId: string;
     visits: number;
+    versionId: string;
+    webCover: string;
+    webRecord: string;
   }[];
 }) {
   const router = useRouter();

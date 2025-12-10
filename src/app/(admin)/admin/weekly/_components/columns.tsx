@@ -3,9 +3,8 @@
 import type { ColumnDef, Row } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Weekly } from "@/db/schema";
+import type { Weekly } from "@/lib/db/schema";
 
 export const columns = (
   actionSlot: (row: Row<Weekly>) => React.ReactNode
@@ -20,7 +19,7 @@ export const columns = (
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
-          className="translate-y-[2px]"
+          className="translate-y-0.5"
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
       </div>
@@ -30,7 +29,7 @@ export const columns = (
         <Checkbox
           aria-label="Select row"
           checked={row.getIsSelected()}
-          className="translate-y-[2px]"
+          className="translate-y-0.5"
           onCheckedChange={(value) => row.toggleSelected(!!value)}
         />
       </div>
@@ -65,17 +64,6 @@ export const columns = (
       const title = getValue<string>();
 
       return <div className="flex items-center space-x-1">{title}</div>;
-    },
-  },
-  {
-    accessorKey: "status",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
-    ),
-    cell: ({ getValue }) => {
-      const status = getValue<number>();
-
-      return <Badge variant={"outline"}>{status}</Badge>;
     },
   },
   {
