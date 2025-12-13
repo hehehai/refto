@@ -19,10 +19,7 @@
       "!**/.source"
     ]
   },
-  "extends": [
-    "ultracite/core",
-    "ultracite/react"
-  ],
+  "extends": ["ultracite/core", "ultracite/react"],
   "css": {
     "parser": {
       "tailwindDirectives": true
@@ -33,7 +30,9 @@
       "nursery": {
         "noReactForwardRef": "off",
         "useMaxParams": "off",
-        "noShadow": "off"
+        "noShadow": "off",
+        "noParametersOnlyUsedInRecursion": "off",
+        "noLeakedRender": "off"
       },
       "style": {
         "noHeadElement": "off",
@@ -43,6 +42,7 @@
         "noNonNullAssertion": "off",
         "noNamespace": "off",
         "noMagicNumbers": "off",
+        "useBlockStatements": "off",
         "noEnum": "off",
         "noNestedTernary": "off"
       },
@@ -55,23 +55,24 @@
         "noDangerouslySetInnerHtml": "off"
       },
       "correctness": {
-        "useImageSize": "off"
+        "useImageSize": "off",
+        "useExhaustiveDependencies": "off"
       },
       "suspicious": {
         "noExplicitAny": "off",
         "useAwait": "off",
         "noUnknownAtRules": "off",
         "noDocumentCookie": "off",
+        "noArrayIndexKey": "off",
         "noConsole": {
           "level": "info",
           "options": {
-            "allow": [
-              "warn",
-              "error",
-              "info"
-            ]
+            "allow": ["warn", "error", "info"]
           }
         }
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "off"
       },
       "a11y": {
         "useButtonType": "off",
@@ -80,6 +81,8 @@
         "useSemanticElements": "off",
         "noStaticElementInteractions": "off",
         "noNoninteractiveElementInteractions": "off",
+        "noRedundantRoles": "off",
+        "noLabelWithoutControl": "off",
         "useKeyWithClickEvents": "off"
       }
     }

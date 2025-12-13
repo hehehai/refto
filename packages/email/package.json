@@ -14,9 +14,6 @@
     "@refto-one/config": "workspace:*",
     "@types/react": "^19"
   },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
   "dependencies": {
     "@react-email/components": "^1.0.1",
     "@react-email/render": "^2.0.0",

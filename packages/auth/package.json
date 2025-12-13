@@ -16,9 +16,6 @@
     "@refto-one/config": "workspace:*",
     "dotenv-cli": "^11.0.0"
   },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
   "dependencies": {
     "@devmehq/email-validator-js": "^2.10.4",
     "@refto-one/db": "workspace:*",

@@ -3,7 +3,7 @@ import { useState } from "react";
 import SignInForm from "@/components/shared/sign-in-form";
 import SignUpForm from "@/components/shared/sign-up-form";
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/(auth)/login")({
   component: RouteComponent,
 });
 

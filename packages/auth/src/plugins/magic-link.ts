@@ -17,7 +17,7 @@ export const magicLinkPlugin = magicLink({
       const [name = email] = email.split("@");
 
       if (process.env.NODE_ENV === "development") {
-        console.log("sendMagicLink", { email, url });
+        console.info("sendMagicLink", { email, url });
       }
 
       await sendEmail({

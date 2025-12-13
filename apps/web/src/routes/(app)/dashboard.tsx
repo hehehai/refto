@@ -3,7 +3,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { getUser } from "@/functions/get-user";
 import { orpc } from "@/utils/orpc";
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/(app)/dashboard")({
   component: RouteComponent,
   beforeLoad: async () => {
     const session = await getUser();

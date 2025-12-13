@@ -1,15 +1,13 @@
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
-
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import Header from "@/components/shared/header";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import type { orpc } from "@/utils/orpc";
 import appCss from "../index.css?url";
@@ -50,13 +48,23 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body>
-        <div className="grid h-svh grid-rows-[auto_1fr]">
-          <Header />
-          <Outlet />
-        </div>
+        <Outlet />
         <Toaster richColors />
-        <TanStackRouterDevtools position="bottom-left" />
-        <ReactQueryDevtools buttonPosition="bottom-right" position="bottom" />
+        <TanStackDevtools
+          config={{
+            position: "bottom-right",
+          }}
+          plugins={[
+            {
+              name: "Tanstack Router",
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+            {
+              name: "Tanstack Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
+          ]}
+        />
         <Scripts />
       </body>
     </html>

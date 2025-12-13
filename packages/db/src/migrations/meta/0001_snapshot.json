@@ -110,12 +110,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -202,12 +198,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -217,9 +209,7 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -290,9 +280,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -496,12 +484,8 @@
           "name": "site_page_version_likes_versionId_site_page_versions_id_fk",
           "tableFrom": "site_page_version_likes",
           "tableTo": "site_page_versions",
-          "columnsFrom": [
-            "versionId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["versionId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -509,12 +493,8 @@
           "name": "site_page_version_likes_userId_user_id_fk",
           "tableFrom": "site_page_version_likes",
           "tableTo": "user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -635,12 +615,8 @@
           "name": "site_page_versions_pageId_site_pages_id_fk",
           "tableFrom": "site_page_versions",
           "tableTo": "site_pages",
-          "columnsFrom": [
-            "pageId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pageId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -765,12 +741,8 @@
           "name": "site_pages_siteId_sites_id_fk",
           "tableFrom": "site_pages",
           "tableTo": "sites",
-          "columnsFrom": [
-            "siteId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["siteId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -921,12 +893,8 @@
           "name": "sites_createdById_user_id_fk",
           "tableFrom": "sites",
           "tableTo": "user",
-          "columnsFrom": [
-            "createdById"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["createdById"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -936,9 +904,7 @@
         "sites_url_unique": {
           "name": "sites_url_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "url"
-          ]
+          "columns": ["url"]
         }
       },
       "policies": {},
@@ -1037,12 +1003,8 @@
           "name": "submit_sites_userId_user_id_fk",
           "tableFrom": "submit_sites",
           "tableTo": "user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1058,11 +1020,7 @@
     "public.SubmitSiteStatus": {
       "name": "SubmitSiteStatus",
       "schema": "public",
-      "values": [
-        "PENDING",
-        "APPROVED",
-        "REJECTED"
-      ]
+      "values": ["PENDING", "APPROVED", "REJECTED"]
     }
   },
   "schemas": {},

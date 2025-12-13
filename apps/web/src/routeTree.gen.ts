@@ -9,27 +9,67 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as authRouteRouteImport } from './routes/(auth)/route'
+import { Route as appRouteRouteImport } from './routes/(app)/route'
+import { Route as appIndexRouteImport } from './routes/(app)/index'
+import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
+import { Route as authSignupRouteImport } from './routes/(auth)/signup'
+import { Route as authSigninRouteImport } from './routes/(auth)/signin'
+import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-password'
+import { Route as appDashboardRouteImport } from './routes/(app)/dashboard'
 import { Route as adminPanelIndexRouteImport } from './routes/(admin)/panel/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const authRouteRoute = authRouteRouteImport.update({
+  id: '/(auth)',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const appRouteRoute = appRouteRouteImport.update({
+  id: '/(app)',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const appIndexRoute = appIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => appRouteRoute,
+} as any)
+const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authSignupRoute = authSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authSigninRoute = authSigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authResetPasswordRoute = authResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authLoginRoute = authLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authForgetPasswordRoute = authForgetPasswordRouteImport.update({
+  id: '/forget-password',
+  path: '/forget-password',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const appDashboardRoute = appDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => appRouteRoute,
 } as any)
 const adminPanelIndexRoute = adminPanelIndexRouteImport.update({
   id: '/(admin)/panel/',
@@ -48,26 +88,43 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
+  '/dashboard': typeof appDashboardRoute
+  '/forget-password': typeof authForgetPasswordRoute
+  '/login': typeof authLoginRoute
+  '/reset-password': typeof authResetPasswordRoute
+  '/signin': typeof authSigninRoute
+  '/signup': typeof authSignupRoute
+  '/verify-email': typeof authVerifyEmailRoute
+  '/': typeof appIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel': typeof adminPanelIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
+  '/dashboard': typeof appDashboardRoute
+  '/forget-password': typeof authForgetPasswordRoute
+  '/login': typeof authLoginRoute
+  '/reset-password': typeof authResetPasswordRoute
+  '/signin': typeof authSigninRoute
+  '/signup': typeof authSignupRoute
+  '/verify-email': typeof authVerifyEmailRoute
+  '/': typeof appIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel': typeof adminPanelIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
+  '/(app)': typeof appRouteRouteWithChildren
+  '/(auth)': typeof authRouteRouteWithChildren
+  '/(app)/dashboard': typeof appDashboardRoute
+  '/(auth)/forget-password': typeof authForgetPasswordRoute
+  '/(auth)/login': typeof authLoginRoute
+  '/(auth)/reset-password': typeof authResetPasswordRoute
+  '/(auth)/signin': typeof authSigninRoute
+  '/(auth)/signup': typeof authSignupRoute
+  '/(auth)/verify-email': typeof authVerifyEmailRoute
+  '/(app)/': typeof appIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/(admin)/panel/': typeof adminPanelIndexRoute
@@ -75,28 +132,50 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/dashboard'
+    | '/forget-password'
     | '/login'
+    | '/reset-password'
+    | '/signin'
+    | '/signup'
+    | '/verify-email'
+    | '/'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/panel'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/api/auth/$' | '/api/rpc/$' | '/panel'
+  to:
+    | '/dashboard'
+    | '/forget-password'
+    | '/login'
+    | '/reset-password'
+    | '/signin'
+    | '/signup'
+    | '/verify-email'
+    | '/'
+    | '/api/auth/$'
+    | '/api/rpc/$'
+    | '/panel'
   id:
     | '__root__'
-    | '/'
-    | '/dashboard'
-    | '/login'
+    | '/(app)'
+    | '/(auth)'
+    | '/(app)/dashboard'
+    | '/(auth)/forget-password'
+    | '/(auth)/login'
+    | '/(auth)/reset-password'
+    | '/(auth)/signin'
+    | '/(auth)/signup'
+    | '/(auth)/verify-email'
+    | '/(app)/'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/(admin)/panel/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
-  LoginRoute: typeof LoginRoute
+  appRouteRoute: typeof appRouteRouteWithChildren
+  authRouteRoute: typeof authRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
   adminPanelIndexRoute: typeof adminPanelIndexRoute
@@ -104,26 +183,75 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/(auth)': {
+      id: '/(auth)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof authRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+    '/(app)': {
+      id: '/(app)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof appRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/(app)/': {
+      id: '/(app)/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof appIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(auth)/verify-email': {
+      id: '/(auth)/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof authVerifyEmailRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/signup': {
+      id: '/(auth)/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof authSignupRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/signin': {
+      id: '/(auth)/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof authSigninRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/reset-password': {
+      id: '/(auth)/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof authResetPasswordRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/login': {
+      id: '/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/forget-password': {
+      id: '/(auth)/forget-password'
+      path: '/forget-password'
+      fullPath: '/forget-password'
+      preLoaderRoute: typeof authForgetPasswordRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(app)/dashboard': {
+      id: '/(app)/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof appDashboardRouteImport
+      parentRoute: typeof appRouteRoute
     }
     '/(admin)/panel/': {
       id: '/(admin)/panel/'
@@ -149,10 +277,45 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface appRouteRouteChildren {
+  appDashboardRoute: typeof appDashboardRoute
+  appIndexRoute: typeof appIndexRoute
+}
+
+const appRouteRouteChildren: appRouteRouteChildren = {
+  appDashboardRoute: appDashboardRoute,
+  appIndexRoute: appIndexRoute,
+}
+
+const appRouteRouteWithChildren = appRouteRoute._addFileChildren(
+  appRouteRouteChildren,
+)
+
+interface authRouteRouteChildren {
+  authForgetPasswordRoute: typeof authForgetPasswordRoute
+  authLoginRoute: typeof authLoginRoute
+  authResetPasswordRoute: typeof authResetPasswordRoute
+  authSigninRoute: typeof authSigninRoute
+  authSignupRoute: typeof authSignupRoute
+  authVerifyEmailRoute: typeof authVerifyEmailRoute
+}
+
+const authRouteRouteChildren: authRouteRouteChildren = {
+  authForgetPasswordRoute: authForgetPasswordRoute,
+  authLoginRoute: authLoginRoute,
+  authResetPasswordRoute: authResetPasswordRoute,
+  authSigninRoute: authSigninRoute,
+  authSignupRoute: authSignupRoute,
+  authVerifyEmailRoute: authVerifyEmailRoute,
+}
+
+const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
+  authRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
-  LoginRoute: LoginRoute,
+  appRouteRoute: appRouteRouteWithChildren,
+  authRouteRoute: authRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
   adminPanelIndexRoute: adminPanelIndexRoute,

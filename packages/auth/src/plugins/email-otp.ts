@@ -37,7 +37,7 @@ export const emailOtpPlugin = emailOTP({
       const userName = existingUser?.name || name;
 
       if (process.env.NODE_ENV === "development") {
-        console.log("sendVerificationOTP", {
+        console.info("sendVerificationOTP", {
           email,
           otp,
           type,
