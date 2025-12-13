@@ -17,9 +17,12 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@devmehq/email-validator-js": "^2.10.4",
+    "@refto-one/db": "workspace:*",
+    "@refto-one/email": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@refto-one/db": "workspace:*"
+    "drizzle-orm": "catalog:",
+    "zod": "catalog:"
   }
 }

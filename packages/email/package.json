@@ -1,0 +1,27 @@
+{
+  "name": "@refto-one/email",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./templates/auth": {
+      "default": "./src/templates/auth/index.ts"
+    }
+  },
+  "type": "module",
+  "scripts": {},
+  "devDependencies": {
+    "@refto-one/config": "workspace:*",
+    "@types/react": "^19"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@react-email/components": "^1.0.1",
+    "@react-email/render": "^2.0.0",
+    "@react-email/tailwind": "^2.0.1",
+    "react": "catalog:",
+    "resend": "catalog:"
+  }
+}
