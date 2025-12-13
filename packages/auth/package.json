@@ -9,9 +9,12 @@
     }
   },
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "schema:gen": "dotenv -e ../../apps/web/.env -- npx @better-auth/cli@latest generate --config src/index.ts"
+  },
   "devDependencies": {
-    "@refto-one/config": "workspace:*"
+    "@refto-one/config": "workspace:*",
+    "dotenv-cli": "^11.0.0"
   },
   "peerDependencies": {
     "typescript": "^5"
