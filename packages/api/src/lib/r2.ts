@@ -1,0 +1,145 @@
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { format } from "date-fns";
+import slug from "slug";
+
+// ============================================================================
+// Configuration
+// ============================================================================
+
+const R2_CONFIG = {
+  bucket: process.env.CLOUD_FLARE_S3_UPLOAD_BUCKET!,
+  accountId: process.env.CLOUD_FLARE_R2_ACCOUNT_ID!,
+  accessKeyId: process.env.CLOUD_FLARE_S3_UPLOAD_KEY!,
+  secretAccessKey: process.env.CLOUD_FLARE_S3_UPLOAD_SECRET!,
+} as const;
+
+const r2Client = new S3Client({
+  region: "auto",
+  endpoint: `https://${R2_CONFIG.accountId}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: R2_CONFIG.accessKeyId,
+    secretAccessKey: R2_CONFIG.secretAccessKey,
+  },
+});
+
+// ============================================================================
+// Utilities
+// ============================================================================
+
+/**
+ * Generate a safe, unique filename with date prefix
+ */
+function generateSafeFilename(fileName: string): string {
+  return `${format(new Date(), "MM-dd")}/${Date.now()}_${slug(fileName)}`;
+}
+
+/**
+ * Execute R2 operation with consistent logging and error handling
+ */
+async function withR2Operation<T>(
+  operation: string,
+  fn: () => Promise<T>
+): Promise<T> {
+  console.info(`[R2] ${operation}`);
+  try {
+    return await fn();
+  } catch (err) {
+    console.error(`[R2] ${operation} failed`, err);
+    throw err;
+  }
+}
+
+// ============================================================================
+// Public API
+// ============================================================================
+
+export async function getUploadSignedUrl(
+  fileName: string,
+  expiresIn = 60
+): Promise<{ uploadUrl: string; filename: string }> {
+  return withR2Operation("Generating upload URL", async () => {
+    const safeFilename = generateSafeFilename(fileName);
+    const uploadUrl = await getSignedUrl(
+      r2Client,
+      new PutObjectCommand({
+        Bucket: R2_CONFIG.bucket,
+        Key: safeFilename,
+      }),
+      { expiresIn }
+    );
+
+    console.info(`[R2] Generated upload URL for: ${safeFilename}`);
+    return { uploadUrl, filename: safeFilename };
+  });
+}
+
+export async function getR2File(fileName: string) {
+  return withR2Operation("Downloading file", async () => {
+    const file = await r2Client.send(
+      new GetObjectCommand({
+        Bucket: R2_CONFIG.bucket,
+        Key: fileName,
+      })
+    );
+    if (!file) {
+      throw new Error("File not found");
+    }
+    return file;
+  });
+}
+
+export async function getDownloadSignedUrl(
+  fileName: string,
+  expiresIn = 3600
+): Promise<string> {
+  return withR2Operation("Generating download URL", async () => {
+    const url = await getSignedUrl(
+      r2Client,
+      new GetObjectCommand({
+        Bucket: R2_CONFIG.bucket,
+        Key: fileName,
+      }),
+      { expiresIn }
+    );
+    return url;
+  });
+}
+
+export async function deleteR2File(fileName: string): Promise<void> {
+  return withR2Operation("Deleting file", async () => {
+    await r2Client.send(
+      new DeleteObjectCommand({
+        Bucket: R2_CONFIG.bucket,
+        Key: fileName,
+      })
+    );
+  });
+}
+
+export async function uploadR2File(
+  file: File | Blob,
+  fileName: string
+): Promise<{ type: string; filename: string }> {
+  return withR2Operation("Uploading file", async () => {
+    const safeFilename = generateSafeFilename(fileName);
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    await r2Client.send(
+      new PutObjectCommand({
+        Bucket: R2_CONFIG.bucket,
+        Key: safeFilename,
+        Body: buffer,
+        ContentType: file.type,
+      })
+    );
+
+    console.info(`[R2] File uploaded: ${safeFilename}`);
+    return { type: file.type, filename: safeFilename };
+  });
+}

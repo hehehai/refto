@@ -1,4 +1,4 @@
-import { getBaseUrl, site } from "@refto-one/config";
+import { getBaseUrl, site } from "@refto-one/common";
 import { db } from "@refto-one/db";
 import { user } from "@refto-one/db/schema/auth";
 import { sendEmail } from "@refto-one/email";

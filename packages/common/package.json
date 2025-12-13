@@ -1,5 +1,5 @@
 {
-  "name": "@refto-one/config",
+  "name": "@refto-one/common",
   "version": "0.0.0",
   "private": true,
   "exports": {

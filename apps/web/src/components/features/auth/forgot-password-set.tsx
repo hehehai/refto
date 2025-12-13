@@ -1,7 +1,7 @@
 import {
   type ResetPasswordSetFormData,
   resetPasswordSetSchema,
-} from "@refto-one/config";
+} from "@refto-one/common";
 import { useForm } from "@tanstack/react-form";
 import {
   Field,

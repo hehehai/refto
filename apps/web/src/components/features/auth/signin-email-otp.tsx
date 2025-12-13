@@ -1,4 +1,4 @@
-import { type SignInOtpFormData, signInOtpSchema } from "@refto-one/config";
+import { type SignInOtpFormData, signInOtpSchema } from "@refto-one/common";
 import { useForm } from "@tanstack/react-form";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useState } from "react";

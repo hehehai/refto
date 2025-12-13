@@ -1,4 +1,4 @@
-import type { ResetPasswordSetFormData } from "@refto-one/config";
+import type { ResetPasswordSetFormData } from "@refto-one/common";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";

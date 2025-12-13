@@ -2,7 +2,7 @@ import type {
   SignInEmailFormData,
   SignInOtpFormData,
   SignInPasswordFormData,
-} from "@refto-one/config";
+} from "@refto-one/common";
 import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

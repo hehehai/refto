@@ -1,5 +1,5 @@
 import { type Options, render } from "@react-email/render";
-import { site } from "@refto-one/config";
+import { site } from "@refto-one/common";
 import type { JSXElementConstructor, ReactElement } from "react";
 import { Resend } from "resend";
 

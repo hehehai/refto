@@ -11,7 +11,7 @@ import {
   Text,
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
-import { site } from "@refto-one/config";
+import { site } from "@refto-one/common";
 
 interface BaseLayoutProps {
   previewText: string;

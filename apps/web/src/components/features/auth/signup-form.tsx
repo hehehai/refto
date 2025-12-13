@@ -1,4 +1,4 @@
-import { type SignUpFormData, signUpSchema } from "@refto-one/config";
+import { type SignUpFormData, signUpSchema } from "@refto-one/common";
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { toast } from "sonner";

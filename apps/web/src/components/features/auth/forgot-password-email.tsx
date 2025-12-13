@@ -1,7 +1,7 @@
 import {
   type ResetPasswordEmailFormData,
   resetPasswordEmailSchema,
-} from "@refto-one/config";
+} from "@refto-one/common";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";

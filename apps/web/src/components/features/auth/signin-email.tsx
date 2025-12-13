@@ -1,4 +1,4 @@
-import { type SignInEmailFormData, signInEmailSchema } from "@refto-one/config";
+import { type SignInEmailFormData, signInEmailSchema } from "@refto-one/common";
 import { useForm } from "@tanstack/react-form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";

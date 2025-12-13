@@ -1,5 +1,5 @@
 import { Button, Heading, Link, Section, Text } from "@react-email/components";
-import { site } from "@refto-one/config";
+import { site } from "@refto-one/common";
 import { BaseLayout } from "./base-layout";
 
 interface ResetPasswordEmailProps {
