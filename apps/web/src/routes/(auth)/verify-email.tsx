@@ -1,8 +1,8 @@
-import { auth } from "@refto-one/auth";
 import { createFileRoute } from "@tanstack/react-router";
 import z from "zod";
 import { VerifyEmailInvalid } from "@/components/features/auth/verify-email-invalid";
 import { VerifyEmailSuccess } from "@/components/features/auth/verify-email-success";
+import { client } from "@/utils/orpc";
 
 const searchSchema = z.object({
   token: z.string(),
@@ -13,13 +13,7 @@ export const Route = createFileRoute("/(auth)/verify-email")({
   validateSearch: searchSchema,
   beforeLoad: async ({ search }) => {
     const { token } = search;
-
-    const result = await auth.api.verifyEmail({
-      query: {
-        token,
-      },
-    });
-
+    const result = await client.auth.verifyEmail({ token });
     return result;
   },
   component: RouteComponent,
