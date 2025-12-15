@@ -15,6 +15,8 @@ export const submitSite = pgTable("submit_sites", {
   status: submitSiteStatusEnum("status").default("PENDING").notNull(),
   approvedAt: timestamp("approved_at"),
   rejectedAt: timestamp("rejected_at"),
+  rejectReason: text("reject_reason"),
+  deletedAt: timestamp("deleted_at"),
   userId: text("userId").references(() => user.id, { onDelete: "set null" }),
 });
 

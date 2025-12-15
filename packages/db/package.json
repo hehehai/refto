@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "drizzle-orm": "catalog:",
-    "@refto-one/common": "workspace:*",
     "pg": "^8.16.3",
     "dotenv": "catalog:",
     "zod": "catalog:"

@@ -19,7 +19,6 @@
     "@devmehq/email-validator-js": "^2.10.4",
     "@refto-one/db": "workspace:*",
     "@refto-one/email": "workspace:*",
-    "@refto-one/common": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",

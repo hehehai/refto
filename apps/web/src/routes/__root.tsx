@@ -10,7 +10,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "tanstack-theme-kit";
 import { Toaster } from "@/components/ui/sonner";
-import type { orpc } from "@/utils/orpc";
+import type { orpc } from "@/lib/orpc";
 import appCss from "../index.css?url";
 
 export interface RouterAppContext {
@@ -45,30 +45,32 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
 function RootDocument() {
   return (
-    <html className="dark" lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body>
-        <ThemeProvider>
+      <body className="min-h-screen">
+        <ThemeProvider attribute="class">
           <Outlet />
           <Toaster richColors />
-          <TanStackDevtools
-            config={{
-              position: "bottom-right",
-            }}
-            plugins={[
-              {
-                name: "Tanstack Router",
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-              {
-                name: "Tanstack Query",
-                render: <ReactQueryDevtoolsPanel />,
-              },
-            ]}
-          />
         </ThemeProvider>
+
+        <TanStackDevtools
+          config={{
+            position: "bottom-right",
+          }}
+          plugins={[
+            {
+              name: "Tanstack Router",
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+            {
+              name: "Tanstack Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
+          ]}
+        />
+
         <Scripts />
       </body>
     </html>

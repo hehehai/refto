@@ -13,20 +13,14 @@ This is a full-stack TypeScript monorepo built with the Better-T-Stack. It combi
 pnpm run dev          # Start all apps (web runs on port 3001)
 pnpm run dev:web      # Start web app only
 
-# Build & Type Check
-pnpm run build        # Build all apps
-pnpm run check-types  # TypeScript checking across all packages
-
-# Code Quality (Biome via Ultracite)
-npx ultracite fix     # Format and auto-fix issues
-npx ultracite check   # Check for issues
+# lint & types check
 pnpm run check        # Biome check with auto-fix
+pnpm run check-types  # TypeScript checking across all packages
 
 # Database (Drizzle + PostgreSQL)
 pnpm run db:push      # Push schema changes to database
 pnpm run db:generate  # Generate migrations
 pnpm run db:migrate   # Run migrations
-pnpm run db:studio    # Open Drizzle Studio UI
 ```
 
 ## Architecture
@@ -43,17 +37,13 @@ apps/web/                    # Fullstack TanStack Start app
 │   ├── shared/              # Reusable components
 │   └── features/            # Feature-specific components
 ├── src/lib/auth-client.ts   # Better Auth client with plugins
-└── src/utils/orpc.ts        # oRPC client setup with TanStack Query
+└── src/oib/orpc.ts          # oRPC client setup with TanStack Query
 
 packages/
 ├── api/                     # oRPC routers and procedures
-│   └── src/
-│       ├── index.ts         # publicProcedure, protectedProcedure
-│       ├── context.ts       # Request context with session
-│       └── routers/         # API routers (auth, etc.)
 ├── auth/                    # Better Auth configuration
 ├── db/                      # Drizzle schema and migrations
-│   └── src/schema/          # Database schemas
+├── common/                  # Common utilities and helpers
 └── email/                   # React Email templates
 ```
 
@@ -62,7 +52,8 @@ packages/
 ### oRPC API Layer
 - `publicProcedure` - Public endpoints, no auth required
 - `protectedProcedure` - Requires authentication via middleware
-- API endpoint: `/api/rpc`
+- `adminProcedure` - Requires admin user via middleware
+- API endpoint: `/api/routes`
 - Client uses `createIsomorphicFn()` for SSR/client compatibility
 
 ### Authentication (Better Auth)
@@ -79,16 +70,6 @@ packages/
 ### TanStack Query Integration
 - `orpc` utility wraps oRPC with TanStack Query hooks
 - `queryClient` configured with error toast notifications
-
-## Environment Variables
-
-Required in `apps/web/.env`:
-- `DATABASE_URL` - PostgreSQL connection string
-- `BETTER_AUTH_SECRET` - Auth secret key
-- `BETTER_AUTH_URL` - Auth base URL
-- `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` - GitHub OAuth
-- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` - Google OAuth
-- `RESEND_API_KEY` - Email service
 
 ---
 

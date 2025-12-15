@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import z from "zod";
 import { VerifyEmailInvalid } from "@/components/features/auth/verify-email-invalid";
 import { VerifyEmailSuccess } from "@/components/features/auth/verify-email-success";
-import { client } from "@/utils/orpc";
+import { client } from "@/lib/orpc";
 
 const searchSchema = z.object({
   token: z.string(),

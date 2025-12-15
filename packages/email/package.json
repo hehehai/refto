@@ -14,7 +14,6 @@
     "@types/react": "^19"
   },
   "dependencies": {
-    "@refto-one/common": "workspace:*",
     "@react-email/components": "^1.0.1",
     "@react-email/render": "^2.0.0",
     "@react-email/tailwind": "^2.0.1",

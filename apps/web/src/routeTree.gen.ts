@@ -19,9 +19,13 @@ import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-pas
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-password'
 import { Route as appDashboardRouteImport } from './routes/(app)/dashboard'
+import { Route as app404RouteImport } from './routes/(app)/404'
+import { Route as adminPanelRouteRouteImport } from './routes/(admin)/panel/route'
 import { Route as adminPanelIndexRouteImport } from './routes/(admin)/panel/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as adminPanelUsersRouteImport } from './routes/(admin)/panel/users'
+import { Route as adminPanelSitesRouteImport } from './routes/(admin)/panel/sites'
 
 const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
@@ -71,10 +75,20 @@ const appDashboardRoute = appDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => appRouteRoute,
 } as any)
-const adminPanelIndexRoute = adminPanelIndexRouteImport.update({
-  id: '/(admin)/panel/',
-  path: '/panel/',
+const app404Route = app404RouteImport.update({
+  id: '/404',
+  path: '/404',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const adminPanelRouteRoute = adminPanelRouteRouteImport.update({
+  id: '/(admin)/panel',
+  path: '/panel',
   getParentRoute: () => rootRouteImport,
+} as any)
+const adminPanelIndexRoute = adminPanelIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => adminPanelRouteRoute,
 } as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
@@ -86,8 +100,20 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const adminPanelUsersRoute = adminPanelUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => adminPanelRouteRoute,
+} as any)
+const adminPanelSitesRoute = adminPanelSitesRouteImport.update({
+  id: '/sites',
+  path: '/sites',
+  getParentRoute: () => adminPanelRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
+  '/panel': typeof adminPanelRouteRouteWithChildren
+  '/404': typeof app404Route
   '/dashboard': typeof appDashboardRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/login': typeof authLoginRoute
@@ -96,11 +122,14 @@ export interface FileRoutesByFullPath {
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
   '/': typeof appIndexRoute
+  '/panel/sites': typeof adminPanelSitesRoute
+  '/panel/users': typeof adminPanelUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
-  '/panel': typeof adminPanelIndexRoute
+  '/panel/': typeof adminPanelIndexRoute
 }
 export interface FileRoutesByTo {
+  '/404': typeof app404Route
   '/dashboard': typeof appDashboardRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/login': typeof authLoginRoute
@@ -109,6 +138,8 @@ export interface FileRoutesByTo {
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
   '/': typeof appIndexRoute
+  '/panel/sites': typeof adminPanelSitesRoute
+  '/panel/users': typeof adminPanelUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel': typeof adminPanelIndexRoute
@@ -117,6 +148,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(app)': typeof appRouteRouteWithChildren
   '/(auth)': typeof authRouteRouteWithChildren
+  '/(admin)/panel': typeof adminPanelRouteRouteWithChildren
+  '/(app)/404': typeof app404Route
   '/(app)/dashboard': typeof appDashboardRoute
   '/(auth)/forget-password': typeof authForgetPasswordRoute
   '/(auth)/login': typeof authLoginRoute
@@ -125,6 +158,8 @@ export interface FileRoutesById {
   '/(auth)/signup': typeof authSignupRoute
   '/(auth)/verify-email': typeof authVerifyEmailRoute
   '/(app)/': typeof appIndexRoute
+  '/(admin)/panel/sites': typeof adminPanelSitesRoute
+  '/(admin)/panel/users': typeof adminPanelUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/(admin)/panel/': typeof adminPanelIndexRoute
@@ -132,6 +167,8 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/panel'
+    | '/404'
     | '/dashboard'
     | '/forget-password'
     | '/login'
@@ -140,11 +177,14 @@ export interface FileRouteTypes {
     | '/signup'
     | '/verify-email'
     | '/'
+    | '/panel/sites'
+    | '/panel/users'
     | '/api/auth/$'
     | '/api/rpc/$'
-    | '/panel'
+    | '/panel/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/404'
     | '/dashboard'
     | '/forget-password'
     | '/login'
@@ -153,6 +193,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/verify-email'
     | '/'
+    | '/panel/sites'
+    | '/panel/users'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/panel'
@@ -160,6 +202,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(app)'
     | '/(auth)'
+    | '/(admin)/panel'
+    | '/(app)/404'
     | '/(app)/dashboard'
     | '/(auth)/forget-password'
     | '/(auth)/login'
@@ -168,6 +212,8 @@ export interface FileRouteTypes {
     | '/(auth)/signup'
     | '/(auth)/verify-email'
     | '/(app)/'
+    | '/(admin)/panel/sites'
+    | '/(admin)/panel/users'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/(admin)/panel/'
@@ -176,9 +222,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   appRouteRoute: typeof appRouteRouteWithChildren
   authRouteRoute: typeof authRouteRouteWithChildren
+  adminPanelRouteRoute: typeof adminPanelRouteRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
-  adminPanelIndexRoute: typeof adminPanelIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -253,12 +299,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appDashboardRouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(admin)/panel/': {
-      id: '/(admin)/panel/'
+    '/(app)/404': {
+      id: '/(app)/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof app404RouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(admin)/panel': {
+      id: '/(admin)/panel'
       path: '/panel'
       fullPath: '/panel'
-      preLoaderRoute: typeof adminPanelIndexRouteImport
+      preLoaderRoute: typeof adminPanelRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(admin)/panel/': {
+      id: '/(admin)/panel/'
+      path: '/'
+      fullPath: '/panel/'
+      preLoaderRoute: typeof adminPanelIndexRouteImport
+      parentRoute: typeof adminPanelRouteRoute
     }
     '/api/rpc/$': {
       id: '/api/rpc/$'
@@ -274,15 +334,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(admin)/panel/users': {
+      id: '/(admin)/panel/users'
+      path: '/users'
+      fullPath: '/panel/users'
+      preLoaderRoute: typeof adminPanelUsersRouteImport
+      parentRoute: typeof adminPanelRouteRoute
+    }
+    '/(admin)/panel/sites': {
+      id: '/(admin)/panel/sites'
+      path: '/sites'
+      fullPath: '/panel/sites'
+      preLoaderRoute: typeof adminPanelSitesRouteImport
+      parentRoute: typeof adminPanelRouteRoute
+    }
   }
 }
 
 interface appRouteRouteChildren {
+  app404Route: typeof app404Route
   appDashboardRoute: typeof appDashboardRoute
   appIndexRoute: typeof appIndexRoute
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
+  app404Route: app404Route,
   appDashboardRoute: appDashboardRoute,
   appIndexRoute: appIndexRoute,
 }
@@ -313,12 +389,28 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
   authRouteRouteChildren,
 )
 
+interface adminPanelRouteRouteChildren {
+  adminPanelSitesRoute: typeof adminPanelSitesRoute
+  adminPanelUsersRoute: typeof adminPanelUsersRoute
+  adminPanelIndexRoute: typeof adminPanelIndexRoute
+}
+
+const adminPanelRouteRouteChildren: adminPanelRouteRouteChildren = {
+  adminPanelSitesRoute: adminPanelSitesRoute,
+  adminPanelUsersRoute: adminPanelUsersRoute,
+  adminPanelIndexRoute: adminPanelIndexRoute,
+}
+
+const adminPanelRouteRouteWithChildren = adminPanelRouteRoute._addFileChildren(
+  adminPanelRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   appRouteRoute: appRouteRouteWithChildren,
   authRouteRoute: authRouteRouteWithChildren,
+  adminPanelRouteRoute: adminPanelRouteRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
-  adminPanelIndexRoute: adminPanelIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

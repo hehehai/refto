@@ -1,3 +1,4 @@
+import { UserRole } from "@refto-one/common";
 import { admin } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { emailOtpPlugin } from "./email-otp";
@@ -7,8 +8,8 @@ export const authPlugins = [
   emailOtpPlugin,
   magicLinkPlugin,
   admin({
-    defaultRole: "USER",
-    adminRoles: ["ADMIN"],
+    defaultRole: UserRole.USER,
+    adminRoles: [UserRole.ADMIN],
   }),
   // Must be last plugin
   tanstackStartCookies(),

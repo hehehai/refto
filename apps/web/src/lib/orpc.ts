@@ -10,6 +10,12 @@ import { createIsomorphicFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 2, // 2 minutes
+    },
+  },
   queryCache: new QueryCache({
     onError: (error) => {
       toast.error(`Error: ${error.message}`, {

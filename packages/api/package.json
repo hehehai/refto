@@ -22,7 +22,6 @@
     "@orpc/zod": "catalog:",
     "@refto-one/auth": "workspace:*",
     "@refto-one/db": "workspace:*",
-    "@refto-one/common": "workspace:*",
     "@types/pg": "catalog:",
     "date-fns": "catalog:",
     "dotenv": "catalog:",

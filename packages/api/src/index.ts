@@ -1,4 +1,5 @@
 import { ORPCError, os } from "@orpc/server";
+import { UserRole } from "@refto-one/common";
 import type { Context } from "./context";
 
 export const o = os.$context<Context>();
@@ -20,7 +21,7 @@ const requireAdmin = o.middleware(async ({ context, next }) => {
   if (!context.session?.user) {
     throw new ORPCError("UNAUTHORIZED");
   }
-  if (context.session.user.role !== "admin") {
+  if (context.session.user.role !== UserRole.ADMIN) {
     throw new ORPCError("FORBIDDEN", { message: "Admin access required" });
   }
   return next({
