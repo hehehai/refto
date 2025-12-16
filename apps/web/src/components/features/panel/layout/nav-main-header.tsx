@@ -46,24 +46,28 @@ export const NavMainHeader = ({
         <NavThemeToggle />
       </div>
     </header>
-    <div className="flex items-center justify-between gap-2 px-4">
-      <div className="flex items-center gap-2">
-        <Tabs onValueChange={onTabChange} value={activeTab}>
-          <TabsList className="bg-muted/50">
-            {tabItems?.map((item) => (
-              <TabsTrigger
-                className="px-2.5 text-sm"
-                key={item}
-                value={item.toUpperCase()}
-              >
-                {item}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-        {tabLeft}
+    {!tabItems?.length && tabLeft && tabRight && (
+      <div className="flex items-center justify-between gap-2 px-4">
+        <div className="flex items-center gap-2">
+          {!tabItems?.length && (
+            <Tabs onValueChange={onTabChange} value={activeTab}>
+              <TabsList className="bg-muted/50">
+                {tabItems?.map((item) => (
+                  <TabsTrigger
+                    className="px-2.5 text-sm"
+                    key={item}
+                    value={item.toUpperCase()}
+                  >
+                    {item}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          )}
+          {tabLeft}
+        </div>
+        {tabRight}
       </div>
-      {tabRight}
-    </div>
+    )}
   </div>
 );

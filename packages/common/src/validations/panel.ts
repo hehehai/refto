@@ -117,6 +117,47 @@ export const statPeriodSchema = z.object({
   period: z.enum(["24h", "7d", "15d", "30d"]).default("24h"),
 });
 
+// Site list query
+export const siteListSchema = paginationSchema.extend({
+  search: z.string().optional(),
+  isPinned: z.boolean().optional(),
+  sortBy: z.enum(["createdAt", "visits"]).default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});
+
+// Site create
+export const siteCreateSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string(),
+  logo: z.string().url("Invalid logo URL"),
+  url: z.string().url("Invalid URL"),
+  tags: z.array(z.string()),
+  rating: z.number().min(0).max(5).default(0),
+  isPinned: z.boolean().default(false),
+});
+
+// Site update
+export const siteUpdateSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1).optional(),
+  description: z.string().optional(),
+  logo: z.string().url().optional(),
+  url: z.string().url().optional(),
+  tags: z.array(z.string()).optional(),
+  rating: z.number().min(0).max(5).optional(),
+  isPinned: z.boolean().optional(),
+});
+
+// Site ID schema
+export const siteIdSchema = z.object({
+  id: z.string(),
+});
+
+// Batch delete sites
+export const siteBatchDeleteSchema = z.object({
+  ids: z.array(z.string()).min(1, "At least one site ID is required"),
+});
+
 // Type exports
 export type UserList = z.infer<typeof userListSchema>;
 export type UserCreate = z.infer<typeof userCreateSchema>;
@@ -128,3 +169,7 @@ export type PanelSubmitSiteList = z.infer<typeof panelSubmitSiteListSchema>;
 export type SubmitSiteReject = z.infer<typeof submitSiteRejectSchema>;
 export type SubmitSiteDelete = z.infer<typeof submitSiteDeleteSchema>;
 export type StatPeriod = z.infer<typeof statPeriodSchema>;
+export type SiteList = z.infer<typeof siteListSchema>;
+export type SiteCreate = z.infer<typeof siteCreateSchema>;
+export type SiteUpdate = z.infer<typeof siteUpdateSchema>;
+export type SiteBatchDelete = z.infer<typeof siteBatchDeleteSchema>;

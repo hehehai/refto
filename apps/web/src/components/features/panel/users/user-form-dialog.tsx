@@ -2,7 +2,7 @@ import { userFormSchema } from "@refto-one/common";
 import { useForm } from "@tanstack/react-form";
 import type { ReactElement } from "react";
 import { useEffect } from "react";
-import { AvatarUpload } from "@/components/shared/avatar-upload";
+import { ImageUpload } from "@/components/shared/image-upload";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -113,11 +113,12 @@ export function UserFormDialog({
           <form.Field name="image">
             {(field) => (
               <div className="flex justify-center">
-                <AvatarUpload
+                <ImageUpload
                   disabled={form.state.isSubmitting}
                   fallback={form.getFieldValue("name")?.charAt(0) || "?"}
                   onChange={(value) => field.handleChange(value)}
                   value={field.state.value}
+                  variant="avatar"
                 />
               </div>
             )}
