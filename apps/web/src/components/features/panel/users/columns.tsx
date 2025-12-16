@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
+import { SortableColumnHeader } from "@/components/shared/data-table";
 import { createSelectionColumn } from "@/components/shared/data-table/column-helpers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/tooltip";
 import type { client } from "@/lib/orpc";
 import { UserRowActions } from "./user-row-actions";
-import { SortableColumnHeader } from "@/components/shared/data-table";
 
 // Type from oRPC API response
 type UserListResponse = Awaited<ReturnType<typeof client.panel.user.list>>;

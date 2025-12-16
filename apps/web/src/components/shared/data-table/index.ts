@@ -6,3 +6,4 @@ export * from "./date-range-filter";
 export * from "./sortable-column-header";
 export * from "./status-filter";
 export * from "./use-data-table-filters";
+export * from "./user-filter-select";

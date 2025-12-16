@@ -31,6 +31,11 @@ const data = {
       url: "/panel/sites",
       icon: "i-hugeicons-web-design-01",
     },
+    {
+      title: "SubmitSites",
+      url: "/panel/submit-sites",
+      icon: "i-hugeicons-file-validation",
+    },
   ],
 };
 

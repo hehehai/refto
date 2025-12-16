@@ -81,13 +81,24 @@ export const userBatchDeleteSchema = z.object({
   ids: z.array(z.string()).min(1, "At least one user ID is required"),
 });
 
+// User list for filter dropdown (lightweight)
+export const userListForFilterSchema = z.object({
+  search: z.string().optional(),
+  limit: z.number().min(1).max(50).default(20),
+});
+
 // Submit site list (admin)
 export const panelSubmitSiteListSchema = paginationSchema.extend({
   search: z.string().optional(),
   userId: z.string().optional(),
-  status: z.enum(["PENDING", "APPROVED", "REJECTED"]).default("PENDING"),
+  status: z.enum(["ALL", "PENDING", "APPROVED", "REJECTED"]).default("PENDING"),
   sortBy: z.enum(["createdAt", "updatedAt"]).default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});
+
+// Submit site delete schema
+export const submitSiteDeleteSchema = z.object({
+  id: z.number(),
 });
 
 // Submit site ID schema
@@ -112,6 +123,8 @@ export type UserCreate = z.infer<typeof userCreateSchema>;
 export type UserUpdate = z.infer<typeof userUpdateSchema>;
 export type UserBan = z.infer<typeof userBanSchema>;
 export type UserBatchDelete = z.infer<typeof userBatchDeleteSchema>;
+export type UserListForFilter = z.infer<typeof userListForFilterSchema>;
 export type PanelSubmitSiteList = z.infer<typeof panelSubmitSiteListSchema>;
 export type SubmitSiteReject = z.infer<typeof submitSiteRejectSchema>;
+export type SubmitSiteDelete = z.infer<typeof submitSiteDeleteSchema>;
 export type StatPeriod = z.infer<typeof statPeriodSchema>;

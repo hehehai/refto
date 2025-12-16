@@ -25,6 +25,7 @@ import { Route as adminPanelIndexRouteImport } from './routes/(admin)/panel/inde
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as adminPanelUsersRouteImport } from './routes/(admin)/panel/users'
+import { Route as adminPanelSubmitSitesRouteImport } from './routes/(admin)/panel/submit-sites'
 import { Route as adminPanelSitesRouteImport } from './routes/(admin)/panel/sites'
 
 const authRouteRoute = authRouteRouteImport.update({
@@ -105,6 +106,11 @@ const adminPanelUsersRoute = adminPanelUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => adminPanelRouteRoute,
 } as any)
+const adminPanelSubmitSitesRoute = adminPanelSubmitSitesRouteImport.update({
+  id: '/submit-sites',
+  path: '/submit-sites',
+  getParentRoute: () => adminPanelRouteRoute,
+} as any)
 const adminPanelSitesRoute = adminPanelSitesRouteImport.update({
   id: '/sites',
   path: '/sites',
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof authVerifyEmailRoute
   '/': typeof appIndexRoute
   '/panel/sites': typeof adminPanelSitesRoute
+  '/panel/submit-sites': typeof adminPanelSubmitSitesRoute
   '/panel/users': typeof adminPanelUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/verify-email': typeof authVerifyEmailRoute
   '/': typeof appIndexRoute
   '/panel/sites': typeof adminPanelSitesRoute
+  '/panel/submit-sites': typeof adminPanelSubmitSitesRoute
   '/panel/users': typeof adminPanelUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/(auth)/verify-email': typeof authVerifyEmailRoute
   '/(app)/': typeof appIndexRoute
   '/(admin)/panel/sites': typeof adminPanelSitesRoute
+  '/(admin)/panel/submit-sites': typeof adminPanelSubmitSitesRoute
   '/(admin)/panel/users': typeof adminPanelUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/'
     | '/panel/sites'
+    | '/panel/submit-sites'
     | '/panel/users'
     | '/api/auth/$'
     | '/api/rpc/$'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/'
     | '/panel/sites'
+    | '/panel/submit-sites'
     | '/panel/users'
     | '/api/auth/$'
     | '/api/rpc/$'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/(auth)/verify-email'
     | '/(app)/'
     | '/(admin)/panel/sites'
+    | '/(admin)/panel/submit-sites'
     | '/(admin)/panel/users'
     | '/api/auth/$'
     | '/api/rpc/$'
@@ -341,6 +353,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof adminPanelUsersRouteImport
       parentRoute: typeof adminPanelRouteRoute
     }
+    '/(admin)/panel/submit-sites': {
+      id: '/(admin)/panel/submit-sites'
+      path: '/submit-sites'
+      fullPath: '/panel/submit-sites'
+      preLoaderRoute: typeof adminPanelSubmitSitesRouteImport
+      parentRoute: typeof adminPanelRouteRoute
+    }
     '/(admin)/panel/sites': {
       id: '/(admin)/panel/sites'
       path: '/sites'
@@ -391,12 +410,14 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 
 interface adminPanelRouteRouteChildren {
   adminPanelSitesRoute: typeof adminPanelSitesRoute
+  adminPanelSubmitSitesRoute: typeof adminPanelSubmitSitesRoute
   adminPanelUsersRoute: typeof adminPanelUsersRoute
   adminPanelIndexRoute: typeof adminPanelIndexRoute
 }
 
 const adminPanelRouteRouteChildren: adminPanelRouteRouteChildren = {
   adminPanelSitesRoute: adminPanelSitesRoute,
+  adminPanelSubmitSitesRoute: adminPanelSubmitSitesRoute,
   adminPanelUsersRoute: adminPanelUsersRoute,
   adminPanelIndexRoute: adminPanelIndexRoute,
 }

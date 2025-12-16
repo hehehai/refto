@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import {
   panelSubmitSiteListSchema,
+  submitSiteDeleteSchema,
   submitSiteIdSchema,
   submitSiteRejectSchema,
 } from "@refto-one/common";
@@ -26,10 +27,12 @@ export const panelSubmitSiteRouter = {
       const offset = getPaginationOffset({ page, pageSize });
 
       // Build where conditions
-      const conditions: SQL[] = [
-        isNull(submitSite.deletedAt),
-        eq(submitSite.status, status),
-      ];
+      const conditions: SQL[] = [isNull(submitSite.deletedAt)];
+
+      // Only filter by status if not "ALL"
+      if (status !== "ALL") {
+        conditions.push(eq(submitSite.status, status));
+      }
 
       if (search) {
         conditions.push(
@@ -147,6 +150,30 @@ export const panelSubmitSiteRouter = {
           updatedAt: new Date(),
         })
         .where(eq(submitSite.id, id))
+        .returning();
+
+      return updated;
+    }),
+
+  // Soft delete a submission
+  delete: adminProcedure
+    .input(submitSiteDeleteSchema)
+    .handler(async ({ input }) => {
+      const existing = await db.query.submitSite.findFirst({
+        where: and(eq(submitSite.id, input.id), isNull(submitSite.deletedAt)),
+      });
+
+      if (!existing) {
+        throw new ORPCError("NOT_FOUND", { message: "Submission not found" });
+      }
+
+      const [updated] = await db
+        .update(submitSite)
+        .set({
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(submitSite.id, input.id))
         .returning();
 
       return updated;

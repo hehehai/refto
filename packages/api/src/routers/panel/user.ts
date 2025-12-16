@@ -4,6 +4,7 @@ import {
   userBatchDeleteSchema,
   userCreateSchema,
   userIdSchema,
+  userListForFilterSchema,
   userListSchema,
   userUpdateSchema,
 } from "@refto-one/common";
@@ -13,6 +14,7 @@ import { submitSite } from "@refto-one/db/schema/submissions";
 import {
   and,
   count,
+  desc,
   eq,
   gte,
   ilike,
@@ -34,6 +36,43 @@ import {
 } from "../../lib/utils";
 
 export const userRouter = {
+  // List users for filter dropdown (lightweight)
+  listForFilter: adminProcedure
+    .input(userListForFilterSchema)
+    .handler(async ({ input }) => {
+      const { search, limit } = input;
+
+      // Build where conditions - only USER role
+      const conditions: SQL[] = [eq(user.role, "USER")];
+
+      if (search) {
+        const searchCondition = or(
+          ilike(user.name, `%${search}%`),
+          ilike(user.email, `%${search}%`)
+        );
+        if (searchCondition) {
+          conditions.push(searchCondition);
+        }
+      }
+
+      const whereClause = and(...conditions);
+
+      // Get users ordered by updatedAt desc
+      const users = await db
+        .select({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        })
+        .from(user)
+        .where(whereClause)
+        .orderBy(desc(user.updatedAt))
+        .limit(limit);
+
+      return users;
+    }),
+
   // List users with pagination, search, filter, sort
   list: adminProcedure.input(userListSchema).handler(async ({ input }) => {
     const {
