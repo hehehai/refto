@@ -24,7 +24,7 @@ export function DateRangeFilter({ value, onChange }: DateRangeFilterProps) {
             <Button
               className={cn(
                 "relative w-55 justify-start gap-1 font-normal",
-                !hasValue && "text-muted-foreground/72"
+                !hasValue && "text-muted-foreground"
               )}
               variant="outline"
             >
@@ -52,7 +52,7 @@ export function DateRangeFilter({ value, onChange }: DateRangeFilterProps) {
             </Button>
           }
         />
-        <PopoverContent align="start" className="w-auto p-0">
+        <PopoverContent align="start" className="w-auto">
           <Calendar
             className="p-0"
             mode="range"

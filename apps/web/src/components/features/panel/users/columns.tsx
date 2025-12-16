@@ -1,4 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { formatDistanceToNow } from "date-fns";
 import { createSelectionColumn } from "@/components/shared/data-table/column-helpers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -9,12 +10,20 @@ import {
 } from "@/components/ui/tooltip";
 import type { client } from "@/lib/orpc";
 import { UserRowActions } from "./user-row-actions";
+import { SortableColumnHeader } from "@/components/shared/data-table";
 
 // Type from oRPC API response
 type UserListResponse = Awaited<ReturnType<typeof client.panel.user.list>>;
 export type UserRow = UserListResponse["items"][number];
 
-export function createUserColumns(): ColumnDef<UserRow>[] {
+interface CreateUserColumnsOptions {
+  sortOrder?: "asc" | "desc";
+  onSortChange?: (order: "asc" | "desc") => void;
+}
+
+export function createUserColumns(
+  options?: CreateUserColumnsOptions
+): ColumnDef<UserRow>[] {
   return [
     createSelectionColumn<UserRow>(),
     {
@@ -68,14 +77,39 @@ export function createUserColumns(): ColumnDef<UserRow>[] {
       },
     },
     {
+      accessorKey: "lastSignedIn",
+      header: "Last signed in",
+      size: 120,
+      cell: ({ row }) => {
+        const lastSignedIn = row.original.lastSignedIn;
+        if (!lastSignedIn) {
+          return <span className="text-muted-foreground text-sm">Never</span>;
+        }
+        return (
+          <span className="text-muted-foreground text-sm">
+            {formatDistanceToNow(new Date(lastSignedIn), { addSuffix: true })}
+          </span>
+        );
+      },
+    },
+    {
       accessorKey: "createdAt",
-      header: "Created At",
+      header: () => (
+        <SortableColumnHeader
+          onSort={() => {
+            const next = options?.sortOrder === "desc" ? "asc" : "desc";
+            options?.onSortChange?.(next);
+          }}
+          sortDirection={options?.sortOrder ?? null}
+          title="Created At"
+        />
+      ),
       size: 120,
       cell: ({ row }) => {
         const createdAt = row.original.createdAt;
         return (
           <span className="text-muted-foreground text-sm">
-            {createdAt ? new Date(createdAt).toLocaleDateString() : "-"}
+            {createdAt ? new Date(createdAt).toLocaleString() : "-"}
           </span>
         );
       },

@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAdminUpload } from "@/hooks/use-upload";
 import { cn } from "@/lib/utils";
+import { Spinner } from "../ui/spinner";
 
 interface AvatarUploadProps {
   value?: string | null;
@@ -20,17 +21,13 @@ export function AvatarUpload({
   className,
 }: AvatarUploadProps) {
   const { upload, isUploading } = useAdminUpload({
-    onSuccess: (result) => {
-      // Construct the public URL from R2
-      const publicUrl = `${import.meta.env.VITE_R2_PUBLIC_URL}/${result.filename}`;
-      onChange(publicUrl);
-    },
+    onSuccess: (result) => onChange(result.url),
   });
 
-  const { openFilePicker } = useFilePicker({
+  const { openFilePicker, filesContent, clear } = useFilePicker({
     accept: "image/*",
     multiple: false,
-    readAs: "ArrayBuffer",
+    readAs: "DataURL",
     onFilesSuccessfullySelected: async ({ plainFiles }) => {
       const file = plainFiles[0];
       if (file) {
@@ -48,30 +45,34 @@ export function AvatarUpload({
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange(null);
+    clear();
   };
+
+  const image = value || filesContent[0]?.content;
 
   return (
     <div className={cn("relative inline-block", className)}>
       <button
-        className="group relative cursor-pointer disabled:cursor-not-allowed"
+        className="group relative flex size-16 cursor-pointer items-center justify-center disabled:cursor-not-allowed"
         disabled={disabled || isUploading}
         onClick={handleClick}
         type="button"
       >
-        <Avatar className="size-20" size="lg">
-          <AvatarImage src={value ?? undefined} />
-          <AvatarFallback className="text-lg">{fallback}</AvatarFallback>
+        <Avatar className="size-16">
+          <AvatarImage src={image ?? undefined} />
+          <AvatarFallback className="text-xl">{fallback}</AvatarFallback>
         </Avatar>
 
         {/* Overlay */}
         <div
           className={cn(
-            "absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity",
+            "absolute inset-0 flex h-full w-full items-center justify-center rounded-full bg-black/50 transition-opacity",
+            isUploading ? "opacity-100" : "opacity-0",
             !(disabled || isUploading) && "group-hover:opacity-100"
           )}
         >
           {isUploading ? (
-            <span className="i-hugeicons-loading-03 size-6 animate-spin text-white" />
+            <Spinner className="size-6 text-white" />
           ) : (
             <span className="i-hugeicons-camera-02 size-6 text-white" />
           )}
@@ -79,15 +80,15 @@ export function AvatarUpload({
       </button>
 
       {/* Remove button */}
-      {value && !disabled && !isUploading && (
+      {image && !disabled && !isUploading && (
         <Button
-          className="-right-1 -top-1 absolute rounded-full"
+          className="-right-1 -top-1 absolute size-5 rounded-full p-0.5"
           onClick={handleRemove}
           size="icon-xs"
           type="button"
           variant="destructive"
         >
-          <span className="i-hugeicons-cancel-01 size-3" />
+          <span className="i-hugeicons-cancel-01 size-3.5" />
         </Button>
       )}
     </div>

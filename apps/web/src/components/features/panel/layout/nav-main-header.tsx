@@ -28,7 +28,7 @@ export const NavMainHeader = ({
 }: NavMainHeaderProps) => (
   <div
     className={cn(
-      "w-full space-y-3.5 border-border border-b pt-3.5 pb-1.5",
+      "w-full space-y-3.5 border-border border-b pt-3.5 pb-3.5",
       className
     )}
     {...props}
@@ -49,7 +49,7 @@ export const NavMainHeader = ({
     <div className="flex items-center justify-between gap-2 px-4">
       <div className="flex items-center gap-2">
         <Tabs onValueChange={onTabChange} value={activeTab}>
-          <TabsList>
+          <TabsList className="bg-muted/50">
             {tabItems?.map((item) => (
               <TabsTrigger
                 className="px-2.5 text-sm"

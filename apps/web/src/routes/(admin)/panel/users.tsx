@@ -7,6 +7,7 @@ import { z } from "zod";
 import { NavMainHeader } from "@/components/features/panel/layout/nav-main-header";
 import { UserDataTable } from "@/components/features/panel/users/data-table";
 import { useUserActions } from "@/components/features/panel/users/use-user-actions";
+import { UserDetailDrawer } from "@/components/features/panel/users/user-detail-drawer";
 import { UserFormDialog } from "@/components/features/panel/users/user-form-dialog";
 import { DataTableToolbar } from "@/components/shared/data-table/data-table-toolbar";
 import { DateRangeFilter } from "@/components/shared/data-table/date-range-filter";
@@ -26,6 +27,7 @@ const searchSchema = z.object({
   status: z.enum(["all", "normal", "ban"]).catch("all"),
   dateFrom: z.coerce.date().optional().catch(undefined),
   dateTo: z.coerce.date().optional().catch(undefined),
+  sortOrder: z.enum(["asc", "desc"]).catch("desc"),
 });
 
 type SearchParams = z.infer<typeof searchSchema>;
@@ -59,6 +61,7 @@ function RouteComponent() {
         status: search.status === "all" ? undefined : search.status,
         dateFrom: search.dateFrom,
         dateTo: search.dateTo,
+        sortOrder: search.sortOrder,
       },
     })
   );
@@ -78,6 +81,10 @@ function RouteComponent() {
 
   const handleDateRangeChange = (value: DateRange | undefined) => {
     updateSearch({ dateFrom: value?.from, dateTo: value?.to });
+  };
+
+  const handleSortChange = (order: "asc" | "desc") => {
+    updateSearch({ sortOrder: order });
   };
 
   const handleCreate = async (formData: {
@@ -139,7 +146,12 @@ function RouteComponent() {
 
       {/* Data Table */}
       <div className="p-4">
-        <UserDataTable data={data?.items ?? []} isLoading={isLoading} />
+        <UserDataTable
+          data={data?.items ?? []}
+          isLoading={isLoading}
+          onSortChange={handleSortChange}
+          sortOrder={search.sortOrder}
+        />
       </div>
 
       {/* Create Dialog */}
@@ -149,6 +161,9 @@ function RouteComponent() {
         onSubmit={handleCreate}
         open={createOpen}
       />
+
+      {/* User Detail Drawer */}
+      <UserDetailDrawer />
     </div>
   );
 }

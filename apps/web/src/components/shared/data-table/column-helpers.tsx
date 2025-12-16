@@ -25,7 +25,7 @@ export function createSelectionColumn<TData>(): ColumnDef<TData> {
       );
     },
     id: "select",
-    size: 28,
+    size: 20,
   };
 }
 

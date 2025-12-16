@@ -1,3 +1,5 @@
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import {
   ArrowLeft01Icon,
   ArrowRight01Icon,
@@ -5,7 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type * as React from "react";
-import { Button } from "@/components/ui/button";
+import { type Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
@@ -40,30 +42,35 @@ function PaginationItem({ ...props }: React.ComponentProps<"li">) {
 type PaginationLinkProps = {
   isActive?: boolean;
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<"a">;
+  useRender.ComponentProps<"a">;
 
 function PaginationLink({
   className,
   isActive,
   size = "icon",
+  render,
   ...props
 }: PaginationLinkProps) {
-  return (
-    <Button
-      className={cn(className)}
-      nativeButton={false}
-      render={
-        <a
-          aria-current={isActive ? "page" : undefined}
-          data-active={isActive}
-          data-slot="pagination-link"
-          {...props}
-        />
-      }
-      size={size}
-      variant={isActive ? "outline" : "ghost"}
-    />
-  );
+  const defaultProps = {
+    "aria-current": isActive ? ("page" as const) : undefined,
+    className: render
+      ? className
+      : cn(
+          buttonVariants({
+            size,
+            variant: isActive ? "outline" : "ghost",
+          }),
+          className
+        ),
+    "data-active": isActive,
+    "data-slot": "pagination-link",
+  };
+
+  return useRender({
+    defaultTagName: "a",
+    props: mergeProps<"a">(defaultProps, props),
+    render,
+  });
 }
 
 function PaginationPrevious({

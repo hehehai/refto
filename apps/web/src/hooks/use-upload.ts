@@ -4,6 +4,7 @@ import { client } from "@/lib/orpc";
 interface UploadResult {
   type: string;
   filename: string;
+  url: string;
 }
 
 interface UseUploadOptions {

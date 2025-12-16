@@ -7,6 +7,14 @@ import {
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { Frame, FrameFooter } from "@/components/shared/frame";
+import {
+  FrameTable,
+  FrameTableBody,
+  FrameTableCell,
+  FrameTableHead,
+  FrameTableHeader,
+  FrameTableRow,
+} from "@/components/shared/frame-table";
 import { Button } from "@/components/ui/button";
 import {
   Pagination,
@@ -16,13 +24,12 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { createUserColumns } from "./columns";
 import { useUserActions } from "./use-user-actions";
@@ -34,6 +41,8 @@ interface UserDataTableProps {
   defaultPageSize?: number;
   isLoading?: boolean;
   className?: string;
+  sortOrder?: "asc" | "desc";
+  onSortChange?: (order: "asc" | "desc") => void;
 }
 
 export function UserDataTable({
@@ -41,11 +50,16 @@ export function UserDataTable({
   defaultPageSize = 20,
   isLoading,
   className,
+  sortOrder,
+  onSortChange,
 }: UserDataTableProps) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const actions = useUserActions();
 
-  const columns = useMemo<ColumnDef<UserRow>[]>(() => createUserColumns(), []);
+  const columns = useMemo<ColumnDef<UserRow>[]>(
+    () => createUserColumns({ sortOrder, onSortChange }),
+    [sortOrder, onSortChange]
+  );
 
   const table = useReactTable({
     data,
@@ -74,51 +88,22 @@ export function UserDataTable({
   };
 
   // Pagination info
-  const { pageIndex, pageSize } = table.getState().pagination;
-  const totalRows = data.length;
+  const { pageIndex } = table.getState().pagination;
   const totalPages = table.getPageCount();
-  const startItem = pageIndex * pageSize + 1;
-  const endItem = Math.min((pageIndex + 1) * pageSize, totalRows);
 
   return (
     <Frame className={cn("w-full", className)}>
-      {/* Batch actions bar */}
-      {hasSelection && (
-        <div className="flex items-center justify-between border-b bg-muted/50 px-4 py-2">
-          <span className="text-muted-foreground text-sm">
-            {selectedRows.length} user(s) selected
-          </span>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={() => setRowSelection({})}
-              size="sm"
-              variant="outline"
-            >
-              Clear
-            </Button>
-            <Button
-              disabled={actions.batchDelete.isPending}
-              onClick={handleBatchDelete}
-              size="sm"
-              variant="destructive"
-            >
-              <span className="i-hugeicons-delete-03 size-3.5" />
-              {actions.batchDelete.isPending
-                ? "Deleting..."
-                : "Delete Selected"}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <Table className="table-fixed">
-        <TableHeader>
+      <FrameTable className="table-fixed">
+        <FrameTableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow className="hover:bg-transparent" key={headerGroup.id}>
+            <FrameTableRow
+              className="hover:bg-transparent"
+              key={headerGroup.id}
+            >
               {headerGroup.headers.map((header) => {
                 const columnSize = header.column.getSize();
                 return (
-                  <TableHead
+                  <FrameTableHead
                     key={header.id}
                     style={
                       columnSize ? { width: `${columnSize}px` } : undefined
@@ -130,96 +115,170 @@ export function UserDataTable({
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-                  </TableHead>
+                  </FrameTableHead>
                 );
               })}
-            </TableRow>
+            </FrameTableRow>
           ))}
-        </TableHeader>
-        <TableBody>
+        </FrameTableHeader>
+
+        <FrameTableBody>
           {isLoading ? (
-            <TableRow>
-              <TableCell
+            <FrameTableRow>
+              <FrameTableCell
                 className="h-24 text-center text-muted-foreground"
                 colSpan={columns.length}
               >
                 Loading...
-              </TableCell>
-            </TableRow>
+              </FrameTableCell>
+            </FrameTableRow>
           ) : data.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow
+              <FrameTableRow
                 data-state={row.getIsSelected() ? "selected" : undefined}
                 key={row.id}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <FrameTableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+                  </FrameTableCell>
                 ))}
-              </TableRow>
+              </FrameTableRow>
             ))
           ) : (
-            <TableRow>
-              <TableCell
+            <FrameTableRow>
+              <FrameTableCell
                 className="h-24 text-center text-muted-foreground"
                 colSpan={columns.length}
               >
                 No users found.
-              </TableCell>
-            </TableRow>
+              </FrameTableCell>
+            </FrameTableRow>
           )}
-        </TableBody>
-      </Table>
+        </FrameTableBody>
+      </FrameTable>
 
       {/* Local pagination */}
-      {totalPages > 1 && (
-        <FrameFooter className="p-2">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-muted-foreground text-sm">
-              Showing{" "}
-              <strong className="font-medium text-foreground">
-                {startItem}-{endItem}
-              </strong>{" "}
-              of{" "}
-              <strong className="font-medium text-foreground">
-                {totalRows}
-              </strong>{" "}
-              users
-            </p>
+      <FrameFooter className="p-2">
+        <div className="flex items-center justify-between gap-2">
+          {hasSelection ? (
+            <div className="flex items-center gap-2">
+              <span className="whitespace-nowrap text-muted-foreground text-sm">
+                {selectedRows.length} selected
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setRowSelection({})}
+                  size="sm"
+                  variant="outline"
+                >
+                  Clear
+                </Button>
+                <Button
+                  disabled={actions.batchDelete.isPending}
+                  onClick={handleBatchDelete}
+                  size="sm"
+                  variant="destructive"
+                >
+                  <span className="i-hugeicons-delete-03 size-3.5" />
+                  {actions.batchDelete.isPending
+                    ? "Deleting..."
+                    : "Delete Selected"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              {totalPages > 1 && (
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <p className="text-muted-foreground text-sm">Viewing</p>
+                  <Select
+                    items={Array.from({ length: totalPages }, (_, i) => {
+                      const start =
+                        i * table.getState().pagination.pageSize + 1;
+                      const end = Math.min(
+                        (i + 1) * table.getState().pagination.pageSize,
+                        table.getRowCount()
+                      );
+                      const pageNum = i + 1;
+                      return { label: `${start}-${end}`, value: pageNum };
+                    })}
+                    onValueChange={(value) => {
+                      table.setPageIndex((value as number) - 1);
+                    }}
+                    value={table.getState().pagination.pageIndex + 1}
+                  >
+                    <SelectTrigger
+                      aria-label="Select result range"
+                      className="w-fit min-w-none"
+                      size="sm"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: totalPages }, (_, i) => {
+                        const start =
+                          i * table.getState().pagination.pageSize + 1;
+                        const end = Math.min(
+                          (i + 1) * table.getState().pagination.pageSize,
+                          table.getRowCount()
+                        );
+                        const pageNum = i + 1;
+                        return (
+                          <SelectItem key={pageNum} value={pageNum}>
+                            {`${start}-${end}`}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-muted-foreground text-sm">of</p>
+                </div>
+              )}
+              <p className="text-muted-foreground text-sm">
+                <strong className="font-medium text-foreground">
+                  {table.getRowCount()}
+                </strong>{" "}
+                results
+              </p>
+            </div>
+          )}
 
-            <Pagination className="justify-end">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    aria-disabled={!table.getCanPreviousPage()}
-                    className={cn(
-                      !table.getCanPreviousPage() &&
-                        "pointer-events-none opacity-50"
-                    )}
-                    onClick={() => table.previousPage()}
-                  />
-                </PaginationItem>
-                <PaginationItem>
-                  <span className="px-2 text-muted-foreground text-sm">
-                    Page {pageIndex + 1} of {totalPages}
-                  </span>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext
-                    aria-disabled={!table.getCanNextPage()}
-                    className={cn(
-                      !table.getCanNextPage() &&
-                        "pointer-events-none opacity-50"
-                    )}
-                    onClick={() => table.nextPage()}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
-        </FrameFooter>
-      )}
+          <Pagination className="justify-end">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  render={
+                    <Button
+                      disabled={!table.getCanPreviousPage()}
+                      onClick={() => table.previousPage()}
+                      size="sm"
+                      variant="outline"
+                    />
+                  }
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <span className="px-2 text-muted-foreground text-xs">
+                  Page {pageIndex + 1} of {totalPages}
+                </span>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  render={
+                    <Button
+                      disabled={!table.getCanNextPage()}
+                      onClick={() => table.nextPage()}
+                      size="sm"
+                      variant="outline"
+                    />
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      </FrameFooter>
     </Frame>
   );
 }

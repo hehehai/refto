@@ -36,7 +36,11 @@ const r2Client = new S3Client({
  * Generate a safe, unique filename with date prefix
  */
 function generateSafeFilename(fileName: string): string {
-  return `${format(new Date(), "MM-dd")}/${Date.now()}_${slug(fileName)}`;
+  const lastDotIndex = fileName.lastIndexOf(".");
+  const hasExtension = lastDotIndex > 0;
+  const name = hasExtension ? fileName.slice(0, lastDotIndex) : fileName;
+  const ext = hasExtension ? fileName.slice(lastDotIndex) : "";
+  return `${format(new Date(), "MM-dd")}/${Date.now()}_${slug(name)}${ext}`;
 }
 
 /**
@@ -125,7 +129,7 @@ export async function deleteR2File(fileName: string): Promise<void> {
 export async function uploadR2File(
   file: File | Blob,
   fileName: string
-): Promise<{ type: string; filename: string }> {
+): Promise<{ type: string; filename: string; url: string }> {
   return withR2Operation("Uploading file", async () => {
     const safeFilename = generateSafeFilename(fileName);
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -140,6 +144,10 @@ export async function uploadR2File(
     );
 
     console.info(`[R2] File uploaded: ${safeFilename}`);
-    return { type: file.type, filename: safeFilename };
+    return {
+      type: file.type,
+      filename: safeFilename,
+      url: `${process.env.VITE_CLOUD_FLARE_R2_URL}/${safeFilename}`,
+    };
   });
 }

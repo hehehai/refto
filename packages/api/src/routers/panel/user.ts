@@ -9,6 +9,7 @@ import {
 } from "@refto-one/common";
 import { db } from "@refto-one/db";
 import { account, session, user } from "@refto-one/db/schema/auth";
+import { submitSite } from "@refto-one/db/schema/submissions";
 import {
   and,
   count,
@@ -16,7 +17,9 @@ import {
   gte,
   ilike,
   inArray,
+  isNull,
   lte,
+  max,
   or,
   type SQL,
 } from "drizzle-orm";
@@ -85,7 +88,7 @@ export const userRouter = {
       .where(whereClause);
     const total = getCountFromResult(totalResult);
 
-    // Get users
+    // Get users with lastSignedIn (most recent session createdAt)
     const users = await db
       .select({
         id: user.id,
@@ -96,9 +99,12 @@ export const userRouter = {
         banned: user.banned,
         banReason: user.banReason,
         createdAt: user.createdAt,
+        lastSignedIn: max(session.createdAt),
       })
       .from(user)
+      .leftJoin(session, eq(user.id, session.userId))
       .where(whereClause)
+      .groupBy(user.id)
       .orderBy(getSortOrder(user.createdAt, sortOrder))
       .limit(pageSize)
       .offset(offset);
@@ -137,6 +143,34 @@ export const userRouter = {
 
     return userData;
   }),
+
+  // Get user submission statistics
+  getUserStats: adminProcedure
+    .input(userIdSchema)
+    .handler(async ({ input }) => {
+      const totalResult = await db
+        .select({ count: count() })
+        .from(submitSite)
+        .where(
+          and(eq(submitSite.userId, input.id), isNull(submitSite.deletedAt))
+        );
+
+      const approvedResult = await db
+        .select({ count: count() })
+        .from(submitSite)
+        .where(
+          and(
+            eq(submitSite.userId, input.id),
+            eq(submitSite.status, "APPROVED"),
+            isNull(submitSite.deletedAt)
+          )
+        );
+
+      return {
+        totalSubmissions: getCountFromResult(totalResult),
+        approvedSubmissions: getCountFromResult(approvedResult),
+      };
+    }),
 
   // Create user
   create: adminProcedure.input(userCreateSchema).handler(async ({ input }) => {

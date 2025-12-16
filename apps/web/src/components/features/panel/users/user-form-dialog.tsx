@@ -231,7 +231,7 @@ export function UserFormDialog({
           </form.Field>
         </form>
 
-        <DialogFooter>
+        <DialogFooter className="py-2">
           <Button
             disabled={form.state.isSubmitting}
             onClick={() => onOpenChange(false)}
