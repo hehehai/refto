@@ -1,5 +1,5 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { SiteDetailDrawer } from "../sites/site-detail-drawer";
+import { SiteDetailDrawer } from "../sites/detail/site-detail-drawer";
 import { UserDetailDrawer } from "../users/user-detail-drawer";
 import type { NavUserProps } from "./nav-user";
 import { AppSidebar } from "./sidebar";

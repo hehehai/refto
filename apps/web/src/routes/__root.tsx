@@ -49,7 +49,7 @@ function RootDocument() {
       <head>
         <HeadContent />
       </head>
-      <body className="min-h-screen">
+      <body className="root min-h-screen">
         <ThemeProvider attribute="class">
           <Outlet />
           <Toaster richColors />

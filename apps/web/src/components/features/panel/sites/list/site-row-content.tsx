@@ -1,4 +1,4 @@
-import type { SiteRow } from "./types";
+import type { SiteRow } from "../common/types";
 
 export function SiteRowContent({ site }: { site: SiteRow }) {
   return (

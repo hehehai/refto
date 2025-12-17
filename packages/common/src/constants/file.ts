@@ -4,6 +4,7 @@ export const IMAGE_MIME_TYPES: util.MimeTypes[] = [
   "image/jpeg",
   "image/png",
   "image/webp",
+  "image/svg+xml",
 ] as const;
 
 export const VIDEO_MIME_TYPES: util.MimeTypes[] = [

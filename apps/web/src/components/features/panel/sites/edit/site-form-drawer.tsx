@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Rating } from "@/components/ui/rating";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import type { SiteRow } from "./types";
+import type { SiteRow } from "../common/types";
 
 // Form-specific validation schema
 const siteFormSchema = z.object({

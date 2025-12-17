@@ -158,6 +158,70 @@ export const siteBatchDeleteSchema = z.object({
   ids: z.array(z.string()).min(1, "At least one site ID is required"),
 });
 
+// ============ Site Page Schemas ============
+
+// Page ID schema
+export const pageIdSchema = z.object({
+  id: z.string(),
+});
+
+// Page list query
+export const pageListSchema = z.object({
+  siteId: z.string(),
+});
+
+// Page create
+export const pageCreateSchema = z.object({
+  siteId: z.string(),
+  title: z.string().min(1, "Title is required"),
+  url: z.string().min(1, "URL is required"),
+  isDefault: z.boolean().default(false),
+});
+
+// Page update
+export const pageUpdateSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1).optional(),
+  url: z.string().min(1).optional(),
+  isDefault: z.boolean().optional(),
+});
+
+// ============ Site Page Version Schemas ============
+
+// Version ID schema
+export const versionIdSchema = z.object({
+  id: z.string(),
+});
+
+// Version list query
+export const versionListSchema = z.object({
+  pageId: z.string(),
+});
+
+// Version create
+export const versionCreateSchema = z.object({
+  pageId: z.string(),
+  versionDate: z.coerce.date().optional(),
+  versionNote: z.string().optional(),
+  siteOG: z.string().optional(),
+  webCover: z.string().optional(),
+  webRecord: z.string().optional(),
+  mobileCover: z.string().optional(),
+  mobileRecord: z.string().optional(),
+});
+
+// Version update
+export const versionUpdateSchema = z.object({
+  id: z.string(),
+  versionDate: z.coerce.date().optional(),
+  versionNote: z.string().optional(),
+  siteOG: z.string().nullable().optional(),
+  webCover: z.string().min(1).optional(),
+  webRecord: z.string().nullable().optional(),
+  mobileCover: z.string().nullable().optional(),
+  mobileRecord: z.string().nullable().optional(),
+});
+
 // Type exports
 export type UserList = z.infer<typeof userListSchema>;
 export type UserCreate = z.infer<typeof userCreateSchema>;
@@ -173,3 +237,9 @@ export type SiteList = z.infer<typeof siteListSchema>;
 export type SiteCreate = z.infer<typeof siteCreateSchema>;
 export type SiteUpdate = z.infer<typeof siteUpdateSchema>;
 export type SiteBatchDelete = z.infer<typeof siteBatchDeleteSchema>;
+export type PageCreate = z.infer<typeof pageCreateSchema>;
+export type PageUpdate = z.infer<typeof pageUpdateSchema>;
+export type PageList = z.infer<typeof pageListSchema>;
+export type VersionCreate = z.infer<typeof versionCreateSchema>;
+export type VersionUpdate = z.infer<typeof versionUpdateSchema>;
+export type VersionList = z.infer<typeof versionListSchema>;

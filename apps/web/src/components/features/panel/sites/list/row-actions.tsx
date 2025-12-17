@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { useSiteDetailStore } from "@/stores/site-detail-store";
-import { DeleteConfirmDialog } from "./delete-confirm-dialog";
-import { SiteFormDrawer } from "./site-form-drawer";
-import type { SiteRow } from "./types";
-import { useSiteActions } from "./use-site-actions";
+import { DeleteConfirmDialog } from "../common/delete-confirm-dialog";
+import type { SiteRow } from "../common/types";
+import { useSiteActions } from "../common/use-site-actions";
+import { SiteEditDrawer } from "../edit/site-edit-drawer";
 
 interface SiteRowActionsProps {
   site: SiteRow;
@@ -38,21 +38,6 @@ export function SiteRowActions({ site }: SiteRowActionsProps) {
     if (success) {
       toast.success("URL copied to clipboard");
     }
-  };
-
-  const handleUpdate = async (data: {
-    title: string;
-    description: string;
-    logo: string;
-    url: string;
-    tags: string[];
-    rating: number;
-    isPinned: boolean;
-  }) => {
-    await actions.update.mutateAsync({
-      id: site.id,
-      ...data,
-    });
   };
 
   const handlePin = async () => {
@@ -130,12 +115,10 @@ export function SiteRowActions({ site }: SiteRowActionsProps) {
         </DropdownMenu>
       </div>
 
-      <SiteFormDrawer
-        mode="edit"
+      <SiteEditDrawer
         onOpenChange={setEditOpen}
-        onSubmit={handleUpdate}
         open={editOpen}
-        site={site}
+        siteId={site.id}
       />
 
       <DeleteConfirmDialog

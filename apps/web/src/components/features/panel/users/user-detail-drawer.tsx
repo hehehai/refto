@@ -25,6 +25,7 @@ import { useUserDetailStore } from "@/stores/user-detail-store";
 import { BanDialog } from "./ban-dialog";
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { useUserActions } from "./use-user-actions";
+import { UserDetailSkeleton } from "./user-detail-skeleton";
 import { UserFormDialog } from "./user-form-dialog";
 
 export function UserDetailDrawer() {
@@ -115,9 +116,7 @@ export function UserDetailDrawer() {
       >
         <DrawerContent className="h-full data-[vaul-drawer-direction=right]:w-2xl data-[vaul-drawer-direction=right]:sm:max-w-2xl">
           {isLoading || !user ? (
-            <div className="flex h-full items-center justify-center">
-              <span className="text-muted-foreground">Loading...</span>
-            </div>
+            <UserDetailSkeleton />
           ) : (
             <>
               <DrawerHeader className="flex-row items-start justify-between">

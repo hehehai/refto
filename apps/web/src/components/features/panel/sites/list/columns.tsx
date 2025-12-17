@@ -9,8 +9,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { SiteRow } from "../common/types";
 import { SiteRowActions } from "./row-actions";
-import type { SiteRow } from "./types";
 
 interface CreateSiteColumnsOptions {
   sortBy?: "createdAt" | "visits";

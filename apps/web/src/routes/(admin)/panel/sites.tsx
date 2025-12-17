@@ -4,9 +4,8 @@ import { zodValidator } from "@tanstack/zod-adapter";
 import { useState } from "react";
 import { z } from "zod";
 import { NavMainHeader } from "@/components/features/panel/layout/nav-main-header";
-import { SiteDataTable } from "@/components/features/panel/sites/data-table";
-import { SiteFormDrawer } from "@/components/features/panel/sites/site-form-drawer";
-import { useSiteActions } from "@/components/features/panel/sites/use-site-actions";
+import { SiteCreateDrawer } from "@/components/features/panel/sites/create/site-create-drawer";
+import { SiteDataTable } from "@/components/features/panel/sites/list/data-table";
 import { DataTableToolbar } from "@/components/shared/data-table/data-table-toolbar";
 import { StatusFilterSelect } from "@/components/shared/data-table/status-filter";
 import { Button } from "@/components/ui/button";
@@ -35,7 +34,6 @@ export const Route = createFileRoute("/(admin)/panel/sites")({
 function RouteComponent() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const actions = useSiteActions();
 
   // Create drawer state
   const [createOpen, setCreateOpen] = useState(false);
@@ -85,18 +83,6 @@ function RouteComponent() {
     updateSearch({ sortBy, sortOrder: order });
   };
 
-  const handleCreate = async (formData: {
-    title: string;
-    description: string;
-    logo: string;
-    url: string;
-    tags: string[];
-    rating: number;
-    isPinned: boolean;
-  }) => {
-    await actions.create.mutateAsync(formData);
-  };
-
   return (
     <div className="w-full">
       <NavMainHeader
@@ -137,12 +123,7 @@ function RouteComponent() {
       </div>
 
       {/* Create Drawer */}
-      <SiteFormDrawer
-        mode="create"
-        onOpenChange={setCreateOpen}
-        onSubmit={handleCreate}
-        open={createOpen}
-      />
+      <SiteCreateDrawer onOpenChange={setCreateOpen} open={createOpen} />
     </div>
   );
 }

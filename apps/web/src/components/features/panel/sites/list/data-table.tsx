@@ -36,11 +36,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-
+import type { SiteRow } from "../common/types";
+import { useSiteActions } from "../common/use-site-actions";
 import { createSiteColumns } from "./columns";
 import { SiteRowContent } from "./site-row-content";
-import type { SiteRow } from "./types";
-import { useSiteActions } from "./use-site-actions";
 
 interface SiteDataTableProps {
   data: SiteRow[];

@@ -18,9 +18,9 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { orpc } from "@/lib/orpc";
 import { useSiteDetailStore } from "@/stores/site-detail-store";
 import { useUserDetailStore } from "@/stores/user-detail-store";
-import { DeleteConfirmDialog } from "./delete-confirm-dialog";
-import { SiteFormDrawer } from "./site-form-drawer";
-import { useSiteActions } from "./use-site-actions";
+import { DeleteConfirmDialog } from "../common/delete-confirm-dialog";
+import { useSiteActions } from "../common/use-site-actions";
+import { SiteFormDrawer } from "../edit/site-form-drawer";
 
 export function SiteDetailDrawer() {
   const { siteId, isOpen, closeSiteDetail } = useSiteDetailStore();

@@ -122,7 +122,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply font-sans bg-background text-foreground;
+    @apply font-sans bg-background text-foreground relative;
   }
   html {
     @apply font-sans;
@@ -131,4 +131,8 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+}
+
+.root {
+  isolation: isolate;
 }
