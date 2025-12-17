@@ -36,8 +36,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { useSiteDetailStore } from "@/stores/site-detail-store";
+
 import { createSiteColumns } from "./columns";
+import { SiteRowContent } from "./site-row-content";
 import type { SiteRow } from "./types";
 import { useSiteActions } from "./use-site-actions";
 
@@ -66,7 +67,6 @@ export function SiteDataTable({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const actions = useSiteActions();
-  const openSiteDetail = useSiteDetailStore((state) => state.openSiteDetail);
 
   const columns = useMemo<ColumnDef<SiteRow>[]>(
     () => createSiteColumns({ sortBy, sortOrder, onSortChange }),
@@ -100,10 +100,6 @@ export function SiteDataTable({
       });
       setRowSelection({});
     }
-  };
-
-  const handleRowClick = (row: SiteRow) => {
-    openSiteDetail(row.id);
   };
 
   const toggleRowExpand = (rowId: string, e: React.MouseEvent) => {
@@ -176,10 +172,8 @@ export function SiteDataTable({
             table.getRowModel().rows.map((row) => (
               <>
                 <FrameTableRow
-                  className="cursor-pointer"
                   data-state={row.getIsSelected() ? "selected" : undefined}
                   key={row.id}
-                  onClick={() => handleRowClick(row.original)}
                 >
                   <FrameTableCell className="w-10">
                     <Button
@@ -208,7 +202,7 @@ export function SiteDataTable({
                 {isRowExpanded(row.id) && (
                   <FrameTableRow key={`${row.id}-expanded`}>
                     <FrameTableCell colSpan={columns.length + 1}>
-                      <ExpandedRowContent site={row.original} />
+                      <SiteRowContent site={row.original} />
                     </FrameTableCell>
                   </FrameTableRow>
                 )}
@@ -349,54 +343,5 @@ export function SiteDataTable({
         </div>
       </FrameFooter>
     </Frame>
-  );
-}
-
-function ExpandedRowContent({ site }: { site: SiteRow }) {
-  return (
-    <div className="space-y-3 bg-muted/30 p-4">
-      {/* Description */}
-      {site.description && (
-        <div>
-          <h4 className="mb-1 font-medium text-muted-foreground text-xs uppercase">
-            Description
-          </h4>
-          <p className="line-clamp-2 text-sm">{site.description}</p>
-        </div>
-      )}
-
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <h4 className="mb-1 font-medium text-muted-foreground text-xs uppercase">
-            Visits
-          </h4>
-          <p className="font-semibold text-lg">
-            {site.visits.toLocaleString()}
-          </p>
-        </div>
-        <div>
-          <h4 className="mb-1 font-medium text-muted-foreground text-xs uppercase">
-            Rating
-          </h4>
-          <div className="flex items-center gap-1">
-            <span className="i-hugeicons-star size-5 text-yellow-500" />
-            <span className="font-semibold text-lg">
-              {(site.rating ?? 0).toFixed(1)}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Tags */}
-      {site.tags && site.tags.length > 0 && (
-        <div>
-          <h4 className="mb-1 font-medium text-muted-foreground text-xs uppercase">
-            All Tags
-          </h4>
-          <p className="text-sm">{site.tags.join(", ")}</p>
-        </div>
-      )}
-    </div>
   );
 }

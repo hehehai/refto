@@ -75,6 +75,14 @@ export function SiteRowActions({ site }: SiteRowActionsProps) {
           <span className="i-hugeicons-edit-02 size-3.5" />
           Edit
         </Button>
+        <Button
+          onClick={() => openSiteDetail(site.id)}
+          size="sm"
+          variant="outline"
+        >
+          <span className="i-hugeicons-view size-3.5" />
+          Detail
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
@@ -91,10 +99,6 @@ export function SiteRowActions({ site }: SiteRowActionsProps) {
             <DropdownMenuItem onClick={handleCopyUrl}>
               <span className="i-hugeicons-link-01 size-4" />
               Copy URL
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => openSiteDetail(site.id)}>
-              <span className="i-hugeicons-view size-4" />
-              View Details
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {site.isPinned ? (

@@ -2,15 +2,13 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
 import { SortableColumnHeader } from "@/components/shared/data-table";
 import { createSelectionColumn } from "@/components/shared/data-table/column-helpers";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CreatorCell } from "@/components/shared/data-table/common-cells";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useUserDetailStore } from "@/stores/user-detail-store";
 import { SiteRowActions } from "./row-actions";
 import type { SiteRow } from "./types";
 
@@ -33,7 +31,7 @@ export function createSiteColumns(
       header: "Site",
       size: 280,
       cell: ({ row }) => {
-        const { title, logo, url } = row.original;
+        const { title, logo, url, isPinned } = row.original;
         return (
           <div className="flex items-center gap-3">
             {logo ? (
@@ -48,25 +46,39 @@ export function createSiteColumns(
               </div>
             )}
             <div className="flex flex-col gap-0.5">
-              <span className="font-medium">{title}</span>
+              <span className="max-w-56 truncate font-medium">{title}</span>
               <div className="flex items-center gap-1">
-                <span className="max-w-[180px] truncate text-muted-foreground text-xs">
+                <a
+                  className="max-w-45 truncate text-muted-foreground text-xs hover:underline"
+                  href={url}
+                  target="_blank"
+                >
                   {url}
-                </span>
+                </a>
                 <Tooltip>
-                  <TooltipTrigger>
-                    <a
-                      className="text-muted-foreground transition-colors hover:text-foreground"
-                      href={url}
-                      onClick={(e) => e.stopPropagation()}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <span className="i-hugeicons-link-square-01 size-3.5" />
-                    </a>
-                  </TooltipTrigger>
+                  <TooltipTrigger
+                    render={
+                      <a
+                        className="flex items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                        href={url}
+                        onClick={(e) => e.stopPropagation()}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        <span className="i-hugeicons-link-square-01 size-3.5" />
+                      </a>
+                    }
+                  />
                   <TooltipContent>Visit site</TooltipContent>
                 </Tooltip>
+                {isPinned && (
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={<span className="i-hugeicons-pin size-3.5" />}
+                    />
+                    <TooltipContent>Pined</TooltipContent>
+                  </Tooltip>
+                )}
               </div>
             </div>
           </div>
@@ -76,7 +88,7 @@ export function createSiteColumns(
     {
       accessorKey: "tags",
       header: "Tags",
-      size: 180,
+      size: 160,
       cell: ({ row }) => {
         const tags = row.original.tags;
         if (!tags || tags.length === 0) {
@@ -108,7 +120,7 @@ export function createSiteColumns(
     {
       accessorKey: "rating",
       header: "Rating",
-      size: 100,
+      size: 80,
       cell: ({ row }) => {
         const rating = row.original.rating ?? 0;
         return (
@@ -116,19 +128,6 @@ export function createSiteColumns(
             <span className="i-hugeicons-star size-4 text-yellow-500" />
             <span className="text-sm">{rating.toFixed(1)}</span>
           </div>
-        );
-      },
-    },
-    {
-      accessorKey: "isPinned",
-      header: "Pin Status",
-      size: 100,
-      cell: ({ row }) => {
-        const isPinned = row.original.isPinned;
-        return isPinned ? (
-          <Badge variant="default">Pinned</Badge>
-        ) : (
-          <span className="text-muted-foreground text-sm">-</span>
         );
       },
     },
@@ -191,7 +190,7 @@ export function createSiteColumns(
     {
       accessorKey: "creator",
       header: "Creator",
-      size: 150,
+      size: 120,
       cell: ({ row }) => {
         const { createdById, creatorName, creatorImage } = row.original;
         if (!createdById) {
@@ -209,38 +208,9 @@ export function createSiteColumns(
     {
       id: "actions",
       header: () => <div className="text-right">Actions</div>,
-      size: 100,
+      size: 170,
       enableSorting: false,
       cell: ({ row }) => <SiteRowActions site={row.original} />,
     },
   ];
-}
-
-function CreatorCell({
-  createdById,
-  creatorName,
-  creatorImage,
-}: {
-  createdById: string;
-  creatorName: string | null;
-  creatorImage: string | null;
-}) {
-  const { openUserDetail } = useUserDetailStore();
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    openUserDetail(createdById);
-  };
-
-  return (
-    <Button className="h-auto gap-2 p-0" onClick={handleClick} variant="ghost">
-      <Avatar className="size-6">
-        <AvatarImage alt={creatorName ?? ""} src={creatorImage ?? undefined} />
-        <AvatarFallback className="text-xs">
-          {creatorName?.charAt(0) ?? "?"}
-        </AvatarFallback>
-      </Avatar>
-      <span className="max-w-[80px] truncate text-sm">{creatorName}</span>
-    </Button>
-  );
 }

@@ -5,7 +5,6 @@ import { useState } from "react";
 import { z } from "zod";
 import { NavMainHeader } from "@/components/features/panel/layout/nav-main-header";
 import { SiteDataTable } from "@/components/features/panel/sites/data-table";
-import { SiteDetailDrawer } from "@/components/features/panel/sites/site-detail-drawer";
 import { SiteFormDrawer } from "@/components/features/panel/sites/site-form-drawer";
 import { useSiteActions } from "@/components/features/panel/sites/use-site-actions";
 import { DataTableToolbar } from "@/components/shared/data-table/data-table-toolbar";
@@ -144,9 +143,6 @@ function RouteComponent() {
         onSubmit={handleCreate}
         open={createOpen}
       />
-
-      {/* Site Detail Drawer */}
-      <SiteDetailDrawer />
     </div>
   );
 }

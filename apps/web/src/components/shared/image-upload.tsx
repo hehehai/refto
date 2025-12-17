@@ -15,6 +15,7 @@ interface ImageUploadProps {
   uploadType?: "user" | "admin";
   placeholder?: React.ReactNode;
   fallback?: string;
+  right?: React.ReactNode;
 }
 
 const sizeMap = {
@@ -39,6 +40,7 @@ export function ImageUpload({
   uploadType = "admin",
   placeholder,
   fallback = "?",
+  right,
 }: ImageUploadProps) {
   const useUploadHook = uploadType === "admin" ? useAdminUpload : useUpload;
   const { upload, isUploading } = useUploadHook({
@@ -117,51 +119,57 @@ export function ImageUpload({
   };
 
   return (
-    <div className={cn("relative inline-block", className)}>
-      <button
-        className={cn(
-          "group relative flex cursor-pointer items-center justify-center disabled:cursor-not-allowed disabled:opacity-50",
-          sizeClass,
-          !isRound &&
-            "rounded-lg border border-input border-dashed bg-muted/30 transition-colors hover:border-primary hover:bg-muted/50"
-        )}
-        disabled={disabled || isUploading}
-        onClick={handleClick}
-        type="button"
-      >
-        {renderContent()}
-
-        {/* Overlay */}
-        <div
+    <div className={cn(className)}>
+      <div className={cn("relative inline-block", sizeClass, className)}>
+        <button
           className={cn(
-            "absolute inset-0 flex items-center justify-center bg-black/50 transition-opacity",
-            isRound ? "rounded-full" : "rounded-lg",
-            isUploading ? "opacity-100" : "opacity-0",
-            !(disabled || isUploading) && "group-hover:opacity-100"
+            "group relative flex cursor-pointer items-center justify-center disabled:cursor-not-allowed disabled:opacity-50",
+            sizeClass,
+            !isRound &&
+              "rounded-lg border border-input border-dashed bg-muted/30 transition-colors hover:border-primary hover:bg-muted/50"
           )}
-        >
-          {isUploading ? (
-            <Spinner className={cn("text-white", iconSize)} />
-          ) : (
-            <span
-              className={cn("i-hugeicons-camera-02 text-white", iconSize)}
-            />
-          )}
-        </div>
-      </button>
-
-      {/* Remove button */}
-      {image && !disabled && !isUploading && (
-        <Button
-          className="-right-1 -top-1 absolute size-5 rounded-full p-0.5"
-          onClick={handleRemove}
-          size="icon-xs"
+          disabled={disabled || isUploading}
+          onClick={handleClick}
           type="button"
-          variant="destructive"
         >
-          <span className="i-hugeicons-cancel-01 size-3.5" />
-        </Button>
-      )}
+          {renderContent()}
+
+          {/* Overlay */}
+          <div
+            className={cn(
+              "absolute inset-0 flex items-center justify-center bg-black/50 transition-opacity",
+              isRound ? "rounded-full" : "rounded-lg",
+              isUploading ? "opacity-100" : "opacity-0",
+              !(disabled || isUploading) && "group-hover:opacity-100"
+            )}
+          >
+            {isUploading ? (
+              <Spinner className={cn("text-white", iconSize)} />
+            ) : (
+              <span
+                className={cn("i-hugeicons-camera-02 text-white", iconSize)}
+              />
+            )}
+          </div>
+
+          {/* Remove button */}
+        </button>
+        {image && !disabled && !isUploading && (
+          <Button
+            className="-right-1 -top-1 absolute size-5 rounded-full p-0.5"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemove(e);
+            }}
+            size="icon-xs"
+            type="button"
+            variant="destructive"
+          >
+            <span className="i-hugeicons-cancel-01 size-3.5" />
+          </Button>
+        )}
+      </div>
+      {right}
     </div>
   );
 }

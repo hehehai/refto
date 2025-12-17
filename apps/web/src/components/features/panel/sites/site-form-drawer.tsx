@@ -259,13 +259,13 @@ export function SiteFormDrawer({
                     <div className="flex flex-wrap gap-1.5">
                       {field.state.value.map((tag) => (
                         <Badge
-                          className="gap-1 pr-1"
+                          className="gap-1 px-0.5 pl-2"
                           key={tag}
                           variant="secondary"
                         >
                           {tag}
                           <button
-                            className="ml-0.5 rounded-sm p-0.5 hover:bg-muted-foreground/20"
+                            className="ml-0.5 flex items-center justify-center rounded-full p-0.5 hover:bg-muted-foreground/20"
                             disabled={form.state.isSubmitting}
                             onClick={() => handleRemoveTag(tag)}
                             type="button"

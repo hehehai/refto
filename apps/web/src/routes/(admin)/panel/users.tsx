@@ -7,7 +7,6 @@ import { z } from "zod";
 import { NavMainHeader } from "@/components/features/panel/layout/nav-main-header";
 import { UserDataTable } from "@/components/features/panel/users/data-table";
 import { useUserActions } from "@/components/features/panel/users/use-user-actions";
-import { UserDetailDrawer } from "@/components/features/panel/users/user-detail-drawer";
 import { UserFormDialog } from "@/components/features/panel/users/user-form-dialog";
 import { DataTableToolbar } from "@/components/shared/data-table/data-table-toolbar";
 import { DateRangeFilter } from "@/components/shared/data-table/date-range-filter";
@@ -161,9 +160,6 @@ function RouteComponent() {
         onSubmit={handleCreate}
         open={createOpen}
       />
-
-      {/* User Detail Drawer */}
-      <UserDetailDrawer />
     </div>
   );
 }
