@@ -72,8 +72,8 @@ export function VersionDialog({
   }, [open, version, form]);
 
   return (
-    <Dialog modal={false} onOpenChange={onOpenChange} open={open}>
-      <DialogContent>
+    <Dialog onOpenChange={onOpenChange} open={open}>
+      <DialogContent overlayProps={{ forceRender: true }}>
         <DialogHeader>
           <DialogTitle>
             {mode === "create" ? "Add Version" : "Edit Version"}

@@ -1,4 +1,3 @@
-import { Dialog } from "@base-ui/react/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
@@ -9,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
+  Sheet,
   SheetClose,
   SheetContent,
   SheetDescription,
@@ -30,11 +30,11 @@ import { UserFormDialog } from "./user-form-dialog";
 
 export function UserDetailSheet() {
   return (
-    <Dialog.Root handle={userDetailSheet}>
+    <Sheet<{ userId: string }> handle={userDetailSheet}>
       {({ payload }) =>
         payload && <UserDetailContent userId={payload.userId} />
       }
-    </Dialog.Root>
+    </Sheet>
   );
 }
 

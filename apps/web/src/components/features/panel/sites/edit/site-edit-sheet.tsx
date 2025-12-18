@@ -1,6 +1,6 @@
-import { Dialog } from "@base-ui/react/dialog";
 import { EmptyPlaceholder } from "@/components/shared/empty-placeholder";
 import {
+  Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -53,7 +53,7 @@ function SiteEditContent() {
 
 export function SiteEditSheet() {
   return (
-    <Dialog.Root handle={siteEditSheet}>
+    <Sheet<{ siteId: string }> handle={siteEditSheet}>
       {({ payload }) =>
         payload && (
           <SiteEditProvider open={true} siteId={payload.siteId}>
@@ -75,6 +75,6 @@ export function SiteEditSheet() {
           </SiteEditProvider>
         )
       }
-    </Dialog.Root>
+    </Sheet>
   );
 }

@@ -102,7 +102,7 @@ export function SiteRowActions({ site }: SiteRowActionsProps) {
               disabled={actions.unpin.isPending}
               onClick={handleUnpin}
             >
-              <span className="i-hugeicons-pin-off-02 size-4" />
+              <span className="i-hugeicons-pin-02 size-4" />
               {actions.unpin.isPending ? "Unpinning..." : "Unpin"}
             </DropdownMenuItem>
           ) : (

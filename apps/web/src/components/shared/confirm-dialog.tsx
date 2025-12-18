@@ -1,9 +1,15 @@
-"use client";
-
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 interface ConfirmDialogPayload {
   title: string;
@@ -19,7 +25,7 @@ export const confirmDialog =
   AlertDialogPrimitive.createHandle<ConfirmDialogPayload>();
 
 // Provider component - mount once at layout root
-export function ConfirmDialogProvider() {
+export function ConfirmDialog() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleConfirm = async (payload: ConfirmDialogPayload) => {
@@ -33,54 +39,38 @@ export function ConfirmDialogProvider() {
   };
 
   return (
-    <AlertDialogPrimitive.Root handle={confirmDialog}>
+    <AlertDialog handle={confirmDialog}>
       {({ payload }) =>
         payload && (
-          <AlertDialogPrimitive.Portal>
-            <AlertDialogPrimitive.Backdrop
-              className={cn(
-                "data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/10 duration-100 data-closed:animate-out data-open:animate-in supports-backdrop-filter:backdrop-blur-xs"
-              )}
-            />
-            <AlertDialogPrimitive.Popup
-              className={cn(
-                "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 group/alert-dialog-content -translate-x-1/2 -translate-y-1/2 fixed top-1/2 left-1/2 z-50 grid w-full max-w-xs gap-4 rounded-xl bg-background p-4 outline-none ring-1 ring-foreground/10 duration-100 data-closed:animate-out data-open:animate-in sm:max-w-sm"
-              )}
-            >
-              {/* Header */}
-              <div className="grid place-items-center gap-1.5 text-center sm:place-items-start sm:text-left">
-                <AlertDialogPrimitive.Title className="font-medium text-sm">
-                  {payload.title}
-                </AlertDialogPrimitive.Title>
-                <AlertDialogPrimitive.Description className="text-balance text-muted-foreground text-sm md:text-pretty">
-                  {payload.description}
-                </AlertDialogPrimitive.Description>
-              </div>
-
-              {/* Footer */}
-              <div className="flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 px-4 py-2 sm:flex-row sm:justify-end">
-                <AlertDialogPrimitive.Close
-                  disabled={isLoading}
-                  render={<Button variant="outline" />}
-                >
-                  {payload.cancelText ?? "Cancel"}
-                </AlertDialogPrimitive.Close>
-                <Button
-                  disabled={isLoading}
-                  onClick={() => handleConfirm(payload)}
-                  variant={payload.variant}
-                >
-                  {isLoading
-                    ? payload.variant === "destructive"
-                      ? "Deleting..."
-                      : "Loading..."
-                    : (payload.confirmText ?? "Confirm")}
-                </Button>
-              </div>
-            </AlertDialogPrimitive.Popup>
-          </AlertDialogPrimitive.Portal>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{payload.title}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {payload.description}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="py-2.5">
+              <AlertDialogCancel disabled={isLoading}>
+                {payload.cancelText ?? "Cancel"}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                disabled={isLoading}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleConfirm(payload);
+                }}
+                variant={payload.variant}
+              >
+                {isLoading
+                  ? payload.variant === "destructive"
+                    ? "Deleting..."
+                    : "Loading..."
+                  : (payload.confirmText ?? "Confirm")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
         )
       }
-    </AlertDialogPrimitive.Root>
+    </AlertDialog>
   );
 }

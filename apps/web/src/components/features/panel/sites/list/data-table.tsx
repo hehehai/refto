@@ -10,7 +10,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { Frame, FrameFooter } from "@/components/shared/frame";
 import {
   FrameTable,
@@ -169,10 +169,9 @@ export function SiteDataTable({
             </FrameTableRow>
           ) : data.length ? (
             table.getRowModel().rows.map((row) => (
-              <>
+              <Fragment key={row.id}>
                 <FrameTableRow
                   data-state={row.getIsSelected() ? "selected" : undefined}
-                  key={row.id}
                 >
                   <FrameTableCell className="w-10">
                     <Button
@@ -199,13 +198,13 @@ export function SiteDataTable({
                   ))}
                 </FrameTableRow>
                 {isRowExpanded(row.id) && (
-                  <FrameTableRow key={`${row.id}-expanded`}>
+                  <FrameTableRow>
                     <FrameTableCell colSpan={columns.length + 1}>
                       <SiteRowContent site={row.original} />
                     </FrameTableCell>
                   </FrameTableRow>
                 )}
-              </>
+              </Fragment>
             ))
           ) : (
             <FrameTableRow>

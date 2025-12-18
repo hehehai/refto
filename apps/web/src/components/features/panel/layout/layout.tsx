@@ -1,4 +1,4 @@
-import { ConfirmDialogProvider } from "@/components/shared/confirm-dialog";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteDetailSheet } from "../sites/detail/site-detail-sheet";
 import { SiteEditSheet } from "../sites/edit/site-edit-sheet";
@@ -19,7 +19,7 @@ export default function PanelLayout({ children, user }: PanelLayoutProps) {
       <SiteDetailSheet />
       <SiteEditSheet />
       <UserDetailSheet />
-      <ConfirmDialogProvider />
+      <ConfirmDialog />
     </SidebarProvider>
   );
 }
