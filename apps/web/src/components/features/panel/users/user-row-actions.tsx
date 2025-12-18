@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { confirmDialog } from "@/components/shared/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,10 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import { useUserDetailStore } from "@/stores/user-detail-store";
+import { userDetailSheet } from "@/lib/sheets";
 import { BanDialog } from "./ban-dialog";
 import type { UserRow } from "./columns";
-import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { useUserActions } from "./use-user-actions";
 import { UserFormDialog } from "./user-form-dialog";
 
@@ -22,11 +22,9 @@ interface UserRowActionsProps {
 
 export function UserRowActions({ user }: UserRowActionsProps) {
   const actions = useUserActions();
-  const openUserDetail = useUserDetailStore((state) => state.openUserDetail);
   const [, copy] = useCopyToClipboard();
   const [editOpen, setEditOpen] = useState(false);
   const [banOpen, setBanOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const handleCopyUserId = async () => {
     const success = await copy(user.id);
@@ -60,9 +58,22 @@ export function UserRowActions({ user }: UserRowActionsProps) {
     await actions.unban.mutateAsync({ id: user.id });
   };
 
-  const handleDelete = async () => {
-    await actions.remove.mutateAsync({ id: user.id });
-    setDeleteOpen(false);
+  const handleDelete = () => {
+    confirmDialog.openWithPayload({
+      title: "Delete User",
+      description: (
+        <>
+          Are you sure you want to delete{" "}
+          <strong>{user.name || user.email}</strong>? This action cannot be
+          undone.
+        </>
+      ),
+      confirmText: "Delete",
+      variant: "destructive",
+      onConfirm: async () => {
+        await actions.remove.mutateAsync({ id: user.id });
+      },
+    });
   };
 
   return (
@@ -71,6 +82,14 @@ export function UserRowActions({ user }: UserRowActionsProps) {
         <Button onClick={() => setEditOpen(true)} size="sm" variant="outline">
           <span className="i-hugeicons-user-edit-01 size-3.5" />
           Edit
+        </Button>
+        <Button
+          onClick={() => userDetailSheet.openWithPayload({ userId: user.id })}
+          size="sm"
+          variant="outline"
+        >
+          <span className="i-hugeicons-user-account size-3.5" />
+          Detail
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -84,10 +103,6 @@ export function UserRowActions({ user }: UserRowActionsProps) {
             <DropdownMenuItem onClick={handleCopyUserId}>
               <span className="i-hugeicons-copy-01 size-4" />
               Copy UserId
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => openUserDetail(user.id)}>
-              <span className="i-hugeicons-user-account size-4" />
-              User Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {user.banned ? (
@@ -108,10 +123,7 @@ export function UserRowActions({ user }: UserRowActionsProps) {
                 Ban
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem
-              onClick={() => setDeleteOpen(true)}
-              variant="destructive"
-            >
+            <DropdownMenuItem onClick={handleDelete} variant="destructive">
               <span className="i-hugeicons-delete-03 size-4" />
               Delete
             </DropdownMenuItem>
@@ -131,14 +143,6 @@ export function UserRowActions({ user }: UserRowActionsProps) {
         onConfirm={handleBan}
         onOpenChange={setBanOpen}
         open={banOpen}
-        user={user}
-      />
-
-      <DeleteConfirmDialog
-        isLoading={actions.remove.isPending}
-        onConfirm={handleDelete}
-        onOpenChange={setDeleteOpen}
-        open={deleteOpen}
         user={user}
       />
     </>

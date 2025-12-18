@@ -7,7 +7,6 @@ import {
   SubmitSiteDataTable,
   type SubmitSiteStatus,
 } from "@/components/features/panel/submit-sites/data-table";
-import { UserDetailDrawer } from "@/components/features/panel/users/user-detail-drawer";
 import {
   DataTableToolbar,
   UserFilterSelect,
@@ -110,9 +109,6 @@ function RouteComponent() {
           status={search.status as SubmitSiteStatus}
         />
       </div>
-
-      {/* User Detail Drawer (reused from users) */}
-      <UserDetailDrawer />
     </div>
   );
 }

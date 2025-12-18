@@ -1,39 +1,44 @@
+import { Dialog } from "@base-ui/react/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
+import { confirmDialog } from "@/components/shared/confirm-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
+import {
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { orpc } from "@/lib/orpc";
-import { useSiteDetailStore } from "@/stores/site-detail-store";
-import { useUserDetailStore } from "@/stores/user-detail-store";
-import { DeleteConfirmDialog } from "../common/delete-confirm-dialog";
+import { siteDetailSheet, userDetailSheet } from "@/lib/sheets";
 import { useSiteActions } from "../common/use-site-actions";
-import { SiteFormDrawer } from "../edit/site-form-drawer";
+import { SiteFormSheet } from "../edit/site-form-sheet";
 
-export function SiteDetailDrawer() {
-  const { siteId, isOpen, closeSiteDetail } = useSiteDetailStore();
-  const { openUserDetail } = useUserDetailStore();
+export function SiteDetailSheet() {
+  return (
+    <Dialog.Root handle={siteDetailSheet}>
+      {({ payload }) =>
+        payload && <SiteDetailContent siteId={payload.siteId} />
+      }
+    </Dialog.Root>
+  );
+}
+
+function SiteDetailContent({ siteId }: { siteId: string }) {
   const actions = useSiteActions();
   const [, copy] = useCopyToClipboard();
   const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const { data: site, isLoading } = useQuery(
     orpc.panel.site.getById.queryOptions({
-      input: { id: siteId ?? "" },
-      enabled: !!siteId && isOpen,
+      input: { id: siteId },
     })
   );
 
@@ -65,7 +70,7 @@ export function SiteDetailDrawer() {
     isPinned: boolean;
   }) => {
     if (site) {
-      await actions.update.mutateAsync({
+      await actions.upsert.mutateAsync({
         id: site.id,
         ...data,
       });
@@ -84,35 +89,47 @@ export function SiteDetailDrawer() {
     }
   };
 
-  const handleDelete = async () => {
-    if (site) {
-      await actions.remove.mutateAsync({ id: site.id });
-      setDeleteOpen(false);
-      closeSiteDetail();
-    }
+  const handleDelete = () => {
+    if (!site) return;
+    confirmDialog.openWithPayload({
+      title: "Delete Site",
+      description: (
+        <>
+          Are you sure you want to delete <strong>{site.title}</strong>? This
+          will also delete all associated pages and versions. This action cannot
+          be undone.
+        </>
+      ),
+      confirmText: "Delete",
+      variant: "destructive",
+      onConfirm: async () => {
+        await actions.remove.mutateAsync({ id: site.id });
+        siteDetailSheet.close();
+      },
+    });
   };
 
   const handleOpenCreatorDetail = () => {
     if (site?.createdBy) {
-      openUserDetail(site.createdBy.id);
+      userDetailSheet.openWithPayload({ userId: site.createdBy.id });
     }
   };
 
   return (
     <>
-      <Drawer
-        direction="right"
-        onOpenChange={(open) => !open && closeSiteDetail()}
-        open={isOpen}
+      <SheetContent
+        className="h-full border-none bg-transparent p-3 shadow-none data-[side=right]:max-w-3/4 data-[side=right]:sm:max-w-3/4"
+        showCloseButton={false}
+        side="right"
       >
-        <DrawerContent className="h-full data-[vaul-drawer-direction=right]:w-2xl data-[vaul-drawer-direction=right]:sm:max-w-2xl">
+        <div className="flex h-full w-full flex-col gap-4 rounded-xl bg-background shadow-lg">
           {isLoading || !site ? (
             <div className="flex h-full items-center justify-center">
               <span className="text-muted-foreground">Loading...</span>
             </div>
           ) : (
             <>
-              <DrawerHeader className="flex-row items-start justify-between">
+              <SheetHeader className="flex-row items-start justify-between">
                 <div className="flex items-center gap-3">
                   {site.logo && (
                     <img
@@ -123,12 +140,12 @@ export function SiteDetailDrawer() {
                   )}
                   <div className="flex flex-1 flex-col gap-2">
                     <div className="flex items-center gap-2">
-                      <DrawerTitle className="text-base leading-none">
+                      <SheetTitle className="text-base leading-none">
                         {site.title}
-                      </DrawerTitle>
+                      </SheetTitle>
                       {site.isPinned && <Badge variant="default">Pinned</Badge>}
                     </div>
-                    <DrawerDescription className="flex items-center gap-1 leading-none">
+                    <SheetDescription className="flex items-center gap-1 leading-none">
                       <a
                         className="hover:underline"
                         href={site.url}
@@ -138,18 +155,18 @@ export function SiteDetailDrawer() {
                         {site.url}
                       </a>
                       <span className="i-hugeicons-link-square-01 size-3.5" />
-                    </DrawerDescription>
+                    </SheetDescription>
                   </div>
                 </div>
-                <DrawerClose
+                <SheetClose
                   className={buttonVariants({
                     size: "icon-sm",
                     variant: "outline",
                   })}
                 >
                   <span className="i-hugeicons-cancel-01 text-lg" />
-                </DrawerClose>
-              </DrawerHeader>
+                </SheetClose>
+              </SheetHeader>
 
               <div className="flex flex-col gap-6 overflow-y-auto p-4 pt-0">
                 {/* Tags */}
@@ -211,7 +228,7 @@ export function SiteDetailDrawer() {
                     </Button>
                   )}
                   <Button
-                    onClick={() => setDeleteOpen(true)}
+                    onClick={handleDelete}
                     size="sm"
                     variant="destructive"
                   >
@@ -346,42 +363,32 @@ export function SiteDetailDrawer() {
               </div>
             </>
           )}
-        </DrawerContent>
-      </Drawer>
+        </div>
+      </SheetContent>
 
       {site && (
-        <>
-          <SiteFormDrawer
-            mode="edit"
-            onOpenChange={setEditOpen}
-            onSubmit={handleUpdate}
-            open={editOpen}
-            site={{
-              id: site.id,
-              title: site.title,
-              description: site.description,
-              logo: site.logo,
-              url: site.url,
-              tags: site.tags,
-              rating: site.rating,
-              isPinned: site.isPinned,
-              visits: site.visits,
-              createdAt: site.createdAt,
-              updatedAt: site.updatedAt,
-              createdById: site.createdById,
-              creatorName: site.createdBy?.name ?? null,
-              creatorImage: site.createdBy?.image ?? null,
-            }}
-          />
-
-          <DeleteConfirmDialog
-            isLoading={actions.remove.isPending}
-            onConfirm={handleDelete}
-            onOpenChange={setDeleteOpen}
-            open={deleteOpen}
-            site={site}
-          />
-        </>
+        <SiteFormSheet
+          mode="edit"
+          onOpenChange={setEditOpen}
+          onSubmit={handleUpdate}
+          open={editOpen}
+          site={{
+            id: site.id,
+            title: site.title,
+            description: site.description,
+            logo: site.logo,
+            url: site.url,
+            tags: site.tags,
+            rating: site.rating,
+            isPinned: site.isPinned,
+            visits: site.visits,
+            createdAt: site.createdAt,
+            updatedAt: site.updatedAt,
+            createdById: site.createdById,
+            creatorName: site.createdBy?.name ?? null,
+            creatorImage: site.createdBy?.image ?? null,
+          }}
+        />
       )}
     </>
   );

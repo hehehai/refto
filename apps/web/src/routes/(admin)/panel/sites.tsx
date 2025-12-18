@@ -4,7 +4,7 @@ import { zodValidator } from "@tanstack/zod-adapter";
 import { useState } from "react";
 import { z } from "zod";
 import { NavMainHeader } from "@/components/features/panel/layout/nav-main-header";
-import { SiteCreateDrawer } from "@/components/features/panel/sites/create/site-create-drawer";
+import { SiteCreateSheet } from "@/components/features/panel/sites/create/site-create-sheet";
 import { SiteDataTable } from "@/components/features/panel/sites/list/data-table";
 import { DataTableToolbar } from "@/components/shared/data-table/data-table-toolbar";
 import { StatusFilterSelect } from "@/components/shared/data-table/status-filter";
@@ -35,7 +35,7 @@ function RouteComponent() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  // Create drawer state
+  // Create sheet state
   const [createOpen, setCreateOpen] = useState(false);
 
   // Update search params
@@ -122,8 +122,8 @@ function RouteComponent() {
         />
       </div>
 
-      {/* Create Drawer */}
-      <SiteCreateDrawer onOpenChange={setCreateOpen} open={createOpen} />
+      {/* Create Sheet */}
+      <SiteCreateSheet onOpenChange={setCreateOpen} open={createOpen} />
     </div>
   );
 }

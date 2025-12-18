@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { toast } from "sonner";
+import { confirmDialog } from "@/components/shared/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,11 +9,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import { useSiteDetailStore } from "@/stores/site-detail-store";
-import { DeleteConfirmDialog } from "../common/delete-confirm-dialog";
+import { siteDetailSheet, siteEditSheet } from "@/lib/sheets";
 import type { SiteRow } from "../common/types";
 import { useSiteActions } from "../common/use-site-actions";
-import { SiteEditDrawer } from "../edit/site-edit-drawer";
 
 interface SiteRowActionsProps {
   site: SiteRow;
@@ -21,10 +19,7 @@ interface SiteRowActionsProps {
 
 export function SiteRowActions({ site }: SiteRowActionsProps) {
   const actions = useSiteActions();
-  const openSiteDetail = useSiteDetailStore((state) => state.openSiteDetail);
   const [, copy] = useCopyToClipboard();
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const handleCopySiteId = async () => {
     const success = await copy(site.id);
@@ -48,86 +43,84 @@ export function SiteRowActions({ site }: SiteRowActionsProps) {
     await actions.unpin.mutateAsync({ id: site.id });
   };
 
-  const handleDelete = async () => {
-    await actions.remove.mutateAsync({ id: site.id });
-    setDeleteOpen(false);
+  const handleDelete = () => {
+    confirmDialog.openWithPayload({
+      title: "Delete Site",
+      description: (
+        <>
+          Are you sure you want to delete <strong>{site.title}</strong>? This
+          will also delete all associated pages and versions. This action cannot
+          be undone.
+        </>
+      ),
+      confirmText: "Delete",
+      variant: "destructive",
+      onConfirm: async () => {
+        await actions.remove.mutateAsync({ id: site.id });
+      },
+    });
   };
 
   return (
-    <>
-      <div className="flex items-center justify-end gap-1.5">
-        <Button onClick={() => setEditOpen(true)} size="sm" variant="outline">
-          <span className="i-hugeicons-edit-02 size-3.5" />
-          Edit
-        </Button>
-        <Button
-          onClick={() => openSiteDetail(site.id)}
-          size="sm"
-          variant="outline"
-        >
-          <span className="i-hugeicons-view size-3.5" />
-          Detail
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button size="icon-sm" variant="outline">
-                <span className="i-hugeicons-more-horizontal size-4" />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleCopySiteId}>
-              <span className="i-hugeicons-copy-01 size-4" />
-              Copy Site ID
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleCopyUrl}>
-              <span className="i-hugeicons-link-01 size-4" />
-              Copy URL
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {site.isPinned ? (
-              <DropdownMenuItem
-                disabled={actions.unpin.isPending}
-                onClick={handleUnpin}
-              >
-                <span className="i-hugeicons-pin-off-02 size-4" />
-                {actions.unpin.isPending ? "Unpinning..." : "Unpin"}
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem
-                disabled={actions.pin.isPending}
-                onClick={handlePin}
-              >
-                <span className="i-hugeicons-pin size-4" />
-                {actions.pin.isPending ? "Pinning..." : "Pin"}
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
+    <div className="flex items-center justify-end gap-1.5">
+      <Button
+        onClick={() => siteEditSheet.openWithPayload({ siteId: site.id })}
+        size="sm"
+        variant="outline"
+      >
+        <span className="i-hugeicons-edit-02 size-3.5" />
+        Edit
+      </Button>
+      <Button
+        onClick={() => siteDetailSheet.openWithPayload({ siteId: site.id })}
+        size="sm"
+        variant="outline"
+      >
+        <span className="i-hugeicons-view size-3.5" />
+        Detail
+      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button size="icon-sm" variant="outline">
+              <span className="i-hugeicons-more-horizontal size-4" />
+            </Button>
+          }
+        />
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={handleCopySiteId}>
+            <span className="i-hugeicons-copy-01 size-4" />
+            Copy Site ID
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleCopyUrl}>
+            <span className="i-hugeicons-link-01 size-4" />
+            Copy URL
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          {site.isPinned ? (
             <DropdownMenuItem
-              onClick={() => setDeleteOpen(true)}
-              variant="destructive"
+              disabled={actions.unpin.isPending}
+              onClick={handleUnpin}
             >
-              <span className="i-hugeicons-delete-03 size-4" />
-              Delete
+              <span className="i-hugeicons-pin-off-02 size-4" />
+              {actions.unpin.isPending ? "Unpinning..." : "Unpin"}
             </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <SiteEditDrawer
-        onOpenChange={setEditOpen}
-        open={editOpen}
-        siteId={site.id}
-      />
-
-      <DeleteConfirmDialog
-        isLoading={actions.remove.isPending}
-        onConfirm={handleDelete}
-        onOpenChange={setDeleteOpen}
-        open={deleteOpen}
-        site={site}
-      />
-    </>
+          ) : (
+            <DropdownMenuItem
+              disabled={actions.pin.isPending}
+              onClick={handlePin}
+            >
+              <span className="i-hugeicons-pin size-4" />
+              {actions.pin.isPending ? "Pinning..." : "Pin"}
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleDelete} variant="destructive">
+            <span className="i-hugeicons-delete-03 size-4" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }

@@ -5,19 +5,19 @@ import { z } from "zod";
 import { ImageUpload } from "@/components/shared/image-upload";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Rating } from "@/components/ui/rating";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { SiteRow } from "../common/types";
@@ -33,7 +33,7 @@ const siteFormSchema = z.object({
   isPinned: z.boolean(),
 });
 
-interface SiteFormDrawerProps {
+interface SiteFormSheetProps {
   mode: "create" | "edit";
   site?: SiteRow;
   open: boolean;
@@ -50,14 +50,14 @@ interface SiteFormDrawerProps {
   trigger?: ReactElement<Record<string, unknown>>;
 }
 
-export function SiteFormDrawer({
+export function SiteFormSheet({
   mode,
   site,
   open,
   onOpenChange,
   onSubmit,
   trigger,
-}: SiteFormDrawerProps) {
+}: SiteFormSheetProps) {
   const [tagInput, setTagInput] = useState("");
 
   const form = useForm({
@@ -87,7 +87,7 @@ export function SiteFormDrawer({
     },
   });
 
-  // Reset form when drawer opens or site changes
+  // Reset form when sheet opens or site changes
   useEffect(() => {
     if (open) {
       form.reset();
@@ -123,19 +123,19 @@ export function SiteFormDrawer({
   };
 
   return (
-    <Drawer direction="right" onOpenChange={onOpenChange} open={open}>
-      {trigger && <DrawerTrigger>{trigger}</DrawerTrigger>}
-      <DrawerContent className="sm:max-w-md">
-        <DrawerHeader>
-          <DrawerTitle>
+    <Sheet onOpenChange={onOpenChange} open={open}>
+      {trigger && <SheetTrigger>{trigger}</SheetTrigger>}
+      <SheetContent className="sm:max-w-md" side="right">
+        <SheetHeader>
+          <SheetTitle>
             {mode === "create" ? "Create Site" : "Edit Site"}
-          </DrawerTitle>
-          <DrawerDescription>
+          </SheetTitle>
+          <SheetDescription>
             {mode === "create"
               ? "Add a new site to the collection."
               : "Update site information."}
-          </DrawerDescription>
-        </DrawerHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <form
           className="flex-1 space-y-4 overflow-y-auto px-4"
@@ -321,8 +321,8 @@ export function SiteFormDrawer({
           </form.Field>
         </form>
 
-        <DrawerFooter className="flex-row justify-end gap-2 border-t pt-4">
-          <DrawerClose>
+        <SheetFooter className="flex-row justify-end gap-2 border-t pt-4">
+          <SheetClose>
             <Button
               disabled={form.state.isSubmitting}
               type="button"
@@ -330,7 +330,7 @@ export function SiteFormDrawer({
             >
               Cancel
             </Button>
-          </DrawerClose>
+          </SheetClose>
           <Button
             disabled={form.state.isSubmitting}
             form="site-form"
@@ -342,8 +342,8 @@ export function SiteFormDrawer({
                 ? "Create"
                 : "Save"}
           </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

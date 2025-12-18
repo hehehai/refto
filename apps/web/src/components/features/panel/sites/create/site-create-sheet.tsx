@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import { SiteDetailView } from "../common/site-detail-view";
@@ -33,15 +33,12 @@ interface LocalPage extends Page {
   versions: LocalVersion[];
 }
 
-interface SiteCreateDrawerProps {
+interface SiteCreateSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function SiteCreateDrawer({
-  open,
-  onOpenChange,
-}: SiteCreateDrawerProps) {
+export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
   const queryClient = useQueryClient();
 
   // Site state
@@ -99,7 +96,7 @@ export function SiteCreateDrawer({
 
   // Create site mutation
   const createSiteMutation = useMutation({
-    ...orpc.panel.site.create.mutationOptions(),
+    ...orpc.panel.site.upsert.mutationOptions(),
     onSuccess: (site) => {
       setCreatedSite({
         id: site.id,
@@ -122,7 +119,7 @@ export function SiteCreateDrawer({
 
       // Create pages and versions sequentially
       for (const page of pages) {
-        const createdPage = await orpc.panel.page.create.call({
+        const createdPage = await orpc.panel.page.upsert.call({
           siteId: createdSite.id,
           title: page.title,
           url: page.url,
@@ -131,7 +128,7 @@ export function SiteCreateDrawer({
 
         // Create versions for this page
         for (const version of page.versions) {
-          await orpc.panel.version.create.call({
+          await orpc.panel.version.upsert.call({
             pageId: createdPage.id,
             versionDate: version.versionDate,
             versionNote: version.versionNote ?? undefined,
@@ -154,7 +151,7 @@ export function SiteCreateDrawer({
     },
   });
 
-  // Reset state when drawer opens/closes
+  // Reset state when sheet opens/closes
   useEffect(() => {
     if (open) {
       form.reset();
@@ -347,138 +344,146 @@ export function SiteCreateDrawer({
     );
 
   return (
-    <Drawer direction="right" onOpenChange={onOpenChange} open={open}>
-      <DrawerContent className="data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:sm:max-w-3/4">
-        <DrawerHeader className="sr-only">
-          <DrawerTitle>Create Site</DrawerTitle>
-          <DrawerDescription>Create a new site</DrawerDescription>
-        </DrawerHeader>
+    <Sheet onOpenChange={onOpenChange} open={open}>
+      <SheetContent
+        className="h-full border-none bg-transparent p-3 shadow-none data-[side=right]:max-w-3/4 data-[side=right]:sm:max-w-3/4"
+        showCloseButton={false}
+        side="right"
+      >
+        <div className="flex h-full w-full flex-col gap-4 rounded-xl bg-background shadow-lg">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Create Site</SheetTitle>
+            <SheetDescription>Create a new site</SheetDescription>
+          </SheetHeader>
 
-        <div className="flex flex-1 overflow-hidden">
-          {/* Left side - Site form/detail */}
-          <div className="h-full w-100 shrink-0 border-r">
-            <div className="h-[calc(100%-56px)] overflow-y-auto p-4">
-              {isSiteCreated ? (
-                <SiteDetailView site={createdSite} />
-              ) : (
-                <form
-                  id="site-create-form"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    form.handleSubmit();
-                  }}
-                >
-                  <SiteForm
-                    disabled={createSiteMutation.isPending}
-                    form={form}
-                  />
-                </form>
-              )}
-            </div>
-
-            <div className="mt-auto flex h-14 items-center justify-between gap-2 border-border border-t px-4">
-              <DrawerClose
-                className={cn(
-                  "border-border!",
-                  buttonVariants({ variant: "outline" })
-                )}
-              >
-                Close
-              </DrawerClose>
-              <div className="flex items-center gap-2">
-                {/* Create Site button */}
-                {!isSiteCreated && (
-                  <Button
-                    disabled={createSiteMutation.isPending}
-                    form="site-create-form"
-                    type="submit"
+          <div className="flex flex-1 overflow-hidden">
+            {/* Left side - Site form/detail */}
+            <div className="h-full w-100 shrink-0 border-r">
+              <div className="h-[calc(100%-56px)] overflow-y-auto p-4">
+                {isSiteCreated ? (
+                  <SiteDetailView site={createdSite} />
+                ) : (
+                  <form
+                    id="site-create-form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      form.handleSubmit();
+                    }}
                   >
-                    {createSiteMutation.isPending
-                      ? "Creating..."
-                      : "Create Site"}
-                  </Button>
+                    <SiteForm
+                      disabled={createSiteMutation.isPending}
+                      form={form}
+                    />
+                  </form>
                 )}
               </div>
+
+              <div className="mt-auto flex h-14 items-center justify-between gap-2 border-border border-t px-3">
+                <SheetClose
+                  className={cn(
+                    "border-border!",
+                    buttonVariants({ variant: "outline" })
+                  )}
+                >
+                  Close
+                </SheetClose>
+                <div className="flex items-center gap-2">
+                  {/* Create Site button */}
+                  {!isSiteCreated && (
+                    <Button
+                      disabled={createSiteMutation.isPending}
+                      form="site-create-form"
+                      type="submit"
+                    >
+                      {createSiteMutation.isPending
+                        ? "Creating..."
+                        : "Create Site"}
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Right side - Pages & Versions */}
-          <div
-            className={cn(
-              "flex flex-1 flex-col overflow-hidden",
-              !isSiteCreated && "pointer-events-none opacity-50"
-            )}
-          >
-            {/* Page tabs */}
-            <PageTabs
-              activePageId={activePageId}
-              disabled={!isSiteCreated}
-              onAddPage={handleAddPage}
-              onDeletePage={handleDeletePage}
-              onEditPage={handleEditPage}
-              onPageSelect={setActivePageId}
-              pages={pages}
-            />
+            {/* Right side - Pages & Versions */}
+            <div
+              className={cn(
+                "flex flex-1 flex-col overflow-hidden",
+                !isSiteCreated && "pointer-events-none opacity-50"
+              )}
+            >
+              {/* Page tabs */}
+              <PageTabs
+                activePageId={activePageId}
+                disabled={!isSiteCreated}
+                onAddPage={handleAddPage}
+                onDeletePage={handleDeletePage}
+                onEditPage={handleEditPage}
+                onPageSelect={setActivePageId}
+                pages={pages}
+              />
 
-            {/* Content area */}
-            <div className="flex flex-1 overflow-hidden">
-              {activePage ? (
-                <>
-                  {/* Version tabs (vertical) */}
-                  <VersionTabs
-                    activeVersionId={activeVersionId}
-                    disabled={!isSiteCreated}
-                    onAddVersion={handleAddVersion}
-                    onDeleteVersion={handleDeleteVersion}
-                    onEditVersion={handleEditVersion}
-                    onVersionSelect={setActiveVersionId}
-                    versions={activePage.versions}
-                  />
+              {/* Content area */}
+              <div className="flex flex-1 overflow-hidden">
+                {activePage ? (
+                  <>
+                    {/* Version tabs (vertical) */}
+                    <VersionTabs
+                      activeVersionId={activeVersionId}
+                      disabled={!isSiteCreated}
+                      onAddVersion={handleAddVersion}
+                      onDeleteVersion={handleDeleteVersion}
+                      onEditVersion={handleEditVersion}
+                      onVersionSelect={setActiveVersionId}
+                      versions={activePage.versions}
+                    />
 
-                  {/* Version form */}
-                  <div className="flex-1 overflow-y-auto p-4">
-                    {activeVersion ? (
-                      <VersionForm
-                        disabled={!isSiteCreated}
-                        onChange={handleVersionFormChange}
-                        value={activeVersion}
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-muted-foreground">
-                        <div className="text-center">
-                          <span className="i-hugeicons-folder-add mb-2 block size-12 opacity-50" />
-                          <p>Add a version to get started</p>
+                    {/* Version form */}
+                    <div className="flex-1 overflow-y-auto p-4">
+                      {activeVersion ? (
+                        <VersionForm
+                          disabled={!isSiteCreated}
+                          onChange={handleVersionFormChange}
+                          value={activeVersion}
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-muted-foreground">
+                          <div className="text-center">
+                            <span className="i-hugeicons-folder-add mb-2 block size-12 opacity-50" />
+                            <p>Add a version to get started</p>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-1 items-center justify-center text-muted-foreground">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <span className="i-hugeicons-file-add mb-2 block size-12 opacity-50" />
+                      <p>Add a page to get started</p>
+                    </div>
                   </div>
-                </>
-              ) : (
-                <div className="flex flex-1 items-center justify-center text-muted-foreground">
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <span className="i-hugeicons-file-add mb-2 block size-12 opacity-50" />
-                    <p>Add a page to get started</p>
-                  </div>
+                )}
+              </div>
+
+              {/* Footer - Save All button */}
+              {isSiteCreated && (
+                <div className="flex items-center justify-end gap-2 border-t px-4 py-3">
+                  <Button
+                    disabled={
+                      !canSaveAll || savePagesVersionsMutation.isPending
+                    }
+                    onClick={() => savePagesVersionsMutation.mutate()}
+                  >
+                    {savePagesVersionsMutation.isPending
+                      ? "Saving..."
+                      : "Save All"}
+                  </Button>
                 </div>
               )}
             </div>
-
-            {/* Footer - Save All button */}
-            {isSiteCreated && (
-              <div className="flex items-center justify-end gap-2 border-t px-4 py-3">
-                <Button
-                  disabled={!canSaveAll || savePagesVersionsMutation.isPending}
-                  onClick={() => savePagesVersionsMutation.mutate()}
-                >
-                  {savePagesVersionsMutation.isPending
-                    ? "Saving..."
-                    : "Save All"}
-                </Button>
-              </div>
-            )}
           </div>
         </div>
-      </DrawerContent>
+      </SheetContent>
 
       {/* Page Dialog */}
       <PageDialog
@@ -497,6 +502,6 @@ export function SiteCreateDrawer({
         open={versionDialogOpen}
         version={editingVersion ?? undefined}
       />
-    </Drawer>
+    </Sheet>
   );
 }

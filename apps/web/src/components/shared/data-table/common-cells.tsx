@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useUserDetailStore } from "@/stores/user-detail-store";
+import { userDetailSheet } from "@/lib/sheets";
 
 export function CreatorCell({
   createdById,
@@ -10,11 +10,9 @@ export function CreatorCell({
   creatorName: string | null;
   creatorImage: string | null;
 }) {
-  const { openUserDetail } = useUserDetailStore();
-
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    openUserDetail(createdById);
+    userDetailSheet.openWithPayload({ userId: createdById });
   };
 
   return (

@@ -1,40 +1,26 @@
 import { Button, buttonVariants } from "@/components/ui/button";
-import { DrawerClose } from "@/components/ui/drawer";
+import { SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { SiteDetailView } from "../common/site-detail-view";
 import { SiteForm } from "../common/site-form";
+import { useSiteEdit } from "./site-edit-context";
 
-interface Site {
-  title: string;
-  description: string | null;
-  logo: string | null;
-  url: string;
-  tags: string[];
-  rating: number;
-  isPinned: boolean;
-}
+export function SiteEditSide() {
+  const {
+    site,
+    form,
+    isEditingSite,
+    isSavingSite,
+    startEditSite,
+    cancelEditSite,
+  } = useSiteEdit();
 
-interface SiteEditHeaderProps {
-  site: Site;
-  isEditing: boolean;
-  isSaving: boolean;
-  form: any;
-  onStartEdit: () => void;
-  onCancelEdit: () => void;
-}
+  if (!site) return null;
 
-export function SiteEditHeader({
-  site,
-  isEditing,
-  isSaving,
-  form,
-  onStartEdit,
-  onCancelEdit,
-}: SiteEditHeaderProps) {
   return (
     <div className="h-full w-100 shrink-0 border-r">
       <div className="h-[calc(100%-56px)] overflow-y-auto p-4">
-        {isEditing ? (
+        {isEditingSite ? (
           <form
             id="site-edit-form"
             onSubmit={(e) => {
@@ -42,14 +28,14 @@ export function SiteEditHeader({
               form.handleSubmit();
             }}
           >
-            <SiteForm disabled={isSaving} form={form} />
+            <SiteForm disabled={isSavingSite} form={form} />
           </form>
         ) : (
           <SiteDetailView
             site={{
               title: site.title,
-              description: site.description ?? "",
-              logo: site.logo ?? "",
+              description: site.description,
+              logo: site.logo,
               url: site.url,
               tags: site.tags,
               rating: site.rating,
@@ -59,32 +45,36 @@ export function SiteEditHeader({
         )}
       </div>
 
-      <div className="mt-auto flex h-14 items-center justify-between gap-2 border-border border-t px-4">
-        <DrawerClose
+      <div className="mt-auto flex h-14 items-center justify-between gap-2 border-border border-t px-3">
+        <SheetClose
           className={cn(
             "border-border!",
             buttonVariants({ variant: "outline" })
           )}
         >
           Close
-        </DrawerClose>
+        </SheetClose>
         <div className="flex items-center gap-2">
-          {isEditing ? (
+          {isEditingSite ? (
             <>
               <Button
-                disabled={isSaving}
-                onClick={onCancelEdit}
+                disabled={isSavingSite}
+                onClick={cancelEditSite}
                 type="button"
                 variant="outline"
               >
                 Cancel
               </Button>
-              <Button disabled={isSaving} form="site-edit-form" type="submit">
-                {isSaving ? "Saving..." : "Save"}
+              <Button
+                disabled={isSavingSite}
+                form="site-edit-form"
+                type="submit"
+              >
+                {isSavingSite ? "Saving..." : "Save"}
               </Button>
             </>
           ) : (
-            <Button onClick={onStartEdit} variant="outline">
+            <Button onClick={startEditSite} variant="outline">
               <span className="i-hugeicons-edit-02 mr-1.5 size-4" />
               Edit Site
             </Button>

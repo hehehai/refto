@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { confirmDialog } from "@/components/shared/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -6,8 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useUserDetailStore } from "@/stores/user-detail-store";
-import { DeleteConfirmDialog } from "./delete-confirm-dialog";
+import { userDetailSheet } from "@/lib/sheets";
 import { RejectDialog } from "./reject-dialog";
 import type { SubmitSiteRow } from "./types";
 import { useSubmitSiteActions } from "./use-submit-site-actions";
@@ -20,9 +20,7 @@ export function SubmitSiteRowActions({
   submission,
 }: SubmitSiteRowActionsProps) {
   const actions = useSubmitSiteActions();
-  const openUserDetail = useUserDetailStore((state) => state.openUserDetail);
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const handleApprove = async () => {
     await actions.approve.mutateAsync({ id: submission.id });
@@ -33,9 +31,21 @@ export function SubmitSiteRowActions({
     setRejectOpen(false);
   };
 
-  const handleDelete = async () => {
-    await actions.remove.mutateAsync({ id: submission.id });
-    setDeleteOpen(false);
+  const handleDelete = () => {
+    confirmDialog.openWithPayload({
+      title: "Delete Submission",
+      description: (
+        <>
+          Are you sure you want to delete{" "}
+          <strong>{submission.siteTitle}</strong>? This action cannot be undone.
+        </>
+      ),
+      confirmText: "Delete",
+      variant: "destructive",
+      onConfirm: async () => {
+        await actions.remove.mutateAsync({ id: submission.id });
+      },
+    });
   };
 
   const isPending = submission.status === "PENDING";
@@ -67,11 +77,7 @@ export function SubmitSiteRowActions({
           </>
         )}
         {(isApproved || isRejected) && (
-          <Button
-            onClick={() => setDeleteOpen(true)}
-            size="sm"
-            variant="destructive"
-          >
+          <Button onClick={handleDelete} size="sm" variant="destructive">
             <span className="i-hugeicons-delete-03 size-3.5" />
             Delete
           </Button>
@@ -87,7 +93,11 @@ export function SubmitSiteRowActions({
           <DropdownMenuContent align="end">
             {submission.userId && (
               <DropdownMenuItem
-                onClick={() => openUserDetail(submission.userId!)}
+                onClick={() =>
+                  userDetailSheet.openWithPayload({
+                    userId: submission.userId!,
+                  })
+                }
               >
                 <span className="i-hugeicons-user-account size-4" />
                 View Submitter
@@ -107,14 +117,6 @@ export function SubmitSiteRowActions({
         onConfirm={handleReject}
         onOpenChange={setRejectOpen}
         open={rejectOpen}
-        submission={submission}
-      />
-
-      <DeleteConfirmDialog
-        isLoading={actions.remove.isPending}
-        onConfirm={handleDelete}
-        onOpenChange={setDeleteOpen}
-        open={deleteOpen}
         submission={submission}
       />
     </>

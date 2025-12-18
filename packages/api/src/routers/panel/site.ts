@@ -1,18 +1,15 @@
 import { ORPCError } from "@orpc/server";
 import {
-  pageCreateSchema,
   pageIdSchema,
   pageListSchema,
-  pageUpdateSchema,
+  pageUpsertSchema,
   siteBatchDeleteSchema,
-  siteCreateSchema,
   siteIdSchema,
   siteListSchema,
-  siteUpdateSchema,
-  versionCreateSchema,
+  siteUpsertSchema,
   versionIdSchema,
   versionListSchema,
-  versionUpdateSchema,
+  versionUpsertSchema,
 } from "@refto-one/common";
 import { db } from "@refto-one/db";
 import { user } from "@refto-one/db/schema/auth";
@@ -153,16 +150,52 @@ export const siteRouter = {
     };
   }),
 
-  // Create site
-  create: adminProcedure
-    .input(siteCreateSchema)
+  // Upsert site (create if no id, update if id provided)
+  upsert: adminProcedure
+    .input(siteUpsertSchema)
     .handler(async ({ input, context }) => {
-      // Check if URL already exists
-      const existing = await db.query.sites.findFirst({
-        where: and(eq(sites.url, input.url), isNull(sites.deletedAt)),
+      const { id, ...data } = input;
+
+      if (id) {
+        // UPDATE: Check exists, validate URL uniqueness if changed, update
+        const existing = await db.query.sites.findFirst({
+          where: and(eq(sites.id, id), isNull(sites.deletedAt)),
+        });
+
+        if (!existing) {
+          throw new ORPCError("NOT_FOUND", { message: "Site not found" });
+        }
+
+        // Check URL uniqueness if URL is being updated
+        if (data.url !== existing.url) {
+          const urlExists = await db.query.sites.findFirst({
+            where: and(eq(sites.url, data.url), isNull(sites.deletedAt)),
+          });
+
+          if (urlExists) {
+            throw new ORPCError("CONFLICT", {
+              message: "Site URL already exists",
+            });
+          }
+        }
+
+        const [updated] = await db
+          .update(sites)
+          .set({
+            ...data,
+            updatedAt: new Date(),
+          })
+          .where(eq(sites.id, id))
+          .returning();
+
+        return updated;
+      }
+      // CREATE: Validate URL uniqueness, generate ID, insert
+      const urlExists = await db.query.sites.findFirst({
+        where: and(eq(sites.url, data.url), isNull(sites.deletedAt)),
       });
 
-      if (existing) {
+      if (urlExists) {
         throw new ORPCError("CONFLICT", { message: "Site URL already exists" });
       }
 
@@ -172,55 +205,13 @@ export const siteRouter = {
         .insert(sites)
         .values({
           id: siteId,
-          title: input.title,
-          description: input.description,
-          logo: input.logo,
-          url: input.url,
-          tags: input.tags,
-          rating: input.rating,
-          isPinned: input.isPinned,
+          ...data,
           createdById: context.session.user.id,
         })
         .returning();
 
       return newSite;
     }),
-
-  // Update site
-  update: adminProcedure.input(siteUpdateSchema).handler(async ({ input }) => {
-    const { id, ...updateData } = input;
-
-    // Check if site exists
-    const existing = await db.query.sites.findFirst({
-      where: and(eq(sites.id, id), isNull(sites.deletedAt)),
-    });
-
-    if (!existing) {
-      throw new ORPCError("NOT_FOUND", { message: "Site not found" });
-    }
-
-    // Check URL uniqueness if URL is being updated
-    if (updateData.url && updateData.url !== existing.url) {
-      const urlExists = await db.query.sites.findFirst({
-        where: and(eq(sites.url, updateData.url), isNull(sites.deletedAt)),
-      });
-
-      if (urlExists) {
-        throw new ORPCError("CONFLICT", { message: "Site URL already exists" });
-      }
-    }
-
-    const [updated] = await db
-      .update(sites)
-      .set({
-        ...updateData,
-        updatedAt: new Date(),
-      })
-      .where(eq(sites.id, id))
-      .returning();
-
-    return updated;
-  }),
 
   // Soft delete site
   delete: adminProcedure.input(siteIdSchema).handler(async ({ input }) => {
@@ -351,11 +342,60 @@ export const pageRouter = {
     return pages;
   }),
 
-  // Create page
-  create: adminProcedure.input(pageCreateSchema).handler(async ({ input }) => {
+  // Upsert page (create if no id, update if id provided)
+  upsert: adminProcedure.input(pageUpsertSchema).handler(async ({ input }) => {
+    const { id, siteId, ...data } = input;
+
+    if (id) {
+      // UPDATE
+      const existing = await db.query.sitePages.findFirst({
+        where: eq(sitePages.id, id),
+      });
+
+      if (!existing) {
+        throw new ORPCError("NOT_FOUND", { message: "Page not found" });
+      }
+
+      // Check URL uniqueness if URL is being updated
+      if (data.url !== existing.url) {
+        const urlExists = await db.query.sitePages.findFirst({
+          where: and(
+            eq(sitePages.siteId, existing.siteId),
+            eq(sitePages.url, data.url)
+          ),
+        });
+
+        if (urlExists) {
+          throw new ORPCError("CONFLICT", {
+            message: "Page URL already exists for this site",
+          });
+        }
+      }
+
+      // If setting as default, unset other defaults
+      if (data.isDefault === true) {
+        await db
+          .update(sitePages)
+          .set({ isDefault: false, updatedAt: new Date() })
+          .where(eq(sitePages.siteId, existing.siteId));
+      }
+
+      const [updated] = await db
+        .update(sitePages)
+        .set({
+          ...data,
+          updatedAt: new Date(),
+        })
+        .where(eq(sitePages.id, id))
+        .returning();
+
+      return updated;
+    }
+
+    // CREATE
     // Check if site exists
     const site = await db.query.sites.findFirst({
-      where: and(eq(sites.id, input.siteId), isNull(sites.deletedAt)),
+      where: and(eq(sites.id, siteId), isNull(sites.deletedAt)),
     });
 
     if (!site) {
@@ -364,10 +404,7 @@ export const pageRouter = {
 
     // Check if URL already exists for this site
     const existing = await db.query.sitePages.findFirst({
-      where: and(
-        eq(sitePages.siteId, input.siteId),
-        eq(sitePages.url, input.url)
-      ),
+      where: and(eq(sitePages.siteId, siteId), eq(sitePages.url, data.url)),
     });
 
     if (existing) {
@@ -378,17 +415,17 @@ export const pageRouter = {
 
     // If this is the first page or isDefault is true, handle default page logic
     const existingPages = await db.query.sitePages.findMany({
-      where: eq(sitePages.siteId, input.siteId),
+      where: eq(sitePages.siteId, siteId),
     });
 
-    const shouldBeDefault = existingPages.length === 0 || input.isDefault;
+    const shouldBeDefault = existingPages.length === 0 || data.isDefault;
 
     // If setting as default, unset other defaults
     if (shouldBeDefault && existingPages.length > 0) {
       await db
         .update(sitePages)
         .set({ isDefault: false, updatedAt: new Date() })
-        .where(eq(sitePages.siteId, input.siteId));
+        .where(eq(sitePages.siteId, siteId));
     }
 
     const pageId = generateId();
@@ -397,62 +434,14 @@ export const pageRouter = {
       .insert(sitePages)
       .values({
         id: pageId,
-        siteId: input.siteId,
-        title: input.title,
-        url: input.url,
+        siteId,
+        title: data.title,
+        url: data.url,
         isDefault: shouldBeDefault,
       })
       .returning();
 
     return newPage;
-  }),
-
-  // Update page
-  update: adminProcedure.input(pageUpdateSchema).handler(async ({ input }) => {
-    const { id, ...updateData } = input;
-
-    const existing = await db.query.sitePages.findFirst({
-      where: eq(sitePages.id, id),
-    });
-
-    if (!existing) {
-      throw new ORPCError("NOT_FOUND", { message: "Page not found" });
-    }
-
-    // Check URL uniqueness if URL is being updated
-    if (updateData.url && updateData.url !== existing.url) {
-      const urlExists = await db.query.sitePages.findFirst({
-        where: and(
-          eq(sitePages.siteId, existing.siteId),
-          eq(sitePages.url, updateData.url)
-        ),
-      });
-
-      if (urlExists) {
-        throw new ORPCError("CONFLICT", {
-          message: "Page URL already exists for this site",
-        });
-      }
-    }
-
-    // If setting as default, unset other defaults
-    if (updateData.isDefault === true) {
-      await db
-        .update(sitePages)
-        .set({ isDefault: false, updatedAt: new Date() })
-        .where(eq(sitePages.siteId, existing.siteId));
-    }
-
-    const [updated] = await db
-      .update(sitePages)
-      .set({
-        ...updateData,
-        updatedAt: new Date(),
-      })
-      .where(eq(sitePages.id, id))
-      .returning();
-
-    return updated;
   }),
 
   // Delete page (cascades to versions)
@@ -484,13 +473,35 @@ export const versionRouter = {
     return versions;
   }),
 
-  // Create version
-  create: adminProcedure
-    .input(versionCreateSchema)
+  // Upsert version (create if no id, update if id provided)
+  upsert: adminProcedure
+    .input(versionUpsertSchema)
     .handler(async ({ input }) => {
+      const { id, pageId, ...data } = input;
+
+      if (id) {
+        // UPDATE
+        const existing = await db.query.sitePageVersions.findFirst({
+          where: eq(sitePageVersions.id, id),
+        });
+
+        if (!existing) {
+          throw new ORPCError("NOT_FOUND", { message: "Version not found" });
+        }
+
+        const [updated] = await db
+          .update(sitePageVersions)
+          .set(data)
+          .where(eq(sitePageVersions.id, id))
+          .returning();
+
+        return updated;
+      }
+
+      // CREATE
       // Check if page exists
       const page = await db.query.sitePages.findFirst({
-        where: eq(sitePages.id, input.pageId),
+        where: eq(sitePages.id, pageId),
       });
 
       if (!page) {
@@ -503,41 +514,18 @@ export const versionRouter = {
         .insert(sitePageVersions)
         .values({
           id: versionId,
-          pageId: input.pageId,
-          versionDate: input.versionDate ?? new Date(),
-          versionNote: input.versionNote,
-          siteOG: input.siteOG,
-          webCover: input.webCover ?? "",
-          webRecord: input.webRecord,
-          mobileCover: input.mobileCover,
-          mobileRecord: input.mobileRecord,
+          pageId,
+          versionDate: data.versionDate ?? new Date(),
+          versionNote: data.versionNote,
+          siteOG: data.siteOG,
+          webCover: data.webCover ?? "",
+          webRecord: data.webRecord,
+          mobileCover: data.mobileCover,
+          mobileRecord: data.mobileRecord,
         })
         .returning();
 
       return newVersion;
-    }),
-
-  // Update version
-  update: adminProcedure
-    .input(versionUpdateSchema)
-    .handler(async ({ input }) => {
-      const { id, ...updateData } = input;
-
-      const existing = await db.query.sitePageVersions.findFirst({
-        where: eq(sitePageVersions.id, id),
-      });
-
-      if (!existing) {
-        throw new ORPCError("NOT_FOUND", { message: "Version not found" });
-      }
-
-      const [updated] = await db
-        .update(sitePageVersions)
-        .set(updateData)
-        .where(eq(sitePageVersions.id, id))
-        .returning();
-
-      return updated;
     }),
 
   // Delete version

@@ -8,7 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useUserDetailStore } from "@/stores/user-detail-store";
+import { userDetailSheet } from "@/lib/sheets";
 import { SubmitSiteRowActions } from "./row-actions";
 import type { SubmitSiteRow, SubmitSiteStatus } from "./types";
 
@@ -22,9 +22,13 @@ interface CreateColumnsOptions {
   ) => void;
 }
 
-// Submitter cell with click to open drawer
+// Submitter cell with click to open sheet
 function SubmitterCell({ submission }: { submission: SubmitSiteRow }) {
-  const openUserDetail = useUserDetailStore((state) => state.openUserDetail);
+  const handleClick = () => {
+    if (submission.userId) {
+      userDetailSheet.openWithPayload({ userId: submission.userId });
+    }
+  };
 
   if (!submission.userId) {
     return (
@@ -45,7 +49,7 @@ function SubmitterCell({ submission }: { submission: SubmitSiteRow }) {
   return (
     <button
       className="flex items-center gap-2 text-left hover:opacity-80"
-      onClick={() => openUserDetail(submission.userId!)}
+      onClick={handleClick}
       type="button"
     >
       <Avatar className="size-8">
@@ -85,14 +89,14 @@ export function createSubmitSiteColumns(
         return (
           <div className="flex flex-col gap-0.5">
             <a
-              className="max-w-[260px] truncate font-medium hover:underline"
+              className="max-w-65 truncate font-medium hover:underline"
               href={siteUrl}
               rel="noopener noreferrer"
               target="_blank"
             >
               {siteTitle}
             </a>
-            <span className="max-w-[260px] truncate text-muted-foreground text-xs">
+            <span className="max-w-65 truncate text-muted-foreground text-xs">
               {siteUrl}
             </span>
             {siteDescription && (

@@ -1,19 +1,20 @@
+import { Dialog } from "@base-ui/react/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
+import { confirmDialog } from "@/components/shared/confirm-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
+import {
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
@@ -21,32 +22,37 @@ import {
 } from "@/components/ui/tooltip";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { orpc } from "@/lib/orpc";
-import { useUserDetailStore } from "@/stores/user-detail-store";
+import { userDetailSheet } from "@/lib/sheets";
 import { BanDialog } from "./ban-dialog";
-import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { useUserActions } from "./use-user-actions";
 import { UserDetailSkeleton } from "./user-detail-skeleton";
 import { UserFormDialog } from "./user-form-dialog";
 
-export function UserDetailDrawer() {
-  const { userId, isOpen, closeUserDetail } = useUserDetailStore();
+export function UserDetailSheet() {
+  return (
+    <Dialog.Root handle={userDetailSheet}>
+      {({ payload }) =>
+        payload && <UserDetailContent userId={payload.userId} />
+      }
+    </Dialog.Root>
+  );
+}
+
+function UserDetailContent({ userId }: { userId: string }) {
   const actions = useUserActions();
   const [, copy] = useCopyToClipboard();
   const [editOpen, setEditOpen] = useState(false);
   const [banOpen, setBanOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const { data: user, isLoading: isUserLoading } = useQuery(
     orpc.panel.user.getById.queryOptions({
-      input: { id: userId ?? "" },
-      enabled: !!userId && isOpen,
+      input: { id: userId },
     })
   );
 
   const { data: stats, isLoading: isStatsLoading } = useQuery(
     orpc.panel.user.getUserStats.queryOptions({
-      input: { id: userId ?? "" },
-      enabled: !!userId && isOpen,
+      input: { id: userId },
     })
   );
 
@@ -97,29 +103,41 @@ export function UserDetailDrawer() {
     }
   };
 
-  const handleDelete = async () => {
-    if (user) {
-      await actions.remove.mutateAsync({ id: user.id });
-      setDeleteOpen(false);
-      closeUserDetail();
-    }
+  const handleDelete = () => {
+    if (!user) return;
+    confirmDialog.openWithPayload({
+      title: "Delete User",
+      description: (
+        <>
+          Are you sure you want to delete{" "}
+          <strong>{user.name || user.email}</strong>? This action cannot be
+          undone.
+        </>
+      ),
+      confirmText: "Delete",
+      variant: "destructive",
+      onConfirm: async () => {
+        await actions.remove.mutateAsync({ id: user.id });
+        userDetailSheet.close();
+      },
+    });
   };
 
   const isLoading = isUserLoading || isStatsLoading;
 
   return (
     <>
-      <Drawer
-        direction="right"
-        onOpenChange={(open) => !open && closeUserDetail()}
-        open={isOpen}
+      <SheetContent
+        className="h-full border-none bg-transparent p-3 shadow-none data-[side=right]:max-w-2xl data-[side=right]:sm:max-w-2xl"
+        showCloseButton={false}
+        side="right"
       >
-        <DrawerContent className="h-full data-[vaul-drawer-direction=right]:w-2xl data-[vaul-drawer-direction=right]:sm:max-w-2xl">
+        <div className="flex h-full w-full flex-col gap-4 rounded-xl bg-background shadow-lg">
           {isLoading || !user ? (
             <UserDetailSkeleton />
           ) : (
             <>
-              <DrawerHeader className="flex-row items-start justify-between">
+              <SheetHeader className="flex-row items-start justify-between">
                 <div className="flex items-center gap-2.5">
                   <Avatar className="size-11">
                     <AvatarImage
@@ -132,9 +150,9 @@ export function UserDetailDrawer() {
                   </Avatar>
                   <div className="flex flex-1 flex-col gap-2">
                     <div className="flex items-center gap-2">
-                      <DrawerTitle className="text-base leading-none">
+                      <SheetTitle className="text-base leading-none">
                         {user.name}
-                      </DrawerTitle>
+                      </SheetTitle>
                       <Badge
                         variant={
                           user.role === "ADMIN" ? "default" : "secondary"
@@ -146,9 +164,9 @@ export function UserDetailDrawer() {
                         <Badge variant="destructive">Banned</Badge>
                       )}
                     </div>
-                    <DrawerDescription className="leading-none">
+                    <SheetDescription className="leading-none">
                       {user.email}
-                    </DrawerDescription>
+                    </SheetDescription>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -160,16 +178,16 @@ export function UserDetailDrawer() {
                       <Badge variant="destructive">Baned</Badge>
                     </div>
                   )}
-                  <DrawerClose
+                  <SheetClose
                     className={buttonVariants({
                       size: "icon-sm",
                       variant: "outline",
                     })}
                   >
                     <span className="i-hugeicons-cancel-01 text-lg" />
-                  </DrawerClose>
+                  </SheetClose>
                 </div>
-              </DrawerHeader>
+              </SheetHeader>
 
               <div className="flex flex-col gap-6 p-4 pt-0">
                 {/* Actions bar */}
@@ -219,7 +237,7 @@ export function UserDetailDrawer() {
                     </Button>
                   )}
                   <Button
-                    onClick={() => setDeleteOpen(true)}
+                    onClick={handleDelete}
                     size="sm"
                     variant="destructive"
                   >
@@ -356,7 +374,7 @@ export function UserDetailDrawer() {
                           {session.userAgent && (
                             <Tooltip>
                               <TooltipTrigger>
-                                <p className="mt-1 cursor-help truncate text-muted-foreground text-xs">
+                                <p className="mt-1 max-w-xl cursor-help truncate text-muted-foreground text-xs">
                                   {session.userAgent}
                                 </p>
                               </TooltipTrigger>
@@ -377,8 +395,8 @@ export function UserDetailDrawer() {
               </div>
             </>
           )}
-        </DrawerContent>
-      </Drawer>
+        </div>
+      </SheetContent>
 
       {user && (
         <>
@@ -404,24 +422,6 @@ export function UserDetailDrawer() {
             onConfirm={handleBan}
             onOpenChange={setBanOpen}
             open={banOpen}
-            user={{
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              role: user.role,
-              image: user.image,
-              banned: user.banned,
-              banReason: user.banReason,
-              createdAt: user.createdAt,
-              lastSignedIn: null,
-            }}
-          />
-
-          <DeleteConfirmDialog
-            isLoading={actions.remove.isPending}
-            onConfirm={handleDelete}
-            onOpenChange={setDeleteOpen}
-            open={deleteOpen}
             user={{
               id: user.id,
               name: user.name,

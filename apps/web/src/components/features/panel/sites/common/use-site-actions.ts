@@ -9,18 +9,12 @@ export function useSiteActions() {
     queryClient.invalidateQueries({ queryKey: orpc.panel.site.list.key() });
   };
 
-  const create = useMutation({
-    ...orpc.panel.site.create.mutationOptions(),
-    onSuccess: () => {
-      toast.success("Site created successfully");
-      invalidate();
-    },
-  });
-
-  const update = useMutation({
-    ...orpc.panel.site.update.mutationOptions(),
-    onSuccess: () => {
-      toast.success("Site updated successfully");
+  const upsert = useMutation({
+    ...orpc.panel.site.upsert.mutationOptions(),
+    onSuccess: (_, variables) => {
+      toast.success(
+        variables.id ? "Site updated successfully" : "Site created successfully"
+      );
       invalidate();
     },
   });
@@ -58,8 +52,7 @@ export function useSiteActions() {
   });
 
   return {
-    create,
-    update,
+    upsert,
     remove,
     batchDelete,
     pin,
