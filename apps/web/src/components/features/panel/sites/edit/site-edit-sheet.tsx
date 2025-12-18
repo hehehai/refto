@@ -53,10 +53,14 @@ function SiteEditContent() {
 
 export function SiteEditSheet() {
   return (
-    <Sheet<{ siteId: string }> handle={siteEditSheet}>
+    <Sheet<{ siteId: string; pageId?: string }> handle={siteEditSheet}>
       {({ payload }) =>
         payload && (
-          <SiteEditProvider open={true} siteId={payload.siteId}>
+          <SiteEditProvider
+            initialPageId={payload.pageId}
+            open={true}
+            siteId={payload.siteId}
+          >
             <SheetContent
               className="h-full border-none bg-transparent p-3 shadow-none data-[side=right]:max-w-3/4 data-[side=right]:sm:max-w-3/4"
               showCloseButton={false}

@@ -31,6 +31,7 @@ import {
   getCountFromResult,
   getPaginationOffset,
   getSortOrder,
+  handleDbError,
 } from "../../lib/utils";
 
 export const siteRouter = {
@@ -124,29 +125,92 @@ export const siteRouter = {
       throw new ORPCError("NOT_FOUND", { message: "Site not found" });
     }
 
-    // Get pages count
-    const pagesCountResult = await db
-      .select({ count: count() })
-      .from(sitePages)
-      .where(eq(sitePages.siteId, input.id));
-    const pagesCount = getCountFromResult(pagesCountResult);
+    // Get versions count per page
+    const pagesWithVersionsCount = await Promise.all(
+      site.pages.map(async (page) => {
+        const versionsCountResult = await db
+          .select({ count: count() })
+          .from(sitePageVersions)
+          .where(eq(sitePageVersions.pageId, page.id));
+        return {
+          ...page,
+          versionsCount: getCountFromResult(versionsCountResult),
+        };
+      })
+    );
 
-    // Get versions count
-    const versionsCountResult = await db
-      .select({ count: count() })
-      .from(sitePageVersions)
-      .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
-      .where(eq(sitePages.siteId, input.id));
-    const versionsCount = getCountFromResult(versionsCountResult);
+    // Sort pages: default first
+    const sortedPages = pagesWithVersionsCount.sort((a, b) => {
+      if (a.isDefault && !b.isDefault) return -1;
+      if (!a.isDefault && b.isDefault) return 1;
+      return 0;
+    });
+
+    // Get total counts
+    const pagesCount = site.pages.length;
+    const versionsCount = sortedPages.reduce(
+      (sum, page) => sum + page.versionsCount,
+      0
+    );
 
     // Find default page
-    const defaultPage = site.pages.find((p) => p.isDefault) ?? null;
+    const defaultPage = sortedPages.find((p) => p.isDefault) ?? null;
 
     return {
       ...site,
+      pages: sortedPages,
       pagesCount,
       versionsCount,
       defaultPage,
+    };
+  }),
+
+  // Get site stats (for list expansion)
+  getStats: adminProcedure.input(siteIdSchema).handler(async ({ input }) => {
+    // Get pages with their version counts
+    const pages = await db
+      .select({
+        id: sitePages.id,
+        title: sitePages.title,
+        url: sitePages.url,
+        isDefault: sitePages.isDefault,
+      })
+      .from(sitePages)
+      .where(eq(sitePages.siteId, input.id))
+      .orderBy(sitePages.isDefault);
+
+    // Get version counts for each page
+    const pagesWithStats = await Promise.all(
+      pages.map(async (page) => {
+        const versionsCountResult = await db
+          .select({ count: count() })
+          .from(sitePageVersions)
+          .where(eq(sitePageVersions.pageId, page.id));
+        return {
+          ...page,
+          versionsCount: getCountFromResult(versionsCountResult),
+        };
+      })
+    );
+
+    // Sort pages: default first
+    const sortedPages = pagesWithStats.sort((a, b) => {
+      if (a.isDefault && !b.isDefault) return -1;
+      if (!a.isDefault && b.isDefault) return 1;
+      return 0;
+    });
+
+    // Calculate totals
+    const pagesCount = pages.length;
+    const versionsCount = pagesWithStats.reduce(
+      (sum, p) => sum + p.versionsCount,
+      0
+    );
+
+    return {
+      pagesCount,
+      versionsCount,
+      pages: sortedPages,
     };
   }),
 
@@ -156,61 +220,44 @@ export const siteRouter = {
     .handler(async ({ input, context }) => {
       const { id, ...data } = input;
 
-      if (id) {
-        // UPDATE: Check exists, validate URL uniqueness if changed, update
-        const existing = await db.query.sites.findFirst({
-          where: and(eq(sites.id, id), isNull(sites.deletedAt)),
-        });
-
-        if (!existing) {
-          throw new ORPCError("NOT_FOUND", { message: "Site not found" });
-        }
-
-        // Check URL uniqueness if URL is being updated
-        if (data.url !== existing.url) {
-          const urlExists = await db.query.sites.findFirst({
-            where: and(eq(sites.url, data.url), isNull(sites.deletedAt)),
+      try {
+        if (id) {
+          // UPDATE: Check exists, validate URL uniqueness if changed, update
+          const existing = await db.query.sites.findFirst({
+            where: and(eq(sites.id, id), isNull(sites.deletedAt)),
           });
 
-          if (urlExists) {
-            throw new ORPCError("CONFLICT", {
-              message: "Site URL already exists",
-            });
+          if (!existing) {
+            throw new ORPCError("NOT_FOUND", { message: "Site not found" });
           }
-        }
 
-        const [updated] = await db
-          .update(sites)
-          .set({
+          const [updated] = await db
+            .update(sites)
+            .set({
+              ...data,
+              updatedAt: new Date(),
+            })
+            .where(eq(sites.id, id))
+            .returning();
+
+          return updated;
+        }
+        // CREATE: Generate ID, insert
+        const siteId = generateId();
+
+        const [newSite] = await db
+          .insert(sites)
+          .values({
+            id: siteId,
             ...data,
-            updatedAt: new Date(),
+            createdById: context.session.user.id,
           })
-          .where(eq(sites.id, id))
           .returning();
 
-        return updated;
+        return newSite;
+      } catch (error) {
+        return handleDbError(error);
       }
-      // CREATE: Validate URL uniqueness, generate ID, insert
-      const urlExists = await db.query.sites.findFirst({
-        where: and(eq(sites.url, data.url), isNull(sites.deletedAt)),
-      });
-
-      if (urlExists) {
-        throw new ORPCError("CONFLICT", { message: "Site URL already exists" });
-      }
-
-      const siteId = generateId();
-
-      const [newSite] = await db
-        .insert(sites)
-        .values({
-          id: siteId,
-          ...data,
-          createdById: context.session.user.id,
-        })
-        .returning();
-
-      return newSite;
     }),
 
   // Soft delete site

@@ -10,6 +10,7 @@ import {
   type ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { toast } from "sonner";
@@ -112,12 +113,14 @@ export function useSiteEdit() {
 
 interface SiteEditProviderProps {
   siteId: string;
+  initialPageId?: string;
   open: boolean;
   children: ReactNode;
 }
 
 export function SiteEditProvider({
   siteId,
+  initialPageId,
   open,
   children,
 }: SiteEditProviderProps) {
@@ -165,6 +168,17 @@ export function SiteEditProvider({
     orpc.panel.page.list.queryOptions({
       input: open ? { siteId } : skipToken,
     })
+  );
+
+  // Sort pages: default first
+  const sortedPages = useMemo(
+    () =>
+      [...pages].sort((a, b) => {
+        if (a.isDefault && !b.isDefault) return -1;
+        if (!a.isDefault && b.isDefault) return 1;
+        return 0;
+      }),
+    [pages]
   );
 
   const { data: versions = [], isLoading: versionsLoading } = useQuery(
@@ -284,10 +298,15 @@ export function SiteEditProvider({
   }, [open, site, form]);
 
   useEffect(() => {
-    if (open && pages.length > 0 && !activePageId) {
-      setActivePageId(pages[0].id);
+    if (open && sortedPages.length > 0 && !activePageId) {
+      // Use initialPageId if provided and valid, otherwise use first page
+      const targetPageId =
+        initialPageId && sortedPages.some((p: Page) => p.id === initialPageId)
+          ? initialPageId
+          : sortedPages[0].id;
+      setActivePageId(targetPageId);
     }
-  }, [open, pages, activePageId]);
+  }, [open, sortedPages, activePageId, initialPageId]);
 
   useEffect(() => {
     if (versions.length > 0 && !activeVersionId) {
@@ -468,7 +487,7 @@ export function SiteEditProvider({
     cancelEditSite,
 
     // Pages
-    pages,
+    pages: sortedPages,
     activePageId,
     setActivePageId: (id) => {
       setActivePageId(id);

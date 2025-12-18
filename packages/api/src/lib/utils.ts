@@ -1,5 +1,9 @@
+import { ORPCError } from "@orpc/server";
 import { asc, desc } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
+
+// Regex for extracting field name from PostgreSQL unique constraint error
+const POSTGRES_KEY_FIELD_REGEX = /Key \(([^)]+)\)=/;
 
 // Pagination types
 export interface PaginationInput {
@@ -101,4 +105,66 @@ export async function hashPassword(password: string): Promise<string> {
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// PostgreSQL error interface
+interface PostgresError {
+  code?: string;
+  detail?: string;
+  constraint?: string;
+}
+
+// Check if error is a PostgreSQL error
+function isPostgresError(error: unknown): error is PostgresError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof (error as PostgresError).code === "string"
+  );
+}
+
+// Extract field name from PostgreSQL unique constraint error detail
+function extractFieldFromDetail(detail?: string): string | null {
+  if (!detail) return null;
+  // Pattern: "Key (field)=(value) already exists."
+  const match = detail.match(POSTGRES_KEY_FIELD_REGEX);
+  return match?.[1] ?? null;
+}
+
+// Handle database errors and convert to ORPCError
+export function handleDbError(error: unknown): never {
+  // Drizzle wraps PostgreSQL errors in DrizzleQueryError with the actual error in .cause
+  const dbError =
+    error && typeof error === "object" && "cause" in error
+      ? (error as { cause: unknown }).cause
+      : error;
+
+  if (isPostgresError(dbError)) {
+    // Unique constraint violation
+    if (dbError.code === "23505") {
+      const field = extractFieldFromDetail(dbError.detail);
+      const message = field
+        ? `${field} already exists`
+        : "Record already exists";
+      throw new ORPCError("CONFLICT", { message });
+    }
+
+    // Foreign key violation
+    if (dbError.code === "23503") {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Referenced record does not exist",
+      });
+    }
+
+    // Not null violation
+    if (dbError.code === "23502") {
+      throw new ORPCError("BAD_REQUEST", {
+        message: "Required field is missing",
+      });
+    }
+  }
+
+  // Re-throw unknown errors
+  throw error;
 }

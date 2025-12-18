@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -19,7 +19,7 @@ export const sites = pgTable(
     title: varchar("title", { length: 500 }).notNull(),
     description: text("description").notNull(),
     logo: text("logo").notNull(),
-    url: text("url").notNull().unique(),
+    url: text("url").notNull(),
     tags: text("tags").array().notNull(),
     rating: integer("rating").default(0).notNull(),
     isPinned: boolean("isPinned").default(false).notNull(),
@@ -35,6 +35,10 @@ export const sites = pgTable(
     index("sites_url_idx").on(table.url),
     index("sites_pinned_idx").on(table.isPinned),
     index("sites_tags_idx").on(table.tags),
+    // Partial unique index: only enforce uniqueness for non-deleted records
+    uniqueIndex("sites_url_unique")
+      .on(table.url)
+      .where(sql`${table.deletedAt} IS NULL`),
   ]
 );
 

@@ -120,7 +120,7 @@ export function ImageUpload({
 
   return (
     <div className={cn(className)}>
-      <div className={cn("relative inline-block", sizeClass, className)}>
+      <div className={cn("relative flex", sizeClass, className)}>
         <button
           className={cn(
             "group relative flex cursor-pointer items-center justify-center disabled:cursor-not-allowed disabled:opacity-50",
