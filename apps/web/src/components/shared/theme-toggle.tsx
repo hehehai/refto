@@ -11,12 +11,12 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="flex items-center gap-0.5 rounded-lg bg-muted p-0.5">
+    <div className="flex items-center gap-1 rounded-lg bg-muted p-0.5">
       {themes.map(({ value, icon, label }) => (
         <button
           aria-label={label}
           className={cn(
-            "flex size-7 items-center justify-center rounded-md text-sm transition-colors",
+            "flex size-5 items-center justify-center rounded-md text-sm transition-colors",
             theme === value
               ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"

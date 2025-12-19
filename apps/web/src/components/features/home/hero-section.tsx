@@ -1,98 +1,72 @@
-interface PinnedSite {
-  id: string;
-  title: string;
-  description: string;
-  logo: string;
-  url: string;
-  tags: string[];
-  page: {
-    id: string;
-    title: string;
-    url: string;
-  } | null;
-  version: {
-    id: string;
-    webCover: string;
-    webRecord?: string | null;
-  } | null;
-}
+import { VideoWrapper } from "@/components/shared/video-wrapper";
+import type { PinnedSite } from "@/lib/orpc-types";
 
 interface HeroSectionProps {
   pinnedSites: PinnedSite[];
 }
 
 export function HeroSection({ pinnedSites }: HeroSectionProps) {
+  const [first, second, third] = pinnedSites;
+
   return (
-    <section className="border-b bg-muted/30 py-12">
-      <div className="container mx-auto grid gap-8 px-4 lg:grid-cols-2">
-        {/* Left: Tagline and features */}
-        <div className="flex flex-col justify-center">
-          <h1 className="font-bold text-3xl tracking-tight md:text-4xl lg:text-5xl">
-            Unleash limitless inspiration
-          </h1>
-          <p className="mt-2 text-muted-foreground text-xl md:text-2xl">
-            Embrace pure simplicity
-          </p>
-
-          <div className="mt-6 flex flex-col gap-2 text-muted-foreground">
-            <p className="flex items-center gap-2">
-              <span className="text-primary">✦</span>
-              Curated design references
-            </p>
-            <p className="flex items-center gap-2">
-              <span className="text-primary">✦</span>
-              High-quality screenshots
-            </p>
+    <section className="w-full">
+      <div className="container mx-auto px-4">
+        <div className="mt-16 grid-cols-1 space-y-6 md:mt-24 md:grid md:grid-cols-3 md:gap-8 md:space-y-0 lg:grid-cols-4">
+          <div className="col-span-2 flex flex-col">
+            <div className="">
+              <h2 className="text-nowrap text-3xl leading-tight md:text-4xl lg:text-5xl">
+                Unleash limitless inspiration
+                <br />
+                Embrace pure simplicity
+              </h2>
+              <ul className="mt-10 space-y-1.5">
+                <li>✦ Curated design references</li>
+                <li>✦ High-quality screenshots</li>
+                <li>
+                  ✦ Follow us on{" "}
+                  <a
+                    className="hover:underline"
+                    href="https://twitter.com/riverhohai"
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    X.com
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
-
-        {/* Right: Pinned sites */}
-        <div className="grid gap-4 sm:grid-cols-3">
-          {pinnedSites.map((site) => (
-            <PinnedSiteCard key={site.id} site={site} />
-          ))}
+          <div className="col-span-1 flex flex-col">
+            <div className="mt-auto">
+              {first?.version && (
+                <VideoWrapper
+                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
+                  cover={first.version.webCover}
+                  src={first.version.webRecord}
+                />
+              )}
+            </div>
+          </div>
+          <div className="col-span-1 flex flex-col md:hidden lg:block">
+            <div className="mt-auto space-y-6 lg:min-h-[387px]">
+              {second?.version && (
+                <VideoWrapper
+                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
+                  cover={second.version.webCover}
+                  src={second.version.webRecord}
+                />
+              )}
+              {third?.version && (
+                <VideoWrapper
+                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
+                  cover={third.version.webCover}
+                  src={third.version.webRecord}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </section>
-  );
-}
-
-function PinnedSiteCard({ site }: { site: PinnedSite }) {
-  if (!site.version) {
-    return null;
-  }
-
-  return (
-    <div className="group relative aspect-[9/16] overflow-hidden rounded-lg bg-muted shadow-md">
-      {site.version.webRecord ? (
-        <video
-          autoPlay
-          className="size-full object-cover"
-          loop
-          muted
-          playsInline
-          poster={site.version.webCover}
-        >
-          <source src={site.version.webRecord} type="video/mp4" />
-        </video>
-      ) : (
-        <img
-          alt={site.title}
-          className="size-full object-cover transition-transform group-hover:scale-105"
-          loading="lazy"
-          src={site.version.webCover}
-        />
-      )}
-
-      {/* Overlay with site info */}
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-        <div className="flex items-center gap-2">
-          <img alt={site.title} className="size-6 rounded" src={site.logo} />
-          <span className="truncate font-medium text-sm text-white">
-            {site.title}
-          </span>
-        </div>
-      </div>
-    </div>
   );
 }

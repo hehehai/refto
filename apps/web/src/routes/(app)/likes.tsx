@@ -15,35 +15,6 @@ export const Route = createFileRoute("/(app)/likes")({
   component: LikesComponent,
 });
 
-interface LikeItem {
-  version: {
-    id: string;
-    webCover: string;
-    webRecord: string | null;
-    mobileCover: string | null;
-    mobileRecord: string | null;
-    createdAt: Date;
-  };
-  page: {
-    id: string;
-    title: string;
-    url: string;
-  };
-  site: {
-    id: string;
-    title: string;
-    logo: string;
-    url: string;
-  };
-  liked: boolean;
-}
-
-interface LikesPage {
-  items: LikeItem[];
-  nextCursor: string | null;
-  hasMore: boolean;
-}
-
 function LikesComponent() {
   const [likeMap, setLikeMap] = useState<Record<string, boolean>>({});
 
@@ -51,13 +22,11 @@ function LikesComponent() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
       queryKey: ["app", "like", "getUserLikes"],
-      queryFn: async ({ pageParam }) => {
-        const result = await client.app.like.getUserLikes({
+      queryFn: async ({ pageParam }) =>
+        client.app.like.getUserLikes({
           limit: 12,
           cursor: pageParam,
-        });
-        return result as LikesPage;
-      },
+        }),
       initialPageParam: undefined as string | undefined,
       getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     });

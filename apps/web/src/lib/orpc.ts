@@ -7,6 +7,7 @@ import { createContext } from "@refto-one/api/context";
 import { appRouter } from "@refto-one/api/routers/index";
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { createIsomorphicFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { toast } from "sonner";
 
 export const queryClient = new QueryClient({
@@ -38,7 +39,10 @@ export const queryClient = new QueryClient({
 const getORPCClient = createIsomorphicFn()
   .server(() =>
     createRouterClient(appRouter, {
-      context: async ({ req }) => createContext({ req }),
+      context: async () => {
+        const req = getRequest();
+        return createContext({ req });
+      },
     })
   )
   .client((): RouterClient<typeof appRouter> => {

@@ -44,14 +44,11 @@ export const appSiteRouter = {
         return {
           id: site.id,
           title: site.title,
-          description: site.description,
           logo: site.logo,
           url: site.url,
-          tags: site.tags,
           page: defaultPage
             ? {
                 id: defaultPage.id,
-                title: defaultPage.title,
                 url: defaultPage.url,
               }
             : null,
@@ -60,8 +57,6 @@ export const appSiteRouter = {
                 id: latestVersion.id,
                 webCover: latestVersion.webCover,
                 webRecord: latestVersion.webRecord,
-                mobileCover: latestVersion.mobileCover,
-                mobileRecord: latestVersion.mobileRecord,
               }
             : null,
         };
@@ -204,7 +199,12 @@ export const appSiteRouter = {
       }
 
       // Find sites with overlapping tags, ordered by overlap count
-      // Using raw SQL for array overlap and counting
+      // Convert JS array to PostgreSQL array format
+      const tagsArray = sql`ARRAY[${sql.join(
+        currentSite.tags.map((tag) => sql`${tag}`),
+        sql`, `
+      )}]::text[]`;
+
       const relatedSites = await db
         .select({
           id: sites.id,
@@ -215,7 +215,7 @@ export const appSiteRouter = {
           tags: sites.tags,
           overlapCount: sql<number>`(
             SELECT COUNT(*) FROM unnest(${sites.tags}) AS t(tag)
-            WHERE tag = ANY(${currentSite.tags})
+            WHERE tag = ANY(${tagsArray})
           )`.as("overlap_count"),
         })
         .from(sites)
@@ -223,14 +223,14 @@ export const appSiteRouter = {
           and(
             isNull(sites.deletedAt),
             sql`${sites.id} != ${siteId}`,
-            sql`${sites.tags} && ${currentSite.tags}` // Array overlap operator
+            sql`${sites.tags} && ${tagsArray}`
           )
         )
         .orderBy(
           desc(
             sql`(
             SELECT COUNT(*) FROM unnest(${sites.tags}) AS t(tag)
-            WHERE tag = ANY(${currentSite.tags})
+            WHERE tag = ANY(${tagsArray})
           )`
           )
         )

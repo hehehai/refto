@@ -29,7 +29,7 @@ export const Route = createFileRoute("/(admin)/panel")({
 function RouteComponent() {
   const { data } = useSuspenseQuery(authQueryOptions());
   return (
-    <PanelLayout user={data.user}>
+    <PanelLayout user={data!.user}>
       <Outlet />
     </PanelLayout>
   );
