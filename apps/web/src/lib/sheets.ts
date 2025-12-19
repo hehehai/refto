@@ -14,3 +14,6 @@ export const siteEditSheet = Dialog.createHandle<{
   siteId: string;
   pageId?: string;
 }>();
+
+// User Profile Dialog (for app section)
+export const userProfileDialog = Dialog.createHandle();

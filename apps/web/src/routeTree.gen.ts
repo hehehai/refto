@@ -18,8 +18,11 @@ import { Route as authSigninRouteImport } from './routes/(auth)/signin'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-password'
+import { Route as appLikesRouteImport } from './routes/(app)/likes'
 import { Route as appDashboardRouteImport } from './routes/(app)/dashboard'
+import { Route as appAboutRouteImport } from './routes/(app)/about'
 import { Route as app404RouteImport } from './routes/(app)/404'
+import { Route as appPageVersionIdRouteImport } from './routes/(app)/$pageVersionId'
 import { Route as adminPanelRouteRouteImport } from './routes/(admin)/panel/route'
 import { Route as adminPanelIndexRouteImport } from './routes/(admin)/panel/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
@@ -71,14 +74,29 @@ const authForgetPasswordRoute = authForgetPasswordRouteImport.update({
   path: '/forget-password',
   getParentRoute: () => authRouteRoute,
 } as any)
+const appLikesRoute = appLikesRouteImport.update({
+  id: '/likes',
+  path: '/likes',
+  getParentRoute: () => appRouteRoute,
+} as any)
 const appDashboardRoute = appDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => appRouteRoute,
 } as any)
+const appAboutRoute = appAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => appRouteRoute,
+} as any)
 const app404Route = app404RouteImport.update({
   id: '/404',
   path: '/404',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appPageVersionIdRoute = appPageVersionIdRouteImport.update({
+  id: '/$pageVersionId',
+  path: '/$pageVersionId',
   getParentRoute: () => appRouteRoute,
 } as any)
 const adminPanelRouteRoute = adminPanelRouteRouteImport.update({
@@ -119,8 +137,11 @@ const adminPanelSitesRoute = adminPanelSitesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/panel': typeof adminPanelRouteRouteWithChildren
+  '/$pageVersionId': typeof appPageVersionIdRoute
   '/404': typeof app404Route
+  '/about': typeof appAboutRoute
   '/dashboard': typeof appDashboardRoute
+  '/likes': typeof appLikesRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/login': typeof authLoginRoute
   '/reset-password': typeof authResetPasswordRoute
@@ -136,8 +157,11 @@ export interface FileRoutesByFullPath {
   '/panel/': typeof adminPanelIndexRoute
 }
 export interface FileRoutesByTo {
+  '/$pageVersionId': typeof appPageVersionIdRoute
   '/404': typeof app404Route
+  '/about': typeof appAboutRoute
   '/dashboard': typeof appDashboardRoute
+  '/likes': typeof appLikesRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/login': typeof authLoginRoute
   '/reset-password': typeof authResetPasswordRoute
@@ -157,8 +181,11 @@ export interface FileRoutesById {
   '/(app)': typeof appRouteRouteWithChildren
   '/(auth)': typeof authRouteRouteWithChildren
   '/(admin)/panel': typeof adminPanelRouteRouteWithChildren
+  '/(app)/$pageVersionId': typeof appPageVersionIdRoute
   '/(app)/404': typeof app404Route
+  '/(app)/about': typeof appAboutRoute
   '/(app)/dashboard': typeof appDashboardRoute
+  '/(app)/likes': typeof appLikesRoute
   '/(auth)/forget-password': typeof authForgetPasswordRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/reset-password': typeof authResetPasswordRoute
@@ -177,8 +204,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/panel'
+    | '/$pageVersionId'
     | '/404'
+    | '/about'
     | '/dashboard'
+    | '/likes'
     | '/forget-password'
     | '/login'
     | '/reset-password'
@@ -194,8 +224,11 @@ export interface FileRouteTypes {
     | '/panel/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/$pageVersionId'
     | '/404'
+    | '/about'
     | '/dashboard'
+    | '/likes'
     | '/forget-password'
     | '/login'
     | '/reset-password'
@@ -214,8 +247,11 @@ export interface FileRouteTypes {
     | '/(app)'
     | '/(auth)'
     | '/(admin)/panel'
+    | '/(app)/$pageVersionId'
     | '/(app)/404'
+    | '/(app)/about'
     | '/(app)/dashboard'
+    | '/(app)/likes'
     | '/(auth)/forget-password'
     | '/(auth)/login'
     | '/(auth)/reset-password'
@@ -304,6 +340,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authForgetPasswordRouteImport
       parentRoute: typeof authRouteRoute
     }
+    '/(app)/likes': {
+      id: '/(app)/likes'
+      path: '/likes'
+      fullPath: '/likes'
+      preLoaderRoute: typeof appLikesRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/dashboard': {
       id: '/(app)/dashboard'
       path: '/dashboard'
@@ -311,11 +354,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appDashboardRouteImport
       parentRoute: typeof appRouteRoute
     }
+    '/(app)/about': {
+      id: '/(app)/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof appAboutRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(app)/404': {
       id: '/(app)/404'
       path: '/404'
       fullPath: '/404'
       preLoaderRoute: typeof app404RouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/$pageVersionId': {
+      id: '/(app)/$pageVersionId'
+      path: '/$pageVersionId'
+      fullPath: '/$pageVersionId'
+      preLoaderRoute: typeof appPageVersionIdRouteImport
       parentRoute: typeof appRouteRoute
     }
     '/(admin)/panel': {
@@ -371,14 +428,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface appRouteRouteChildren {
+  appPageVersionIdRoute: typeof appPageVersionIdRoute
   app404Route: typeof app404Route
+  appAboutRoute: typeof appAboutRoute
   appDashboardRoute: typeof appDashboardRoute
+  appLikesRoute: typeof appLikesRoute
   appIndexRoute: typeof appIndexRoute
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
+  appPageVersionIdRoute: appPageVersionIdRoute,
   app404Route: app404Route,
+  appAboutRoute: appAboutRoute,
   appDashboardRoute: appDashboardRoute,
+  appLikesRoute: appLikesRoute,
   appIndexRoute: appIndexRoute,
 }
 
