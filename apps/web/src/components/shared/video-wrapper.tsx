@@ -1,29 +1,111 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { cn } from "@/lib/utils";
 
-interface VideoWrapper {
+export type VideoLoadingState = "idle" | "loading" | "loaded" | "error";
+
+export interface VideoWrapperProps {
   className?: string;
   src?: string | null;
   cover: string;
-  height?: string | number;
-  width?: string | number;
+  ref?: React.Ref<HTMLVideoElement>;
+  playing?: boolean;
+  onPlayingChange?: (playing: boolean) => void;
+  onDurationChange?: (duration: number) => void;
+  onLoadingStateChange?: (state: VideoLoadingState) => void;
+  onLoop?: () => void;
 }
 
-export const VideoWrapper = ({ className, src, cover }: VideoWrapper) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
+export function VideoWrapper({
+  className,
+  src,
+  cover,
+  ref,
+  playing,
+  onPlayingChange,
+  onDurationChange,
+  onLoadingStateChange,
+  onLoop,
+}: VideoWrapperProps) {
+  const internalRef = useRef<HTMLVideoElement>(null);
+  const videoRef = (ref as React.RefObject<HTMLVideoElement>) ?? internalRef;
+
   const inView = useIntersectionObserver(videoRef, {
     rootMargin: "50% 0px 50% 0px",
     threshold: 0,
   });
 
+  const isControlled = playing !== undefined;
+
+  // Handle intersection-based playback
   useEffect(() => {
-    if (inView) {
-      videoRef.current?.play();
-    } else {
-      videoRef.current?.pause();
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (!inView) {
+      // Always pause when out of view
+      video.pause();
+      return;
     }
-  }, [inView]);
+
+    // In view behavior depends on mode
+    if (isControlled) {
+      // Controlled mode: follow playing prop
+      if (playing) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    } else {
+      // Uncontrolled mode: auto-play when in view
+      video.play();
+    }
+  }, [inView, isControlled, playing, videoRef]);
+
+  // Event handlers
+  const handlePlay = useCallback(() => {
+    onPlayingChange?.(true);
+  }, [onPlayingChange]);
+
+  const handlePause = useCallback(() => {
+    onPlayingChange?.(false);
+  }, [onPlayingChange]);
+
+  const handleEnded = useCallback(() => {
+    onPlayingChange?.(false);
+  }, [onPlayingChange]);
+
+  const handleLoadedMetadata = useCallback(
+    (e: React.SyntheticEvent<HTMLVideoElement>) => {
+      const video = e.currentTarget;
+      onDurationChange?.(video.duration);
+    },
+    [onDurationChange]
+  );
+
+  const handleLoadStart = useCallback(() => {
+    onLoadingStateChange?.("loading");
+  }, [onLoadingStateChange]);
+
+  const handleCanPlay = useCallback(() => {
+    onLoadingStateChange?.("loaded");
+  }, [onLoadingStateChange]);
+
+  const handleError = useCallback(() => {
+    onLoadingStateChange?.("error");
+  }, [onLoadingStateChange]);
+
+  // Detect video loop by checking if seeked back to start
+  const handleSeeked = useCallback(
+    (e: React.SyntheticEvent<HTMLVideoElement>) => {
+      const video = e.currentTarget;
+      // When video loops, it seeks back to near 0
+      if (video.currentTime < 0.1) {
+        onLoop?.();
+      }
+    },
+    [onLoop]
+  );
 
   return (
     <video
@@ -32,6 +114,14 @@ export const VideoWrapper = ({ className, src, cover }: VideoWrapper) => {
       className={cn("block w-full", className)}
       loop
       muted
+      onCanPlay={handleCanPlay}
+      onEnded={handleEnded}
+      onError={handleError}
+      onLoadedMetadata={handleLoadedMetadata}
+      onLoadStart={handleLoadStart}
+      onPause={handlePause}
+      onPlay={handlePlay}
+      onSeeked={handleSeeked}
       playsInline
       poster={cover}
       preload="none"
@@ -41,4 +131,4 @@ export const VideoWrapper = ({ className, src, cover }: VideoWrapper) => {
       Your browser does not support the video tag.
     </video>
   );
-};
+}

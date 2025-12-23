@@ -1,54 +1,54 @@
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { PageTabs } from "@/components/features/detail/page-tabs";
 import { RelatedSites } from "@/components/features/detail/related-sites";
 import { SiteHero } from "@/components/features/detail/site-hero";
+import { SitePageHeader } from "@/components/features/detail/site-page-header";
 import { VersionViewer } from "@/components/features/detail/version-viewer";
 import { orpc } from "@/lib/orpc";
 
 export const Route = createFileRoute("/(app)/$pageVersionId")({
   component: DetailComponent,
+  loader: async ({ context, params }) => {
+    const { pageVersionId } = params;
+    const versionData = await context.queryClient.ensureQueryData(
+      orpc.app.site.getVersionDetail.queryOptions({
+        input: { id: pageVersionId },
+      })
+    );
+
+    // Prefetch related sites if we have site id
+    if (versionData?.page.site.id) {
+      await context.queryClient.prefetchQuery(
+        orpc.app.site.getRelatedSites.queryOptions({
+          input: { siteId: versionData.page.site.id, limit: 6 },
+        })
+      );
+    }
+  },
 });
 
 function DetailComponent() {
   const { pageVersionId } = Route.useParams();
   const [selectedVersionId, setSelectedVersionId] = useState(pageVersionId);
   const [viewMode, setViewMode] = useState<"web" | "mobile">("web");
+  const [liked, setLiked] = useState<boolean | null>(null);
 
-  // Fetch version detail
-  const { data: versionData, isLoading } = useQuery(
+  // Fetch version detail (SSR prefetched)
+  const { data: versionData } = useSuspenseQuery(
     orpc.app.site.getVersionDetail.queryOptions({
       input: { id: selectedVersionId },
     })
   );
 
-  // Fetch related sites
-  const { data: relatedSites = [] } = useQuery({
-    ...orpc.app.site.getRelatedSites.queryOptions({
-      input: { siteId: versionData?.page.site.id ?? "", limit: 6 },
-    }),
-    enabled: !!versionData?.page.site.id,
-  });
+  // Fetch related sites (SSR prefetched for initial version)
+  const { data: relatedSites = [] } = useSuspenseQuery(
+    orpc.app.site.getRelatedSites.queryOptions({
+      input: { siteId: versionData.page.site.id, limit: 6 },
+    })
+  );
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <span className="i-hugeicons-loading-01 animate-spin text-4xl text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (!versionData) {
-    return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center text-muted-foreground">
-        <span className="i-hugeicons-alert-02 text-4xl" />
-        <p className="mt-2">Version not found</p>
-      </div>
-    );
-  }
-
-  const { page, ...version } = versionData;
+  const { page, liked: initialLiked, ...version } = versionData;
   const { site } = page;
 
   // Find current page in site's pages
@@ -62,23 +62,36 @@ function DetailComponent() {
     currentVersion?.mobileCover || currentVersion?.mobileRecord
   );
 
+  // Use local liked state if available, otherwise use from API
+  const isLiked = liked ?? initialLiked;
+
+  const handleLikeChange = (newLiked: boolean) => {
+    setLiked(newLiked);
+  };
+
   return (
     <div className="flex flex-col">
       {/* Site Hero */}
       <SiteHero site={site} />
 
       {/* Page Tabs and Version Select */}
-      <PageTabs
+      <SitePageHeader
         currentPageId={page.id}
         currentVersionId={selectedVersionId}
+        liked={isLiked}
+        onLikeChange={handleLikeChange}
         onPageChange={(pageId) => {
           // Switch to the first version of the selected page
           const selectedPage = site.pages.find((p) => p.id === pageId);
           if (selectedPage?.versions[0]) {
             setSelectedVersionId(selectedPage.versions[0].id);
+            setLiked(null); // Reset liked state for new version
           }
         }}
-        onVersionChange={setSelectedVersionId}
+        onVersionChange={(versionId) => {
+          setSelectedVersionId(versionId);
+          setLiked(null); // Reset liked state for new version
+        }}
         pages={site.pages}
       />
 

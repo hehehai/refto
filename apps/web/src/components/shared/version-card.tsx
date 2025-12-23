@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { CircularProgressButton } from "./circular-progress-button";
 import { LikeButton } from "./like-button";
 import { VideoWrapper } from "./video-wrapper";
 
@@ -30,19 +32,67 @@ export function VersionCard({
   liked = false,
   onLikeChange,
 }: VersionCardProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  const hasVideo = Boolean(version.webRecord);
+
+  // Timer effect for progress tracking
+  useEffect(() => {
+    if (!playing || duration === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentTime((prev) => {
+        const next = prev + 0.1;
+        if (next >= duration) {
+          return 0;
+        }
+        return next;
+      });
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [playing, duration]);
+
+  // Reset currentTime when video loops
+  const handleLoop = useCallback(() => {
+    setCurrentTime(0);
+  }, []);
+
+  const handleTogglePlay = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (video.paused) {
+      video.play();
+    } else {
+      video.pause();
+    }
+  }, []);
+
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl bg-card">
       {/* Content area - clickable to detail page */}
-      <div className="bg-muted p-3">
+      <div className="group relative bg-muted p-3">
         <Link
-          className="relative aspect-video overflow-hidden"
+          className="relative block aspect-video overflow-hidden"
           params={{ pageVersionId: version.id }}
           to="/$pageVersionId"
         >
-          {version.webRecord ? (
+          {hasVideo ? (
             <VideoWrapper
               className="size-full rounded-[10px] object-cover"
               cover={version.webCover}
+              onDurationChange={setDuration}
+              onLoop={handleLoop}
+              onPlayingChange={setPlaying}
+              ref={videoRef}
               src={version.webRecord}
             />
           ) : (
@@ -54,6 +104,16 @@ export function VersionCard({
             />
           )}
         </Link>
+
+        {/* Circular progress button - only show for videos */}
+        {hasVideo && (
+          <CircularProgressButton
+            className="absolute top-4.5 right-4.5 opacity-0 group-hover:opacity-100"
+            onClick={handleTogglePlay}
+            playing={playing}
+            progress={progress}
+          />
+        )}
       </div>
 
       {/* Footer */}

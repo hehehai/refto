@@ -279,8 +279,9 @@ export const appSiteRouter = {
   // Get version detail with page and site info
   getVersionDetail: publicProcedure
     .input(versionDetailSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { id } = input;
+      const userId = context.session?.user?.id;
 
       const version = await db.query.sitePageVersions.findFirst({
         where: eq(sitePageVersions.id, id),
@@ -312,7 +313,22 @@ export const appSiteRouter = {
         throw new ORPCError("NOT_FOUND", { message: "Site not found" });
       }
 
-      return version;
+      // Check if user has liked this version
+      let liked = false;
+      if (userId) {
+        const likeRecord = await db.query.sitePageVersionLikes.findFirst({
+          where: and(
+            eq(sitePageVersionLikes.versionId, id),
+            eq(sitePageVersionLikes.userId, userId)
+          ),
+        });
+        liked = !!likeRecord;
+      }
+
+      return {
+        ...version,
+        liked,
+      };
     }),
 
   // Get site detail with all pages and versions

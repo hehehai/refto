@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
@@ -13,12 +13,14 @@ interface LikeButtonProps {
   liked: boolean;
   onLikeChange?: (liked: boolean) => void;
   className?: string;
+  variant?: ButtonProps["variant"];
 }
 
 export function LikeButton({
   versionId,
   liked: initialLiked,
   onLikeChange,
+  variant = "ghost",
   className,
 }: LikeButtonProps) {
   const { data: session } = authClient.useSession();
@@ -71,7 +73,7 @@ export function LikeButton({
       disabled={isLoading}
       onClick={handleClick}
       size="icon"
-      variant="ghost"
+      variant={variant}
     >
       {liked ? (
         <HeartFillIcon className="text-lg text-red-500" />

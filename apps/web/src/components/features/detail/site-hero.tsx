@@ -1,3 +1,7 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Rating } from "@/components/ui/rating";
+
 interface SiteHeroProps {
   site: {
     id: string;
@@ -6,12 +10,13 @@ interface SiteHeroProps {
     logo: string;
     url: string;
     tags: string[];
+    rating: number;
   };
 }
 
 export function SiteHero({ site }: SiteHeroProps) {
   return (
-    <section className="border-b bg-muted/30 py-8">
+    <section className="py-8">
       <div className="container mx-auto px-4">
         <div className="flex items-start gap-4">
           {/* Site logo */}
@@ -32,27 +37,33 @@ export function SiteHero({ site }: SiteHeroProps) {
             {site.tags.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {site.tags.map((tag) => (
-                  <span
-                    className="rounded-full bg-muted px-2.5 py-0.5 text-muted-foreground text-xs"
-                    key={tag}
-                  >
+                  <Badge key={tag} variant="secondary">
                     {tag}
-                  </span>
+                  </Badge>
                 ))}
               </div>
             )}
+
+            {/* Rating */}
+            <div className="mt-3 flex items-center gap-2">
+              <Rating max={5} readOnly value={site.rating} />
+              <span className="text-muted-foreground text-sm">
+                {site.rating.toFixed(1)}
+              </span>
+            </div>
           </div>
 
           {/* Visit site button */}
-          <a
-            className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-colors hover:bg-primary/90"
-            href={site.url}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <span className="i-hugeicons-link-square-01" />
-            Visit
-          </a>
+          <Button
+            nativeButton={false}
+            render={
+              <a href={site.url} rel="noopener noreferrer" target="_blank">
+                <span className="i-hugeicons-link-square-01" />
+                Visit
+              </a>
+            }
+            variant="outline"
+          />
         </div>
       </div>
     </section>
