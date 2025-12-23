@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { SiteHeader } from "@/components/shared/layout/site-header";
+import { SubmitSiteDialog } from "@/components/shared/submit-site-dialog";
 import { UserProfileDialog } from "@/components/shared/user-profile-dialog";
 import { getUser } from "@/functions/get-user";
 
@@ -24,6 +25,7 @@ function RouteComponent() {
       </main>
       <UserProfileDialog />
       <ConfirmDialog />
+      <SubmitSiteDialog />
     </div>
   );
 }

@@ -102,6 +102,12 @@ export function SiteHeaderUser() {
             </DropdownMenuItem>
           )}
 
+          {/* My Submits */}
+          <DropdownMenuItem render={<Link to="/submits" />}>
+            <span className="i-hugeicons-sent" />
+            Submits
+          </DropdownMenuItem>
+
           {/* My Likes */}
           <DropdownMenuItem render={<Link to="/likes" />}>
             <span className="i-hugeicons-thumbs-up-rectangle" />

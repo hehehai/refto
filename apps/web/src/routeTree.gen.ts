@@ -18,7 +18,6 @@ import { Route as authSigninRouteImport } from './routes/(auth)/signin'
 import { Route as authResetPasswordRouteImport } from './routes/(auth)/reset-password'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-password'
-import { Route as appLikesRouteImport } from './routes/(app)/likes'
 import { Route as appDashboardRouteImport } from './routes/(app)/dashboard'
 import { Route as appAboutRouteImport } from './routes/(app)/about'
 import { Route as app404RouteImport } from './routes/(app)/404'
@@ -27,6 +26,8 @@ import { Route as adminPanelRouteRouteImport } from './routes/(admin)/panel/rout
 import { Route as adminPanelIndexRouteImport } from './routes/(admin)/panel/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as appuserSubmitsRouteImport } from './routes/(app)/(user)/submits'
+import { Route as appuserLikesRouteImport } from './routes/(app)/(user)/likes'
 import { Route as adminPanelUsersRouteImport } from './routes/(admin)/panel/users'
 import { Route as adminPanelSubmitSitesRouteImport } from './routes/(admin)/panel/submit-sites'
 import { Route as adminPanelSitesRouteImport } from './routes/(admin)/panel/sites'
@@ -74,11 +75,6 @@ const authForgetPasswordRoute = authForgetPasswordRouteImport.update({
   path: '/forget-password',
   getParentRoute: () => authRouteRoute,
 } as any)
-const appLikesRoute = appLikesRouteImport.update({
-  id: '/likes',
-  path: '/likes',
-  getParentRoute: () => appRouteRoute,
-} as any)
 const appDashboardRoute = appDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -119,6 +115,16 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const appuserSubmitsRoute = appuserSubmitsRouteImport.update({
+  id: '/(user)/submits',
+  path: '/submits',
+  getParentRoute: () => appRouteRoute,
+} as any)
+const appuserLikesRoute = appuserLikesRouteImport.update({
+  id: '/(user)/likes',
+  path: '/likes',
+  getParentRoute: () => appRouteRoute,
+} as any)
 const adminPanelUsersRoute = adminPanelUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -141,7 +147,6 @@ export interface FileRoutesByFullPath {
   '/404': typeof app404Route
   '/about': typeof appAboutRoute
   '/dashboard': typeof appDashboardRoute
-  '/likes': typeof appLikesRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/login': typeof authLoginRoute
   '/reset-password': typeof authResetPasswordRoute
@@ -152,6 +157,8 @@ export interface FileRoutesByFullPath {
   '/panel/sites': typeof adminPanelSitesRoute
   '/panel/submit-sites': typeof adminPanelSubmitSitesRoute
   '/panel/users': typeof adminPanelUsersRoute
+  '/likes': typeof appuserLikesRoute
+  '/submits': typeof appuserSubmitsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel/': typeof adminPanelIndexRoute
@@ -161,7 +168,6 @@ export interface FileRoutesByTo {
   '/404': typeof app404Route
   '/about': typeof appAboutRoute
   '/dashboard': typeof appDashboardRoute
-  '/likes': typeof appLikesRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/login': typeof authLoginRoute
   '/reset-password': typeof authResetPasswordRoute
@@ -172,6 +178,8 @@ export interface FileRoutesByTo {
   '/panel/sites': typeof adminPanelSitesRoute
   '/panel/submit-sites': typeof adminPanelSubmitSitesRoute
   '/panel/users': typeof adminPanelUsersRoute
+  '/likes': typeof appuserLikesRoute
+  '/submits': typeof appuserSubmitsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel': typeof adminPanelIndexRoute
@@ -185,7 +193,6 @@ export interface FileRoutesById {
   '/(app)/404': typeof app404Route
   '/(app)/about': typeof appAboutRoute
   '/(app)/dashboard': typeof appDashboardRoute
-  '/(app)/likes': typeof appLikesRoute
   '/(auth)/forget-password': typeof authForgetPasswordRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/reset-password': typeof authResetPasswordRoute
@@ -196,6 +203,8 @@ export interface FileRoutesById {
   '/(admin)/panel/sites': typeof adminPanelSitesRoute
   '/(admin)/panel/submit-sites': typeof adminPanelSubmitSitesRoute
   '/(admin)/panel/users': typeof adminPanelUsersRoute
+  '/(app)/(user)/likes': typeof appuserLikesRoute
+  '/(app)/(user)/submits': typeof appuserSubmitsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/(admin)/panel/': typeof adminPanelIndexRoute
@@ -208,7 +217,6 @@ export interface FileRouteTypes {
     | '/404'
     | '/about'
     | '/dashboard'
-    | '/likes'
     | '/forget-password'
     | '/login'
     | '/reset-password'
@@ -219,6 +227,8 @@ export interface FileRouteTypes {
     | '/panel/sites'
     | '/panel/submit-sites'
     | '/panel/users'
+    | '/likes'
+    | '/submits'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/panel/'
@@ -228,7 +238,6 @@ export interface FileRouteTypes {
     | '/404'
     | '/about'
     | '/dashboard'
-    | '/likes'
     | '/forget-password'
     | '/login'
     | '/reset-password'
@@ -239,6 +248,8 @@ export interface FileRouteTypes {
     | '/panel/sites'
     | '/panel/submit-sites'
     | '/panel/users'
+    | '/likes'
+    | '/submits'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/panel'
@@ -251,7 +262,6 @@ export interface FileRouteTypes {
     | '/(app)/404'
     | '/(app)/about'
     | '/(app)/dashboard'
-    | '/(app)/likes'
     | '/(auth)/forget-password'
     | '/(auth)/login'
     | '/(auth)/reset-password'
@@ -262,6 +272,8 @@ export interface FileRouteTypes {
     | '/(admin)/panel/sites'
     | '/(admin)/panel/submit-sites'
     | '/(admin)/panel/users'
+    | '/(app)/(user)/likes'
+    | '/(app)/(user)/submits'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/(admin)/panel/'
@@ -340,13 +352,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authForgetPasswordRouteImport
       parentRoute: typeof authRouteRoute
     }
-    '/(app)/likes': {
-      id: '/(app)/likes'
-      path: '/likes'
-      fullPath: '/likes'
-      preLoaderRoute: typeof appLikesRouteImport
-      parentRoute: typeof appRouteRoute
-    }
     '/(app)/dashboard': {
       id: '/(app)/dashboard'
       path: '/dashboard'
@@ -403,6 +408,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(app)/(user)/submits': {
+      id: '/(app)/(user)/submits'
+      path: '/submits'
+      fullPath: '/submits'
+      preLoaderRoute: typeof appuserSubmitsRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/(user)/likes': {
+      id: '/(app)/(user)/likes'
+      path: '/likes'
+      fullPath: '/likes'
+      preLoaderRoute: typeof appuserLikesRouteImport
+      parentRoute: typeof appRouteRoute
+    }
     '/(admin)/panel/users': {
       id: '/(admin)/panel/users'
       path: '/users'
@@ -432,8 +451,9 @@ interface appRouteRouteChildren {
   app404Route: typeof app404Route
   appAboutRoute: typeof appAboutRoute
   appDashboardRoute: typeof appDashboardRoute
-  appLikesRoute: typeof appLikesRoute
   appIndexRoute: typeof appIndexRoute
+  appuserLikesRoute: typeof appuserLikesRoute
+  appuserSubmitsRoute: typeof appuserSubmitsRoute
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
@@ -441,8 +461,9 @@ const appRouteRouteChildren: appRouteRouteChildren = {
   app404Route: app404Route,
   appAboutRoute: appAboutRoute,
   appDashboardRoute: appDashboardRoute,
-  appLikesRoute: appLikesRoute,
   appIndexRoute: appIndexRoute,
+  appuserLikesRoute: appuserLikesRoute,
+  appuserSubmitsRoute: appuserSubmitsRoute,
 }
 
 const appRouteRouteWithChildren = appRouteRoute._addFileChildren(

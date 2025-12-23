@@ -1,6 +1,7 @@
 import { site } from "@refto-one/common";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { submitSiteDialog } from "@/lib/sheets";
 import FilterIcon from "../icons/filter";
 import { SendIcon } from "../icons/send";
 import { SiteHeaderMenu } from "./site-header-menu";
@@ -34,8 +35,7 @@ export function SiteHeader({ isLogin }: SiteHeaderProps) {
             <>
               <Button
                 className="rounded-full"
-                nativeButton={false}
-                render={<Link to="/signin" />}
+                onClick={() => submitSiteDialog.openWithPayload(undefined)}
                 variant="default"
               >
                 <SendIcon />
