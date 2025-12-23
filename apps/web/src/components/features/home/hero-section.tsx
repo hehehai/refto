@@ -1,68 +1,103 @@
+import { FeedSort, type FeedSortType } from "@refto-one/common";
+import { useNavigate } from "@tanstack/react-router";
+import { BadgeLinearGradient } from "@/components/shared/badge-linear-gradient";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PinnedSite } from "@/lib/orpc-types";
 
 interface HeroSectionProps {
   pinnedSites: PinnedSite[];
+  sort: FeedSortType;
 }
 
-export function HeroSection({ pinnedSites }: HeroSectionProps) {
+export function HeroSection({ pinnedSites, sort }: HeroSectionProps) {
   const [first, second, third] = pinnedSites;
+  const navigate = useNavigate();
+
+  const handleSortChange = (value: string) => {
+    navigate({
+      to: "/",
+      search: { sort: value as FeedSortType },
+      reloadDocument: false,
+    });
+  };
 
   return (
     <section className="w-full">
-      <div className="container mx-auto px-4">
-        <div className="mt-16 grid-cols-1 space-y-6 md:mt-24 md:grid md:grid-cols-3 md:gap-8 md:space-y-0 lg:grid-cols-4">
-          <div className="col-span-2 flex flex-col">
-            <div className="">
-              <h2 className="text-nowrap text-3xl leading-tight md:text-4xl lg:text-5xl">
-                Unleash limitless inspiration
-                <br />
-                Embrace pure simplicity
-              </h2>
-              <ul className="mt-10 space-y-1.5">
-                <li>✦ Curated design references</li>
-                <li>✦ High-quality screenshots</li>
-                <li>
-                  ✦ Follow us on{" "}
-                  <a
-                    className="hover:underline"
-                    href="https://twitter.com/riverhohai"
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    X.com
-                  </a>
-                </li>
-              </ul>
+      <div className="container mx-auto px-4 pt-20 pb-10">
+        <div className="flex items-end justify-between gap-32">
+          <div className="w-1/2">
+            <BadgeLinearGradient className="mb-5">
+              <span className="text-balance">
+                Explore our integration with Granola
+              </span>
+              <span className="i-hugeicons-arrow-right-01" />
+            </BadgeLinearGradient>
+            <h2 className="text-nowrap text-3xl leading-tight md:text-4xl lg:text-5xl">
+              Unleash limitless inspiration
+              <br />
+              Embrace pure simplicity
+            </h2>
+            <ul className="mt-10 space-y-1.5">
+              <li>✦ Curated design references</li>
+              <li>✦ High-quality screenshots</li>
+              <li>
+                ✦ Follow us on{" "}
+                <a
+                  className="hover:underline"
+                  href="https://twitter.com/riverhohai"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  X.com
+                </a>
+              </li>
+            </ul>
+            <div className="mt-10">
+              <Tabs onValueChange={handleSortChange} value={sort}>
+                <TabsList>
+                  <TabsTrigger className="px-3" value={FeedSort.LATEST}>
+                    Latest
+                  </TabsTrigger>
+                  <TabsTrigger className="px-3" value={FeedSort.TRENDING}>
+                    Trending
+                  </TabsTrigger>
+                  <TabsTrigger className="px-3" value={FeedSort.POPULAR}>
+                    Popular
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
           </div>
-          <div className="col-span-1 flex flex-col">
-            <div className="mt-auto">
-              {first?.version && (
-                <VideoWrapper
-                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
-                  cover={first.version.webCover}
-                  src={first.version.webRecord}
-                />
-              )}
+          <div className="grid w-1/2 grid-cols-2 gap-8">
+            <div className="col-span-1 flex flex-col">
+              <div className="mt-auto">
+                {first?.version && (
+                  <VideoWrapper
+                    className="rounded-xl border border-y-zinc-100 dark:border-zinc-900"
+                    cover={first.version.webCover}
+                    src={first.version.webRecord}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-          <div className="col-span-1 flex flex-col md:hidden lg:block">
-            <div className="mt-auto space-y-6 lg:min-h-[387px]">
-              {second?.version && (
-                <VideoWrapper
-                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
-                  cover={second.version.webCover}
-                  src={second.version.webRecord}
-                />
-              )}
-              {third?.version && (
-                <VideoWrapper
-                  className="rounded-lg border border-zinc-50 dark:border-zinc-900"
-                  cover={third.version.webCover}
-                  src={third.version.webRecord}
-                />
-              )}
+            <div className="col-span-1 flex flex-col md:hidden lg:block">
+              <div className="mt-auto space-y-6 lg:min-h-96.75">
+                {second?.version && (
+                  <VideoWrapper
+                    className="rounded-xl border border-zinc-100 dark:border-zinc-900"
+                    cover={second.version.webCover}
+                    src={second.version.webRecord}
+                  />
+                )}
+                {third?.version && (
+                  <VideoWrapper
+                    className="rounded-xl border border-zinc-100 dark:border-zinc-900"
+                    cover={third.version.webCover}
+                    src={third.version.webRecord}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>

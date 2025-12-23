@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AppIcon } from "../icons/app";
 import { ThemeToggle } from "../theme-toggle";
 
 export function SiteHeaderMenu() {
@@ -17,13 +18,13 @@ export function SiteHeaderMenu() {
       <DropdownMenuTrigger
         render={
           <Button className="rounded-full" variant="secondary">
-            <span className="i-hugeicons-align-box-top-right" />
+            <AppIcon />
             Menu
           </Button>
         }
       />
 
-      <DropdownMenuContent align="end" className="w-56 bg-card">
+      <DropdownMenuContent align="end" className="w-50 bg-card">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-foreground">

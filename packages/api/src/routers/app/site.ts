@@ -1,5 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import {
+  FeedSort,
   pinnedSitesSchema,
   relatedSitesSchema,
   siteDetailSchema,
@@ -7,8 +8,13 @@ import {
   versionsFeedSchema,
 } from "@refto-one/common";
 import { db } from "@refto-one/db";
-import { sitePages, sitePageVersions, sites } from "@refto-one/db/schema/sites";
-import { and, desc, eq, isNull, lt, sql } from "drizzle-orm";
+import {
+  sitePages,
+  sitePageVersionLikes,
+  sitePageVersions,
+  sites,
+} from "@refto-one/db/schema/sites";
+import { and, desc, eq, inArray, isNull, lt, sql } from "drizzle-orm";
 import { publicProcedure } from "../../index";
 
 export const appSiteRouter = {
@@ -63,55 +69,208 @@ export const appSiteRouter = {
       });
     }),
 
-  // Get versions feed for infinite scroll (ordered by createdAt DESC)
+  // Get versions feed for infinite scroll with sorting options
   getVersionsFeed: publicProcedure
     .input(versionsFeedSchema)
-    .handler(async ({ input }) => {
-      const { cursor, limit } = input;
+    .handler(async ({ input, context }) => {
+      const { cursor, limit, sort } = input;
+      const userId = context.session?.user?.id;
 
-      // Build cursor condition
-      const cursorCondition = cursor
-        ? lt(sitePageVersions.createdAt, new Date(cursor))
-        : undefined;
+      // Unauthenticated users are limited to 36 items total
+      const maxUnauthItems = 36;
+      const effectiveLimit = userId ? limit : Math.min(limit, maxUnauthItems);
 
-      // Get versions with page and site info
-      const versions = await db
-        .select({
-          version: {
-            id: sitePageVersions.id,
-            webCover: sitePageVersions.webCover,
-            webRecord: sitePageVersions.webRecord,
-            mobileCover: sitePageVersions.mobileCover,
-            mobileRecord: sitePageVersions.mobileRecord,
-            createdAt: sitePageVersions.createdAt,
-          },
-          page: {
-            id: sitePages.id,
-            title: sitePages.title,
-            url: sitePages.url,
-          },
-          site: {
-            id: sites.id,
-            title: sites.title,
-            logo: sites.logo,
-            url: sites.url,
-          },
-        })
-        .from(sitePageVersions)
-        .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
-        .innerJoin(sites, eq(sitePages.siteId, sites.id))
-        .where(and(isNull(sites.deletedAt), cursorCondition))
-        .orderBy(desc(sitePageVersions.createdAt))
-        .limit(limit + 1); // Fetch one extra to check if there are more
+      // For trending/popular, we need offset-based pagination
+      const offset = cursor ? Number.parseInt(cursor, 10) : 0;
 
-      const hasMore = versions.length > limit;
-      const items = hasMore ? versions.slice(0, limit) : versions;
-      const nextCursor = hasMore
-        ? (items.at(-1)?.version.createdAt.toISOString() ?? null)
-        : null;
+      let items: Array<{
+        version: {
+          id: string;
+          webCover: string;
+          webRecord: string | null;
+          mobileCover: string | null;
+          mobileRecord: string | null;
+          createdAt: Date;
+        };
+        page: {
+          id: string;
+          title: string;
+          url: string;
+        };
+        site: {
+          id: string;
+          title: string;
+          logo: string;
+          url: string;
+        };
+        likeCount?: number;
+      }> = [];
+      let hasMore = false;
+      let nextCursor: string | null = null;
+
+      if (sort === FeedSort.LATEST) {
+        // Latest: cursor-based pagination by createdAt
+        const cursorCondition = cursor
+          ? lt(sitePageVersions.createdAt, new Date(cursor))
+          : undefined;
+
+        const versions = await db
+          .select({
+            version: {
+              id: sitePageVersions.id,
+              webCover: sitePageVersions.webCover,
+              webRecord: sitePageVersions.webRecord,
+              mobileCover: sitePageVersions.mobileCover,
+              mobileRecord: sitePageVersions.mobileRecord,
+              createdAt: sitePageVersions.createdAt,
+            },
+            page: {
+              id: sitePages.id,
+              title: sitePages.title,
+              url: sitePages.url,
+            },
+            site: {
+              id: sites.id,
+              title: sites.title,
+              logo: sites.logo,
+              url: sites.url,
+            },
+          })
+          .from(sitePageVersions)
+          .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
+          .innerJoin(sites, eq(sitePages.siteId, sites.id))
+          .where(and(isNull(sites.deletedAt), cursorCondition))
+          .orderBy(desc(sitePageVersions.createdAt))
+          .limit(effectiveLimit + 1);
+
+        hasMore = versions.length > effectiveLimit;
+        items = hasMore ? versions.slice(0, effectiveLimit) : versions;
+        nextCursor = hasMore
+          ? (items.at(-1)?.version.createdAt.toISOString() ?? null)
+          : null;
+      } else if (sort === FeedSort.TRENDING) {
+        // Trending: likes in the last 7 days, offset-based pagination
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const versions = await db
+          .select({
+            version: {
+              id: sitePageVersions.id,
+              webCover: sitePageVersions.webCover,
+              webRecord: sitePageVersions.webRecord,
+              mobileCover: sitePageVersions.mobileCover,
+              mobileRecord: sitePageVersions.mobileRecord,
+              createdAt: sitePageVersions.createdAt,
+            },
+            page: {
+              id: sitePages.id,
+              title: sitePages.title,
+              url: sitePages.url,
+            },
+            site: {
+              id: sites.id,
+              title: sites.title,
+              logo: sites.logo,
+              url: sites.url,
+            },
+            likeCount: sql<number>`(
+              SELECT COUNT(*) FROM site_page_version_likes
+              WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
+              AND site_page_version_likes.created_at >= ${sevenDaysAgo}
+            )`.as("like_count"),
+          })
+          .from(sitePageVersions)
+          .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
+          .innerJoin(sites, eq(sitePages.siteId, sites.id))
+          .where(isNull(sites.deletedAt))
+          .orderBy(
+            desc(sql`(
+              SELECT COUNT(*) FROM site_page_version_likes
+              WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
+              AND site_page_version_likes.created_at >= ${sevenDaysAgo}
+            )`),
+            desc(sitePageVersions.createdAt)
+          )
+          .limit(effectiveLimit + 1)
+          .offset(offset);
+
+        hasMore = versions.length > effectiveLimit;
+        items = hasMore ? versions.slice(0, effectiveLimit) : versions;
+        nextCursor = hasMore ? String(offset + effectiveLimit) : null;
+      } else {
+        // Popular: total likes, offset-based pagination
+        const versions = await db
+          .select({
+            version: {
+              id: sitePageVersions.id,
+              webCover: sitePageVersions.webCover,
+              webRecord: sitePageVersions.webRecord,
+              mobileCover: sitePageVersions.mobileCover,
+              mobileRecord: sitePageVersions.mobileRecord,
+              createdAt: sitePageVersions.createdAt,
+            },
+            page: {
+              id: sitePages.id,
+              title: sitePages.title,
+              url: sitePages.url,
+            },
+            site: {
+              id: sites.id,
+              title: sites.title,
+              logo: sites.logo,
+              url: sites.url,
+            },
+            likeCount: sql<number>`(
+              SELECT COUNT(*) FROM site_page_version_likes
+              WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
+            )`.as("like_count"),
+          })
+          .from(sitePageVersions)
+          .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
+          .innerJoin(sites, eq(sitePages.siteId, sites.id))
+          .where(isNull(sites.deletedAt))
+          .orderBy(
+            desc(sql`(
+              SELECT COUNT(*) FROM site_page_version_likes
+              WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
+            )`),
+            desc(sitePageVersions.createdAt)
+          )
+          .limit(effectiveLimit + 1)
+          .offset(offset);
+
+        hasMore = versions.length > effectiveLimit;
+        items = hasMore ? versions.slice(0, effectiveLimit) : versions;
+        nextCursor = hasMore ? String(offset + effectiveLimit) : null;
+      }
+
+      // Query like status if user is authenticated
+      const likeMap: Record<string, boolean> = {};
+      if (userId && items.length > 0) {
+        const versionIds = items.map((item) => item.version.id);
+        const likes = await db
+          .select({ versionId: sitePageVersionLikes.versionId })
+          .from(sitePageVersionLikes)
+          .where(
+            and(
+              eq(sitePageVersionLikes.userId, userId),
+              inArray(sitePageVersionLikes.versionId, versionIds)
+            )
+          );
+
+        for (const versionId of versionIds) {
+          likeMap[versionId] = likes.some((l) => l.versionId === versionId);
+        }
+      }
 
       return {
-        items,
+        items: items.map((item) => ({
+          version: item.version,
+          page: item.page,
+          site: item.site,
+          liked: likeMap[item.version.id] ?? false,
+        })),
         nextCursor,
         hasMore,
       };

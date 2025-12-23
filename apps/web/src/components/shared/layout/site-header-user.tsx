@@ -39,10 +39,10 @@ export function SiteHeaderUser() {
       <DropdownMenuTrigger
         render={
           <Button
-            className="flex h-auto items-center gap-1.5 rounded-full px-1 py-1 pr-2"
-            variant="default"
+            className="flex items-center rounded-full"
+            variant="secondary"
           >
-            <Avatar className="size-6">
+            <Avatar className="size-4">
               <AvatarImage
                 alt={session.user.name}
                 src={session.user.image ?? undefined}
@@ -51,14 +51,12 @@ export function SiteHeaderUser() {
                 {getInitials(session.user.name)}
               </AvatarFallback>
             </Avatar>
-            <span className="font-medium text-xs leading-none">
-              {session.user.name}
-            </span>
+            {session.user.name}
           </Button>
         }
       />
 
-      <DropdownMenuContent align="end" className="rouned-xl w-56">
+      <DropdownMenuContent align="end" className="rouned-xl w-50">
         {/* User info section */}
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex items-center gap-1.5 font-normal">

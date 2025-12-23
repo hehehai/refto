@@ -1,60 +1,93 @@
-import { useQuery, useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
-import { VersionGrid } from "@/components/shared/version-grid";
+import type { FeedSortType } from "@refto-one/common";
+import {
+  useQueryClient,
+  useSuspenseInfiniteQuery,
+} from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
+import InViewLoader from "@/components/shared/in-view-loader";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
+import { updateInfiniteQueryItem } from "@/lib/query-helpers";
+import { FeedEmpty } from "./feed-empty";
+import { FeedList } from "./feed-list";
+import type { FeedItem } from "./feed-types";
 
-export function FeedSection() {
+const MAX_UNAUTH_ITEMS = 36;
+
+interface FeedSectionProps {
+  sort: FeedSortType;
+}
+
+export function FeedSection({ sort }: FeedSectionProps) {
   const { data: session } = authClient.useSession();
-  const [likeMap, setLikeMap] = useState<Record<string, boolean>>({});
+  const queryClient = useQueryClient();
+
+  // Create infinite options with sort parameter
+  const infiniteOptions = useMemo(
+    () =>
+      orpc.app.site.getVersionsFeed.infiniteOptions({
+        input: (pageParam) => ({ cursor: pageParam, limit: 12, sort }),
+        initialPageParam: undefined as string | undefined,
+        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+      }),
+    [sort]
+  );
 
   // Use suspense infinite query - data already prefetched on server
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useSuspenseInfiniteQuery(
-      orpc.app.site.getVersionsFeed.infiniteOptions({
-        input: (pageParam) => ({ cursor: pageParam, limit: 12 }),
-        initialPageParam: undefined as string | undefined,
-        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-      })
-    );
+    useSuspenseInfiniteQuery(infiniteOptions);
 
-  // Get all version IDs from loaded data
+  // Get all items from loaded pages (liked status now comes from API)
   const allItems = data.pages.flatMap((page) => page.items);
-  const versionIds = allItems.map((item) => item.version.id);
 
-  // Fetch like status for all loaded versions (only if logged in)
-  useQuery({
-    ...orpc.app.like.checkLikeStatus.queryOptions({
-      input: { versionIds },
-    }),
-    enabled: !!session && versionIds.length > 0,
-    select: (likeData) => {
-      setLikeMap((prev) => ({ ...prev, ...likeData }));
-      return likeData;
+  // For unauthenticated users, limit to MAX_UNAUTH_ITEMS
+  const isAuthenticated = !!session;
+  const displayItems = isAuthenticated
+    ? allItems
+    : allItems.slice(0, MAX_UNAUTH_ITEMS);
+
+  // Determine if there are more items to load
+  const canLoadMore = isAuthenticated
+    ? hasNextPage
+    : hasNextPage && allItems.length < MAX_UNAUTH_ITEMS;
+
+  // Update query data when like status changes
+  const handleLikeChange = useCallback(
+    (versionId: string, liked: boolean) => {
+      updateInfiniteQueryItem<FeedItem>(
+        queryClient,
+        infiniteOptions.queryKey,
+        versionId,
+        (item) => ({ ...item, liked }),
+        (item) => item.version.id
+      );
     },
-  });
+    [queryClient, infiniteOptions.queryKey]
+  );
 
-  const handleLikeChange = useCallback((versionId: string, liked: boolean) => {
-    setLikeMap((prev) => ({ ...prev, [versionId]: liked }));
-  }, []);
-
-  // Transform items to include like status
-  const items = allItems.map((item) => ({
-    version: item.version,
-    page: item.page,
-    site: item.site,
-    liked: likeMap[item.version.id] ?? false,
-  }));
+  // Empty state
+  if (displayItems.length === 0 && !isFetchingNextPage) {
+    return (
+      <section className="container mx-auto px-4 py-8">
+        <FeedEmpty />
+      </section>
+    );
+  }
 
   return (
     <section className="container mx-auto px-4 py-8">
-      <VersionGrid
-        hasMore={hasNextPage}
-        isLoading={isFetchingNextPage}
-        items={items}
-        onLikeChange={handleLikeChange}
-        onLoadMore={() => fetchNextPage()}
-      />
+      <FeedList items={displayItems} onLikeChange={handleLikeChange} />
+      {(canLoadMore || isFetchingNextPage) && (
+        <InViewLoader
+          className="flex items-center justify-center py-8"
+          loadCondition={canLoadMore && !isFetchingNextPage}
+          loadFn={fetchNextPage}
+        >
+          {isFetchingNextPage && (
+            <span className="i-hugeicons-loading-01 animate-spin text-2xl text-muted-foreground" />
+          )}
+        </InViewLoader>
+      )}
     </section>
   );
 }

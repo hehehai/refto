@@ -6,10 +6,23 @@ const cursorPaginationSchema = z.object({
   limit: z.number().min(1).max(50).default(12),
 });
 
+// Feed sort options
+export const FeedSort = {
+  LATEST: "latest",
+  TRENDING: "trending",
+  POPULAR: "popular",
+} as const;
+
+export type FeedSortType = (typeof FeedSort)[keyof typeof FeedSort];
+
 // ============ Site Schemas ============
 
 // Get versions feed (infinite scroll)
-export const versionsFeedSchema = cursorPaginationSchema;
+export const versionsFeedSchema = cursorPaginationSchema.extend({
+  sort: z
+    .enum([FeedSort.LATEST, FeedSort.TRENDING, FeedSort.POPULAR])
+    .default(FeedSort.LATEST),
+});
 
 // Get pinned sites
 export const pinnedSitesSchema = z.object({

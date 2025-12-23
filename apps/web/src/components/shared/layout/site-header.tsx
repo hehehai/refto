@@ -1,6 +1,8 @@
 import { site } from "@refto-one/common";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import FilterIcon from "../icons/filter";
+import { SendIcon } from "../icons/send";
 import { SiteHeaderMenu } from "./site-header-menu";
 import { SiteHeaderUser } from "./site-header-user";
 
@@ -13,12 +15,21 @@ export function SiteHeader({ isLogin }: SiteHeaderProps) {
     <header className="w-full">
       <div className="container mx-auto flex h-20 items-center justify-between px-4">
         {/* Left: Logo */}
-        <Link className="font-semibold text-2xl" to="/">
+        <Link className="font-semibold text-3xl" to="/">
           {site.siteName}
         </Link>
 
         {/* Right: Auth buttons + Menu */}
         <div className="flex items-center gap-2.5">
+          <Button
+            className="min-w-24 justify-between rounded-full pr-1.5! hover:border-primary"
+            variant="outline"
+          >
+            <span>Filter</span>
+            <span className="flex items-center justify-center rounded-full bg-primary p-1 text-white">
+              <FilterIcon />
+            </span>
+          </Button>
           {isLogin ? (
             <>
               <Button
@@ -27,6 +38,7 @@ export function SiteHeader({ isLogin }: SiteHeaderProps) {
                 render={<Link to="/signin" />}
                 variant="default"
               >
+                <SendIcon />
                 Submit Site
               </Button>
               <SiteHeaderUser />

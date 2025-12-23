@@ -6,6 +6,7 @@ export const useIntersectionObserver = <T extends HTMLElement | null>(
     rootMargin?: string;
     threshold?: number | number[];
     logicFn?: (entry: IntersectionObserverEntry) => boolean;
+    getRoot?: () => Element | null;
   } = {
     threshold: 0,
   }
@@ -13,13 +14,21 @@ export const useIntersectionObserver = <T extends HTMLElement | null>(
   const [isIntersecting, setIsIntersecting] = React.useState(false);
 
   React.useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry) {
-        setIsIntersecting(
-          options?.logicFn ? options.logicFn(entry) : entry.isIntersecting
-        );
+    const _root = options.getRoot ? options.getRoot() : null;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry) {
+          setIsIntersecting(
+            options?.logicFn ? options.logicFn(entry) : entry.isIntersecting
+          );
+        }
+      },
+      {
+        ...options,
+        root: _root,
       }
-    }, options);
+    );
 
     if (ref.current) {
       observer.observe(ref.current);

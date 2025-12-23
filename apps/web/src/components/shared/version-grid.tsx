@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { VersionCard } from "./version-card";
+import InViewLoader from "@/components/shared/in-view-loader";
+import { VersionCard } from "@/components/shared/version-card";
 
 interface VersionItem {
   version: {
@@ -36,33 +36,6 @@ export function VersionGrid({
   onLoadMore,
   onLikeChange,
 }: VersionGridProps) {
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  // Intersection observer for infinite scroll
-  useEffect(() => {
-    if (!hasMore || isLoading || !onLoadMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          onLoadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    const current = loadMoreRef.current;
-    if (current) {
-      observer.observe(current);
-    }
-
-    return () => {
-      if (current) {
-        observer.unobserve(current);
-      }
-    };
-  }, [hasMore, isLoading, onLoadMore]);
-
   if (items.length === 0 && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
@@ -87,16 +60,16 @@ export function VersionGrid({
         ))}
       </div>
 
-      {/* Loading indicator / Load more trigger */}
-      {(hasMore || isLoading) && (
-        <div
+      {(hasMore || isLoading) && onLoadMore && (
+        <InViewLoader
           className="flex items-center justify-center py-8"
-          ref={loadMoreRef}
+          loadCondition={hasMore && !isLoading}
+          loadFn={onLoadMore}
         >
           {isLoading && (
             <span className="i-hugeicons-loading-01 animate-spin text-2xl text-muted-foreground" />
           )}
-        </div>
+        </InViewLoader>
       )}
     </div>
   );

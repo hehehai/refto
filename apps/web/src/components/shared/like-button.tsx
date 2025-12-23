@@ -1,9 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import { HeartFillIcon } from "./icons/heart-fill";
+import { HeartLineIcon } from "./icons/heart-line";
 
 interface LikeButtonProps {
   versionId: string;
@@ -20,8 +23,14 @@ export function LikeButton({
 }: LikeButtonProps) {
   const { data: session } = authClient.useSession();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(initialLiked);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Sync with prop changes
+  useEffect(() => {
+    setLiked(initialLiked);
+  }, [initialLiked]);
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -29,7 +38,7 @@ export function LikeButton({
 
     if (!session) {
       // Redirect to login if not authenticated
-      window.location.href = "/signin";
+      navigate({ to: "/signin" });
       return;
     }
 
@@ -64,14 +73,11 @@ export function LikeButton({
       size="icon"
       variant="ghost"
     >
-      <span
-        className={cn(
-          "text-lg",
-          liked
-            ? "i-hugeicons-favourite text-red-500"
-            : "i-hugeicons-heart text-muted-foreground"
-        )}
-      />
+      {liked ? (
+        <HeartFillIcon className="text-lg text-red-500" />
+      ) : (
+        <HeartLineIcon className="text-lg text-muted-foreground" />
+      )}
     </Button>
   );
 }
