@@ -5,6 +5,7 @@ import {
   userLikesSchema,
 } from "@refto-one/common";
 import { db } from "@refto-one/db";
+import { eventLogs } from "@refto-one/db/schema/events";
 import {
   sitePages,
   sitePageVersionLikes,
@@ -47,11 +48,26 @@ export const likeRouter = {
         ),
       });
 
+      const metadata = {
+        siteId: version.page.site.id,
+        pageId: version.page.id,
+      };
+
       if (existingLike) {
         // Unlike: delete the like
         await db
           .delete(sitePageVersionLikes)
           .where(eq(sitePageVersionLikes.id, existingLike.id));
+
+        // Record unlike event
+        await db.insert(eventLogs).values({
+          id: generateId(),
+          eventType: "VERSION_UNLIKED",
+          userId,
+          targetId: versionId,
+          targetType: "version",
+          metadata,
+        });
 
         return { liked: false, versionId };
       }
@@ -61,6 +77,16 @@ export const likeRouter = {
         id: generateId(),
         versionId,
         userId,
+      });
+
+      // Record like event
+      await db.insert(eventLogs).values({
+        id: generateId(),
+        eventType: "VERSION_LIKED",
+        userId,
+        targetId: versionId,
+        targetType: "version",
+        metadata,
       });
 
       return { liked: true, versionId };

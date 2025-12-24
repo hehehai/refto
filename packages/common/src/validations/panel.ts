@@ -117,6 +117,22 @@ export const statPeriodSchema = z.object({
   period: z.enum(["24h", "7d", "15d", "30d"]).default("24h"),
 });
 
+// Like leaderboard range
+export const likeLeaderboardRangeEnum = z.enum([
+  "today",
+  "yesterday",
+  "this_week",
+  "last_week",
+  "this_month",
+  "last_month",
+  "this_year",
+]);
+
+export const likeLeaderboardSchema = z.object({
+  range: likeLeaderboardRangeEnum.default("today"),
+  limit: z.number().min(1).max(50).default(10),
+});
+
 // Site list query
 export const siteListSchema = paginationSchema.extend({
   search: z.string().optional(),
@@ -267,6 +283,8 @@ export type PanelSubmitSiteList = z.infer<typeof panelSubmitSiteListSchema>;
 export type SubmitSiteReject = z.infer<typeof submitSiteRejectSchema>;
 export type SubmitSiteDelete = z.infer<typeof submitSiteDeleteSchema>;
 export type StatPeriod = z.infer<typeof statPeriodSchema>;
+export type LikeLeaderboardRange = z.infer<typeof likeLeaderboardRangeEnum>;
+export type LikeLeaderboard = z.infer<typeof likeLeaderboardSchema>;
 export type SiteList = z.infer<typeof siteListSchema>;
 export type SiteCreate = z.infer<typeof siteCreateSchema>;
 export type SiteUpdate = z.infer<typeof siteUpdateSchema>;

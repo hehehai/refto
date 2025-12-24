@@ -5,6 +5,8 @@ export * from "./auth";
 // Re-export all business tables
 export * from "./business";
 export * from "./enums";
+// Re-export all event tables
+export * from "./events";
 // Re-export all site tables and relations
 export * from "./sites";
 

@@ -45,6 +45,12 @@ export const relatedSitesSchema = z.object({
   limit: z.number().min(1).max(10).default(6),
 });
 
+// Get weekly feed (top liked versions per week)
+export const weeklyFeedSchema = z.object({
+  cursor: z.number().optional(), // Week offset (0=current week, 1=last week, ...)
+  limit: z.number().min(1).max(10).default(3), // Number of weeks to load
+});
+
 // ============ Like Schemas ============
 
 // Toggle like on version
@@ -75,6 +81,7 @@ export type PinnedSites = z.infer<typeof pinnedSitesSchema>;
 export type VersionDetail = z.infer<typeof versionDetailSchema>;
 export type SiteDetail = z.infer<typeof siteDetailSchema>;
 export type RelatedSites = z.infer<typeof relatedSitesSchema>;
+export type WeeklyFeed = z.infer<typeof weeklyFeedSchema>;
 export type ToggleLike = z.infer<typeof toggleLikeSchema>;
 export type UserLikes = z.infer<typeof userLikesSchema>;
 export type CheckLikeStatus = z.infer<typeof checkLikeStatusSchema>;

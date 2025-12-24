@@ -1,7 +1,7 @@
 import type { InferClientOutputs } from "@orpc/client";
 import type { client } from "./orpc";
 
-type ClientOutputs = InferClientOutputs<typeof client>;
+export type ClientOutputs = InferClientOutputs<typeof client>;
 
 // Site Types
 export type PinnedSitesOutput = ClientOutputs["app"]["site"]["getPinnedSites"];

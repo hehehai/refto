@@ -1,5 +1,5 @@
 import { FeedSort, type FeedSortType } from "@refto-one/common";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { BadgeLinearGradient } from "@/components/shared/badge-linear-gradient";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,12 +27,12 @@ export function HeroSection({ pinnedSites, sort }: HeroSectionProps) {
       <div className="container mx-auto px-4 pt-20 pb-10">
         <div className="flex items-end justify-between gap-32">
           <div className="w-1/2">
-            <BadgeLinearGradient className="mb-5">
-              <span className="text-balance">
-                Explore our integration with Granola
-              </span>
-              <span className="i-hugeicons-arrow-right-01" />
-            </BadgeLinearGradient>
+            <Link to="/weekly">
+              <BadgeLinearGradient className="mb-5">
+                <span className="text-balance">Weekly Top: Like to Vote</span>
+                <span className="i-hugeicons-arrow-right-01" />
+              </BadgeLinearGradient>
+            </Link>
             <h2 className="text-nowrap text-3xl leading-tight md:text-4xl lg:text-5xl">
               Unleash limitless inspiration
               <br />
