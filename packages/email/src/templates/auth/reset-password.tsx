@@ -20,7 +20,7 @@ export const ResetPasswordEmail = ({
     footerText="If you did not request a password reset but received this email, please ignore this email. If you are concerned about the security of your account, please visit our"
     previewText={`Reset your password for ${site.siteName}`}
   >
-    <Heading className="mx-0 my-[30px] p-0 text-center font-medium text-[24px]">
+    <Heading className="mx-0 my-7.5 p-0 text-center font-medium text-[24px]">
       Reset your password for {site.siteName}
     </Heading>
     <Text className="mt-12 leading-5">

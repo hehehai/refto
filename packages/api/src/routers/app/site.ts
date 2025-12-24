@@ -153,6 +153,13 @@ export const appSiteRouter = {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
+        // Define the subquery once and reference by alias in ORDER BY
+        const likeCountExpr = sql<number>`(
+          SELECT COUNT(*) FROM site_page_version_likes
+          WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
+          AND site_page_version_likes.created_at >= ${sevenDaysAgo}
+        )`.as("like_count");
+
         const versions = await db
           .select({
             version: {
@@ -174,24 +181,13 @@ export const appSiteRouter = {
               logo: sites.logo,
               url: sites.url,
             },
-            likeCount: sql<number>`(
-              SELECT COUNT(*) FROM site_page_version_likes
-              WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
-              AND site_page_version_likes.created_at >= ${sevenDaysAgo}
-            )`.as("like_count"),
+            likeCount: likeCountExpr,
           })
           .from(sitePageVersions)
           .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
           .innerJoin(sites, eq(sitePages.siteId, sites.id))
           .where(isNull(sites.deletedAt))
-          .orderBy(
-            desc(sql`(
-              SELECT COUNT(*) FROM site_page_version_likes
-              WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
-              AND site_page_version_likes.created_at >= ${sevenDaysAgo}
-            )`),
-            desc(sitePageVersions.createdAt)
-          )
+          .orderBy(desc(sql`like_count`), desc(sitePageVersions.createdAt))
           .limit(effectiveLimit + 1)
           .offset(offset);
 
@@ -200,6 +196,12 @@ export const appSiteRouter = {
         nextCursor = hasMore ? String(offset + effectiveLimit) : null;
       } else {
         // Popular: total likes, offset-based pagination
+        // Define the subquery once and reference by alias in ORDER BY
+        const likeCountExpr = sql<number>`(
+          SELECT COUNT(*) FROM site_page_version_likes
+          WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
+        )`.as("like_count");
+
         const versions = await db
           .select({
             version: {
@@ -221,22 +223,13 @@ export const appSiteRouter = {
               logo: sites.logo,
               url: sites.url,
             },
-            likeCount: sql<number>`(
-              SELECT COUNT(*) FROM site_page_version_likes
-              WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
-            )`.as("like_count"),
+            likeCount: likeCountExpr,
           })
           .from(sitePageVersions)
           .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
           .innerJoin(sites, eq(sitePages.siteId, sites.id))
           .where(isNull(sites.deletedAt))
-          .orderBy(
-            desc(sql`(
-              SELECT COUNT(*) FROM site_page_version_likes
-              WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
-            )`),
-            desc(sitePageVersions.createdAt)
-          )
+          .orderBy(desc(sql`like_count`), desc(sitePageVersions.createdAt))
           .limit(effectiveLimit + 1)
           .offset(offset);
 
@@ -411,23 +404,72 @@ export const appSiteRouter = {
         )
         .limit(limit);
 
-      // For each related site, get the latest version from the default page
-      const relatedWithVersions = await Promise.all(
-        relatedSites.map(async (site) => {
-          const defaultPage = await db.query.sitePages.findFirst({
-            where: and(
-              eq(sitePages.siteId, site.id),
-              eq(sitePages.isDefault, true)
-            ),
-            with: {
-              versions: {
-                orderBy: [desc(sitePageVersions.createdAt)],
-                limit: 1,
-              },
+      // If no related sites found, return early
+      if (relatedSites.length === 0) {
+        return [];
+      }
+
+      // Get default pages with latest versions for all related sites in one query (avoid N+1)
+      const siteIds = relatedSites.map((s) => s.id);
+
+      const pagesWithVersions = await db
+        .select({
+          siteId: sitePages.siteId,
+          pageId: sitePages.id,
+          pageTitle: sitePages.title,
+          pageUrl: sitePages.url,
+          versionId: sitePageVersions.id,
+          webCover: sitePageVersions.webCover,
+          webRecord: sitePageVersions.webRecord,
+          mobileCover: sitePageVersions.mobileCover,
+          mobileRecord: sitePageVersions.mobileRecord,
+        })
+        .from(sitePages)
+        .innerJoin(sitePageVersions, eq(sitePageVersions.pageId, sitePages.id))
+        .where(
+          and(inArray(sitePages.siteId, siteIds), eq(sitePages.isDefault, true))
+        )
+        .orderBy(desc(sitePageVersions.createdAt));
+
+      // Group by siteId and take the first (latest) version for each
+      const siteVersionMap = new Map<
+        string,
+        {
+          page: { id: string; title: string; url: string };
+          version: {
+            id: string;
+            webCover: string;
+            webRecord: string | null;
+            mobileCover: string | null;
+            mobileRecord: string | null;
+          };
+        }
+      >();
+
+      for (const row of pagesWithVersions) {
+        if (!siteVersionMap.has(row.siteId)) {
+          siteVersionMap.set(row.siteId, {
+            page: {
+              id: row.pageId,
+              title: row.pageTitle,
+              url: row.pageUrl,
+            },
+            version: {
+              id: row.versionId,
+              webCover: row.webCover,
+              webRecord: row.webRecord,
+              mobileCover: row.mobileCover,
+              mobileRecord: row.mobileRecord,
             },
           });
+        }
+      }
 
-          const latestVersion = defaultPage?.versions[0];
+      // Build final result and filter out sites without versions
+      return relatedSites
+        .map((site) => {
+          const data = siteVersionMap.get(site.id);
+          if (!data) return null;
 
           return {
             id: site.id,
@@ -436,27 +478,10 @@ export const appSiteRouter = {
             logo: site.logo,
             url: site.url,
             tags: site.tags,
-            page: defaultPage
-              ? {
-                  id: defaultPage.id,
-                  title: defaultPage.title,
-                  url: defaultPage.url,
-                }
-              : null,
-            version: latestVersion
-              ? {
-                  id: latestVersion.id,
-                  webCover: latestVersion.webCover,
-                  webRecord: latestVersion.webRecord,
-                  mobileCover: latestVersion.mobileCover,
-                  mobileRecord: latestVersion.mobileRecord,
-                }
-              : null,
+            page: data.page,
+            version: data.version,
           };
         })
-      );
-
-      // Filter out sites without versions
-      return relatedWithVersions.filter((site) => site.version !== null);
+        .filter((site) => site !== null);
     }),
 };

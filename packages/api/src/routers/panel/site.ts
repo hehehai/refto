@@ -125,19 +125,28 @@ export const siteRouter = {
       throw new ORPCError("NOT_FOUND", { message: "Site not found" });
     }
 
-    // Get versions count per page
-    const pagesWithVersionsCount = await Promise.all(
-      site.pages.map(async (page) => {
-        const versionsCountResult = await db
-          .select({ count: count() })
-          .from(sitePageVersions)
-          .where(eq(sitePageVersions.pageId, page.id));
-        return {
-          ...page,
-          versionsCount: getCountFromResult(versionsCountResult),
-        };
-      })
+    // Get versions count per page in a single query (avoid N+1)
+    const pageIds = site.pages.map((p) => p.id);
+    const versionCounts =
+      pageIds.length > 0
+        ? await db
+            .select({
+              pageId: sitePageVersions.pageId,
+              count: count(),
+            })
+            .from(sitePageVersions)
+            .where(inArray(sitePageVersions.pageId, pageIds))
+            .groupBy(sitePageVersions.pageId)
+        : [];
+
+    const versionCountMap = new Map(
+      versionCounts.map((v) => [v.pageId, v.count])
     );
+
+    const pagesWithVersionsCount = site.pages.map((page) => ({
+      ...page,
+      versionsCount: versionCountMap.get(page.id) ?? 0,
+    }));
 
     // Sort pages: default first
     const sortedPages = pagesWithVersionsCount.sort((a, b) => {
@@ -179,19 +188,28 @@ export const siteRouter = {
       .where(eq(sitePages.siteId, input.id))
       .orderBy(sitePages.isDefault);
 
-    // Get version counts for each page
-    const pagesWithStats = await Promise.all(
-      pages.map(async (page) => {
-        const versionsCountResult = await db
-          .select({ count: count() })
-          .from(sitePageVersions)
-          .where(eq(sitePageVersions.pageId, page.id));
-        return {
-          ...page,
-          versionsCount: getCountFromResult(versionsCountResult),
-        };
-      })
+    // Get version counts in a single query (avoid N+1)
+    const pageIds = pages.map((p) => p.id);
+    const versionCounts =
+      pageIds.length > 0
+        ? await db
+            .select({
+              pageId: sitePageVersions.pageId,
+              count: count(),
+            })
+            .from(sitePageVersions)
+            .where(inArray(sitePageVersions.pageId, pageIds))
+            .groupBy(sitePageVersions.pageId)
+        : [];
+
+    const versionCountMap = new Map(
+      versionCounts.map((v) => [v.pageId, v.count])
     );
+
+    const pagesWithStats = pages.map((page) => ({
+      ...page,
+      versionsCount: versionCountMap.get(page.id) ?? 0,
+    }));
 
     // Sort pages: default first
     const sortedPages = pagesWithStats.sort((a, b) => {

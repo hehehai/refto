@@ -1,4 +1,4 @@
-import { useTheme } from "tanstack-theme-kit";
+import { useTheme } from "@/components/shared/theme-provider";
 import { Button } from "@/components/ui/button";
 
 const themeIconMap: Record<string, string> = {
