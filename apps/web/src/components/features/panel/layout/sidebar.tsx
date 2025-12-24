@@ -43,7 +43,7 @@ export function AppSidebar({
   user,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  user?: NavUserProps["user"] | null;
+  user?: NavUserProps["initialUser"] | null;
 }) {
   return (
     <Sidebar variant="inset" {...props}>
@@ -69,7 +69,7 @@ export function AppSidebar({
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
+      <SidebarFooter>{user && <NavUser initialUser={user} />}</SidebarFooter>
     </Sidebar>
   );
 }

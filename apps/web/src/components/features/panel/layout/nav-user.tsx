@@ -20,16 +20,26 @@ import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
 
 export interface NavUserProps {
-  user: {
+  initialUser: {
     name?: string;
     email?: string;
     avatar?: string | null;
   };
 }
 
-export function NavUser({ user }: NavUserProps) {
+export function NavUser({ initialUser }: NavUserProps) {
   const navigate = useNavigate();
   const { isMobile } = useSidebar();
+  const { data: session } = authClient.useSession();
+
+  // Use session data if available, otherwise use initial user data from server
+  const user = session?.user
+    ? {
+        name: session.user.name,
+        email: session.user.email,
+        avatar: session.user.image,
+      }
+    : initialUser;
 
   const [loading, setLoading] = React.useState<boolean>(false);
 

@@ -8,7 +8,7 @@ import { AppSidebar } from "./sidebar";
 
 interface PanelLayoutProps {
   children: React.ReactNode;
-  user?: NavUserProps["user"] | null;
+  user?: NavUserProps["initialUser"] | null;
 }
 
 export default function PanelLayout({ children, user }: PanelLayoutProps) {
