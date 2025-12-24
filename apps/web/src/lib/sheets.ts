@@ -20,3 +20,11 @@ export const userProfileDialog = Dialog.createHandle();
 
 // Submit Site Dialog (for app section)
 export const submitSiteDialog = Dialog.createHandle();
+
+// Profile Settings Dialogs
+export const changeEmailDialog = Dialog.createHandle<{
+  currentEmail: string;
+}>();
+export const verifyEmailDialog = Dialog.createHandle<{ email: string }>();
+export const setPasswordDialog = Dialog.createHandle();
+export const changePasswordDialog = Dialog.createHandle();

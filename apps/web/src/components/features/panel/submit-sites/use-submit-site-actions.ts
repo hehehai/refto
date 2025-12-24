@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { client } from "@/lib/orpc";
+import { client, orpc } from "@/lib/orpc";
 
 export function useSubmitSiteActions() {
   const queryClient = useQueryClient();
 
   const invalidate = () => {
     queryClient.invalidateQueries({
-      queryKey: [["panel", "submitSite", "list"]],
+      queryKey: orpc.panel.submitSite.list.key(),
     });
   };
 

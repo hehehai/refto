@@ -1,5 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import {
+  UserRole,
   userBanSchema,
   userBatchDeleteSchema,
   userCreateSchema,
@@ -10,6 +11,7 @@ import {
 } from "@refto-one/common";
 import { db } from "@refto-one/db";
 import { account, session, user } from "@refto-one/db/schema/auth";
+import { sitePageVersionLikes } from "@refto-one/db/schema/sites";
 import { submitSite } from "@refto-one/db/schema/submissions";
 import {
   and,
@@ -300,8 +302,7 @@ export const userRouter = {
     return updated;
   }),
 
-  // Delete user (physical delete)
-  // TODO: Implement related data deletion in the future
+  // Delete user (physical delete) - Admin users cannot be deleted
   delete: adminProcedure.input(userIdSchema).handler(async ({ input }) => {
     const existing = await db.query.user.findFirst({
       where: eq(user.id, input.id),
@@ -311,23 +312,69 @@ export const userRouter = {
       throw new ORPCError("NOT_FOUND", { message: "User not found" });
     }
 
+    // Prevent deletion of admin users
+    if (existing.role === UserRole.ADMIN) {
+      throw new ORPCError("FORBIDDEN", {
+        message: "Admin users cannot be deleted. Use ban instead.",
+      });
+    }
+
+    // Delete all user likes
+    await db
+      .delete(sitePageVersionLikes)
+      .where(eq(sitePageVersionLikes.userId, input.id));
+
+    // Delete all user submissions
+    await db.delete(submitSite).where(eq(submitSite.userId, input.id));
+
     // Delete user (cascade will handle sessions and accounts)
     await db.delete(user).where(eq(user.id, input.id));
 
     return { success: true };
   }),
 
-  // Batch delete users (physical delete)
-  // TODO: Implement related data deletion in the future
+  // Batch delete users (physical delete) - Admin users are excluded
   batchDelete: adminProcedure
     .input(userBatchDeleteSchema)
     .handler(async ({ input }) => {
       const { ids } = input;
 
-      // Delete users (cascade will handle sessions and accounts)
-      await db.delete(user).where(inArray(user.id, ids));
+      // Get users to check for admins
+      const usersToDelete = await db
+        .select({ id: user.id, role: user.role })
+        .from(user)
+        .where(inArray(user.id, ids));
 
-      return { success: true, deletedCount: ids.length };
+      // Filter out admin users
+      const nonAdminIds = usersToDelete
+        .filter((u) => u.role !== UserRole.ADMIN)
+        .map((u) => u.id);
+
+      if (nonAdminIds.length === 0) {
+        throw new ORPCError("FORBIDDEN", {
+          message: "No users can be deleted. Admin users cannot be deleted.",
+        });
+      }
+
+      // Delete all likes for these users
+      await db
+        .delete(sitePageVersionLikes)
+        .where(inArray(sitePageVersionLikes.userId, nonAdminIds));
+
+      // Delete all submissions for these users
+      await db
+        .delete(submitSite)
+        .where(inArray(submitSite.userId, nonAdminIds));
+
+      // Delete users (cascade will handle sessions and accounts)
+      await db.delete(user).where(inArray(user.id, nonAdminIds));
+
+      const skippedCount = ids.length - nonAdminIds.length;
+      return {
+        success: true,
+        deletedCount: nonAdminIds.length,
+        skippedCount,
+      };
     }),
 
   // Ban user

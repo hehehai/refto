@@ -18,17 +18,17 @@ export const MagicLinkEmail = ({
     footerText="If you did not try to log in but received this email, please ignore this email. If you are concerned about the security of your account, please visit our"
     previewText={`Sign in to ${site.siteName}`}
   >
-    <Heading className="mx-0 my-[30px] p-0 text-center font-medium text-[24px]">
+    <Heading className="mx-0 my-7.5 p-0 text-center font-medium text-[24px]">
       Sign in to {site.siteName}
     </Heading>
-    <Text className="mt-12 leading-[20px]">
+    <Text className="mt-12 leading-5">
       Hello <strong>{name}</strong>,
     </Text>
-    <Text className="leading-[20px]">
+    <Text className="leading-5">
       Click the button below to sign in to your account. This link will expire
       in 10 minutes.
     </Text>
-    <Section className="mt-[32px] mb-[32px] text-center">
+    <Section className="mt-8 mb-8 text-center">
       <Button
         className="rounded-lg bg-[#000000] px-10 py-3.5 text-center font-medium text-[15px] text-white tracking-widest no-underline"
         href={verifyUrl}
@@ -36,7 +36,7 @@ export const MagicLinkEmail = ({
         SIGN IN
       </Button>
     </Section>
-    <Text className="leading-[24px]">
+    <Text className="leading-6">
       Or copy and paste this URL into a new tab of your browser:
     </Text>
     <Link className="text-blue-600 no-underline" href={verifyUrl}>

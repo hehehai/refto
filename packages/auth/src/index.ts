@@ -1,7 +1,13 @@
+import { getBaseUrl, site } from "@refto-one/common";
 import { db } from "@refto-one/db";
 import * as schema from "@refto-one/db/schema/auth";
+import { sitePageVersionLikes } from "@refto-one/db/schema/sites";
+import { submitSite } from "@refto-one/db/schema/submissions";
+import { sendEmail } from "@refto-one/email";
+import { VerificationEmail } from "@refto-one/email/templates/auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { eq } from "drizzle-orm";
 import { authPlugins } from "./plugins";
 
 export const auth = betterAuth({
@@ -21,6 +27,34 @@ export const auth = betterAuth({
     requireEmailVerification: false,
   },
 
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }) => {
+      const [name = user.email] = user.email.split("@");
+      const userName = user.name || name;
+
+      if (process.env.NODE_ENV === "development") {
+        console.info("sendVerificationEmail", {
+          email: user.email,
+          url,
+          token,
+        });
+      }
+
+      await sendEmail({
+        to: user.email,
+        subject: `${site.name} | Verify your email`,
+        renderData: VerificationEmail({
+          name: userName,
+          verifyUrl: url,
+          verifyCode: token,
+          baseUrl: getBaseUrl(),
+        }),
+      });
+    },
+    sendOnSignUp: false,
+    autoSignInAfterVerification: true,
+  },
+
   socialProviders: {
     github: {
       clientId: process.env.GITHUB_CLIENT_ID!,
@@ -33,6 +67,9 @@ export const auth = betterAuth({
   },
 
   user: {
+    changeEmail: {
+      enabled: true,
+    },
     additionalFields: {
       role: {
         type: "string",
@@ -41,6 +78,18 @@ export const auth = betterAuth({
       },
     },
     modelName: "user",
+    deleteUser: {
+      enabled: true,
+      beforeDelete: async (user) => {
+        // Delete all user likes
+        await db
+          .delete(sitePageVersionLikes)
+          .where(eq(sitePageVersionLikes.userId, user.id));
+
+        // Delete all user submissions
+        await db.delete(submitSite).where(eq(submitSite.userId, user.id));
+      },
+    },
   },
 
   session: {

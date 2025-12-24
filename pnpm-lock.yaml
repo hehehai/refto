@@ -183,9 +183,6 @@ importers:
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
-      tanstack-theme-kit:
-        specifier: ^0.2.1
-        version: 0.2.1(react@19.2.3)(typescript@5.9.3)
       tw-animate-css:
         specifier: ^1.2.5
         version: 1.4.0
@@ -4988,15 +4985,6 @@ packages:
 
   tailwindcss@4.1.18:
     resolution: {integrity: sha512-4+Z+0yiYyEtUVCScyfHCxOYP06L5Ne+JiHhY2IjR2KWMIWhJOYZKLSGZaP5HkZ8+bY0cxfzwDE5uOmzFXyIwxw==}
-
-  tanstack-theme-kit@0.2.1:
-    resolution: {integrity: sha512-mZIH8l4w7FAGgXQkBZNueOqao6h+4lb6kixuSxbv8IxkHBrannaq2ZcRE6ZPYsS6SiLshPoUrQa6XsBByL93nA==}
-    peerDependencies:
-      react: ^18 || ^19
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
@@ -10457,12 +10445,6 @@ snapshots:
   tailwind-merge@3.4.0: {}
 
   tailwindcss@4.1.18: {}
-
-  tanstack-theme-kit@0.2.1(react@19.2.3)(typescript@5.9.3):
-    dependencies:
-      react: 19.2.3
-    optionalDependencies:
-      typescript: 5.9.3
 
   tapable@2.3.0: {}
 

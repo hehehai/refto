@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { client } from "@/lib/orpc";
+import { client, orpc } from "@/lib/orpc";
 import { submitSiteDialog } from "@/lib/sheets";
 
 export function SubmitSiteDialog() {
@@ -42,7 +42,7 @@ function SubmitSiteContent() {
     onSuccess: () => {
       toast.success("Site submitted successfully");
       queryClient.invalidateQueries({
-        queryKey: [["features", "submitSite", "list"]],
+        queryKey: orpc.features.submitSite.list.key(),
       });
       resetForm();
       submitSiteDialog.close();

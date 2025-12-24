@@ -15,43 +15,42 @@ import { authClient } from "@/lib/auth-client";
 import { userProfileDialog } from "@/lib/sheets";
 import { ThemeToggle } from "../theme-toggle";
 
-export function SiteHeaderUser() {
+interface SiteHeaderUserProps {
+  initialUser: {
+    name: string;
+    email: string;
+    image?: string | null;
+    role?: string | null;
+  };
+}
+
+export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
   const navigate = useNavigate();
   const { data: session } = authClient.useSession();
 
-  const isAdmin = session?.user?.role === UserRole.ADMIN;
+  // Use session data if available, otherwise use initial user data from server
+  const user = session?.user ?? initialUser;
+
+  const isAdmin = user.role === UserRole.ADMIN;
 
   // Get user initials for avatar fallback
-  const getInitials = (name: string) =>
-    name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-
-  if (!session) {
-    return null;
-  }
+  const getInitials = (name: string) => name.at(1)?.toUpperCase();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
           <Button
-            className="flex items-center rounded-full"
+            className="flex items-center rounded-full pl-3"
             variant="secondary"
           >
-            <Avatar className="size-4">
-              <AvatarImage
-                alt={session.user.name}
-                src={session.user.image ?? undefined}
-              />
+            <Avatar className="size-5">
+              <AvatarImage alt={user.name} src={user.image ?? undefined} />
               <AvatarFallback className="text-xs">
-                {getInitials(session.user.name)}
+                {getInitials(user.name)}
               </AvatarFallback>
             </Avatar>
-            {session.user.name}
+            {user.name}
           </Button>
         }
       />
@@ -61,20 +60,15 @@ export function SiteHeaderUser() {
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex items-center gap-1.5 font-normal">
             <Avatar className="size-8">
-              <AvatarImage
-                alt={session.user.name}
-                src={session.user.image ?? undefined}
-              />
+              <AvatarImage alt={user.name} src={user.image ?? undefined} />
               <AvatarFallback className="text-xs">
-                {getInitials(session.user.name)}
+                {getInitials(user.name)}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col gap-0.5">
-              <p className="font-medium text-xs leading-none">
-                {session.user.name}
-              </p>
+              <p className="font-medium text-xs leading-none">{user.name}</p>
               <p className="truncate text-muted-foreground text-xs">
-                {session.user.email}
+                {user.email}
               </p>
             </div>
           </DropdownMenuLabel>

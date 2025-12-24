@@ -1,8 +1,13 @@
+import { ORPCError } from "@orpc/server";
 import { updateProfileSchema } from "@refto-one/common";
 import { db } from "@refto-one/db";
-import { session, user } from "@refto-one/db/schema/auth";
-import { eq } from "drizzle-orm";
+import { account, session, user } from "@refto-one/db/schema/auth";
+import { sitePageVersionLikes } from "@refto-one/db/schema/sites";
+import { submitSite } from "@refto-one/db/schema/submissions";
+import { and, eq, isNull, ne } from "drizzle-orm";
+import { z } from "zod";
 import { protectedProcedure } from "../../index";
+import { generateId, hashPassword } from "../../lib/utils";
 
 export const appUserRouter = {
   // Get current user profile
@@ -22,7 +27,19 @@ export const appUserRouter = {
       },
     });
 
-    return profile;
+    // Check if user has credential (password) account
+    const credentialAccount = await db.query.account.findFirst({
+      where: and(
+        eq(account.userId, userId),
+        eq(account.providerId, "credential")
+      ),
+      columns: { id: true },
+    });
+
+    return {
+      ...profile,
+      hasCredential: !!credentialAccount,
+    };
   }),
 
   // Update user profile (name, image)
@@ -68,7 +85,7 @@ export const appUserRouter = {
       return updated;
     }),
 
-  // Get user's active sessions
+  // Get user's active sessions (latest 5)
   getSessions: protectedProcedure.handler(async ({ context }) => {
     const userId = context.session.user.id;
 
@@ -83,6 +100,7 @@ export const appUserRouter = {
         createdAt: true,
         expiresAt: true,
       },
+      limit: 5,
     });
 
     // Mark current session
@@ -94,23 +112,115 @@ export const appUserRouter = {
     }));
   }),
 
-  // Delete user account (soft delete by banning)
-  deleteAccount: protectedProcedure.handler(async ({ context }) => {
+  // Get linked OAuth accounts
+  getLinkedAccounts: protectedProcedure.handler(async ({ context }) => {
     const userId = context.session.user.id;
 
-    // Soft delete: ban the user with a "self-deleted" reason
-    await db
-      .update(user)
-      .set({
-        banned: true,
-        banReason: "Account deleted by user",
-        updatedAt: new Date(),
-      })
-      .where(eq(user.id, userId));
+    const accounts = await db.query.account.findMany({
+      where: eq(account.userId, userId),
+      columns: {
+        id: true,
+        providerId: true,
+        accountId: true,
+        createdAt: true,
+      },
+    });
 
-    // Invalidate all sessions
-    await db.delete(session).where(eq(session.userId, userId));
-
-    return { success: true };
+    return accounts;
   }),
+
+  // Revoke a session
+  revokeSession: protectedProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .handler(async ({ input, context }) => {
+      const userId = context.session.user.id;
+      const currentSessionId = context.session.session.id;
+
+      // Cannot revoke current session
+      if (input.sessionId === currentSessionId) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "Cannot revoke current session",
+        });
+      }
+
+      // Verify session belongs to user and delete it
+      const result = await db
+        .delete(session)
+        .where(
+          and(
+            eq(session.id, input.sessionId),
+            eq(session.userId, userId),
+            ne(session.id, currentSessionId)
+          )
+        )
+        .returning({ id: session.id });
+
+      if (result.length === 0) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Session not found",
+        });
+      }
+
+      return { success: true };
+    }),
+
+  // Delete all user submissions (soft delete)
+  deleteAllSubmissions: protectedProcedure.handler(async ({ context }) => {
+    const userId = context.session.user.id;
+
+    const result = await db
+      .update(submitSite)
+      .set({ deletedAt: new Date() })
+      .where(and(eq(submitSite.userId, userId), isNull(submitSite.deletedAt)))
+      .returning({ id: submitSite.id });
+
+    return { deletedCount: result.length };
+  }),
+
+  // Delete all user likes
+  deleteAllLikes: protectedProcedure.handler(async ({ context }) => {
+    const userId = context.session.user.id;
+
+    const result = await db
+      .delete(sitePageVersionLikes)
+      .where(eq(sitePageVersionLikes.userId, userId))
+      .returning({ id: sitePageVersionLikes.id });
+
+    return { deletedCount: result.length };
+  }),
+
+  // Set password for users without credential account (OAuth-only users)
+  setPassword: protectedProcedure
+    .input(z.object({ newPassword: z.string().min(8) }))
+    .handler(async ({ input, context }) => {
+      const userId = context.session.user.id;
+
+      // Check if user already has a credential account
+      const existingCredential = await db.query.account.findFirst({
+        where: and(
+          eq(account.userId, userId),
+          eq(account.providerId, "credential")
+        ),
+        columns: { id: true },
+      });
+
+      if (existingCredential) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "Password already set. Use change password instead.",
+        });
+      }
+
+      // Create credential account with password
+      const hashedPassword = await hashPassword(input.newPassword);
+
+      await db.insert(account).values({
+        id: generateId(),
+        accountId: userId,
+        providerId: "credential",
+        userId,
+        password: hashedPassword,
+      });
+
+      return { success: true };
+    }),
 };

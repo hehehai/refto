@@ -8,10 +8,15 @@ import { SiteHeaderMenu } from "./site-header-menu";
 import { SiteHeaderUser } from "./site-header-user";
 
 export interface SiteHeaderProps {
-  isLogin: boolean;
+  user: {
+    name: string;
+    email: string;
+    image?: string | null;
+    role?: string | null;
+  } | null;
 }
 
-export function SiteHeader({ isLogin }: SiteHeaderProps) {
+export function SiteHeader({ user }: SiteHeaderProps) {
   return (
     <header className="w-full">
       <div className="container mx-auto flex h-20 items-center justify-between px-4">
@@ -31,7 +36,7 @@ export function SiteHeader({ isLogin }: SiteHeaderProps) {
               <FilterIcon />
             </span>
           </Button>
-          {isLogin ? (
+          {user ? (
             <>
               <Button
                 className="rounded-full"
@@ -41,7 +46,7 @@ export function SiteHeader({ isLogin }: SiteHeaderProps) {
                 <SendIcon />
                 Submit Site
               </Button>
-              <SiteHeaderUser />
+              <SiteHeaderUser initialUser={user} />
             </>
           ) : (
             <>

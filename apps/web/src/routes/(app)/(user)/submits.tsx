@@ -8,7 +8,7 @@ import type {
   SubmitStatus,
 } from "@/components/features/submits/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { client } from "@/lib/orpc";
+import { orpc } from "@/lib/orpc";
 import { authQueryOptions } from "@/lib/queries";
 
 export const Route = createFileRoute("/(app)/(user)/submits")({
@@ -28,10 +28,9 @@ function SubmitsComponent() {
   );
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  const { data: submissions = [], isLoading } = useQuery({
-    queryKey: [["features", "submitSite", "list"]],
-    queryFn: () => client.features.submitSite.list(),
-  });
+  const { data: submissions = [], isLoading } = useQuery(
+    orpc.features.submitSite.list.queryOptions()
+  );
 
   // Filter submissions by status
   const filteredSubmissions = useMemo(() => {

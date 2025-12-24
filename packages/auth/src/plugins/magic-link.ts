@@ -14,6 +14,11 @@ export const magicLinkPlugin = magicLink({
         columns: { name: true },
       });
 
+      // Only send magic link if user exists (silent return to prevent email enumeration)
+      if (!existingUser) {
+        return;
+      }
+
       const [name = email] = email.split("@");
 
       if (process.env.NODE_ENV === "development") {

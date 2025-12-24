@@ -8,7 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { ThemeProvider } from "tanstack-theme-kit";
+import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import type { orpc } from "@/lib/orpc";
 import appCss from "../index.css?url";
@@ -49,8 +49,8 @@ function RootDocument() {
       <head>
         <HeadContent />
       </head>
-      <body className="root min-h-screen">
-        <ThemeProvider attribute="class">
+      <body className="min-h-screen">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Outlet />
           <Toaster richColors />
         </ThemeProvider>

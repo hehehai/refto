@@ -76,6 +76,8 @@ export function UserRowActions({ user }: UserRowActionsProps) {
     });
   };
 
+  const isAdmin = user.role === "ADMIN";
+
   return (
     <>
       <div className="flex items-center justify-end gap-1.5">
@@ -123,10 +125,12 @@ export function UserRowActions({ user }: UserRowActionsProps) {
                 Ban
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={handleDelete} variant="destructive">
-              <span className="i-hugeicons-delete-03 size-4" />
-              Delete
-            </DropdownMenuItem>
+            {!isAdmin && (
+              <DropdownMenuItem onClick={handleDelete} variant="destructive">
+                <span className="i-hugeicons-delete-03 size-4" />
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

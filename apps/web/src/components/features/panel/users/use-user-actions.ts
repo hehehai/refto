@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { client } from "@/lib/orpc";
+import { client, orpc } from "@/lib/orpc";
 
 export function useUserActions() {
   const queryClient = useQueryClient();
 
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: [["panel", "user", "list"]] });
+    queryClient.invalidateQueries({ queryKey: orpc.panel.user.list.key() });
   };
 
   const create = useMutation({
