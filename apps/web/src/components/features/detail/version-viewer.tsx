@@ -54,10 +54,10 @@ export function VersionViewer({
   }, [playing, duration]);
 
   // Reset state when version or viewMode changes
+  // Don't reset duration - let onLoadedMetadata update it naturally
   useEffect(() => {
     setPlaying(false);
     setCurrentTime(0);
-    setDuration(0);
   }, [version.id, viewMode]);
 
   const handleLoop = useCallback(() => {
@@ -82,11 +82,8 @@ export function VersionViewer({
   return (
     <section className="py-8">
       <div className="container mx-auto px-4">
-        {/* 80% width container */}
         <div className="relative mx-auto w-[88%] rounded-2xl bg-muted/50 p-18">
-          {/* Top bar with view mode toggle (left) and progress button (right) */}
           <div className="absolute inset-x-4 top-4 z-10 flex items-center justify-between">
-            {/* View mode toggle - left */}
             <div className="flex rounded-lg bg-background/80 p-1 shadow-sm backdrop-blur-sm">
               <button
                 className={cn(
