@@ -1,59 +1,70 @@
 # refto-one
 
-基于 [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack) 构建的现代全栈 TypeScript 应用。
+A modern full-stack TypeScript application for discovering and curating website design inspiration. Built with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack).
 
-## 技术栈
+## Features
 
-| 类别 | 技术 |
-|------|------|
-| **前端框架** | React 19, TanStack Start (SSR), TanStack Router |
-| **样式** | Tailwind CSS v4, shadcn/ui (base-nova) |
-| **API 层** | oRPC (端到端类型安全 RPC) |
-| **数据库** | PostgreSQL + Drizzle ORM |
-| **认证** | Better Auth (邮箱/密码, GitHub, Google OAuth) |
-| **邮件** | React Email + Resend |
-| **代码质量** | Biome + Ultracite |
-| **包管理** | pnpm (monorepo workspaces) |
+- **Design Discovery** - Browse curated website designs with multiple feed options (Latest, Trending, Popular)
+- **Version History** - Track how website designs evolve over time with dated snapshots
+- **Dual View Mode** - Preview designs in both web and mobile layouts
+- **Weekly Leaderboard** - Discover top-rated designs each week
+- **Social Engagement** - Like and save your favorite designs
+- **Site Submissions** - Submit new websites for community review
+- **Admin Dashboard** - Analytics, user management, and content moderation
 
-## 项目结构
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| **Frontend** | React 19, TanStack Start (SSR), TanStack Router |
+| **Styling** | Tailwind CSS v4, shadcn/ui (base-nova) |
+| **API Layer** | oRPC (end-to-end type-safe RPC) |
+| **Database** | PostgreSQL + Drizzle ORM |
+| **Authentication** | Better Auth (Email/Password, GitHub, Google OAuth) |
+| **File Storage** | Cloudflare R2 |
+| **Email** | React Email + Resend |
+| **Code Quality** | Biome + Ultracite |
+| **Package Manager** | pnpm (monorepo workspaces) |
+
+## Project Structure
 
 ```
 refto-one/
 ├── apps/
-│   └── web/                      # 全栈应用 (端口 3001)
+│   └── web/                      # Full-stack application (port 3001)
 │       └── src/
-│           ├── routes/           # 文件路由
-│           │   ├── (auth)/       # 认证页面 (登录/注册/重置密码)
-│           │   ├── (app)/        # 受保护的应用路由
-│           │   ├── (admin)/      # 管理后台路由
-│           │   └── api/          # API 路由处理
+│           ├── routes/           # File-based routing
+│           │   ├── (auth)/       # Auth pages (login/signup/reset)
+│           │   ├── (app)/        # Protected app routes
+│           │   ├── (admin)/      # Admin dashboard routes
+│           │   └── api/          # API route handlers
 │           ├── components/
-│           │   ├── ui/           # shadcn/ui 组件
-│           │   ├── shared/       # 共享组件
-│           │   └── features/     # 功能组件
-│           ├── lib/              # 工具库 (auth-client, utils)
-│           ├── hooks/            # 自定义 Hooks
-│           └── utils/            # 工具函数 (orpc 客户端)
+│           │   ├── ui/           # shadcn/ui components
+│           │   ├── shared/       # Shared components
+│           │   └── features/     # Feature-specific components
+│           ├── lib/              # Utilities (auth-client, utils)
+│           ├── hooks/            # Custom React hooks
+│           └── utils/            # Utilities (oRPC client)
 │
 ├── packages/
-│   ├── api/                      # oRPC 路由和业务逻辑
-│   ├── auth/                     # Better Auth 配置
-│   ├── db/                       # Drizzle 数据库 schema
-│   ├── email/                    # React Email 邮件模板
-│   └── config/                   # 共享 TypeScript 配置
+│   ├── api/                      # oRPC routers and procedures
+│   ├── auth/                     # Better Auth configuration
+│   ├── db/                       # Drizzle database schema
+│   ├── email/                    # React Email templates
+│   └── common/                   # Shared types and validations
 ```
 
-## 安装
+## Installation
 
-### 前置要求
+### Prerequisites
 
 - Node.js 20+
 - pnpm 10+
-- PostgreSQL 数据库
+- PostgreSQL database
 
-### 步骤
+### Setup
 
-1. 克隆仓库并安装依赖：
+1. Clone the repository and install dependencies:
 
 ```bash
 git clone <repo-url>
@@ -61,99 +72,106 @@ cd refto-one
 pnpm install
 ```
 
-2. 配置环境变量：
+2. Configure environment variables:
 
 ```bash
 cp apps/web/.env.example apps/web/.env
 ```
 
-编辑 `apps/web/.env`：
+Edit `apps/web/.env`:
 
 ```env
-# 数据库
+# Database
 DATABASE_URL="postgresql://user:password@localhost:5432/refto_one"
 
 # Better Auth
 BETTER_AUTH_SECRET="your-secret-key"
 BETTER_AUTH_URL="http://localhost:3001"
 
-# OAuth (可选)
+# OAuth (optional)
 GITHUB_CLIENT_ID=""
 GITHUB_CLIENT_SECRET=""
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
 
-# 邮件 (可选)
+# Email (optional)
 RESEND_API_KEY=""
+
+# File Storage (optional)
+R2_ACCOUNT_ID=""
+R2_ACCESS_KEY_ID=""
+R2_SECRET_ACCESS_KEY=""
+R2_BUCKET_NAME=""
 ```
 
-3. 初始化数据库：
+3. Initialize the database:
 
 ```bash
 pnpm run db:push
 ```
 
-## 开发
+## Development
 
-启动开发服务器：
+Start the development server:
 
 ```bash
 pnpm run dev
 ```
 
-访问 [http://localhost:3001](http://localhost:3001)
+Visit [http://localhost:3001](http://localhost:3001)
 
-### 常用命令
+### Commands
 
 ```bash
-# 开发
-pnpm run dev          # 启动所有应用
-pnpm run dev:web      # 仅启动 web 应用
+# Development
+pnpm run dev          # Start all apps
+pnpm run dev:web      # Start web app only
 
-# 类型检查
-pnpm run check-types  # 检查所有包的 TypeScript 类型
+# Type Checking
+pnpm run check-types  # Check TypeScript types across all packages
 
-# 代码质量
-pnpm run check        # Biome 格式化和检查
-npx ultracite fix     # 自动修复代码问题
+# Code Quality
+pnpm run check        # Biome formatting and linting
+npx ultracite fix     # Auto-fix code issues
 
-# 数据库
-pnpm run db:push      # 推送 schema 变更到数据库
-pnpm run db:generate  # 生成迁移文件
-pnpm run db:migrate   # 执行迁移
-pnpm run db:studio    # 打开 Drizzle Studio
+# Database
+pnpm run db:push      # Push schema changes to database
+pnpm run db:generate  # Generate migration files
+pnpm run db:migrate   # Run migrations
+pnpm run db:studio    # Open Drizzle Studio
 ```
 
-## 构建
+## Build
 
 ```bash
 pnpm run build
 ```
 
-构建产物位于 `apps/web/.output/`
+Build output is located at `apps/web/.output/`
 
-## 部署
+## Deployment
 
-### 环境变量
+### Environment Variables
 
-生产环境需要配置以下环境变量：
+Production environment requires:
 
-- `DATABASE_URL` - PostgreSQL 连接字符串
-- `BETTER_AUTH_SECRET` - 认证密钥 (建议 32+ 字符)
-- `BETTER_AUTH_URL` - 生产环境 URL
-- `CORS_ORIGIN` - 允许的跨域来源
-- OAuth 和邮件服务的相关密钥
+- `DATABASE_URL` - PostgreSQL connection string
+- `BETTER_AUTH_SECRET` - Auth secret (32+ characters recommended)
+- `BETTER_AUTH_URL` - Production URL
+- `CORS_ORIGIN` - Allowed CORS origins
+- OAuth and email service credentials as needed
+- R2 credentials for file storage
 
-### 部署平台
+### Platforms
 
-项目基于 TanStack Start 构建，支持部署到：
+Built with TanStack Start, deployable to:
 
-- **Node.js 服务器** - 直接运行构建产物
-- **Docker** - 容器化部署
-- **Vercel / Netlify** - 需要适配器配置
-- **Cloudflare Workers** - 需要适配器配置
+- **Node.js Server** - Run build output directly
+- **Docker** - Containerized deployment
+- **Vercel / Netlify** - Requires adapter configuration
+- **Cloudflare Workers** - Requires adapter configuration
 
-### Docker 部署示例
+### Docker Example
 
 ```dockerfile
 FROM node:20-slim AS base
