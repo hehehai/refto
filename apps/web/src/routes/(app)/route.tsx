@@ -1,12 +1,15 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { ChangeEmailDialog } from "@/components/features/profile/change-email-dialog";
-import { ChangePasswordDialog } from "@/components/features/profile/change-password-dialog";
-import { SetPasswordDialog } from "@/components/features/profile/set-password-dialog";
-import { UserProfileDialog } from "@/components/features/profile/user-profile-dialog";
-import { VerifyEmailDialog } from "@/components/features/profile/verify-email-dialog";
-import { SubmitSiteDialog } from "@/components/features/submits/submit-site-dialog";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { Suspense } from "react";
 import { SiteHeader } from "@/components/shared/layout/site-header";
+import {
+  LazyChangeEmailDialog,
+  LazyChangePasswordDialog,
+  LazyConfirmDialog,
+  LazySetPasswordDialog,
+  LazySubmitSiteDialog,
+  LazyUserProfileDialog,
+  LazyVerifyEmailDialog,
+} from "@/components/shared/lazy-dialogs";
 import { getUser } from "@/functions/get-user";
 
 export const Route = createFileRoute("/(app)")({
@@ -27,13 +30,15 @@ function RouteComponent() {
       <main className="overflow-auto">
         <Outlet />
       </main>
-      <UserProfileDialog />
-      <ChangeEmailDialog />
-      <VerifyEmailDialog />
-      <SetPasswordDialog />
-      <ChangePasswordDialog />
-      <ConfirmDialog />
-      <SubmitSiteDialog />
+      <Suspense fallback={null}>
+        <LazyUserProfileDialog />
+        <LazyChangeEmailDialog />
+        <LazyVerifyEmailDialog />
+        <LazySetPasswordDialog />
+        <LazyChangePasswordDialog />
+        <LazyConfirmDialog />
+        <LazySubmitSiteDialog />
+      </Suspense>
     </div>
   );
 }

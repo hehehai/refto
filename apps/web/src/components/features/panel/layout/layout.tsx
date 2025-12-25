@@ -1,8 +1,11 @@
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { Suspense } from "react";
+import {
+  LazyConfirmDialog,
+  LazySiteDetailSheet,
+  LazySiteEditSheet,
+  LazyUserDetailSheet,
+} from "@/components/shared/lazy-dialogs";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { SiteDetailSheet } from "../sites/detail/site-detail-sheet";
-import { SiteEditSheet } from "../sites/edit/site-edit-sheet";
-import { UserDetailSheet } from "../users/user-detail-sheet";
 import type { NavUserProps } from "./nav-user";
 import { AppSidebar } from "./sidebar";
 
@@ -16,10 +19,12 @@ export default function PanelLayout({ children, user }: PanelLayoutProps) {
     <SidebarProvider>
       <AppSidebar user={user} />
       <SidebarInset>{children}</SidebarInset>
-      <SiteDetailSheet />
-      <SiteEditSheet />
-      <UserDetailSheet />
-      <ConfirmDialog />
+      <Suspense fallback={null}>
+        <LazySiteDetailSheet />
+        <LazySiteEditSheet />
+        <LazyUserDetailSheet />
+        <LazyConfirmDialog />
+      </Suspense>
     </SidebarProvider>
   );
 }
