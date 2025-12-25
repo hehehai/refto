@@ -1,4 +1,5 @@
 const SITE_NAME = "Refto";
+const DEFAULT_SLUG = "Unleash limitless inspiration";
 const DEFAULT_DESCRIPTION =
   "Unleash limitless inspiration. Embrace pure simplicity.";
 const DEFAULT_OG_IMAGE = "/og-image.png";
@@ -11,6 +12,8 @@ interface PageMetaOptions {
   url?: string;
   type?: "website" | "article";
   noIndex?: boolean;
+  /** If true, format as "SiteName - Title" instead of "Title - SiteName" */
+  siteNameFirst?: boolean;
 }
 
 interface MetaTag {
@@ -38,9 +41,18 @@ export function createPageMeta(options: PageMetaOptions = {}): HeadConfig {
     url,
     type = "website",
     noIndex = false,
+    siteNameFirst = false,
   } = options;
 
-  const fullTitle = title ? `${title} - ${SITE_NAME}` : SITE_NAME;
+  let fullTitle: string;
+  if (!title) {
+    fullTitle = `${SITE_NAME} - ${DEFAULT_SLUG}`;
+  } else if (siteNameFirst) {
+    fullTitle = `${SITE_NAME} - ${title}`;
+  } else {
+    fullTitle = `${title} - ${SITE_NAME}`;
+  }
+
   const fullImageUrl = image.startsWith("http") ? image : `${SITE_URL}${image}`;
   const canonicalUrl = url ? `${SITE_URL}${url}` : undefined;
 
