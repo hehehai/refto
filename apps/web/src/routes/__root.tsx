@@ -11,12 +11,15 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import type { orpc } from "@/lib/orpc";
+import { createPageMeta } from "@/lib/seo";
 import appCss from "../index.css?url";
 
 export interface RouterAppContext {
   orpc: typeof orpc;
   queryClient: QueryClient;
 }
+
+const defaultMeta = createPageMeta();
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
@@ -28,15 +31,14 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         name: "viewport",
         content: "width=device-width, initial-scale=1",
       },
-      {
-        title: "My App",
-      },
+      ...defaultMeta.meta,
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      ...defaultMeta.links,
     ],
   }),
 

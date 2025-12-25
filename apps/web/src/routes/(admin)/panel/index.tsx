@@ -7,9 +7,21 @@ import { NavMainHeader } from "@/components/features/panel/layout/nav-main-heade
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orpc } from "@/lib/orpc";
+import { createPageMeta } from "@/lib/seo";
+
+const dashboardMeta = createPageMeta({
+  title: "Admin Dashboard",
+  description: "Refto admin dashboard.",
+  url: "/panel",
+  noIndex: true,
+});
 
 export const Route = createFileRoute("/(admin)/panel/")({
   component: RouteComponent,
+  head: () => ({
+    meta: dashboardMeta.meta,
+    links: dashboardMeta.links,
+  }),
 });
 
 function StatCardsSkeleton() {

@@ -2,9 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { WeeklySection } from "@/components/features/weekly/weekly-section";
 import { orpc } from "@/lib/orpc";
+import { createPageMeta } from "@/lib/seo";
+
+const weeklyMeta = createPageMeta({
+  title: "Weekly Top",
+  description:
+    "Top liked designs of the week. Discover trending website inspiration.",
+  url: "/weekly",
+});
 
 export const Route = createFileRoute("/(app)/weekly")({
   component: WeeklyPage,
+  head: () => ({
+    meta: weeklyMeta.meta,
+    links: weeklyMeta.links,
+  }),
   loader: async ({ context }) => {
     // Prefetch first 3 weeks
     await context.queryClient.prefetchInfiniteQuery(

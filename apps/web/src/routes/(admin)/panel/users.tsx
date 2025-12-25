@@ -13,6 +13,7 @@ import { DateRangeFilter } from "@/components/shared/data-table/date-range-filte
 import { StatusFilterSelect } from "@/components/shared/data-table/status-filter";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/lib/orpc";
+import { createPageMeta } from "@/lib/seo";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All Status" },
@@ -31,9 +32,20 @@ const searchSchema = z.object({
 
 type SearchParams = z.infer<typeof searchSchema>;
 
+const usersMeta = createPageMeta({
+  title: "Manage Users",
+  description: "Manage users on Refto.",
+  url: "/panel/users",
+  noIndex: true,
+});
+
 export const Route = createFileRoute("/(admin)/panel/users")({
   component: RouteComponent,
   validateSearch: zodValidator(searchSchema),
+  head: () => ({
+    meta: usersMeta.meta,
+    links: usersMeta.links,
+  }),
 });
 
 function RouteComponent() {

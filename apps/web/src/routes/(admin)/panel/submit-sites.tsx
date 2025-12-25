@@ -12,6 +12,7 @@ import {
   UserFilterSelect,
 } from "@/components/shared/data-table";
 import { orpc } from "@/lib/orpc";
+import { createPageMeta } from "@/lib/seo";
 
 const STATUS_TABS = ["All", "Pending", "Approved", "Rejected"] as const;
 
@@ -25,9 +26,20 @@ const searchSchema = z.object({
 
 type SearchParams = z.infer<typeof searchSchema>;
 
+const submitSitesMeta = createPageMeta({
+  title: "Manage Submissions",
+  description: "Review and manage site submissions on Refto.",
+  url: "/panel/submit-sites",
+  noIndex: true,
+});
+
 export const Route = createFileRoute("/(admin)/panel/submit-sites")({
   component: RouteComponent,
   validateSearch: zodValidator(searchSchema),
+  head: () => ({
+    meta: submitSitesMeta.meta,
+    links: submitSitesMeta.links,
+  }),
 });
 
 function RouteComponent() {

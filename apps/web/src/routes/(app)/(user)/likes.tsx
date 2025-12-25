@@ -5,6 +5,14 @@ import { VersionGrid } from "@/components/shared/version-grid";
 import { orpc } from "@/lib/orpc";
 import type { UserLikesOutput } from "@/lib/orpc-types";
 import { authQueryOptions } from "@/lib/queries";
+import { createPageMeta } from "@/lib/seo";
+
+const likesMeta = createPageMeta({
+  title: "My Likes",
+  description: "Your saved design inspirations on Refto.",
+  url: "/likes",
+  noIndex: true,
+});
 
 export const Route = createFileRoute("/(app)/(user)/likes")({
   beforeLoad: async ({ context }) => {
@@ -14,6 +22,10 @@ export const Route = createFileRoute("/(app)/(user)/likes")({
     }
   },
   component: LikesComponent,
+  head: () => ({
+    meta: likesMeta.meta,
+    links: likesMeta.links,
+  }),
 });
 
 function LikesComponent() {

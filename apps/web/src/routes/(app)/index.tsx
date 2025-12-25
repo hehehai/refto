@@ -5,6 +5,7 @@ import { z } from "zod";
 import { FeedSection } from "@/components/features/home/feed-section";
 import { HeroSection } from "@/components/features/home/hero-section";
 import { orpc } from "@/lib/orpc";
+import { createPageMeta } from "@/lib/seo";
 
 const searchSchema = z.object({
   sort: z
@@ -13,10 +14,20 @@ const searchSchema = z.object({
     .default(FeedSort.LATEST),
 });
 
+const homeMeta = createPageMeta({
+  description:
+    "Unleash limitless inspiration. Embrace pure simplicity. Discover curated website designs.",
+  url: "/",
+});
+
 export const Route = createFileRoute("/(app)/")({
   component: HomeComponent,
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({ sort: search.sort }),
+  head: () => ({
+    meta: homeMeta.meta,
+    links: homeMeta.links,
+  }),
   loader: async ({ context, deps }) => {
     const { sort } = deps;
     await Promise.all([

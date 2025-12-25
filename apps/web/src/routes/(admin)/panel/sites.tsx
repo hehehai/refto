@@ -10,6 +10,7 @@ import { DataTableToolbar } from "@/components/shared/data-table/data-table-tool
 import { StatusFilterSelect } from "@/components/shared/data-table/status-filter";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/lib/orpc";
+import { createPageMeta } from "@/lib/seo";
 
 const PIN_STATUS_OPTIONS = [
   { value: "all", label: "All Status" },
@@ -26,9 +27,20 @@ const searchSchema = z.object({
 
 type SearchParams = z.infer<typeof searchSchema>;
 
+const sitesMeta = createPageMeta({
+  title: "Manage Sites",
+  description: "Manage websites on Refto.",
+  url: "/panel/sites",
+  noIndex: true,
+});
+
 export const Route = createFileRoute("/(admin)/panel/sites")({
   component: RouteComponent,
   validateSearch: zodValidator(searchSchema),
+  head: () => ({
+    meta: sitesMeta.meta,
+    links: sitesMeta.links,
+  }),
 });
 
 function RouteComponent() {

@@ -10,6 +10,14 @@ import type {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/lib/orpc";
 import { authQueryOptions } from "@/lib/queries";
+import { createPageMeta } from "@/lib/seo";
+
+const submitsMeta = createPageMeta({
+  title: "My Submissions",
+  description: "Track your submitted websites on Refto.",
+  url: "/submits",
+  noIndex: true,
+});
 
 export const Route = createFileRoute("/(app)/(user)/submits")({
   beforeLoad: async ({ context }) => {
@@ -19,6 +27,10 @@ export const Route = createFileRoute("/(app)/(user)/submits")({
     }
   },
   component: SubmitsComponent,
+  head: () => ({
+    meta: submitsMeta.meta,
+    links: submitsMeta.links,
+  }),
 });
 
 function SubmitsComponent() {

@@ -1,7 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createPageMeta } from "@/lib/seo";
+
+const aboutMeta = createPageMeta({
+  title: "About",
+  description:
+    "Refto is a curated collection of beautiful design references from the best websites.",
+  url: "/about",
+});
 
 export const Route = createFileRoute("/(app)/about")({
   component: AboutComponent,
+  head: () => ({
+    meta: aboutMeta.meta,
+    links: aboutMeta.links,
+  }),
 });
 
 function AboutComponent() {

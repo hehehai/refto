@@ -6,6 +6,7 @@ import { SiteHero } from "@/components/features/detail/site-hero";
 import { SitePageHeader } from "@/components/features/detail/site-page-header";
 import { VersionViewer } from "@/components/features/detail/version-viewer";
 import { orpc } from "@/lib/orpc";
+import { createDetailPageMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/(app)/$pageVersionId")({
   component: DetailComponent,
@@ -25,6 +26,26 @@ export const Route = createFileRoute("/(app)/$pageVersionId")({
         })
       );
     }
+
+    return {
+      site: versionData.page.site,
+      version: versionData,
+      pageVersionId,
+    };
+  },
+  head: ({ loaderData }) => {
+    if (!loaderData) return {};
+    const { site, version, pageVersionId } = loaderData;
+    const meta = createDetailPageMeta(
+      site.title,
+      site.description,
+      version.webCover,
+      pageVersionId
+    );
+    return {
+      meta: meta.meta,
+      links: meta.links,
+    };
   },
 });
 

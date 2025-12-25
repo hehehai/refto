@@ -3,10 +3,18 @@ import z from "zod";
 import { VerifyEmailInvalid } from "@/components/features/auth/verify-email-invalid";
 import { VerifyEmailSuccess } from "@/components/features/auth/verify-email-success";
 import { client } from "@/lib/orpc";
+import { createPageMeta } from "@/lib/seo";
 
 const searchSchema = z.object({
   token: z.string(),
   email: z.email(),
+});
+
+const verifyEmailMeta = createPageMeta({
+  title: "Verify Email",
+  description: "Verify your email address for your Refto account.",
+  url: "/verify-email",
+  noIndex: true,
 });
 
 export const Route = createFileRoute("/(auth)/verify-email")({
@@ -18,6 +26,10 @@ export const Route = createFileRoute("/(auth)/verify-email")({
   },
   component: RouteComponent,
   errorComponent: VerifyEmailInvalid,
+  head: () => ({
+    meta: verifyEmailMeta.meta,
+    links: verifyEmailMeta.links,
+  }),
 });
 
 function RouteComponent() {
