@@ -21,6 +21,7 @@ import {
   ilike,
   inArray,
   isNull,
+  not,
   or,
   type SQL,
 } from "drizzle-orm";
@@ -236,9 +237,25 @@ export const siteRouter = {
   upsert: adminProcedure
     .input(siteUpsertSchema)
     .handler(async ({ input, context }) => {
-      const { id, ...data } = input;
+      const { id, slug, ...data } = input;
 
       try {
+        // Check slug uniqueness among non-deleted sites
+        const slugConditions = [eq(sites.slug, slug), isNull(sites.deletedAt)];
+        if (id) {
+          slugConditions.push(not(eq(sites.id, id)));
+        }
+
+        const existingSlug = await db.query.sites.findFirst({
+          where: and(...slugConditions),
+        });
+
+        if (existingSlug) {
+          throw new ORPCError("CONFLICT", {
+            message: "Site slug already exists",
+          });
+        }
+
         if (id) {
           // UPDATE: Check exists, validate URL uniqueness if changed, update
           const existing = await db.query.sites.findFirst({
@@ -253,6 +270,7 @@ export const siteRouter = {
             .update(sites)
             .set({
               ...data,
+              slug,
               updatedAt: new Date(),
             })
             .where(eq(sites.id, id))
@@ -267,6 +285,7 @@ export const siteRouter = {
           .insert(sites)
           .values({
             id: siteId,
+            slug,
             ...data,
             createdById: context.session.user.id,
           })
@@ -409,7 +428,7 @@ export const pageRouter = {
 
   // Upsert page (create if no id, update if id provided)
   upsert: adminProcedure.input(pageUpsertSchema).handler(async ({ input }) => {
-    const { id, siteId, ...data } = input;
+    const { id, siteId, slug, ...data } = input;
 
     if (id) {
       // UPDATE
@@ -437,6 +456,22 @@ export const pageRouter = {
         }
       }
 
+      // Check slug uniqueness within site if slug is being updated
+      if (slug !== existing.slug) {
+        const slugExists = await db.query.sitePages.findFirst({
+          where: and(
+            eq(sitePages.siteId, existing.siteId),
+            eq(sitePages.slug, slug)
+          ),
+        });
+
+        if (slugExists) {
+          throw new ORPCError("CONFLICT", {
+            message: "Page slug already exists for this site",
+          });
+        }
+      }
+
       // If setting as default, unset other defaults
       if (data.isDefault === true) {
         await db
@@ -449,6 +484,7 @@ export const pageRouter = {
         .update(sitePages)
         .set({
           ...data,
+          slug,
           updatedAt: new Date(),
         })
         .where(eq(sitePages.id, id))
@@ -468,13 +504,24 @@ export const pageRouter = {
     }
 
     // Check if URL already exists for this site
-    const existing = await db.query.sitePages.findFirst({
+    const existingUrl = await db.query.sitePages.findFirst({
       where: and(eq(sitePages.siteId, siteId), eq(sitePages.url, data.url)),
     });
 
-    if (existing) {
+    if (existingUrl) {
       throw new ORPCError("CONFLICT", {
         message: "Page URL already exists for this site",
+      });
+    }
+
+    // Check if slug already exists for this site
+    const existingSlug = await db.query.sitePages.findFirst({
+      where: and(eq(sitePages.siteId, siteId), eq(sitePages.slug, slug)),
+    });
+
+    if (existingSlug) {
+      throw new ORPCError("CONFLICT", {
+        message: "Page slug already exists for this site",
       });
     }
 
@@ -501,6 +548,7 @@ export const pageRouter = {
         id: pageId,
         siteId,
         title: data.title,
+        slug,
         url: data.url,
         isDefault: shouldBeDefault,
       })

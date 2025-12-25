@@ -6,15 +6,18 @@ interface VersionItem {
     id: string;
     webCover: string;
     webRecord?: string | null;
+    versionDate: Date;
   };
   page: {
     id: string;
     title: string;
+    slug: string;
     url: string;
   };
   site: {
     id: string;
     title: string;
+    slug: string;
     logo: string;
     url: string;
   };

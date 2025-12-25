@@ -17,6 +17,7 @@ export const sites = pgTable(
   {
     id: text("id").primaryKey(),
     title: varchar("title", { length: 500 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull(),
     description: text("description").notNull(),
     logo: text("logo").notNull(),
     url: text("url").notNull(),
@@ -39,6 +40,10 @@ export const sites = pgTable(
     uniqueIndex("sites_url_unique")
       .on(table.url)
       .where(sql`${table.deletedAt} IS NULL`),
+    // Partial unique index for slug: only enforce uniqueness for non-deleted records
+    uniqueIndex("sites_slug_unique")
+      .on(table.slug)
+      .where(sql`${table.deletedAt} IS NULL`),
   ]
 );
 
@@ -51,6 +56,7 @@ export const sitePages = pgTable(
       .notNull()
       .references(() => sites.id, { onDelete: "cascade" }),
     title: varchar("title", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull(),
     url: text("url").notNull(),
     isDefault: boolean("isDefault").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -60,6 +66,7 @@ export const sitePages = pgTable(
     index("site_pages_site_id_idx").on(table.siteId),
     index("site_pages_default_idx").on(table.siteId, table.isDefault),
     uniqueIndex("site_pages_site_url_idx").on(table.siteId, table.url),
+    uniqueIndex("site_pages_site_slug_idx").on(table.siteId, table.slug),
   ]
 );
 

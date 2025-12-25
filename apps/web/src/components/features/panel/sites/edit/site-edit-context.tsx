@@ -15,6 +15,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { confirmDialog } from "@/components/shared/confirm-dialog";
+import type { SiteFormType } from "@/lib/form-types";
 import { orpc } from "@/lib/orpc";
 import {
   addQueryData,
@@ -46,6 +47,7 @@ interface SiteEditContextType {
   site: {
     id: string;
     title: string;
+    slug: string;
     description: string;
     logo: string;
     url: string;
@@ -56,8 +58,7 @@ interface SiteEditContextType {
   isLoading: boolean;
 
   // Site editing
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: any;
+  form: SiteFormType;
   isEditingSite: boolean;
   isSavingSite: boolean;
   startEditSite: () => void;
@@ -76,6 +77,7 @@ interface SiteEditContextType {
   closePageDialog: () => void;
   handlePageSubmit: (data: {
     title: string;
+    slug: string;
     url: string;
     isDefault: boolean;
   }) => Promise<void>;
@@ -193,6 +195,7 @@ export function SiteEditProvider({
   const form = useForm({
     defaultValues: {
       title: "",
+      slug: "",
       description: "",
       logo: "",
       url: "",
@@ -287,6 +290,7 @@ export function SiteEditProvider({
     if (open && site) {
       form.reset();
       form.setFieldValue("title", site.title);
+      form.setFieldValue("slug", site.slug ?? "");
       form.setFieldValue("description", site.description ?? "");
       form.setFieldValue("logo", site.logo ?? "");
       form.setFieldValue("url", site.url);
@@ -326,6 +330,7 @@ export function SiteEditProvider({
   const startEditSite = () => {
     if (site) {
       form.setFieldValue("title", site.title);
+      form.setFieldValue("slug", site.slug ?? "");
       form.setFieldValue("description", site.description ?? "");
       form.setFieldValue("logo", site.logo ?? "");
       form.setFieldValue("url", site.url);
@@ -378,6 +383,7 @@ export function SiteEditProvider({
 
   const handlePageSubmit = async (data: {
     title: string;
+    slug: string;
     url: string;
     isDefault: boolean;
   }) => {
@@ -469,6 +475,7 @@ export function SiteEditProvider({
       ? {
           id: site.id,
           title: site.title,
+          slug: site.slug ?? "",
           description: site.description ?? "",
           logo: site.logo ?? "",
           url: site.url,

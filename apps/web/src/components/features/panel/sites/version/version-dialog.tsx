@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useEffect } from "react";
+import { DatePicker } from "@/components/shared/date-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,7 +10,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 interface VersionData {
@@ -30,10 +30,6 @@ interface VersionDialogProps {
   isLoading?: boolean;
 }
 
-function formatDateForInput(date: Date): string {
-  return date.toISOString().split("T")[0];
-}
-
 export function VersionDialog({
   mode,
   version,
@@ -44,12 +40,13 @@ export function VersionDialog({
 }: VersionDialogProps) {
   const form = useForm({
     defaultValues: {
-      versionDate: formatDateForInput(new Date()),
+      versionDate: new Date() as Date | undefined,
       versionNote: "",
     },
     onSubmit: async ({ value }) => {
+      if (!value.versionDate) return;
       await onSubmit({
-        versionDate: new Date(value.versionDate),
+        versionDate: value.versionDate,
         versionNote: value.versionNote || undefined,
       });
       onOpenChange(false);
@@ -60,13 +57,10 @@ export function VersionDialog({
     if (open) {
       form.reset();
       if (version) {
-        form.setFieldValue(
-          "versionDate",
-          formatDateForInput(version.versionDate)
-        );
+        form.setFieldValue("versionDate", version.versionDate);
         form.setFieldValue("versionNote", version.versionNote ?? "");
       } else {
-        form.setFieldValue("versionDate", formatDateForInput(new Date()));
+        form.setFieldValue("versionDate", new Date());
       }
     }
   }, [open, version, form]);
@@ -96,14 +90,10 @@ export function VersionDialog({
               return (
                 <Field>
                   <FieldLabel htmlFor="version-date">Version Date</FieldLabel>
-                  <Input
-                    aria-invalid={isInvalid}
+                  <DatePicker
+                    className="w-full"
                     disabled={isLoading || form.state.isSubmitting}
-                    id="version-date"
-                    name={field.name}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    type="date"
+                    onChange={(date) => field.handleChange(date)}
                     value={field.state.value}
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}

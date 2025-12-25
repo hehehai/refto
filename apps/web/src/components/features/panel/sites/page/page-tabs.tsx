@@ -4,6 +4,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 export interface Page {
   id: string;
   title: string;
+  slug: string;
   url: string;
   isDefault: boolean;
 }

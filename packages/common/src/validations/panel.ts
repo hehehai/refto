@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+// Slug validation schema - URL-friendly identifier
+const slugSchema = z
+  .string()
+  .min(1, "Slug is required")
+  .max(255, "Slug must be 255 characters or less")
+  .regex(
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+    "Slug must be lowercase alphanumeric with hyphens"
+  );
+
 // Pagination base schema
 const paginationSchema = z.object({
   page: z.number().min(1).default(1),
@@ -168,6 +178,7 @@ export const siteUpdateSchema = z.object({
 export const siteUpsertSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, "Title is required"),
+  slug: slugSchema,
   description: z.string(),
   logo: z.string().url("Invalid logo URL"),
   url: z.string().url("Invalid URL"),
@@ -219,6 +230,7 @@ export const pageUpsertSchema = z.object({
   id: z.string().optional(),
   siteId: z.string(),
   title: z.string().min(1, "Title is required"),
+  slug: slugSchema,
   url: z.string().min(1, "URL is required"),
   isDefault: z.boolean().default(false),
 });

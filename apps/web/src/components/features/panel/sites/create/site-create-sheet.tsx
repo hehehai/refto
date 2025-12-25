@@ -30,6 +30,7 @@ interface LocalVersion extends Version {
 }
 
 interface LocalPage extends Page {
+  slug: string;
   versions: LocalVersion[];
 }
 
@@ -45,6 +46,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
   const [createdSite, setCreatedSite] = useState<{
     id: string;
     title: string;
+    slug: string;
     description: string;
     logo: string;
     url: string;
@@ -82,6 +84,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
   const form = useForm({
     defaultValues: {
       title: "",
+      slug: "",
       description: "",
       logo: "",
       url: "",
@@ -101,6 +104,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
       setCreatedSite({
         id: site.id,
         title: site.title,
+        slug: site.slug,
         description: site.description,
         logo: site.logo,
         url: site.url,
@@ -122,6 +126,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
         const createdPage = await orpc.panel.page.upsert.call({
           siteId: createdSite.id,
           title: page.title,
+          slug: page.slug,
           url: page.url,
           isDefault: page.isDefault,
         });
@@ -193,6 +198,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
 
   const handlePageSubmit = async (data: {
     title: string;
+    slug: string;
     url: string;
     isDefault: boolean;
   }) => {
@@ -200,6 +206,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
       const newPage: LocalPage = {
         id: `temp-${Date.now()}`,
         title: data.title,
+        slug: data.slug,
         url: data.url,
         isDefault: data.isDefault,
         versions: [],

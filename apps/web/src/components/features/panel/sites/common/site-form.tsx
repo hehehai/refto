@@ -1,14 +1,27 @@
 import { useState } from "react";
+import slugify from "slug";
 import { ImageUpload } from "@/components/shared/image-upload";
 import { Badge } from "@/components/ui/badge";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Rating } from "@/components/ui/rating";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import type { SiteFormType } from "@/lib/form-types";
 
 export interface SiteFormValues {
   title: string;
+  slug: string;
   description: string;
   logo: string;
   url: string;
@@ -18,13 +31,28 @@ export interface SiteFormValues {
 }
 
 interface SiteFormProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: any;
+  form: SiteFormType;
   disabled?: boolean;
 }
 
 export function SiteForm({ form, disabled = false }: SiteFormProps) {
   const [tagInput, setTagInput] = useState("");
+  const [lastAutoSlug, setLastAutoSlug] = useState("");
+
+  const handleTitleChange = (
+    value: string,
+    field: { handleChange: (value: string) => void }
+  ) => {
+    field.handleChange(value);
+
+    // Auto-generate slug from title if slug is empty or matches previous auto-generated value
+    const currentSlug = form.getFieldValue("slug");
+    if (!currentSlug || currentSlug === lastAutoSlug) {
+      const newSlug = slugify(value, { lower: true });
+      form.setFieldValue("slug", newSlug);
+      setLastAutoSlug(newSlug);
+    }
+  };
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === ",") {
@@ -50,7 +78,7 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
     <div className="space-y-4">
       {/* Logo Upload */}
       <form.Field name="logo">
-        {(field: any) => {
+        {(field) => {
           const isInvalid =
             field.state.meta.isTouched && !field.state.meta.isValid;
 
@@ -72,7 +100,7 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
 
       {/* Title */}
       <form.Field name="title">
-        {(field: any) => {
+        {(field) => {
           const isInvalid =
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
@@ -84,7 +112,7 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
                 id="title"
                 name={field.name}
                 onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
+                onChange={(e) => handleTitleChange(e.target.value, field)}
                 placeholder="Enter site title"
                 value={field.state.value}
               />
@@ -94,9 +122,45 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
         }}
       </form.Field>
 
+      {/* Slug */}
+      <form.Field name="slug">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <Field>
+              <FieldLabel htmlFor="slug">Slug</FieldLabel>
+              <InputGroup>
+                <InputGroupAddon>
+                  <span className="text-muted-foreground text-sm">/</span>
+                </InputGroupAddon>
+                <InputGroupInput
+                  aria-invalid={isInvalid}
+                  disabled={disabled || isSubmitting}
+                  id="slug"
+                  name={field.name}
+                  onBlur={field.handleBlur}
+                  onChange={(e) =>
+                    field.handleChange(
+                      e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")
+                    )
+                  }
+                  placeholder="auto-generated-from-title"
+                  value={field.state.value}
+                />
+              </InputGroup>
+              <FieldDescription className="text-xs">
+                URL-friendly identifier. Auto-generated from title.
+              </FieldDescription>
+              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+            </Field>
+          );
+        }}
+      </form.Field>
+
       {/* URL */}
       <form.Field name="url">
-        {(field: any) => {
+        {(field) => {
           const isInvalid =
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
@@ -121,7 +185,7 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
 
       {/* Description */}
       <form.Field name="description">
-        {(field: any) => {
+        {(field) => {
           const isInvalid =
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
@@ -146,7 +210,7 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
 
       {/* Tags */}
       <form.Field name="tags">
-        {(field: any) => (
+        {(field) => (
           <Field>
             <FieldLabel htmlFor="tags">Tags</FieldLabel>
             <div className="space-y-2">
@@ -186,7 +250,7 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
 
       {/* Rating */}
       <form.Field name="rating">
-        {(field: any) => {
+        {(field) => {
           const isInvalid =
             field.state.meta.isTouched && !field.state.meta.isValid;
           return (
@@ -206,7 +270,7 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
 
       {/* Pin Status */}
       <form.Field name="isPinned">
-        {(field: any) => (
+        {(field) => (
           <Field>
             <div className="flex items-center justify-between">
               <FieldLabel className="mb-0" htmlFor="isPinned">

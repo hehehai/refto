@@ -45,6 +45,13 @@ export const relatedSitesSchema = z.object({
   limit: z.number().min(1).max(10).default(6),
 });
 
+// Get version by slug-based path
+export const versionBySlugSchema = z.object({
+  siteSlug: z.string(),
+  pageSlug: z.string().optional(), // If not provided, use default page
+  versionSlug: z.string().optional(), // YYYY-MM-DD format, if not provided use latest
+});
+
 // Get weekly feed (top liked versions per week)
 export const weeklyFeedSchema = z.object({
   cursor: z.number().optional(), // Week offset (0=current week, 1=last week, ...)
@@ -81,6 +88,7 @@ export type PinnedSites = z.infer<typeof pinnedSitesSchema>;
 export type VersionDetail = z.infer<typeof versionDetailSchema>;
 export type SiteDetail = z.infer<typeof siteDetailSchema>;
 export type RelatedSites = z.infer<typeof relatedSitesSchema>;
+export type VersionBySlug = z.infer<typeof versionBySlugSchema>;
 export type WeeklyFeed = z.infer<typeof weeklyFeedSchema>;
 export type ToggleLike = z.infer<typeof toggleLikeSchema>;
 export type UserLikes = z.infer<typeof userLikesSchema>;

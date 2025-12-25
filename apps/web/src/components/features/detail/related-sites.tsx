@@ -4,6 +4,7 @@ import { VersionGrid } from "@/components/shared/version-grid";
 interface RelatedSite {
   id: string;
   title: string;
+  slug: string;
   description: string;
   logo: string;
   url: string;
@@ -11,10 +12,12 @@ interface RelatedSite {
   page: {
     id: string;
     title: string;
+    slug: string;
     url: string;
   } | null;
   version: {
     id: string;
+    versionDate: Date;
     webCover: string;
     webRecord?: string | null;
   } | null;
@@ -36,6 +39,7 @@ export function RelatedSites({ sites }: RelatedSitesProps) {
       site: {
         id: site.id,
         title: site.title,
+        slug: site.slug,
         logo: site.logo,
         url: site.url,
       },

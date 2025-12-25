@@ -21,8 +21,8 @@ import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-p
 import { Route as appWeeklyRouteImport } from './routes/(app)/weekly'
 import { Route as appAboutRouteImport } from './routes/(app)/about'
 import { Route as app404RouteImport } from './routes/(app)/404'
-import { Route as appPageVersionIdRouteImport } from './routes/(app)/$pageVersionId'
 import { Route as adminPanelRouteRouteImport } from './routes/(admin)/panel/route'
+import { Route as appSiteSlugIndexRouteImport } from './routes/(app)/$siteSlug/index'
 import { Route as adminPanelIndexRouteImport } from './routes/(admin)/panel/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -31,6 +31,8 @@ import { Route as appuserLikesRouteImport } from './routes/(app)/(user)/likes'
 import { Route as adminPanelUsersRouteImport } from './routes/(admin)/panel/users'
 import { Route as adminPanelSubmitSitesRouteImport } from './routes/(admin)/panel/submit-sites'
 import { Route as adminPanelSitesRouteImport } from './routes/(admin)/panel/sites'
+import { Route as appSiteSlugPageSlugIndexRouteImport } from './routes/(app)/$siteSlug/$pageSlug/index'
+import { Route as appSiteSlugPageSlugVersionSlugRouteImport } from './routes/(app)/$siteSlug/$pageSlug/$versionSlug'
 
 const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
@@ -90,15 +92,15 @@ const app404Route = app404RouteImport.update({
   path: '/404',
   getParentRoute: () => appRouteRoute,
 } as any)
-const appPageVersionIdRoute = appPageVersionIdRouteImport.update({
-  id: '/$pageVersionId',
-  path: '/$pageVersionId',
-  getParentRoute: () => appRouteRoute,
-} as any)
 const adminPanelRouteRoute = adminPanelRouteRouteImport.update({
   id: '/(admin)/panel',
   path: '/panel',
   getParentRoute: () => rootRouteImport,
+} as any)
+const appSiteSlugIndexRoute = appSiteSlugIndexRouteImport.update({
+  id: '/$siteSlug/',
+  path: '/$siteSlug/',
+  getParentRoute: () => appRouteRoute,
 } as any)
 const adminPanelIndexRoute = adminPanelIndexRouteImport.update({
   id: '/',
@@ -140,10 +142,21 @@ const adminPanelSitesRoute = adminPanelSitesRouteImport.update({
   path: '/sites',
   getParentRoute: () => adminPanelRouteRoute,
 } as any)
+const appSiteSlugPageSlugIndexRoute =
+  appSiteSlugPageSlugIndexRouteImport.update({
+    id: '/$siteSlug/$pageSlug/',
+    path: '/$siteSlug/$pageSlug/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+const appSiteSlugPageSlugVersionSlugRoute =
+  appSiteSlugPageSlugVersionSlugRouteImport.update({
+    id: '/$siteSlug/$pageSlug/$versionSlug',
+    path: '/$siteSlug/$pageSlug/$versionSlug',
+    getParentRoute: () => appRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/panel': typeof adminPanelRouteRouteWithChildren
-  '/$pageVersionId': typeof appPageVersionIdRoute
   '/404': typeof app404Route
   '/about': typeof appAboutRoute
   '/weekly': typeof appWeeklyRoute
@@ -162,9 +175,11 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel/': typeof adminPanelIndexRoute
+  '/$siteSlug': typeof appSiteSlugIndexRoute
+  '/$siteSlug/$pageSlug/$versionSlug': typeof appSiteSlugPageSlugVersionSlugRoute
+  '/$siteSlug/$pageSlug': typeof appSiteSlugPageSlugIndexRoute
 }
 export interface FileRoutesByTo {
-  '/$pageVersionId': typeof appPageVersionIdRoute
   '/404': typeof app404Route
   '/about': typeof appAboutRoute
   '/weekly': typeof appWeeklyRoute
@@ -183,13 +198,15 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel': typeof adminPanelIndexRoute
+  '/$siteSlug': typeof appSiteSlugIndexRoute
+  '/$siteSlug/$pageSlug/$versionSlug': typeof appSiteSlugPageSlugVersionSlugRoute
+  '/$siteSlug/$pageSlug': typeof appSiteSlugPageSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(app)': typeof appRouteRouteWithChildren
   '/(auth)': typeof authRouteRouteWithChildren
   '/(admin)/panel': typeof adminPanelRouteRouteWithChildren
-  '/(app)/$pageVersionId': typeof appPageVersionIdRoute
   '/(app)/404': typeof app404Route
   '/(app)/about': typeof appAboutRoute
   '/(app)/weekly': typeof appWeeklyRoute
@@ -208,12 +225,14 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
   '/(admin)/panel/': typeof adminPanelIndexRoute
+  '/(app)/$siteSlug/': typeof appSiteSlugIndexRoute
+  '/(app)/$siteSlug/$pageSlug/$versionSlug': typeof appSiteSlugPageSlugVersionSlugRoute
+  '/(app)/$siteSlug/$pageSlug/': typeof appSiteSlugPageSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/panel'
-    | '/$pageVersionId'
     | '/404'
     | '/about'
     | '/weekly'
@@ -232,9 +251,11 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/panel/'
+    | '/$siteSlug'
+    | '/$siteSlug/$pageSlug/$versionSlug'
+    | '/$siteSlug/$pageSlug'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/$pageVersionId'
     | '/404'
     | '/about'
     | '/weekly'
@@ -253,12 +274,14 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/panel'
+    | '/$siteSlug'
+    | '/$siteSlug/$pageSlug/$versionSlug'
+    | '/$siteSlug/$pageSlug'
   id:
     | '__root__'
     | '/(app)'
     | '/(auth)'
     | '/(admin)/panel'
-    | '/(app)/$pageVersionId'
     | '/(app)/404'
     | '/(app)/about'
     | '/(app)/weekly'
@@ -277,6 +300,9 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/(admin)/panel/'
+    | '/(app)/$siteSlug/'
+    | '/(app)/$siteSlug/$pageSlug/$versionSlug'
+    | '/(app)/$siteSlug/$pageSlug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -373,19 +399,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof app404RouteImport
       parentRoute: typeof appRouteRoute
     }
-    '/(app)/$pageVersionId': {
-      id: '/(app)/$pageVersionId'
-      path: '/$pageVersionId'
-      fullPath: '/$pageVersionId'
-      preLoaderRoute: typeof appPageVersionIdRouteImport
-      parentRoute: typeof appRouteRoute
-    }
     '/(admin)/panel': {
       id: '/(admin)/panel'
       path: '/panel'
       fullPath: '/panel'
       preLoaderRoute: typeof adminPanelRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(app)/$siteSlug/': {
+      id: '/(app)/$siteSlug/'
+      path: '/$siteSlug'
+      fullPath: '/$siteSlug'
+      preLoaderRoute: typeof appSiteSlugIndexRouteImport
+      parentRoute: typeof appRouteRoute
     }
     '/(admin)/panel/': {
       id: '/(admin)/panel/'
@@ -443,27 +469,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof adminPanelSitesRouteImport
       parentRoute: typeof adminPanelRouteRoute
     }
+    '/(app)/$siteSlug/$pageSlug/': {
+      id: '/(app)/$siteSlug/$pageSlug/'
+      path: '/$siteSlug/$pageSlug'
+      fullPath: '/$siteSlug/$pageSlug'
+      preLoaderRoute: typeof appSiteSlugPageSlugIndexRouteImport
+      parentRoute: typeof appRouteRoute
+    }
+    '/(app)/$siteSlug/$pageSlug/$versionSlug': {
+      id: '/(app)/$siteSlug/$pageSlug/$versionSlug'
+      path: '/$siteSlug/$pageSlug/$versionSlug'
+      fullPath: '/$siteSlug/$pageSlug/$versionSlug'
+      preLoaderRoute: typeof appSiteSlugPageSlugVersionSlugRouteImport
+      parentRoute: typeof appRouteRoute
+    }
   }
 }
 
 interface appRouteRouteChildren {
-  appPageVersionIdRoute: typeof appPageVersionIdRoute
   app404Route: typeof app404Route
   appAboutRoute: typeof appAboutRoute
   appWeeklyRoute: typeof appWeeklyRoute
   appIndexRoute: typeof appIndexRoute
   appuserLikesRoute: typeof appuserLikesRoute
   appuserSubmitsRoute: typeof appuserSubmitsRoute
+  appSiteSlugIndexRoute: typeof appSiteSlugIndexRoute
+  appSiteSlugPageSlugVersionSlugRoute: typeof appSiteSlugPageSlugVersionSlugRoute
+  appSiteSlugPageSlugIndexRoute: typeof appSiteSlugPageSlugIndexRoute
 }
 
 const appRouteRouteChildren: appRouteRouteChildren = {
-  appPageVersionIdRoute: appPageVersionIdRoute,
   app404Route: app404Route,
   appAboutRoute: appAboutRoute,
   appWeeklyRoute: appWeeklyRoute,
   appIndexRoute: appIndexRoute,
   appuserLikesRoute: appuserLikesRoute,
   appuserSubmitsRoute: appuserSubmitsRoute,
+  appSiteSlugIndexRoute: appSiteSlugIndexRoute,
+  appSiteSlugPageSlugVersionSlugRoute: appSiteSlugPageSlugVersionSlugRoute,
+  appSiteSlugPageSlugIndexRoute: appSiteSlugPageSlugIndexRoute,
 }
 
 const appRouteRouteWithChildren = appRouteRoute._addFileChildren(

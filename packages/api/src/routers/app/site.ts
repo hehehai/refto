@@ -4,6 +4,7 @@ import {
   pinnedSitesSchema,
   relatedSitesSchema,
   siteDetailSchema,
+  versionBySlugSchema,
   versionDetailSchema,
   versionsFeedSchema,
   weeklyFeedSchema,
@@ -16,6 +17,7 @@ import {
   sitePageVersions,
   sites,
 } from "@refto-one/db/schema/sites";
+import { format } from "date-fns";
 import {
   and,
   count,
@@ -62,11 +64,13 @@ export const appSiteRouter = {
         return {
           id: site.id,
           title: site.title,
+          slug: site.slug,
           logo: site.logo,
           url: site.url,
           page: defaultPage
             ? {
                 id: defaultPage.id,
+                slug: defaultPage.slug,
                 url: defaultPage.url,
               }
             : null,
@@ -75,6 +79,7 @@ export const appSiteRouter = {
                 id: latestVersion.id,
                 webCover: latestVersion.webCover,
                 webRecord: latestVersion.webRecord,
+                versionDate: latestVersion.versionDate,
               }
             : null,
         };
@@ -103,15 +108,18 @@ export const appSiteRouter = {
           mobileCover: string | null;
           mobileRecord: string | null;
           createdAt: Date;
+          versionDate: Date;
         };
         page: {
           id: string;
           title: string;
+          slug: string;
           url: string;
         };
         site: {
           id: string;
           title: string;
+          slug: string;
           logo: string;
           url: string;
         };
@@ -135,15 +143,18 @@ export const appSiteRouter = {
               mobileCover: sitePageVersions.mobileCover,
               mobileRecord: sitePageVersions.mobileRecord,
               createdAt: sitePageVersions.createdAt,
+              versionDate: sitePageVersions.versionDate,
             },
             page: {
               id: sitePages.id,
               title: sitePages.title,
+              slug: sitePages.slug,
               url: sitePages.url,
             },
             site: {
               id: sites.id,
               title: sites.title,
+              slug: sites.slug,
               logo: sites.logo,
               url: sites.url,
             },
@@ -181,15 +192,18 @@ export const appSiteRouter = {
               mobileCover: sitePageVersions.mobileCover,
               mobileRecord: sitePageVersions.mobileRecord,
               createdAt: sitePageVersions.createdAt,
+              versionDate: sitePageVersions.versionDate,
             },
             page: {
               id: sitePages.id,
               title: sitePages.title,
+              slug: sitePages.slug,
               url: sitePages.url,
             },
             site: {
               id: sites.id,
               title: sites.title,
+              slug: sites.slug,
               logo: sites.logo,
               url: sites.url,
             },
@@ -223,15 +237,18 @@ export const appSiteRouter = {
               mobileCover: sitePageVersions.mobileCover,
               mobileRecord: sitePageVersions.mobileRecord,
               createdAt: sitePageVersions.createdAt,
+              versionDate: sitePageVersions.versionDate,
             },
             page: {
               id: sitePages.id,
               title: sitePages.title,
+              slug: sitePages.slug,
               url: sitePages.url,
             },
             site: {
               id: sites.id,
               title: sites.title,
+              slug: sites.slug,
               logo: sites.logo,
               url: sites.url,
             },
@@ -362,6 +379,76 @@ export const appSiteRouter = {
       return site;
     }),
 
+  // Get version by slug-based path (siteSlug/pageSlug/versionSlug)
+  getVersionBySlug: publicProcedure
+    .input(versionBySlugSchema)
+    .handler(async ({ input, context }) => {
+      const { siteSlug, pageSlug, versionSlug } = input;
+      const userId = context.session?.user?.id;
+
+      // Find site by slug
+      const site = await db.query.sites.findFirst({
+        where: and(eq(sites.slug, siteSlug), isNull(sites.deletedAt)),
+        with: {
+          pages: {
+            with: {
+              versions: {
+                orderBy: [desc(sitePageVersions.versionDate)],
+              },
+            },
+          },
+        },
+      });
+
+      if (!site) {
+        throw new ORPCError("NOT_FOUND", { message: "Site not found" });
+      }
+
+      // Find page (by slug or default)
+      const currentPage = pageSlug
+        ? site.pages.find((p) => p.slug === pageSlug)
+        : (site.pages.find((p) => p.isDefault) ?? site.pages[0]);
+
+      if (!currentPage) {
+        throw new ORPCError("NOT_FOUND", { message: "Page not found" });
+      }
+
+      // Find version (by date slug or latest)
+      let currentVersion: (typeof currentPage.versions)[number] | undefined;
+      if (versionSlug) {
+        // Parse YYYY-MM-DD and find matching version
+        currentVersion = currentPage.versions.find((v) => {
+          const vDateFormatted = format(v.versionDate, "yyyy-MM-dd");
+          return vDateFormatted === versionSlug;
+        });
+
+        if (!currentVersion) {
+          throw new ORPCError("NOT_FOUND", { message: "Version not found" });
+        }
+      } else {
+        currentVersion = currentPage.versions[0];
+      }
+
+      // Check liked status
+      let liked = false;
+      if (userId && currentVersion) {
+        const likeRecord = await db.query.sitePageVersionLikes.findFirst({
+          where: and(
+            eq(sitePageVersionLikes.versionId, currentVersion.id),
+            eq(sitePageVersionLikes.userId, userId)
+          ),
+        });
+        liked = !!likeRecord;
+      }
+
+      return {
+        site,
+        currentPage,
+        currentVersion: currentVersion ?? null,
+        liked,
+      };
+    }),
+
   // Get related sites by tag similarity
   getRelatedSites: publicProcedure
     .input(relatedSitesSchema)
@@ -389,6 +476,7 @@ export const appSiteRouter = {
         .select({
           id: sites.id,
           title: sites.title,
+          slug: sites.slug,
           description: sites.description,
           logo: sites.logo,
           url: sites.url,
@@ -429,8 +517,10 @@ export const appSiteRouter = {
           siteId: sitePages.siteId,
           pageId: sitePages.id,
           pageTitle: sitePages.title,
+          pageSlug: sitePages.slug,
           pageUrl: sitePages.url,
           versionId: sitePageVersions.id,
+          versionDate: sitePageVersions.versionDate,
           webCover: sitePageVersions.webCover,
           webRecord: sitePageVersions.webRecord,
           mobileCover: sitePageVersions.mobileCover,
@@ -447,9 +537,10 @@ export const appSiteRouter = {
       const siteVersionMap = new Map<
         string,
         {
-          page: { id: string; title: string; url: string };
+          page: { id: string; title: string; slug: string; url: string };
           version: {
             id: string;
+            versionDate: Date;
             webCover: string;
             webRecord: string | null;
             mobileCover: string | null;
@@ -464,10 +555,12 @@ export const appSiteRouter = {
             page: {
               id: row.pageId,
               title: row.pageTitle,
+              slug: row.pageSlug,
               url: row.pageUrl,
             },
             version: {
               id: row.versionId,
+              versionDate: row.versionDate,
               webCover: row.webCover,
               webRecord: row.webRecord,
               mobileCover: row.mobileCover,
@@ -486,6 +579,7 @@ export const appSiteRouter = {
           return {
             id: site.id,
             title: site.title,
+            slug: site.slug,
             description: site.description,
             logo: site.logo,
             url: site.url,
@@ -526,16 +620,19 @@ export const appSiteRouter = {
             webRecord: string | null;
             mobileCover: string | null;
             mobileRecord: string | null;
+            versionDate: Date;
             createdAt: Date;
           };
           page: {
             id: string;
             title: string;
+            slug: string;
             url: string;
           };
           site: {
             id: string;
             title: string;
+            slug: string;
             logo: string;
             url: string;
           };
@@ -602,15 +699,18 @@ export const appSiteRouter = {
                 mobileCover: version.mobileCover,
                 mobileRecord: version.mobileRecord,
                 createdAt: version.createdAt,
+                versionDate: version.versionDate,
               },
               page: {
                 id: version.page.id,
                 title: version.page.title,
+                slug: version.page.slug,
                 url: version.page.url,
               },
               site: {
                 id: version.page.site.id,
                 title: version.page.site.title,
+                slug: version.page.site.slug,
                 logo: version.page.site.logo,
                 url: version.page.site.url,
               },

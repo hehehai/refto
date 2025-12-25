@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CircularProgressButton } from "./circular-progress-button";
 import { LikeButton } from "./like-button";
@@ -9,15 +10,18 @@ interface VersionCardProps {
     id: string;
     webCover: string;
     webRecord?: string | null;
+    versionDate: Date;
   };
   page: {
     id: string;
     title: string;
+    slug: string;
     url: string;
   };
   site: {
     id: string;
     title: string;
+    slug: string;
     logo: string;
     url: string;
   };
@@ -82,8 +86,12 @@ export function VersionCard({
       <div className="group relative bg-muted p-3">
         <Link
           className="relative block aspect-video overflow-hidden"
-          params={{ pageVersionId: version.id }}
-          to="/$pageVersionId"
+          params={{
+            siteSlug: site.slug,
+            pageSlug: page.slug,
+            versionSlug: format(version.versionDate, "yyyy-MM-dd"),
+          }}
+          to="/$siteSlug/$pageSlug/$versionSlug"
         >
           {hasVideo ? (
             <VideoWrapper
