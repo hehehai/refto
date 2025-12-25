@@ -10,7 +10,11 @@ export default defineConfig({
     devtools(),
     tsconfigPaths(),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      sitemap: {
+        host: "https://refto.one",
+      },
+    }),
     viteReact({
       babel: {
         plugins: ["babel-plugin-react-compiler"],
