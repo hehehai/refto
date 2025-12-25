@@ -11,6 +11,7 @@
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
     "dev:web": "pnpm --filter web dev",
+    "dev:start": "pnpm --filter web run start",
     "check-types": "pnpm -r check-types",
     "db:push": "pnpm --filter @refto-one/db db:push",
     "db:studio": "pnpm --filter @refto-one/db db:studio",
@@ -30,5 +31,8 @@
     "typescript": "^5.7.2",
     "ultracite": "6.4.0"
   },
-  "packageManager": "pnpm@10.14.0"
+  "packageManager": "pnpm@10.14.0",
+  "engines": {
+    "node": ">=23"
+  }
 }
