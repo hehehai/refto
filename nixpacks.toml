@@ -1,8 +1,0 @@
-[phases.setup]
-nixPkgs = ['nodejs_23', 'pnpm', "openssl"]
-
-[phases.build]
-cmds = ['pnpm run build']
-
-[start]
-  cmd = "pnpm run dev:start"
