@@ -151,44 +151,62 @@ Build output is located at `apps/web/.output/`
 
 ## Deployment
 
-### Environment Variables
+### Cloudflare Workers (Recommended)
 
-Production environment requires:
+This project uses [Alchemy](https://alchemy.run) for deploying to Cloudflare Workers.
 
-- `DATABASE_URL` - PostgreSQL connection string
-- `BETTER_AUTH_SECRET` - Auth secret (32+ characters recommended)
-- `BETTER_AUTH_URL` - Production URL
-- `CORS_ORIGIN` - Allowed CORS origins
-- OAuth and email service credentials as needed
-- R2 credentials for file storage
+#### Prerequisites
 
-### Platforms
+1. A Cloudflare account with Workers enabled
+2. Cloudflare API token with appropriate permissions
+3. Configure environment variables in `apps/web/.env`
 
-Built with TanStack Start, deployable to:
+#### Environment Variables
+
+```env
+# Required
+DATABASE_URL="postgresql://..."
+BETTER_AUTH_SECRET="your-secret-key-32-chars-min"
+BETTER_AUTH_URL="https://your-domain.com"
+CORS_ORIGIN="https://your-domain.com"
+EMAIL_USER="noreply@your-domain.com"
+
+# OAuth
+GITHUB_CLIENT_ID=""
+GITHUB_CLIENT_SECRET=""
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
+# Email
+RESEND_API_KEY=""
+
+# Cloudflare R2 Storage
+CLOUD_FLARE_R2_ACCOUNT_ID=""
+CLOUD_FLARE_S3_UPLOAD_KEY=""
+CLOUD_FLARE_S3_UPLOAD_SECRET=""
+CLOUD_FLARE_S3_UPLOAD_BUCKET=""
+VITE_CLOUD_FLARE_R2_URL=""
+```
+
+#### Deploy Commands
+
+```bash
+# Deploy to Cloudflare Workers
+pnpm run deploy
+
+# Destroy deployment
+pnpm run deploy:destroy
+```
+
+The deployment configuration is defined in `apps/web/alchemy.run.ts`. Custom domains can be configured in the `domains` option.
+
+### Alternative Platforms
+
+Built with TanStack Start, also deployable to:
 
 - **Node.js Server** - Run build output directly
 - **Docker** - Containerized deployment
 - **Vercel / Netlify** - Requires adapter configuration
-- **Cloudflare Workers** - Requires adapter configuration
-
-### Docker Example
-
-```dockerfile
-FROM node:20-slim AS base
-RUN corepack enable pnpm
-
-FROM base AS build
-WORKDIR /app
-COPY . .
-RUN pnpm install --frozen-lockfile
-RUN pnpm run build
-
-FROM base AS production
-WORKDIR /app
-COPY --from=build /app/apps/web/.output .output
-EXPOSE 3001
-CMD ["node", ".output/server/index.mjs"]
-```
 
 ## License
 
