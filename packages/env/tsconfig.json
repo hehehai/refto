@@ -1,0 +1,6 @@
+{
+  "extends": "@refto-one/common/tsconfig.base.json",
+  "compilerOptions": {
+    "strictNullChecks": true
+  }
+}

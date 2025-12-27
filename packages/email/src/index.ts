@@ -1,9 +1,10 @@
 import { type Options, render } from "@react-email/render";
 import { site } from "@refto-one/common";
+import { env } from "@refto-one/env/server";
 import type { JSXElementConstructor, ReactElement } from "react";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(env.RESEND_API_KEY);
 
 interface SendEmailOptions {
   to: string | string[];
@@ -22,7 +23,7 @@ export async function sendEmail({
     const emailHtml = await render(renderData, renderOptions);
 
     const status = await resend.emails.send({
-      from: `${site.name} <${process.env.EMAIL_USER}>`,
+      from: `${site.name} <${env.EMAIL_USER}>`,
       to,
       subject,
       html: emailHtml,

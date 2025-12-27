@@ -20,6 +20,7 @@
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/zod": "catalog:",
+    "hono": "catalog:",
     "@refto-one/auth": "workspace:*",
     "@refto-one/db": "workspace:*",
     "@types/pg": "catalog:",

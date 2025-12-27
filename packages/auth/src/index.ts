@@ -5,6 +5,7 @@ import { sitePageVersionLikes } from "@refto-one/db/schema/sites";
 import { submitSite } from "@refto-one/db/schema/submissions";
 import { sendEmail } from "@refto-one/email";
 import { VerificationEmail } from "@refto-one/email/templates/auth";
+import { env } from "@refto-one/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { eq } from "drizzle-orm";
@@ -17,10 +18,10 @@ export const auth = betterAuth({
     schema,
   }),
 
-  baseURL: process.env.BETTER_AUTH_URL,
-  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL,
+  secret: env.BETTER_AUTH_SECRET,
 
-  trustedOrigins: [process.env.CORS_ORIGIN || ""],
+  trustedOrigins: [env.CORS_ORIGIN || ""],
 
   emailAndPassword: {
     enabled: true,
@@ -57,12 +58,12 @@ export const auth = betterAuth({
 
   socialProviders: {
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
     },
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
   },
 
@@ -104,6 +105,20 @@ export const auth = betterAuth({
 
   account: {
     modelName: "account",
+  },
+
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+      httpOnly: true,
+    },
+    // uncomment crossSubDomainCookies setting when ready to deploy and replace <your-workers-subdomain> with your actual workers subdomain
+    // https://developers.cloudflare.com/workers/wrangler/configuration/#workersdev
+    // crossSubDomainCookies: {
+    //   enabled: true,
+    //   domain: "<your-workers-subdomain>",
+    // },
   },
 
   plugins: authPlugins,

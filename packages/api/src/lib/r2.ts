@@ -5,6 +5,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { env } from "@refto-one/env/server";
 import { format } from "date-fns";
 import slug from "slug";
 
@@ -13,10 +14,10 @@ import slug from "slug";
 // ============================================================================
 
 const R2_CONFIG = {
-  bucket: process.env.CLOUD_FLARE_S3_UPLOAD_BUCKET!,
-  accountId: process.env.CLOUD_FLARE_R2_ACCOUNT_ID!,
-  accessKeyId: process.env.CLOUD_FLARE_S3_UPLOAD_KEY!,
-  secretAccessKey: process.env.CLOUD_FLARE_S3_UPLOAD_SECRET!,
+  bucket: env.CLOUD_FLARE_S3_UPLOAD_BUCKET,
+  accountId: env.CLOUD_FLARE_R2_ACCOUNT_ID,
+  accessKeyId: env.CLOUD_FLARE_S3_UPLOAD_KEY,
+  secretAccessKey: env.CLOUD_FLARE_S3_UPLOAD_SECRET,
 } as const;
 
 const r2Client = new S3Client({
@@ -147,7 +148,7 @@ export async function uploadR2File(
     return {
       type: file.type,
       filename: safeFilename,
-      url: `${process.env.VITE_CLOUD_FLARE_R2_URL}/${safeFilename}`,
+      url: `${env.CLOUD_FLARE_R2_URL}/${safeFilename}`,
     };
   });
 }

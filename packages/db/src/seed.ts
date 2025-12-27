@@ -126,7 +126,7 @@ async function seed() {
   const { db } = await import("./index");
   const { tags } = await import("./schema/tags");
 
-  console.log("Seeding tags...");
+  console.info("Seeding tags...");
 
   const allTags = [
     ...categoryTags.map((value) => ({ value, type: "category" as const })),
@@ -143,7 +143,7 @@ async function seed() {
 
   await db.insert(tags).values(tagRecords).onConflictDoNothing();
 
-  console.log(`Seeded ${tagRecords.length} tags`);
+  console.info(`Seeded ${tagRecords.length} tags`);
 }
 
 seed()
