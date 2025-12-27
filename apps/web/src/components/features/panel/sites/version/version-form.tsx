@@ -24,12 +24,13 @@ export function VersionForm({
     <div className="space-y-6">
       {/* OG Image */}
       <Field>
-        <FieldLabel>OG Image</FieldLabel>
+        <FieldLabel>
+          OG Image <span>1200x630 recommended</span>
+        </FieldLabel>
         <MediaUpload
           aspectRatio="og"
           className="max-w-xs"
           disabled={disabled}
-          label="1200x630 recommended"
           mediaType="image"
           onChange={(url) => onChange({ siteOG: url })}
           value={value.siteOG}
@@ -44,7 +45,6 @@ export function VersionForm({
             <MediaUpload
               aspectRatio="cover"
               disabled={disabled}
-              label="Web Cover (required)"
               mediaType="image"
               onChange={(url) => onChange({ webCover: url ?? "" })}
               value={value.webCover}
@@ -54,7 +54,6 @@ export function VersionForm({
             <MediaUpload
               aspectRatio="cover"
               disabled={disabled}
-              label="Web Recording"
               mediaType="video"
               onChange={(url) => onChange({ webRecord: url })}
               value={value.webRecord}
@@ -71,7 +70,6 @@ export function VersionForm({
             <MediaUpload
               aspectRatio="mobile"
               disabled={disabled}
-              label="Mobile Cover"
               mediaType="image"
               onChange={(url) => onChange({ mobileCover: url })}
               value={value.mobileCover}
@@ -81,7 +79,6 @@ export function VersionForm({
             <MediaUpload
               aspectRatio="mobile"
               disabled={disabled}
-              label="Mobile Recording"
               mediaType="video"
               onChange={(url) => onChange({ mobileRecord: url })}
               value={value.mobileRecord}

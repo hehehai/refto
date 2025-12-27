@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+
 interface VersionViewData {
   siteOG: string | null;
   webCover: string;
@@ -10,6 +12,39 @@ interface VersionViewProps {
   value: VersionViewData;
 }
 
+interface MediaPreviewProps {
+  src: string;
+  alt: string;
+  className?: string;
+  type: "image" | "video";
+}
+
+function MediaPreview({ src, alt, className, type }: MediaPreviewProps) {
+  const handlePreview = () => {
+    window.open(src, "_blank", "noopener,noreferrer");
+  };
+
+  return (
+    <div className="group relative">
+      {type === "image" ? (
+        <img alt={alt} className={className} src={src} />
+      ) : (
+        <video className={className} controls src={src} />
+      )}
+      <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+        <Button
+          className="border-background/30 hover:border-background/70"
+          onClick={handlePreview}
+          size="icon-sm"
+          variant="default"
+        >
+          <span className="i-hugeicons-chat-preview-01 size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function VersionView({ value }: VersionViewProps) {
   return (
     <div className="space-y-6">
@@ -19,10 +54,11 @@ export function VersionView({ value }: VersionViewProps) {
           <h4 className="mb-2 font-medium text-muted-foreground text-xs">
             OG Image
           </h4>
-          <img
+          <MediaPreview
             alt="Open Graph preview"
             className="max-w-xs rounded-lg object-cover"
             src={value.siteOG}
+            type="image"
           />
         </div>
       )}
@@ -37,10 +73,11 @@ export function VersionView({ value }: VersionViewProps) {
               Web Cover
             </span>
             {value.webCover ? (
-              <img
+              <MediaPreview
                 alt="Web cover preview"
                 className="aspect-video w-full rounded-lg object-cover"
                 src={value.webCover}
+                type="image"
               />
             ) : (
               <div className="flex aspect-video w-full items-center justify-center rounded-lg bg-muted">
@@ -55,11 +92,11 @@ export function VersionView({ value }: VersionViewProps) {
               Web Recording
             </span>
             {value.webRecord ? (
-              // biome-ignore lint/a11y/useMediaCaption: screen recordings don't need captions
-              <video
+              <MediaPreview
+                alt="Web recording"
                 className="aspect-video w-full rounded-lg object-cover"
-                controls
                 src={value.webRecord}
+                type="video"
               />
             ) : (
               <div className="flex aspect-video w-full items-center justify-center rounded-lg bg-muted">
@@ -80,13 +117,14 @@ export function VersionView({ value }: VersionViewProps) {
               Mobile Cover
             </span>
             {value.mobileCover ? (
-              <img
+              <MediaPreview
                 alt="Mobile cover preview"
-                className="aspect-[9/16] w-32 rounded-lg object-cover"
+                className="aspect-9/16 w-32 rounded-lg object-cover"
                 src={value.mobileCover}
+                type="image"
               />
             ) : (
-              <div className="flex aspect-[9/16] w-32 items-center justify-center rounded-lg bg-muted">
+              <div className="flex aspect-9/16 w-32 items-center justify-center rounded-lg bg-muted">
                 <span className="text-muted-foreground text-xs">No cover</span>
               </div>
             )}
@@ -98,14 +136,14 @@ export function VersionView({ value }: VersionViewProps) {
               Mobile Recording
             </span>
             {value.mobileRecord ? (
-              // biome-ignore lint/a11y/useMediaCaption: screen recordings don't need captions
-              <video
-                className="aspect-[9/16] w-32 rounded-lg object-cover"
-                controls
+              <MediaPreview
+                alt="Mobile recording"
+                className="aspect-9/16 w-32 rounded-lg object-cover"
                 src={value.mobileRecord}
+                type="video"
               />
             ) : (
-              <div className="flex aspect-[9/16] w-32 items-center justify-center rounded-lg bg-muted">
+              <div className="flex aspect-9/16 w-32 items-center justify-center rounded-lg bg-muted">
                 <span className="text-muted-foreground text-xs">No video</span>
               </div>
             )}
