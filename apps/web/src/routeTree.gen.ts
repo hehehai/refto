@@ -24,8 +24,6 @@ import { Route as app404RouteImport } from './routes/(app)/404'
 import { Route as adminPanelRouteRouteImport } from './routes/(admin)/panel/route'
 import { Route as appSiteSlugIndexRouteImport } from './routes/(app)/$siteSlug/index'
 import { Route as adminPanelIndexRouteImport } from './routes/(admin)/panel/index'
-import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as appuserSubmitsRouteImport } from './routes/(app)/(user)/submits'
 import { Route as appuserLikesRouteImport } from './routes/(app)/(user)/likes'
 import { Route as adminPanelUsersRouteImport } from './routes/(admin)/panel/users'
@@ -108,16 +106,6 @@ const adminPanelIndexRoute = adminPanelIndexRouteImport.update({
   path: '/',
   getParentRoute: () => adminPanelRouteRoute,
 } as any)
-const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
-  id: '/api/rpc/$',
-  path: '/api/rpc/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const appuserSubmitsRoute = appuserSubmitsRouteImport.update({
   id: '/(user)/submits',
   path: '/submits',
@@ -179,8 +167,6 @@ export interface FileRoutesByFullPath {
   '/panel/users': typeof adminPanelUsersRoute
   '/likes': typeof appuserLikesRoute
   '/submits': typeof appuserSubmitsRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel/': typeof adminPanelIndexRoute
   '/$siteSlug': typeof appSiteSlugIndexRoute
   '/$siteSlug/$pageSlug/$versionSlug': typeof appSiteSlugPageSlugVersionSlugRoute
@@ -203,8 +189,6 @@ export interface FileRoutesByTo {
   '/panel/users': typeof adminPanelUsersRoute
   '/likes': typeof appuserLikesRoute
   '/submits': typeof appuserSubmitsRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/rpc/$': typeof ApiRpcSplatRoute
   '/panel': typeof adminPanelIndexRoute
   '/$siteSlug': typeof appSiteSlugIndexRoute
   '/$siteSlug/$pageSlug/$versionSlug': typeof appSiteSlugPageSlugVersionSlugRoute
@@ -231,8 +215,6 @@ export interface FileRoutesById {
   '/(admin)/panel/users': typeof adminPanelUsersRoute
   '/(app)/(user)/likes': typeof appuserLikesRoute
   '/(app)/(user)/submits': typeof appuserSubmitsRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/rpc/$': typeof ApiRpcSplatRoute
   '/(admin)/panel/': typeof adminPanelIndexRoute
   '/(app)/$siteSlug/': typeof appSiteSlugIndexRoute
   '/(app)/$siteSlug/$pageSlug/$versionSlug': typeof appSiteSlugPageSlugVersionSlugRoute
@@ -258,8 +240,6 @@ export interface FileRouteTypes {
     | '/panel/users'
     | '/likes'
     | '/submits'
-    | '/api/auth/$'
-    | '/api/rpc/$'
     | '/panel/'
     | '/$siteSlug'
     | '/$siteSlug/$pageSlug/$versionSlug'
@@ -282,8 +262,6 @@ export interface FileRouteTypes {
     | '/panel/users'
     | '/likes'
     | '/submits'
-    | '/api/auth/$'
-    | '/api/rpc/$'
     | '/panel'
     | '/$siteSlug'
     | '/$siteSlug/$pageSlug/$versionSlug'
@@ -309,8 +287,6 @@ export interface FileRouteTypes {
     | '/(admin)/panel/users'
     | '/(app)/(user)/likes'
     | '/(app)/(user)/submits'
-    | '/api/auth/$'
-    | '/api/rpc/$'
     | '/(admin)/panel/'
     | '/(app)/$siteSlug/'
     | '/(app)/$siteSlug/$pageSlug/$versionSlug'
@@ -321,8 +297,6 @@ export interface RootRouteChildren {
   appRouteRoute: typeof appRouteRouteWithChildren
   authRouteRoute: typeof authRouteRouteWithChildren
   adminPanelRouteRoute: typeof adminPanelRouteRouteWithChildren
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -431,20 +405,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/panel/'
       preLoaderRoute: typeof adminPanelIndexRouteImport
       parentRoute: typeof adminPanelRouteRoute
-    }
-    '/api/rpc/$': {
-      id: '/api/rpc/$'
-      path: '/api/rpc/$'
-      fullPath: '/api/rpc/$'
-      preLoaderRoute: typeof ApiRpcSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/(app)/(user)/submits': {
       id: '/(app)/(user)/submits'
@@ -579,8 +539,6 @@ const rootRouteChildren: RootRouteChildren = {
   appRouteRoute: appRouteRouteWithChildren,
   authRouteRoute: authRouteRouteWithChildren,
   adminPanelRouteRoute: adminPanelRouteRouteWithChildren,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

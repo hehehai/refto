@@ -11,6 +11,7 @@
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
     "dev:web": "pnpm --filter web dev",
+    "dev:server": "pnpm --filter server dev",
     "dev:start": "pnpm --filter web run start",
     "check-types": "pnpm -r check-types",
     "db:push": "pnpm --filter @refto-one/db db:push",
@@ -18,11 +19,12 @@
     "db:generate": "pnpm --filter @refto-one/db db:generate",
     "db:migrate": "pnpm --filter @refto-one/db db:migrate",
     "db:seed": "pnpm --filter @refto-one/db db:seed",
-    "deploy": "pnpm --filter web run deploy",
-    "deploy:destroy": "pnpm --filter web run destroy"
+    "deploy": "pnpm --filter @refto-one/infra deploy",
+    "destroy": "pnpm --filter @refto-one/infra destroy"
   },
   "dependencies": {
     "@refto-one/common": "workspace:*",
+    "@refto-one/env": "workspace:*",
     "dotenv": "^17.2.3",
     "zod": "^4.1.13"
   },
@@ -30,7 +32,8 @@
     "@biomejs/biome": "2.3.8",
     "@types/node": "^22.19.2",
     "typescript": "^5.7.2",
-    "ultracite": "6.4.0"
+    "ultracite": "6.4.0",
+    "@cloudflare/workers-types": "catalog:"
   },
   "packageManager": "pnpm@10.14.0",
   "engines": {

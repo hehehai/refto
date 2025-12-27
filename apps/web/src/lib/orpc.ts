@@ -5,9 +5,9 @@ import { createRouterClient } from "@orpc/server";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { createContext } from "@refto-one/api/context";
 import { appRouter } from "@refto-one/api/routers/index";
+import { env } from "@refto-one/env/web";
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { createIsomorphicFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { toast } from "sonner";
 
 export const queryClient = new QueryClient({
@@ -39,15 +39,12 @@ export const queryClient = new QueryClient({
 const getORPCClient = createIsomorphicFn()
   .server(() =>
     createRouterClient(appRouter, {
-      context: async () => {
-        const req = getRequest();
-        return createContext({ req });
-      },
+      context: async ({ req }) => createContext({ context: req }),
     })
   )
   .client((): RouterClient<typeof appRouter> => {
     const link = new RPCLink({
-      url: `${window.location.origin}/api/rpc`,
+      url: `${env.VITE_SERVER_URL}/rpc`,
       fetch(url, options) {
         return fetch(url, {
           ...options,
