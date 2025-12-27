@@ -17,10 +17,8 @@ import {
 } from "@/components/shared/frame-table";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { createUserColumns } from "./columns";
-import { useUserActions } from "./use-user-actions";
-
-type UserRow = import("./columns").UserRow;
+import { createTagColumns, type TagRow } from "./columns";
+import { useTagActions } from "./use-tag-actions";
 
 interface ServerPaginationInfo {
   total: number;
@@ -29,31 +27,33 @@ interface ServerPaginationInfo {
   pageSize: number;
 }
 
-interface UserDataTableProps {
-  data: UserRow[];
+interface TagDataTableProps {
+  data: TagRow[];
   isLoading?: boolean;
   className?: string;
+  sortBy?: "createdAt" | "name";
   sortOrder?: "asc" | "desc";
-  onSortChange?: (order: "asc" | "desc") => void;
+  onSortChange?: (sortBy: "createdAt" | "name", order: "asc" | "desc") => void;
   pagination?: ServerPaginationInfo;
   onPageChange?: (page: number) => void;
 }
 
-export function UserDataTable({
+export function TagDataTable({
   data,
   isLoading,
   className,
+  sortBy,
   sortOrder,
   onSortChange,
   pagination,
   onPageChange,
-}: UserDataTableProps) {
+}: TagDataTableProps) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const actions = useUserActions();
+  const actions = useTagActions();
 
-  const columns = useMemo<ColumnDef<UserRow>[]>(
-    () => createUserColumns({ sortOrder, onSortChange }),
-    [sortOrder, onSortChange]
+  const columns = useMemo<ColumnDef<TagRow>[]>(
+    () => createTagColumns({ sortBy, sortOrder, onSortChange }),
+    [sortBy, sortOrder, onSortChange]
   );
 
   const table = useReactTable({
@@ -126,7 +126,7 @@ export function UserDataTable({
                 className="h-24 text-center text-muted-foreground"
                 colSpan={columns.length}
               >
-                No users found.
+                No tags found.
               </FrameTableCell>
             </FrameTableRow>
           )}
@@ -162,4 +162,4 @@ export function UserDataTable({
   );
 }
 
-export type { UserRow } from "./columns";
+export type { TagRow } from "./columns";

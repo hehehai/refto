@@ -1,5 +1,22 @@
+import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Rating } from "@/components/ui/rating";
+import { orpc } from "@/lib/orpc";
+
+type TagType = "category" | "section" | "style";
+
+interface Tag {
+  id: string;
+  name: string;
+  type: TagType;
+}
+
+const TAG_TYPE_VARIANTS: Record<TagType, "default" | "secondary" | "outline"> =
+  {
+    category: "default",
+    section: "secondary",
+    style: "outline",
+  };
 
 interface SiteDetailViewProps {
   site: {
@@ -7,13 +24,26 @@ interface SiteDetailViewProps {
     title: string;
     url: string;
     description: string;
-    tags: string[];
+    tags?: Tag[];
+    tagIds?: string[];
     rating: number;
     isPinned: boolean;
   };
 }
 
 export function SiteDetailView({ site }: SiteDetailViewProps) {
+  // Fetch tags by IDs if only tagIds are provided
+  const { data: fetchedTags } = useQuery(
+    orpc.panel.tag.listByIds.queryOptions({
+      input: { ids: site.tagIds ?? [] },
+      queryKey: ["tags-by-ids", site.tagIds],
+      enabled: !site.tags && !!site.tagIds && site.tagIds.length > 0,
+    })
+  );
+
+  // Use provided tags or fetched tags
+  const displayTags: Tag[] = site.tags ?? fetchedTags ?? [];
+
   return (
     <div className="space-y-4">
       {/* Logo */}
@@ -70,11 +100,11 @@ export function SiteDetailView({ site }: SiteDetailViewProps) {
         <span className="mb-1.5 block font-medium text-muted-foreground text-xs">
           Tags
         </span>
-        {site.tags.length > 0 ? (
+        {displayTags.length > 0 ? (
           <div className="flex flex-wrap gap-1.5">
-            {site.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">
-                {tag}
+            {displayTags.map((tag) => (
+              <Badge key={tag.id} variant={TAG_TYPE_VARIANTS[tag.type]}>
+                {tag.name}
               </Badge>
             ))}
           </div>

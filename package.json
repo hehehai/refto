@@ -17,6 +17,7 @@
     "db:studio": "pnpm --filter @refto-one/db db:studio",
     "db:generate": "pnpm --filter @refto-one/db db:generate",
     "db:migrate": "pnpm --filter @refto-one/db db:migrate",
+    "db:seed": "pnpm --filter @refto-one/db db:seed",
     "deploy": "pnpm --filter web run deploy",
     "deploy:destroy": "pnpm --filter web run destroy"
   },

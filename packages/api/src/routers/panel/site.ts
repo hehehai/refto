@@ -14,6 +14,7 @@ import {
 import { db } from "@refto-one/db";
 import { user } from "@refto-one/db/schema/auth";
 import { sitePages, sitePageVersions, sites } from "@refto-one/db/schema/sites";
+import { pageVersionTags, siteTags, tags } from "@refto-one/db/schema/tags";
 import {
   and,
   count,
@@ -34,6 +35,87 @@ import {
   getSortOrder,
   handleDbError,
 } from "../../lib/utils";
+
+// Helper to get tags for sites
+async function getTagsForSites(siteIds: string[]) {
+  if (siteIds.length === 0)
+    return new Map<string, (typeof tags.$inferSelect)[]>();
+
+  const siteTagsData = await db
+    .select({
+      siteId: siteTags.siteId,
+      tag: tags,
+    })
+    .from(siteTags)
+    .innerJoin(tags, eq(siteTags.tagId, tags.id))
+    .where(and(inArray(siteTags.siteId, siteIds), isNull(tags.deletedAt)));
+
+  const tagMap = new Map<string, (typeof tags.$inferSelect)[]>();
+  for (const { siteId, tag } of siteTagsData) {
+    if (!tagMap.has(siteId)) {
+      tagMap.set(siteId, []);
+    }
+    tagMap.get(siteId)!.push(tag);
+  }
+  return tagMap;
+}
+
+// Helper to get tags for versions
+async function getTagsForVersions(versionIds: string[]) {
+  if (versionIds.length === 0)
+    return new Map<string, (typeof tags.$inferSelect)[]>();
+
+  const versionTagsData = await db
+    .select({
+      pageVersionId: pageVersionTags.pageVersionId,
+      tag: tags,
+    })
+    .from(pageVersionTags)
+    .innerJoin(tags, eq(pageVersionTags.tagId, tags.id))
+    .where(
+      and(
+        inArray(pageVersionTags.pageVersionId, versionIds),
+        isNull(tags.deletedAt)
+      )
+    );
+
+  const tagMap = new Map<string, (typeof tags.$inferSelect)[]>();
+  for (const { pageVersionId, tag } of versionTagsData) {
+    if (!tagMap.has(pageVersionId)) {
+      tagMap.set(pageVersionId, []);
+    }
+    tagMap.get(pageVersionId)!.push(tag);
+  }
+  return tagMap;
+}
+
+// Helper to update site tags
+async function updateSiteTags(siteId: string, tagIds: string[]) {
+  // Delete existing tags
+  await db.delete(siteTags).where(eq(siteTags.siteId, siteId));
+
+  // Insert new tags
+  if (tagIds.length > 0) {
+    await db
+      .insert(siteTags)
+      .values(tagIds.map((tagId) => ({ siteId, tagId })));
+  }
+}
+
+// Helper to update version tags
+async function updateVersionTags(versionId: string, tagIds: string[]) {
+  // Delete existing tags
+  await db
+    .delete(pageVersionTags)
+    .where(eq(pageVersionTags.pageVersionId, versionId));
+
+  // Insert new tags
+  if (tagIds.length > 0) {
+    await db
+      .insert(pageVersionTags)
+      .values(tagIds.map((tagId) => ({ pageVersionId: versionId, tagId })));
+  }
+}
 
 export const siteRouter = {
   // List sites with pagination, search, filter, sort
@@ -75,10 +157,10 @@ export const siteRouter = {
       .select({
         id: sites.id,
         title: sites.title,
+        slug: sites.slug,
         description: sites.description,
         logo: sites.logo,
         url: sites.url,
-        tags: sites.tags,
         rating: sites.rating,
         isPinned: sites.isPinned,
         visits: sites.visits,
@@ -95,7 +177,16 @@ export const siteRouter = {
       .limit(pageSize)
       .offset(offset);
 
-    return buildPaginationResult(siteList, total, { page, pageSize });
+    // Get tags for all sites
+    const siteIds = siteList.map((s) => s.id);
+    const tagsMap = await getTagsForSites(siteIds);
+
+    const sitesWithTags = siteList.map((site) => ({
+      ...site,
+      tags: tagsMap.get(site.id) ?? [],
+    }));
+
+    return buildPaginationResult(sitesWithTags, total, { page, pageSize });
   }),
 
   // Get site by ID with stats
@@ -125,6 +216,10 @@ export const siteRouter = {
     if (!site) {
       throw new ORPCError("NOT_FOUND", { message: "Site not found" });
     }
+
+    // Get tags for this site
+    const tagsMap = await getTagsForSites([site.id]);
+    const siteTags = tagsMap.get(site.id) ?? [];
 
     // Get versions count per page in a single query (avoid N+1)
     const pageIds = site.pages.map((p) => p.id);
@@ -168,6 +263,8 @@ export const siteRouter = {
 
     return {
       ...site,
+      tags: siteTags,
+      tagIds: siteTags.map((t) => t.id),
       pages: sortedPages,
       pagesCount,
       versionsCount,
@@ -237,7 +334,7 @@ export const siteRouter = {
   upsert: adminProcedure
     .input(siteUpsertSchema)
     .handler(async ({ input, context }) => {
-      const { id, slug, ...data } = input;
+      const { id, slug, tagIds, ...data } = input;
 
       try {
         // Check slug uniqueness among non-deleted sites
@@ -276,7 +373,10 @@ export const siteRouter = {
             .where(eq(sites.id, id))
             .returning();
 
-          return updated;
+          // Update site tags
+          await updateSiteTags(id, tagIds);
+
+          return { ...updated, tagIds };
         }
         // CREATE: Generate ID, insert
         const siteId = generateId();
@@ -291,7 +391,10 @@ export const siteRouter = {
           })
           .returning();
 
-        return newSite;
+        // Add site tags
+        await updateSiteTags(siteId, tagIds);
+
+        return { ...newSite, tagIds };
       } catch (error) {
         return handleDbError(error);
       }
@@ -410,7 +513,27 @@ export const siteRouter = {
         throw new ORPCError("NOT_FOUND", { message: "Site not found" });
       }
 
-      return site;
+      // Get tags for this site
+      const siteTagsMap = await getTagsForSites([site.id]);
+
+      // Get all version IDs
+      const versionIds = site.pages.flatMap((p) => p.versions.map((v) => v.id));
+      const versionTagsMap = await getTagsForVersions(versionIds);
+
+      // Add tags to pages and versions
+      const pagesWithTags = site.pages.map((page) => ({
+        ...page,
+        versions: page.versions.map((version) => ({
+          ...version,
+          tags: versionTagsMap.get(version.id) ?? [],
+        })),
+      }));
+
+      return {
+        ...site,
+        tags: siteTagsMap.get(site.id) ?? [],
+        pages: pagesWithTags,
+      };
     }),
 };
 
@@ -583,14 +706,27 @@ export const versionRouter = {
       orderBy: (versions, { desc }) => [desc(versions.versionDate)],
     });
 
-    return versions;
+    // Get tags for all versions
+    const versionIds = versions.map((v) => v.id);
+    const tagsMap = await getTagsForVersions(versionIds);
+
+    const versionsWithTags = versions.map((version) => {
+      const versionTags = tagsMap.get(version.id) ?? [];
+      return {
+        ...version,
+        tags: versionTags,
+        tagIds: versionTags.map((t) => t.id),
+      };
+    });
+
+    return versionsWithTags;
   }),
 
   // Upsert version (create if no id, update if id provided)
   upsert: adminProcedure
     .input(versionUpsertSchema)
     .handler(async ({ input }) => {
-      const { id, pageId, ...data } = input;
+      const { id, pageId, tagIds, ...data } = input;
 
       if (id) {
         // UPDATE
@@ -607,6 +743,9 @@ export const versionRouter = {
           .set(data)
           .where(eq(sitePageVersions.id, id))
           .returning();
+
+        // Update version tags
+        await updateVersionTags(id, tagIds);
 
         return updated;
       }
@@ -637,6 +776,9 @@ export const versionRouter = {
           mobileRecord: data.mobileRecord,
         })
         .returning();
+
+      // Add version tags
+      await updateVersionTags(versionId, tagIds);
 
       return newVersion;
     }),

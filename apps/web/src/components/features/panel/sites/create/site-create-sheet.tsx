@@ -27,6 +27,7 @@ interface LocalVersion extends Version {
   webRecord: string | null;
   mobileCover: string | null;
   mobileRecord: string | null;
+  tagIds: string[];
 }
 
 interface LocalPage extends Page {
@@ -50,7 +51,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
     description: string;
     logo: string;
     url: string;
-    tags: string[];
+    tagIds: string[];
     rating: number;
     isPinned: boolean;
   } | null>(null);
@@ -88,7 +89,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
       description: "",
       logo: "",
       url: "",
-      tags: [] as string[],
+      tagIds: [] as string[],
       rating: 0,
       isPinned: false,
     },
@@ -108,7 +109,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
         description: site.description,
         logo: site.logo,
         url: site.url,
-        tags: site.tags,
+        tagIds: site.tagIds ?? [],
         rating: site.rating,
         isPinned: site.isPinned,
       });
@@ -142,6 +143,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
             webRecord: version.webRecord ?? undefined,
             mobileCover: version.mobileCover ?? undefined,
             mobileRecord: version.mobileRecord ?? undefined,
+            tagIds: version.tagIds,
           });
         }
       }
@@ -295,6 +297,7 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
         webRecord: null,
         mobileCover: null,
         mobileRecord: null,
+        tagIds: [],
       };
 
       setPages((prev) =>

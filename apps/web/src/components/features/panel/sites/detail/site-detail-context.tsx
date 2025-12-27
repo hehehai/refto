@@ -17,6 +17,14 @@ interface Version extends BaseVersion {
   webRecord: string | null;
   mobileCover: string | null;
   mobileRecord: string | null;
+  tagIds: string[];
+}
+
+interface Tag {
+  id: string;
+  name: string;
+  value: string;
+  type: "category" | "section" | "style";
 }
 
 interface Site {
@@ -25,7 +33,8 @@ interface Site {
   description: string | null;
   logo: string | null;
   url: string;
-  tags: string[];
+  tags: Tag[];
+  tagIds: string[];
   rating: number | null;
   isPinned: boolean;
   visits: number;
@@ -158,6 +167,7 @@ export function SiteDetailProvider({
           logo: site.logo,
           url: site.url,
           tags: site.tags ?? [],
+          tagIds: site.tagIds ?? [],
           rating: site.rating,
           isPinned: site.isPinned,
           visits: site.visits,

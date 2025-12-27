@@ -13,16 +13,19 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/seed.ts"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.8",
-    "@types/pg": "catalog:"
+    "@types/pg": "catalog:",
+    "tsx": "^4.19.4"
   },
   "dependencies": {
     "drizzle-orm": "catalog:",
     "pg": "^8.16.3",
     "dotenv": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "nanoid": "^5.1.5"
   }
 }

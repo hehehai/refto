@@ -9,9 +9,10 @@ export * from "./enums";
 export * from "./events";
 // Re-export all site tables and relations
 export * from "./sites";
-
 // Re-export all submission tables and relations
 export * from "./submissions";
+// Re-export all tag tables and relations
+export * from "./tags";
 
 // Type adapters for backward compatibility
 import type { Site } from "./sites";

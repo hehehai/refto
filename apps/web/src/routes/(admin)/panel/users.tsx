@@ -28,6 +28,7 @@ const searchSchema = z.object({
   dateFrom: z.coerce.date().optional().catch(undefined),
   dateTo: z.coerce.date().optional().catch(undefined),
   sortOrder: z.enum(["asc", "desc"]).catch("desc"),
+  page: z.number().int().positive().catch(1),
 });
 
 type SearchParams = z.infer<typeof searchSchema>;
@@ -73,29 +74,34 @@ function RouteComponent() {
         dateFrom: search.dateFrom,
         dateTo: search.dateTo,
         sortOrder: search.sortOrder,
+        page: search.page,
       },
     })
   );
 
   // Handlers
   const handleSearchChange = (value: string) => {
-    updateSearch({ search: value });
+    updateSearch({ search: value, page: 1 });
   };
 
   const handleRoleChange = (value: string) => {
-    updateSearch({ role: value as "ALL" | "ADMIN" | "USER" });
+    updateSearch({ role: value as "ALL" | "ADMIN" | "USER", page: 1 });
   };
 
   const handleStatusChange = (value: "all" | "normal" | "ban" | null) => {
-    updateSearch({ status: value ?? "all" });
+    updateSearch({ status: value ?? "all", page: 1 });
   };
 
   const handleDateRangeChange = (value: DateRange | undefined) => {
-    updateSearch({ dateFrom: value?.from, dateTo: value?.to });
+    updateSearch({ dateFrom: value?.from, dateTo: value?.to, page: 1 });
   };
 
   const handleSortChange = (order: "asc" | "desc") => {
-    updateSearch({ sortOrder: order });
+    updateSearch({ sortOrder: order, page: 1 });
+  };
+
+  const handlePageChange = (page: number) => {
+    updateSearch({ page });
   };
 
   const handleCreate = async (formData: {
@@ -160,7 +166,18 @@ function RouteComponent() {
         <UserDataTable
           data={data?.items ?? []}
           isLoading={isLoading}
+          onPageChange={handlePageChange}
           onSortChange={handleSortChange}
+          pagination={
+            data
+              ? {
+                  total: data.total,
+                  totalPages: data.totalPages,
+                  page: data.page,
+                  pageSize: data.pageSize,
+                }
+              : undefined
+          }
           sortOrder={search.sortOrder}
         />
       </div>

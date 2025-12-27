@@ -1,7 +1,7 @@
 import { useState } from "react";
 import slugify from "slug";
 import { ImageUpload } from "@/components/shared/image-upload";
-import { Badge } from "@/components/ui/badge";
+import { TagSelect } from "@/components/shared/tag-select";
 import {
   Field,
   FieldDescription,
@@ -25,7 +25,7 @@ export interface SiteFormValues {
   description: string;
   logo: string;
   url: string;
-  tags: string[];
+  tagIds: string[];
   rating: number;
   isPinned: boolean;
 }
@@ -36,7 +36,6 @@ interface SiteFormProps {
 }
 
 export function SiteForm({ form, disabled = false }: SiteFormProps) {
-  const [tagInput, setTagInput] = useState("");
   const [lastAutoSlug, setLastAutoSlug] = useState("");
 
   const handleTitleChange = (
@@ -52,24 +51,6 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
       form.setFieldValue("slug", newSlug);
       setLastAutoSlug(newSlug);
     }
-  };
-
-  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      const tag = tagInput.trim();
-      if (tag && !form.getFieldValue("tags").includes(tag)) {
-        form.setFieldValue("tags", [...form.getFieldValue("tags"), tag]);
-      }
-      setTagInput("");
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    form.setFieldValue(
-      "tags",
-      form.getFieldValue("tags").filter((t: string) => t !== tagToRemove)
-    );
   };
 
   const isSubmitting = form.state.isSubmitting;
@@ -209,41 +190,15 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
       </form.Field>
 
       {/* Tags */}
-      <form.Field name="tags">
+      <form.Field name="tagIds">
         {(field) => (
           <Field>
-            <FieldLabel htmlFor="tags">Tags</FieldLabel>
-            <div className="space-y-2">
-              <Input
-                disabled={disabled || isSubmitting}
-                id="tags"
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleAddTag}
-                placeholder="Type tag and press Enter"
-                value={tagInput}
-              />
-              {field.state.value.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {field.state.value.map((tag: string) => (
-                    <Badge
-                      className="gap-1 px-0.5 pl-2"
-                      key={tag}
-                      variant="secondary"
-                    >
-                      {tag}
-                      <button
-                        className="ml-0.5 flex items-center justify-center rounded-full p-0.5 hover:bg-muted-foreground/20"
-                        disabled={disabled || isSubmitting}
-                        onClick={() => handleRemoveTag(tag)}
-                        type="button"
-                      >
-                        <span className="i-hugeicons-cancel-01 size-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
+            <FieldLabel>Tags</FieldLabel>
+            <TagSelect
+              disabled={disabled || isSubmitting}
+              onChange={field.handleChange}
+              value={field.state.value}
+            />
           </Field>
         )}
       </form.Field>

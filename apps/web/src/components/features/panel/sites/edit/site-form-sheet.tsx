@@ -97,7 +97,7 @@ export function SiteFormSheet({
         form.setFieldValue("description", site.description ?? "");
         form.setFieldValue("logo", site.logo ?? "");
         form.setFieldValue("url", site.url ?? "");
-        form.setFieldValue("tags", site.tags ?? []);
+        form.setFieldValue("tags", site.tags?.map((t) => t.name) ?? []);
         form.setFieldValue("rating", site.rating ?? 0);
         form.setFieldValue("isPinned", site.isPinned ?? false);
       }

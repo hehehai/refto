@@ -29,6 +29,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as appuserSubmitsRouteImport } from './routes/(app)/(user)/submits'
 import { Route as appuserLikesRouteImport } from './routes/(app)/(user)/likes'
 import { Route as adminPanelUsersRouteImport } from './routes/(admin)/panel/users'
+import { Route as adminPanelTagsRouteImport } from './routes/(admin)/panel/tags'
 import { Route as adminPanelSubmitSitesRouteImport } from './routes/(admin)/panel/submit-sites'
 import { Route as adminPanelSitesRouteImport } from './routes/(admin)/panel/sites'
 import { Route as appSiteSlugPageSlugIndexRouteImport } from './routes/(app)/$siteSlug/$pageSlug/index'
@@ -132,6 +133,11 @@ const adminPanelUsersRoute = adminPanelUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => adminPanelRouteRoute,
 } as any)
+const adminPanelTagsRoute = adminPanelTagsRouteImport.update({
+  id: '/tags',
+  path: '/tags',
+  getParentRoute: () => adminPanelRouteRoute,
+} as any)
 const adminPanelSubmitSitesRoute = adminPanelSubmitSitesRouteImport.update({
   id: '/submit-sites',
   path: '/submit-sites',
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/': typeof appIndexRoute
   '/panel/sites': typeof adminPanelSitesRoute
   '/panel/submit-sites': typeof adminPanelSubmitSitesRoute
+  '/panel/tags': typeof adminPanelTagsRoute
   '/panel/users': typeof adminPanelUsersRoute
   '/likes': typeof appuserLikesRoute
   '/submits': typeof appuserSubmitsRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/': typeof appIndexRoute
   '/panel/sites': typeof adminPanelSitesRoute
   '/panel/submit-sites': typeof adminPanelSubmitSitesRoute
+  '/panel/tags': typeof adminPanelTagsRoute
   '/panel/users': typeof adminPanelUsersRoute
   '/likes': typeof appuserLikesRoute
   '/submits': typeof appuserSubmitsRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/(app)/': typeof appIndexRoute
   '/(admin)/panel/sites': typeof adminPanelSitesRoute
   '/(admin)/panel/submit-sites': typeof adminPanelSubmitSitesRoute
+  '/(admin)/panel/tags': typeof adminPanelTagsRoute
   '/(admin)/panel/users': typeof adminPanelUsersRoute
   '/(app)/(user)/likes': typeof appuserLikesRoute
   '/(app)/(user)/submits': typeof appuserSubmitsRoute
@@ -245,6 +254,7 @@ export interface FileRouteTypes {
     | '/'
     | '/panel/sites'
     | '/panel/submit-sites'
+    | '/panel/tags'
     | '/panel/users'
     | '/likes'
     | '/submits'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/'
     | '/panel/sites'
     | '/panel/submit-sites'
+    | '/panel/tags'
     | '/panel/users'
     | '/likes'
     | '/submits'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/(app)/'
     | '/(admin)/panel/sites'
     | '/(admin)/panel/submit-sites'
+    | '/(admin)/panel/tags'
     | '/(admin)/panel/users'
     | '/(app)/(user)/likes'
     | '/(app)/(user)/submits'
@@ -455,6 +467,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof adminPanelUsersRouteImport
       parentRoute: typeof adminPanelRouteRoute
     }
+    '/(admin)/panel/tags': {
+      id: '/(admin)/panel/tags'
+      path: '/tags'
+      fullPath: '/panel/tags'
+      preLoaderRoute: typeof adminPanelTagsRouteImport
+      parentRoute: typeof adminPanelRouteRoute
+    }
     '/(admin)/panel/submit-sites': {
       id: '/(admin)/panel/submit-sites'
       path: '/submit-sites'
@@ -539,6 +558,7 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 interface adminPanelRouteRouteChildren {
   adminPanelSitesRoute: typeof adminPanelSitesRoute
   adminPanelSubmitSitesRoute: typeof adminPanelSubmitSitesRoute
+  adminPanelTagsRoute: typeof adminPanelTagsRoute
   adminPanelUsersRoute: typeof adminPanelUsersRoute
   adminPanelIndexRoute: typeof adminPanelIndexRoute
 }
@@ -546,6 +566,7 @@ interface adminPanelRouteRouteChildren {
 const adminPanelRouteRouteChildren: adminPanelRouteRouteChildren = {
   adminPanelSitesRoute: adminPanelSitesRoute,
   adminPanelSubmitSitesRoute: adminPanelSubmitSitesRoute,
+  adminPanelTagsRoute: adminPanelTagsRoute,
   adminPanelUsersRoute: adminPanelUsersRoute,
   adminPanelIndexRoute: adminPanelIndexRoute,
 }

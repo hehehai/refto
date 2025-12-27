@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { VersionGrid } from "@/components/shared/version-grid";
 
+interface Tag {
+  id: string;
+  name: string;
+  type: string;
+}
+
 interface RelatedSite {
   id: string;
   title: string;
@@ -8,7 +14,7 @@ interface RelatedSite {
   description: string;
   logo: string;
   url: string;
-  tags: string[];
+  tags: Tag[];
   page: {
     id: string;
     title: string;

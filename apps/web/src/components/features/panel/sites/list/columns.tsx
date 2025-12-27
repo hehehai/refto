@@ -99,8 +99,8 @@ export function createSiteColumns(
         return (
           <div className="flex flex-wrap gap-1">
             {displayTags.map((tag) => (
-              <Badge className="text-xs" key={tag} variant="secondary">
-                {tag}
+              <Badge className="text-xs" key={tag.id} variant="secondary">
+                {tag.name}
               </Badge>
             ))}
             {remainingCount > 0 && (
@@ -110,7 +110,12 @@ export function createSiteColumns(
                     +{remainingCount}
                   </Badge>
                 </TooltipTrigger>
-                <TooltipContent>{tags.slice(2).join(", ")}</TooltipContent>
+                <TooltipContent>
+                  {tags
+                    .slice(2)
+                    .map((t) => t.name)
+                    .join(", ")}
+                </TooltipContent>
               </Tooltip>
             )}
           </div>

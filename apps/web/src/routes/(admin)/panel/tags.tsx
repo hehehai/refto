@@ -4,43 +4,44 @@ import { zodValidator } from "@tanstack/zod-adapter";
 import { useState } from "react";
 import { z } from "zod";
 import { NavMainHeader } from "@/components/features/panel/layout/nav-main-header";
-import { SiteCreateSheet } from "@/components/features/panel/sites/create/site-create-sheet";
-import { SiteDataTable } from "@/components/features/panel/sites/list/data-table";
+import { TagDataTable } from "@/components/features/panel/tags/data-table";
+import { TagFormDialog } from "@/components/features/panel/tags/tag-form-dialog";
 import { DataTableToolbar } from "@/components/shared/data-table/data-table-toolbar";
 import { StatusFilterSelect } from "@/components/shared/data-table/status-filter";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/lib/orpc";
 import { createPageMeta } from "@/lib/seo";
 
-const PIN_STATUS_OPTIONS = [
-  { value: "all", label: "All Status" },
-  { value: "pinned", label: "Pinned" },
-  { value: "unpinned", label: "Not Pinned" },
+const TAG_TYPE_OPTIONS = [
+  { value: "all", label: "All Types" },
+  { value: "category", label: "Category" },
+  { value: "section", label: "Section" },
+  { value: "style", label: "Style" },
 ] as const;
 
 const searchSchema = z.object({
   search: z.string().catch(""),
-  isPinned: z.enum(["all", "pinned", "unpinned"]).catch("all"),
-  sortBy: z.enum(["createdAt", "visits"]).catch("createdAt"),
+  type: z.enum(["all", "category", "section", "style"]).catch("all"),
+  sortBy: z.enum(["createdAt", "name"]).catch("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).catch("desc"),
   page: z.number().int().positive().catch(1),
 });
 
 type SearchParams = z.infer<typeof searchSchema>;
 
-const sitesMeta = createPageMeta({
-  title: "Manage Sites",
-  description: "Manage websites on Refto.",
-  url: "/panel/sites",
+const tagsMeta = createPageMeta({
+  title: "Manage Tags",
+  description: "Manage tags on Refto.",
+  url: "/panel/tags",
   noIndex: true,
 });
 
-export const Route = createFileRoute("/(admin)/panel/sites")({
+export const Route = createFileRoute("/(admin)/panel/tags")({
   component: RouteComponent,
   validateSearch: zodValidator(searchSchema),
   head: () => ({
-    meta: sitesMeta.meta,
-    links: sitesMeta.links,
+    meta: tagsMeta.meta,
+    links: tagsMeta.links,
   }),
 });
 
@@ -48,7 +49,7 @@ function RouteComponent() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  // Create sheet state
+  // Create dialog state
   const [createOpen, setCreateOpen] = useState(false);
 
   // Update search params
@@ -58,20 +59,15 @@ function RouteComponent() {
     });
   };
 
-  // Convert isPinned filter to boolean
-  const isPinnedValue =
-    search.isPinned === "pinned"
-      ? true
-      : search.isPinned === "unpinned"
-        ? false
-        : undefined;
+  // Convert type filter
+  const typeValue = search.type === "all" ? undefined : search.type;
 
   // Query
   const { data, isLoading } = useQuery(
-    orpc.panel.site.list.queryOptions({
+    orpc.panel.tag.list.queryOptions({
       input: {
         search: search.search || undefined,
-        isPinned: isPinnedValue,
+        type: typeValue,
         sortBy: search.sortBy,
         sortOrder: search.sortOrder,
         page: search.page,
@@ -84,14 +80,14 @@ function RouteComponent() {
     updateSearch({ search: value, page: 1 });
   };
 
-  const handlePinStatusChange = (
-    value: "all" | "pinned" | "unpinned" | null
+  const handleTypeChange = (
+    value: "all" | "category" | "section" | "style" | null
   ) => {
-    updateSearch({ isPinned: value ?? "all", page: 1 });
+    updateSearch({ type: value ?? "all", page: 1 });
   };
 
   const handleSortChange = (
-    sortBy: "createdAt" | "visits",
+    sortBy: "createdAt" | "name",
     order: "asc" | "desc"
   ) => {
     updateSearch({ sortBy, sortOrder: order, page: 1 });
@@ -107,16 +103,16 @@ function RouteComponent() {
         className="justify-between"
         left={
           <div className="flex flex-1 items-center gap-3">
-            <h2 className="font-semibold">Sites</h2>
+            <h2 className="font-semibold">Tags</h2>
             <DataTableToolbar
               onSearchChange={handleSearchChange}
-              searchPlaceholder="Search by title or URL..."
+              searchPlaceholder="Search by name or value..."
               searchValue={search.search}
             >
               <StatusFilterSelect
-                items={[...PIN_STATUS_OPTIONS]}
-                onChange={handlePinStatusChange}
-                value={search.isPinned}
+                items={[...TAG_TYPE_OPTIONS]}
+                onChange={handleTypeChange}
+                value={search.type}
               />
             </DataTableToolbar>
           </div>
@@ -124,14 +120,14 @@ function RouteComponent() {
         right={
           <Button onClick={() => setCreateOpen(true)}>
             <span className="i-hugeicons-plus-sign size-3.5" />
-            Create Site
+            Create Tag
           </Button>
         }
       />
 
       {/* Data Table */}
       <div className="p-4">
-        <SiteDataTable
+        <TagDataTable
           data={data?.items ?? []}
           isLoading={isLoading}
           onPageChange={handlePageChange}
@@ -151,8 +147,8 @@ function RouteComponent() {
         />
       </div>
 
-      {/* Create Sheet */}
-      <SiteCreateSheet onOpenChange={setCreateOpen} open={createOpen} />
+      {/* Create Dialog */}
+      <TagFormDialog onOpenChange={setCreateOpen} open={createOpen} />
     </div>
   );
 }

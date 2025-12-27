@@ -1,4 +1,5 @@
 import { MediaUpload } from "@/components/shared/media-upload";
+import { TagSelect } from "@/components/shared/tag-select";
 import { Field, FieldLabel } from "@/components/ui/field";
 
 interface VersionFormData {
@@ -7,6 +8,7 @@ interface VersionFormData {
   webRecord: string | null;
   mobileCover: string | null;
   mobileRecord: string | null;
+  tagIds: string[];
 }
 
 interface VersionFormProps {
@@ -22,6 +24,16 @@ export function VersionForm({
 }: VersionFormProps) {
   return (
     <div className="space-y-6">
+      {/* Tags */}
+      <Field>
+        <FieldLabel>Tags</FieldLabel>
+        <TagSelect
+          disabled={disabled}
+          onChange={(tagIds) => onChange({ tagIds })}
+          value={value.tagIds}
+        />
+      </Field>
+
       {/* OG Image */}
       <Field>
         <FieldLabel>

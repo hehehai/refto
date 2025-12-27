@@ -17,6 +17,7 @@ import {
   sitePageVersions,
   sites,
 } from "@refto-one/db/schema/sites";
+import { siteTags, tags } from "@refto-one/db/schema/tags";
 import { format } from "date-fns";
 import {
   and,
@@ -404,6 +405,18 @@ export const appSiteRouter = {
         throw new ORPCError("NOT_FOUND", { message: "Site not found" });
       }
 
+      // Get tags for this site
+      const siteTagsData = await db
+        .select({ tag: tags })
+        .from(siteTags)
+        .innerJoin(tags, eq(siteTags.tagId, tags.id))
+        .where(and(eq(siteTags.siteId, site.id), isNull(tags.deletedAt)));
+
+      const siteWithTags = {
+        ...site,
+        tags: siteTagsData.map((t) => t.tag),
+      };
+
       // Find page (by slug or default)
       const currentPage = pageSlug
         ? site.pages.find((p) => p.slug === pageSlug)
@@ -442,7 +455,7 @@ export const appSiteRouter = {
       }
 
       return {
-        site,
+        site: siteWithTags,
         currentPage,
         currentVersion: currentVersion ?? null,
         liked,
@@ -455,24 +468,21 @@ export const appSiteRouter = {
     .handler(async ({ input }) => {
       const { siteId, limit } = input;
 
-      // Get the current site's tags
-      const currentSite = await db.query.sites.findFirst({
-        where: and(eq(sites.id, siteId), isNull(sites.deletedAt)),
-        columns: { tags: true },
-      });
+      // Get the current site's tag IDs
+      const currentSiteTagIds = await db
+        .select({ tagId: siteTags.tagId })
+        .from(siteTags)
+        .innerJoin(tags, eq(siteTags.tagId, tags.id))
+        .where(and(eq(siteTags.siteId, siteId), isNull(tags.deletedAt)));
 
-      if (!currentSite || currentSite.tags.length === 0) {
+      if (currentSiteTagIds.length === 0) {
         return [];
       }
 
-      // Find sites with overlapping tags, ordered by overlap count
-      // Convert JS array to PostgreSQL array format
-      const tagsArray = sql`ARRAY[${sql.join(
-        currentSite.tags.map((tag) => sql`${tag}`),
-        sql`, `
-      )}]::text[]`;
+      const tagIds = currentSiteTagIds.map((t) => t.tagId);
 
-      const relatedSites = await db
+      // Find sites with overlapping tags, ordered by overlap count
+      const relatedSitesData = await db
         .select({
           id: sites.id,
           title: sites.title,
@@ -480,38 +490,48 @@ export const appSiteRouter = {
           description: sites.description,
           logo: sites.logo,
           url: sites.url,
-          tags: sites.tags,
-          overlapCount: sql<number>`(
-            SELECT COUNT(*) FROM unnest(${sites.tags}) AS t(tag)
-            WHERE tag = ANY(${tagsArray})
-          )`.as("overlap_count"),
+          overlapCount: count(siteTags.tagId),
         })
         .from(sites)
+        .innerJoin(siteTags, eq(sites.id, siteTags.siteId))
+        .innerJoin(tags, eq(siteTags.tagId, tags.id))
         .where(
           and(
             isNull(sites.deletedAt),
+            isNull(tags.deletedAt),
             sql`${sites.id} != ${siteId}`,
-            sql`${sites.tags} && ${tagsArray}`
+            inArray(siteTags.tagId, tagIds)
           )
         )
-        .orderBy(
-          desc(
-            sql`(
-            SELECT COUNT(*) FROM unnest(${sites.tags}) AS t(tag)
-            WHERE tag = ANY(${tagsArray})
-          )`
-          )
-        )
+        .groupBy(sites.id)
+        .orderBy(desc(count(siteTags.tagId)))
         .limit(limit);
 
       // If no related sites found, return early
-      if (relatedSites.length === 0) {
+      if (relatedSitesData.length === 0) {
         return [];
       }
 
-      // Get default pages with latest versions for all related sites in one query (avoid N+1)
-      const siteIds = relatedSites.map((s) => s.id);
+      // Get tags for all related sites
+      const siteIds = relatedSitesData.map((s) => s.id);
+      const siteTagsData = await db
+        .select({
+          siteId: siteTags.siteId,
+          tag: tags,
+        })
+        .from(siteTags)
+        .innerJoin(tags, eq(siteTags.tagId, tags.id))
+        .where(and(inArray(siteTags.siteId, siteIds), isNull(tags.deletedAt)));
 
+      const siteTagsMap = new Map<string, (typeof tags.$inferSelect)[]>();
+      for (const { siteId: sid, tag } of siteTagsData) {
+        if (!siteTagsMap.has(sid)) {
+          siteTagsMap.set(sid, []);
+        }
+        siteTagsMap.get(sid)!.push(tag);
+      }
+
+      // Get default pages with latest versions for all related sites in one query (avoid N+1)
       const pagesWithVersions = await db
         .select({
           siteId: sitePages.siteId,
@@ -571,7 +591,7 @@ export const appSiteRouter = {
       }
 
       // Build final result and filter out sites without versions
-      return relatedSites
+      return relatedSitesData
         .map((site) => {
           const data = siteVersionMap.get(site.id);
           if (!data) return null;
@@ -583,7 +603,7 @@ export const appSiteRouter = {
             description: site.description,
             logo: site.logo,
             url: site.url,
-            tags: site.tags,
+            tags: siteTagsMap.get(site.id) ?? [],
             page: data.page,
             version: data.version,
           };

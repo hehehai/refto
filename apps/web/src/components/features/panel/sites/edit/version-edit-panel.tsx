@@ -47,6 +47,7 @@ export function VersionEditPanel() {
               webRecord: activeVersion.webRecord,
               mobileCover: activeVersion.mobileCover,
               mobileRecord: activeVersion.mobileRecord,
+              tagIds: activeVersion.tagIds ?? [],
             }}
           />
         ) : versionsLoading ? (

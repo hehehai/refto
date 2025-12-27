@@ -37,7 +37,7 @@ export function SiteEditSide() {
               description: site.description,
               logo: site.logo,
               url: site.url,
-              tags: site.tags,
+              tagIds: site.tagIds,
               rating: site.rating,
               isPinned: site.isPinned,
             }}

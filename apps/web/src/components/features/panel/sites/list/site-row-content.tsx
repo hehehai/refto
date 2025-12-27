@@ -112,7 +112,7 @@ export function SiteRowContent({ site }: { site: SiteRow }) {
           <h4 className="mb-1 font-medium text-muted-foreground text-xs uppercase">
             All Tags
           </h4>
-          <p className="text-sm">{site.tags.join(", ")}</p>
+          <p className="text-sm">{site.tags.map((t) => t.name).join(", ")}</p>
         </div>
       )}
     </div>

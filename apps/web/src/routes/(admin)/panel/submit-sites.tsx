@@ -22,6 +22,7 @@ const searchSchema = z.object({
   userId: z.string().optional().catch(undefined),
   sortBy: z.enum(["createdAt", "updatedAt"]).catch("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).catch("desc"),
+  page: z.number().int().positive().catch(1),
 });
 
 type SearchParams = z.infer<typeof searchSchema>;
@@ -62,28 +63,36 @@ function RouteComponent() {
         userId: search.userId,
         sortBy: search.sortBy,
         sortOrder: search.sortOrder,
+        page: search.page,
       },
     })
   );
 
   // Handlers
   const handleSearchChange = (value: string) => {
-    updateSearch({ search: value });
+    updateSearch({ search: value, page: 1 });
   };
 
   const handleStatusChange = (value: string) => {
-    updateSearch({ status: value.toUpperCase() as SearchParams["status"] });
+    updateSearch({
+      status: value.toUpperCase() as SearchParams["status"],
+      page: 1,
+    });
   };
 
   const handleUserChange = (value: string | null) => {
-    updateSearch({ userId: value ?? undefined });
+    updateSearch({ userId: value ?? undefined, page: 1 });
   };
 
   const handleSortChange = (
     sortBy: "createdAt" | "updatedAt",
     order: "asc" | "desc"
   ) => {
-    updateSearch({ sortBy, sortOrder: order });
+    updateSearch({ sortBy, sortOrder: order, page: 1 });
+  };
+
+  const handlePageChange = (page: number) => {
+    updateSearch({ page });
   };
 
   return (
@@ -115,7 +124,18 @@ function RouteComponent() {
         <SubmitSiteDataTable
           data={data?.items ?? []}
           isLoading={isLoading}
+          onPageChange={handlePageChange}
           onSortChange={handleSortChange}
+          pagination={
+            data
+              ? {
+                  total: data.total,
+                  totalPages: data.totalPages,
+                  page: data.page,
+                  pageSize: data.pageSize,
+                }
+              : undefined
+          }
           sortBy={search.sortBy}
           sortOrder={search.sortOrder}
           status={search.status as SubmitSiteStatus}

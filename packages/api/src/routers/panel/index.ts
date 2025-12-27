@@ -1,6 +1,7 @@
 import { pageRouter, siteRouter, versionRouter } from "./site";
 import { statRouter } from "./stat";
 import { panelSubmitSiteRouter } from "./submit-site";
+import { tagRouter } from "./tag";
 import { userRouter } from "./user";
 
 export const panelRouter = {
@@ -10,4 +11,5 @@ export const panelRouter = {
   site: siteRouter,
   page: pageRouter,
   version: versionRouter,
+  tag: tagRouter,
 };

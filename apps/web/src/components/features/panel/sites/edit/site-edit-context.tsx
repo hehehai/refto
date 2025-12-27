@@ -33,6 +33,7 @@ interface Version extends BaseVersion {
   webRecord: string | null;
   mobileCover: string | null;
   mobileRecord: string | null;
+  tagIds: string[];
 }
 
 // Sort helper for versions (descending by date)
@@ -51,7 +52,7 @@ interface SiteEditContextType {
     description: string;
     logo: string;
     url: string;
-    tags: string[];
+    tagIds: string[];
     rating: number;
     isPinned: boolean;
   } | null;
@@ -199,7 +200,7 @@ export function SiteEditProvider({
       description: "",
       logo: "",
       url: "",
-      tags: [] as string[],
+      tagIds: [] as string[],
       rating: 0,
       isPinned: false,
     },
@@ -294,7 +295,7 @@ export function SiteEditProvider({
       form.setFieldValue("description", site.description ?? "");
       form.setFieldValue("logo", site.logo ?? "");
       form.setFieldValue("url", site.url);
-      form.setFieldValue("tags", site.tags ?? []);
+      form.setFieldValue("tagIds", site.tagIds ?? []);
       form.setFieldValue("rating", site.rating ?? 0);
       form.setFieldValue("isPinned", site.isPinned);
       setIsEditingSite(false);
@@ -334,7 +335,7 @@ export function SiteEditProvider({
       form.setFieldValue("description", site.description ?? "");
       form.setFieldValue("logo", site.logo ?? "");
       form.setFieldValue("url", site.url);
-      form.setFieldValue("tags", site.tags ?? []);
+      form.setFieldValue("tagIds", site.tagIds ?? []);
       form.setFieldValue("rating", site.rating ?? 0);
       form.setFieldValue("isPinned", site.isPinned);
     }
@@ -479,7 +480,7 @@ export function SiteEditProvider({
           description: site.description ?? "",
           logo: site.logo ?? "",
           url: site.url,
-          tags: site.tags ?? [],
+          tagIds: site.tagIds ?? [],
           rating: site.rating ?? 0,
           isPinned: site.isPinned,
         }

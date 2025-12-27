@@ -13,7 +13,7 @@ const slugSchema = z
 // Pagination base schema
 const paginationSchema = z.object({
   page: z.number().min(1).default(1),
-  pageSize: z.number().min(1).max(100).default(20),
+  pageSize: z.number().min(1).max(100).default(10),
 });
 
 // User list query
@@ -157,7 +157,7 @@ export const siteCreateSchema = z.object({
   description: z.string(),
   logo: z.string().url("Invalid logo URL"),
   url: z.string().url("Invalid URL"),
-  tags: z.array(z.string()),
+  tagIds: z.array(z.string()).default([]),
   rating: z.number().min(0).max(5).default(0),
   isPinned: z.boolean().default(false),
 });
@@ -169,7 +169,7 @@ export const siteUpdateSchema = z.object({
   description: z.string().optional(),
   logo: z.string().url().optional(),
   url: z.string().url().optional(),
-  tags: z.array(z.string()).optional(),
+  tagIds: z.array(z.string()).optional(),
   rating: z.number().min(0).max(5).optional(),
   isPinned: z.boolean().optional(),
 });
@@ -182,7 +182,7 @@ export const siteUpsertSchema = z.object({
   description: z.string(),
   logo: z.string().url("Invalid logo URL"),
   url: z.string().url("Invalid URL"),
-  tags: z.array(z.string()),
+  tagIds: z.array(z.string()).default([]),
   rating: z.number().min(0).max(5).default(0),
   isPinned: z.boolean().default(false),
 });
@@ -282,6 +282,52 @@ export const versionUpsertSchema = z.object({
   webRecord: z.string().nullable().optional(),
   mobileCover: z.string().nullable().optional(),
   mobileRecord: z.string().nullable().optional(),
+  tagIds: z.array(z.string()).default([]),
+});
+
+// ============ Tag Schemas ============
+
+// Tag type enum
+export const tagTypeSchema = z.enum(["category", "section", "style"]);
+
+// Tag ID schema
+export const tagIdSchema = z.object({
+  id: z.string(),
+});
+
+// Tag list query
+export const tagListSchema = paginationSchema.extend({
+  search: z.string().optional(),
+  type: tagTypeSchema.optional(),
+  sortBy: z.enum(["createdAt", "name"]).default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});
+
+// Tag upsert (id optional - no id = create, with id = update)
+export const tagUpsertSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, "Name is required").max(100),
+  value: slugSchema,
+  type: tagTypeSchema,
+  description: z.string().nullable().optional(),
+  tipMedia: z.url().nullable().optional(),
+});
+
+// Batch delete tags
+export const tagBatchDeleteSchema = z.object({
+  ids: z.array(z.string()).min(1, "At least one tag ID is required"),
+});
+
+// Tag list for select dropdown (lightweight, no pagination)
+export const tagListForSelectSchema = z.object({
+  search: z.string().optional(),
+  type: tagTypeSchema.optional(),
+  limit: z.number().min(1).max(100).default(50),
+});
+
+// Tag list by IDs (for fetching specific tags)
+export const tagListByIdsSchema = z.object({
+  ids: z.array(z.string()),
 });
 
 // Type exports
@@ -310,3 +356,9 @@ export type VersionCreate = z.infer<typeof versionCreateSchema>;
 export type VersionUpdate = z.infer<typeof versionUpdateSchema>;
 export type VersionUpsert = z.infer<typeof versionUpsertSchema>;
 export type VersionList = z.infer<typeof versionListSchema>;
+export type TagType = z.infer<typeof tagTypeSchema>;
+export type TagList = z.infer<typeof tagListSchema>;
+export type TagUpsert = z.infer<typeof tagUpsertSchema>;
+export type TagBatchDelete = z.infer<typeof tagBatchDeleteSchema>;
+export type TagListForSelect = z.infer<typeof tagListForSelectSchema>;
+export type TagListByIds = z.infer<typeof tagListByIdsSchema>;

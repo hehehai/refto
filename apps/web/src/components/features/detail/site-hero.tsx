@@ -2,6 +2,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Rating } from "@/components/ui/rating";
 
+interface Tag {
+  id: string;
+  name: string;
+  type: string;
+}
+
 interface SiteHeroProps {
   site: {
     id: string;
@@ -9,7 +15,7 @@ interface SiteHeroProps {
     description: string;
     logo: string;
     url: string;
-    tags: string[];
+    tags: Tag[];
     rating: number;
   };
 }
@@ -37,8 +43,8 @@ export function SiteHero({ site }: SiteHeroProps) {
             {site.tags.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {site.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    {tag}
+                  <Badge key={tag.id} variant="secondary">
+                    {tag.name}
                   </Badge>
                 ))}
               </div>
