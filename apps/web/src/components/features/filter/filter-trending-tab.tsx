@@ -68,14 +68,14 @@ export function FilterTrendingTab({
   }
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-5", className)}>
       {/* Hot Sites */}
       {data.sites.length > 0 && (
         <section>
           <div className="mb-3 grid grid-cols-6 gap-3">
             {data.sites.map((site) => (
               <button
-                className="group flex aspect-square items-center justify-center rounded-xl border bg-muted/30 p-2 transition-colors hover:border-primary hover:bg-muted"
+                className="group flex aspect-square size-14 items-center justify-center rounded-xl border bg-muted/30 transition-colors hover:border-primary hover:bg-muted"
                 key={site.id}
                 onClick={() => onSiteClick(site.slug)}
                 title={site.title}
@@ -83,7 +83,7 @@ export function FilterTrendingTab({
               >
                 <img
                   alt={site.title}
-                  className="size-10 rounded-lg object-contain"
+                  className="size-11 rounded-lg object-contain"
                   src={site.logo}
                 />
               </button>
@@ -99,7 +99,7 @@ export function FilterTrendingTab({
           <div className="grid grid-cols-4 gap-3">
             {data.categories.map((tag) => (
               <button
-                className="flex flex-col items-start gap-2 rounded-xl border bg-muted/30 p-3 text-left transition-colors hover:border-primary hover:bg-muted"
+                className="flex flex-col items-start gap-2 rounded-xl border bg-muted/30 p-2 text-left transition-colors hover:border-primary hover:bg-muted"
                 key={tag.id}
                 onClick={() => onTagClick(tag.value)}
                 type="button"
