@@ -1,6 +1,7 @@
 import { FeedSort, type FeedSortType } from "@refto-one/common";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { BadgeLinearGradient } from "@/components/shared/badge-linear-gradient";
+import { TagSelect } from "@/components/shared/tag-select";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PinnedSite } from "@/lib/orpc-types";
@@ -8,16 +9,32 @@ import type { PinnedSite } from "@/lib/orpc-types";
 interface HeroSectionProps {
   pinnedSites: PinnedSite[];
   sort: FeedSortType;
+  currentTag?: string;
 }
 
-export function HeroSection({ pinnedSites, sort }: HeroSectionProps) {
+export function HeroSection({
+  pinnedSites,
+  sort,
+  currentTag,
+}: HeroSectionProps) {
   const [first, second, third] = pinnedSites;
   const navigate = useNavigate();
 
   const handleSortChange = (value: string) => {
     navigate({
       to: "/",
-      search: { sort: value as FeedSortType },
+      search: (prev) => ({ ...prev, sort: value as FeedSortType }),
+      reloadDocument: false,
+    });
+  };
+
+  const handleTagChange = (tagIds: string[]) => {
+    navigate({
+      to: "/",
+      search: (prev) => ({
+        ...prev,
+        tag: tagIds.length > 0 ? tagIds.join(",") : undefined,
+      }),
       reloadDocument: false,
     });
   };
@@ -53,7 +70,7 @@ export function HeroSection({ pinnedSites, sort }: HeroSectionProps) {
                 </a>
               </li>
             </ul>
-            <div className="mt-10">
+            <div className="mt-10 flex items-center gap-3">
               <Tabs onValueChange={handleSortChange} value={sort}>
                 <TabsList>
                   <TabsTrigger className="px-3" value={FeedSort.LATEST}>
@@ -67,6 +84,14 @@ export function HeroSection({ pinnedSites, sort }: HeroSectionProps) {
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
+              {currentTag && (
+                <TagSelect
+                  className="w-48"
+                  onChange={handleTagChange}
+                  placeholder="Filter by tags..."
+                  value={currentTag.split(",")}
+                />
+              )}
             </div>
           </div>
           <div className="grid w-1/2 grid-cols-2 gap-8">

@@ -29,6 +29,7 @@ export function VersionForm({
         <FieldLabel>Tags</FieldLabel>
         <TagSelect
           disabled={disabled}
+          matchBy="id"
           onChange={(tagIds) => onChange({ tagIds })}
           value={value.tagIds}
         />

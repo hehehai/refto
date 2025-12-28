@@ -28,3 +28,12 @@ export const changeEmailDialog = Dialog.createHandle<{
 export const verifyEmailDialog = Dialog.createHandle<{ email: string }>();
 export const setPasswordDialog = Dialog.createHandle();
 export const changePasswordDialog = Dialog.createHandle();
+
+// Filter Dialog (for global search)
+export const filterDialog = Dialog.createHandle<
+  | {
+      initialQuery?: string;
+      initialTags?: string[];
+    }
+  | undefined
+>();

@@ -196,6 +196,7 @@ export function SiteForm({ form, disabled = false }: SiteFormProps) {
             <FieldLabel>Tags</FieldLabel>
             <TagSelect
               disabled={disabled || isSubmitting}
+              matchBy="id"
               onChange={field.handleChange}
               value={field.state.value}
             />

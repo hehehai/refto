@@ -2,8 +2,8 @@ import { site } from "@refto-one/common";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { submitSiteDialog } from "@/lib/sheets";
-import FilterIcon from "../icons/filter";
 import { SendIcon } from "../icons/send";
+import { SiteFilterButton } from "./site-filter-button";
 import { SiteHeaderMenu } from "./site-header-menu";
 import { SiteHeaderUser } from "./site-header-user";
 
@@ -27,15 +27,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
 
         {/* Right: Auth buttons + Menu */}
         <div className="flex items-center gap-2.5">
-          <Button
-            className="min-w-24 justify-between rounded-full pr-1.5! hover:border-primary"
-            variant="outline"
-          >
-            <span>Filter</span>
-            <span className="flex items-center justify-center rounded-full bg-primary p-1 text-white">
-              <FilterIcon />
-            </span>
-          </Button>
+          <SiteFilterButton />
           {user ? (
             <>
               <Button

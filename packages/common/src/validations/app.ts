@@ -22,6 +22,7 @@ export const versionsFeedSchema = cursorPaginationSchema.extend({
   sort: z
     .enum([FeedSort.LATEST, FeedSort.TRENDING, FeedSort.POPULAR])
     .default(FeedSort.LATEST),
+  tags: z.array(z.string()).optional(), // Filter by tag values (comma-separated in URL)
 });
 
 // Get pinned sites
@@ -81,6 +82,31 @@ export const updateProfileSchema = z.object({
   image: z.string().url("Invalid image URL").nullable().optional(),
 });
 
+// ============ Filter/Search Schemas ============
+
+// Search tags and sites
+export const filterSearchSchema = z.object({
+  q: z.string().min(1).max(100),
+  limit: z.number().min(1).max(20).default(10),
+});
+
+// Get trending data for filter dialog
+export const trendingDataSchema = z.object({
+  sitesLimit: z.number().min(1).max(10).default(6),
+  tagsLimit: z.number().min(1).max(10).default(6),
+});
+
+// Get all tags by type
+export const tagsByTypeSchema = z.object({
+  type: z.enum(["category", "section", "style"]),
+});
+
+// Track page view event
+export const trackPageViewSchema = z.object({
+  siteId: z.string(),
+  pageId: z.string().optional(),
+});
+
 // ============ Type Exports ============
 
 export type VersionsFeed = z.infer<typeof versionsFeedSchema>;
@@ -94,3 +120,7 @@ export type ToggleLike = z.infer<typeof toggleLikeSchema>;
 export type UserLikes = z.infer<typeof userLikesSchema>;
 export type CheckLikeStatus = z.infer<typeof checkLikeStatusSchema>;
 export type UpdateProfile = z.infer<typeof updateProfileSchema>;
+export type FilterSearch = z.infer<typeof filterSearchSchema>;
+export type TrendingData = z.infer<typeof trendingDataSchema>;
+export type TagsByType = z.infer<typeof tagsByTypeSchema>;
+export type TrackPageView = z.infer<typeof trackPageViewSchema>;

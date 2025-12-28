@@ -16,9 +16,10 @@ const MAX_UNAUTH_ITEMS = 36;
 
 interface FeedSectionProps {
   sort: FeedSortType;
+  tags?: string[];
 }
 
-export function FeedSection({ sort }: FeedSectionProps) {
+export function FeedSection({ sort, tags }: FeedSectionProps) {
   const { data: session } = authClient.useSession();
   const queryClient = useQueryClient();
 
@@ -26,11 +27,11 @@ export function FeedSection({ sort }: FeedSectionProps) {
   const infiniteOptions = useMemo(
     () =>
       orpc.app.site.getVersionsFeed.infiniteOptions({
-        input: (pageParam) => ({ cursor: pageParam, limit: 12, sort }),
+        input: (pageParam) => ({ cursor: pageParam, limit: 12, sort, tags }),
         initialPageParam: undefined as string | undefined,
         getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
       }),
-    [sort]
+    [sort, tags]
   );
 
   // Use suspense infinite query - data already prefetched on server

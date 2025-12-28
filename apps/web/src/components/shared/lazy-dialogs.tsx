@@ -43,6 +43,12 @@ export const LazyConfirmDialog = lazy(() =>
   }))
 );
 
+export const LazyFilterDialog = lazy(() =>
+  import("@/components/features/filter/filter-dialog").then((m) => ({
+    default: m.FilterDialog,
+  }))
+);
+
 // Panel Sheets
 export const LazySiteDetailSheet = lazy(() =>
   import("@/components/features/panel/sites/detail/site-detail-sheet").then(

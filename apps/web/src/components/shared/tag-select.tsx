@@ -23,11 +23,17 @@ type FilterType = "all" | TagType;
 
 interface TagSelectProps {
   value: string[];
-  onChange: (tagIds: string[]) => void;
+  onChange: (values: string[]) => void;
   type?: TagType;
   disabled?: boolean;
   placeholder?: string;
   className?: string;
+  /**
+   * Match tags by "id" or "value" field.
+   * - Use "value" for URL params (e.g., ?tag=hero,footer) - DEFAULT
+   * - Use "id" for database operations (e.g., panel forms)
+   */
+  matchBy?: "id" | "value";
 }
 
 const TAG_TYPE_LABELS: Record<TagType, string> = {
@@ -57,6 +63,7 @@ export function TagSelect({
   disabled = false,
   placeholder = "Select tags...",
   className,
+  matchBy = "value",
 }: TagSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -72,11 +79,15 @@ export function TagSelect({
     })
   );
 
+  // Helper to get the match key from a tag
+  const getMatchKey = (tag: { id: string; value: string }) =>
+    matchBy === "value" ? tag.value : tag.id;
+
   // Get selected tags info
   const selectedTags = useMemo(() => {
     if (!tags) return [];
-    return tags.filter((tag) => value.includes(tag.id));
-  }, [tags, value]);
+    return tags.filter((tag) => value.includes(getMatchKey(tag)));
+  }, [tags, value, matchBy]);
 
   // Group tags by type (only used when filterType is "all" and no type prop)
   const groupedTags = useMemo(() => {
@@ -102,11 +113,12 @@ export function TagSelect({
     }
   }, [open]);
 
-  const handleToggle = (tagId: string) => {
-    if (value.includes(tagId)) {
-      onChange(value.filter((id) => id !== tagId));
+  const handleToggle = (tag: { id: string; value: string }) => {
+    const key = getMatchKey(tag);
+    if (value.includes(key)) {
+      onChange(value.filter((v) => v !== key));
     } else {
-      onChange([...value, tagId]);
+      onChange([...value, key]);
     }
   };
 
@@ -115,9 +127,12 @@ export function TagSelect({
     onChange([]);
   };
 
-  const handleRemoveTag = (e: React.MouseEvent, tagId: string) => {
+  const handleRemoveTag = (
+    e: React.MouseEvent,
+    tag: { id: string; value: string }
+  ) => {
     e.stopPropagation();
-    onChange(value.filter((id) => id !== tagId));
+    onChange(value.filter((v) => v !== getMatchKey(tag)));
   };
 
   // Show tabs only when type prop is not provided
@@ -148,12 +163,12 @@ export function TagSelect({
                     {tag.name}
                     <span
                       className="i-hugeicons-cancel-01 size-3 cursor-pointer opacity-50 hover:opacity-100"
-                      onClick={(e) => handleRemoveTag(e, tag.id)}
+                      onClick={(e) => handleRemoveTag(e, tag)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
                           handleRemoveTag(
                             e as unknown as React.MouseEvent,
-                            tag.id
+                            tag
                           );
                         }
                       }}
@@ -243,9 +258,9 @@ export function TagSelect({
                 ? // If type is specified (via prop or filter), show flat list
                   tags.map((tag) => (
                     <TagItem
-                      isSelected={value.includes(tag.id)}
+                      isSelected={value.includes(getMatchKey(tag))}
                       key={tag.id}
-                      onToggle={() => handleToggle(tag.id)}
+                      onToggle={() => handleToggle(tag)}
                       tag={tag}
                     />
                   ))
@@ -259,9 +274,9 @@ export function TagSelect({
                           </div>
                           {groupedTags[tagType].map((tag) => (
                             <TagItem
-                              isSelected={value.includes(tag.id)}
+                              isSelected={value.includes(getMatchKey(tag))}
                               key={tag.id}
-                              onToggle={() => handleToggle(tag.id)}
+                              onToggle={() => handleToggle(tag)}
                               tag={tag}
                             />
                           ))}

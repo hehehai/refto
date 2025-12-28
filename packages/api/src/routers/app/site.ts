@@ -91,7 +91,7 @@ export const appSiteRouter = {
   getVersionsFeed: publicProcedure
     .input(versionsFeedSchema)
     .handler(async ({ input, context }) => {
-      const { cursor, limit, sort } = input;
+      const { cursor, limit, sort, tags: tagValues } = input;
       const userId = context.session?.user?.id;
 
       // Unauthenticated users are limited to 36 items total
@@ -100,6 +100,27 @@ export const appSiteRouter = {
 
       // For trending/popular, we need offset-based pagination
       const offset = cursor ? Number.parseInt(cursor, 10) : 0;
+
+      // If tags are provided, get site IDs that have these tags
+      let tagFilteredSiteIds: string[] | undefined;
+      if (tagValues && tagValues.length > 0) {
+        const matchingSites = await db
+          .select({ siteId: siteTags.siteId })
+          .from(siteTags)
+          .innerJoin(tags, eq(siteTags.tagId, tags.id))
+          .where(and(inArray(tags.value, tagValues), isNull(tags.deletedAt)));
+        tagFilteredSiteIds = matchingSites.map((s) => s.siteId);
+
+        // If no sites match the tags, return empty result
+        if (tagFilteredSiteIds.length === 0) {
+          return { items: [], nextCursor: null, hasMore: false };
+        }
+      }
+
+      // Build tag filter condition
+      const tagFilterCondition = tagFilteredSiteIds
+        ? inArray(sites.id, tagFilteredSiteIds)
+        : undefined;
 
       let items: Array<{
         version: {
@@ -163,7 +184,9 @@ export const appSiteRouter = {
           .from(sitePageVersions)
           .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
           .innerJoin(sites, eq(sitePages.siteId, sites.id))
-          .where(and(isNull(sites.deletedAt), cursorCondition))
+          .where(
+            and(isNull(sites.deletedAt), cursorCondition, tagFilterCondition)
+          )
           .orderBy(desc(sitePageVersions.createdAt))
           .limit(effectiveLimit + 1);
 
@@ -213,7 +236,7 @@ export const appSiteRouter = {
           .from(sitePageVersions)
           .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
           .innerJoin(sites, eq(sitePages.siteId, sites.id))
-          .where(isNull(sites.deletedAt))
+          .where(and(isNull(sites.deletedAt), tagFilterCondition))
           .orderBy(desc(sql`like_count`), desc(sitePageVersions.createdAt))
           .limit(effectiveLimit + 1)
           .offset(offset);
@@ -258,7 +281,7 @@ export const appSiteRouter = {
           .from(sitePageVersions)
           .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
           .innerJoin(sites, eq(sitePages.siteId, sites.id))
-          .where(isNull(sites.deletedAt))
+          .where(and(isNull(sites.deletedAt), tagFilterCondition))
           .orderBy(desc(sql`like_count`), desc(sitePageVersions.createdAt))
           .limit(effectiveLimit + 1)
           .offset(offset);

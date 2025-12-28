@@ -12,6 +12,7 @@ import { user } from "./auth";
 export const eventTypeEnum = pgEnum("event_type", [
   "VERSION_LIKED",
   "VERSION_UNLIKED",
+  "PAGE_VIEWED",
 ]);
 
 // Generic event logs table for tracking various business events

@@ -5,12 +5,14 @@ import {
   LazyChangeEmailDialog,
   LazyChangePasswordDialog,
   LazyConfirmDialog,
+  LazyFilterDialog,
   LazySetPasswordDialog,
   LazySubmitSiteDialog,
   LazyUserProfileDialog,
   LazyVerifyEmailDialog,
 } from "@/components/shared/lazy-dialogs";
 import { getUser } from "@/functions/get-user";
+import { useGlobalHotkeys } from "@/hooks/use-global-hotkeys";
 
 export const Route = createFileRoute("/(app)")({
   component: RouteComponent,
@@ -23,6 +25,9 @@ export const Route = createFileRoute("/(app)")({
 
 function RouteComponent() {
   const { session } = Route.useRouteContext();
+
+  // 全局快捷键
+  useGlobalHotkeys();
 
   return (
     <div className="grid min-h-svh grid-rows-[auto_1fr]">
@@ -38,6 +43,7 @@ function RouteComponent() {
         <LazyChangePasswordDialog />
         <LazyConfirmDialog />
         <LazySubmitSiteDialog />
+        <LazyFilterDialog />
       </Suspense>
     </div>
   );
