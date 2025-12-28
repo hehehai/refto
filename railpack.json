@@ -7,7 +7,10 @@
   },
   "steps": {
     "install": {
-      "commands": ["pnpm install"]
+      "commands": [
+        { "src": ".", "dest": "." },
+        "pnpm install"
+      ]
     },
     "build": {
       "inputs": [{ "step": "install" }],
@@ -15,6 +18,9 @@
     }
   },
   "deploy": {
-    "startCommand": "pnpm run dev:start"
+    "inputs": [
+      { "step": "build", "include": ["apps/web/.output", "node_modules"] }
+    ],
+    "startCommand": "node apps/web/.output/server/index.mjs"
   }
 }
