@@ -137,61 +137,62 @@ function UserDetailContent({ userId }: { userId: string }) {
             <UserDetailSkeleton />
           ) : (
             <>
-              <SheetHeader className="flex-row items-start justify-between">
-                <div className="flex items-center gap-2.5">
-                  <Avatar className="size-11">
-                    <AvatarImage
-                      alt={user.name}
-                      src={user.image ?? undefined}
-                    />
-                    <AvatarFallback className="text-base">
-                      {user.name?.charAt(0) ?? "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-1 flex-col gap-2">
-                    <div className="flex items-center gap-2">
-                      <SheetTitle className="text-base leading-none">
-                        {user.name}
-                      </SheetTitle>
-                      <Badge
-                        variant={
-                          user.role === "ADMIN" ? "default" : "secondary"
-                        }
-                      >
-                        {user.role}
-                      </Badge>
-                      {user.banned && (
-                        <Badge variant="destructive">Banned</Badge>
-                      )}
+              {/* Fixed Header */}
+              <div className="shrink-0">
+                <SheetHeader className="flex-row items-start justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Avatar className="size-11">
+                      <AvatarImage
+                        alt={user.name}
+                        src={user.image ?? undefined}
+                      />
+                      <AvatarFallback className="text-base">
+                        {user.name?.charAt(0) ?? "?"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-1 flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <SheetTitle className="text-base leading-none">
+                          {user.name}
+                        </SheetTitle>
+                        <Badge
+                          variant={
+                            user.role === "ADMIN" ? "default" : "secondary"
+                          }
+                        >
+                          {user.role}
+                        </Badge>
+                        {user.banned && (
+                          <Badge variant="destructive">Banned</Badge>
+                        )}
+                      </div>
+                      <SheetDescription className="leading-none">
+                        {user.email}
+                      </SheetDescription>
                     </div>
-                    <SheetDescription className="leading-none">
-                      {user.email}
-                    </SheetDescription>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {user.banned && user.banReason && (
-                    <div className="flex items-center gap-0.5">
-                      <p className="text-muted-foreground text-sm">
-                        {user.banReason}
-                      </p>
-                      <Badge variant="destructive">Baned</Badge>
-                    </div>
-                  )}
-                  <SheetClose
-                    className={buttonVariants({
-                      size: "icon-sm",
-                      variant: "outline",
-                    })}
-                  >
-                    <span className="i-hugeicons-cancel-01 text-lg" />
-                  </SheetClose>
-                </div>
-              </SheetHeader>
+                  <div className="flex items-center gap-2">
+                    {user.banned && user.banReason && (
+                      <div className="flex items-center gap-0.5">
+                        <p className="text-muted-foreground text-sm">
+                          {user.banReason}
+                        </p>
+                        <Badge variant="destructive">Baned</Badge>
+                      </div>
+                    )}
+                    <SheetClose
+                      className={buttonVariants({
+                        size: "icon-sm",
+                        variant: "outline",
+                      })}
+                    >
+                      <span className="i-hugeicons-cancel-01 text-lg" />
+                    </SheetClose>
+                  </div>
+                </SheetHeader>
 
-              <div className="flex flex-col gap-6 p-4 pt-0">
                 {/* Actions bar */}
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 px-4 pb-2">
                   <Button
                     onClick={handleCopyUserId}
                     size="sm"
@@ -245,120 +246,87 @@ function UserDetailContent({ userId }: { userId: string }) {
                     Delete
                   </Button>
                 </div>
+              </div>
 
-                {/* Statistics */}
-                <section>
-                  <h3 className="mb-3 font-medium text-sm">Statistics</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-lg border p-3">
-                      <p className="font-semibold text-2xl">
-                        {stats?.totalSubmissions ?? 0}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        Total Submissions
-                      </p>
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto px-4 pb-4">
+                <div className="flex flex-col gap-6">
+                  {/* Statistics */}
+                  <section>
+                    <h3 className="mb-3 font-medium text-sm">Statistics</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-lg border p-3">
+                        <p className="font-semibold text-2xl">
+                          {stats?.totalSubmissions ?? 0}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          Total Submissions
+                        </p>
+                      </div>
+                      <div className="rounded-lg border p-3">
+                        <p className="font-semibold text-2xl">
+                          {stats?.approvedSubmissions ?? 0}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          Approved
+                        </p>
+                      </div>
                     </div>
-                    <div className="rounded-lg border p-3">
-                      <p className="font-semibold text-2xl">
-                        {stats?.approvedSubmissions ?? 0}
-                      </p>
-                      <p className="text-muted-foreground text-xs">Approved</p>
-                    </div>
-                  </div>
-                </section>
+                  </section>
 
-                {/* User Info */}
-                <section>
-                  <h3 className="mb-3 font-medium text-sm">User Info</h3>
-                  <div className="space-y-2">
-                    <InfoRow
-                      label="Created"
-                      value={
-                        user.createdAt
-                          ? formatDistanceToNow(new Date(user.createdAt), {
-                              addSuffix: true,
-                            })
-                          : "-"
-                      }
-                    />
-                    <InfoRow
-                      label="Updated"
-                      value={
-                        user.updatedAt
-                          ? formatDistanceToNow(new Date(user.updatedAt), {
-                              addSuffix: true,
-                            })
-                          : "-"
-                      }
-                    />
-                    <InfoRow
-                      label="Email Verified"
-                      value={user.emailVerified ? "Yes" : "No"}
-                    />
-                  </div>
-                </section>
-
-                {/* Accounts */}
-                <section>
-                  <h3 className="mb-3 font-medium text-sm">
-                    Accounts ({user.accounts?.length ?? 0})
-                  </h3>
-                  {user.accounts && user.accounts.length > 0 ? (
+                  {/* User Info */}
+                  <section>
+                    <h3 className="mb-3 font-medium text-sm">User Info</h3>
                     <div className="space-y-2">
-                      {user.accounts.map((account) => (
-                        <div
-                          className="flex items-center justify-between rounded-lg border p-3"
-                          key={account.id}
-                        >
-                          <div className="flex items-center gap-2">
-                            <ProviderIcon providerId={account.providerId} />
-                            <span className="font-medium text-sm capitalize">
-                              {account.providerId}
-                            </span>
-                          </div>
-                          <span className="text-muted-foreground text-xs">
-                            {account.createdAt
-                              ? formatDistanceToNow(
-                                  new Date(account.createdAt),
-                                  {
-                                    addSuffix: true,
-                                  }
-                                )
-                              : "-"}
-                          </span>
-                        </div>
-                      ))}
+                      <InfoRow
+                        label="Created"
+                        value={
+                          user.createdAt
+                            ? formatDistanceToNow(new Date(user.createdAt), {
+                                addSuffix: true,
+                              })
+                            : "-"
+                        }
+                      />
+                      <InfoRow
+                        label="Updated"
+                        value={
+                          user.updatedAt
+                            ? formatDistanceToNow(new Date(user.updatedAt), {
+                                addSuffix: true,
+                              })
+                            : "-"
+                        }
+                      />
+                      <InfoRow
+                        label="Email Verified"
+                        value={user.emailVerified ? "Yes" : "No"}
+                      />
                     </div>
-                  ) : (
-                    <p className="text-muted-foreground text-sm">No accounts</p>
-                  )}
-                </section>
+                  </section>
 
-                {/* Sessions */}
-                <section>
-                  <h3 className="mb-3 font-medium text-sm">
-                    Sessions ({user.sessions?.length ?? 0})
-                  </h3>
-                  {user.sessions && user.sessions.length > 0 ? (
-                    <div className="space-y-2">
-                      {user.sessions.map((session) => (
-                        <div className="rounded-lg border p-3" key={session.id}>
-                          <div className="flex items-center justify-between">
+                  {/* Accounts */}
+                  <section>
+                    <h3 className="mb-3 font-medium text-sm">
+                      Accounts ({user.accounts?.length ?? 0})
+                    </h3>
+                    {user.accounts && user.accounts.length > 0 ? (
+                      <div className="space-y-2">
+                        {user.accounts.map((account) => (
+                          <div
+                            className="flex items-center justify-between rounded-lg border p-3"
+                            key={account.id}
+                          >
+                            <div className="flex items-center gap-2">
+                              <ProviderIcon providerId={account.providerId} />
+                              <span className="font-medium text-sm capitalize">
+                                {account.providerId}
+                              </span>
+                            </div>
                             <span className="text-muted-foreground text-xs">
-                              {session.createdAt
+                              {account.createdAt
                                 ? formatDistanceToNow(
-                                    new Date(session.createdAt),
-                                    {
-                                      addSuffix: true,
-                                    }
-                                  )
-                                : "-"}
-                            </span>
-                            <span className="text-muted-foreground text-xs">
-                              Expires{" "}
-                              {session.expiresAt
-                                ? formatDistanceToNow(
-                                    new Date(session.expiresAt),
+                                    new Date(account.createdAt),
                                     {
                                       addSuffix: true,
                                     }
@@ -366,32 +334,77 @@ function UserDetailContent({ userId }: { userId: string }) {
                                 : "-"}
                             </span>
                           </div>
-                          {session.ipAddress && (
-                            <p className="mt-1 text-xs">
-                              IP: {session.ipAddress}
-                            </p>
-                          )}
-                          {session.userAgent && (
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <p className="mt-1 max-w-xl cursor-help truncate text-muted-foreground text-xs">
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-sm">
+                        No accounts
+                      </p>
+                    )}
+                  </section>
+
+                  {/* Sessions */}
+                  <section>
+                    <h3 className="mb-3 font-medium text-sm">
+                      Sessions ({user.sessions?.length ?? 0})
+                    </h3>
+                    {user.sessions && user.sessions.length > 0 ? (
+                      <div className="space-y-2">
+                        {user.sessions.map((session) => (
+                          <div
+                            className="rounded-lg border p-3"
+                            key={session.id}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground text-xs">
+                                {session.createdAt
+                                  ? formatDistanceToNow(
+                                      new Date(session.createdAt),
+                                      {
+                                        addSuffix: true,
+                                      }
+                                    )
+                                  : "-"}
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                Expires{" "}
+                                {session.expiresAt
+                                  ? formatDistanceToNow(
+                                      new Date(session.expiresAt),
+                                      {
+                                        addSuffix: true,
+                                      }
+                                    )
+                                  : "-"}
+                              </span>
+                            </div>
+                            {session.ipAddress && (
+                              <p className="mt-1 text-xs">
+                                IP: {session.ipAddress}
+                              </p>
+                            )}
+                            {session.userAgent && (
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <p className="mt-1 max-w-xl cursor-help truncate text-muted-foreground text-xs">
+                                    {session.userAgent}
+                                  </p>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
                                   {session.userAgent}
-                                </p>
-                              </TooltipTrigger>
-                              <TooltipContent className="max-w-xs">
-                                {session.userAgent}
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground text-sm">
-                      No active sessions
-                    </p>
-                  )}
-                </section>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-sm">
+                        No active sessions
+                      </p>
+                    )}
+                  </section>
+                </div>
               </div>
             </>
           )}
