@@ -1,3 +1,4 @@
+import { site } from "@refto-one/common";
 import { createFileRoute } from "@tanstack/react-router";
 import { createPageMeta } from "@/lib/seo";
 
@@ -49,16 +50,16 @@ function AboutComponent() {
         <div className="flex gap-4">
           <a
             className="flex items-center gap-2 text-foreground hover:underline"
-            href="https://example.com"
+            href={site.authorUrl}
             rel="noopener noreferrer"
             target="_blank"
           >
             <span className="i-hugeicons-user" />
-            Author
+            {site.author}
           </a>
           <a
             className="flex items-center gap-2 text-foreground hover:underline"
-            href="https://github.com"
+            href={site.githubUrl}
             rel="noopener noreferrer"
             target="_blank"
           >

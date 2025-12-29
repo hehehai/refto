@@ -1,3 +1,4 @@
+import { site } from "@refto-one/common";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,20 +46,30 @@ export function SiteHeaderMenu() {
           </DropdownMenuItem>
 
           <DropdownMenuItem
-            onClick={() => window.open("#", "_blank", "noopener")}
-          >
-            <span className="i-hugeicons-user" />
-            Author
-          </DropdownMenuItem>
+            render={
+              <a
+                href={site.authorUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <span className="i-hugeicons-user" />
+                {site.author}
+              </a>
+            }
+          />
 
           <DropdownMenuItem
-            onClick={() =>
-              window.open("https://github.com", "_blank", "noopener")
+            render={
+              <a
+                href={site.githubUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <span className="i-hugeicons-github" />
+                GitHub
+              </a>
             }
-          >
-            <span className="i-hugeicons-github" />
-            GitHub
-          </DropdownMenuItem>
+          />
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

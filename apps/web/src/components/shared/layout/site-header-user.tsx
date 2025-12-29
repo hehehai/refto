@@ -1,4 +1,4 @@
-import { UserRole } from "@refto-one/common";
+import { site, UserRole } from "@refto-one/common";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -132,13 +132,18 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
           </DropdownMenuItem>
 
           <DropdownMenuItem
-            onClick={() =>
-              window.open("https://github.com", "_blank", "noopener")
+            onClick={() => window.open(site.githubUrl, "_blank", "noopener")}
+            render={
+              <a
+                href={site.githubUrl}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <span className="i-hugeicons-github" />
+                GitHub
+              </a>
             }
-          >
-            <span className="i-hugeicons-github" />
-            GitHub
-          </DropdownMenuItem>
+          />
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
