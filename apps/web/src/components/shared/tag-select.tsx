@@ -3,7 +3,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import {
   Popover,
   PopoverContent,
@@ -201,16 +206,19 @@ export function TagSelect({
       />
       <PopoverContent align="start" className="w-72 gap-0 p-0">
         {/* Search Input */}
-        <div className="flex items-center border-b px-3">
-          <span className="i-hugeicons-search-01 size-4 shrink-0 opacity-50" />
-          <Input
-            className="h-9 border-0 px-2 shadow-none focus-visible:ring-0"
+        <InputGroup className="rounded-none border-x-0 border-t-0">
+          <InputGroupAddon align="inline-start">
+            <InputGroupText>
+              <span className="i-hugeicons-search-01 size-4" />
+            </InputGroupText>
+          </InputGroupAddon>
+          <InputGroupInput
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search tags..."
             ref={inputRef}
             value={search}
           />
-        </div>
+        </InputGroup>
 
         {/* Filter Tabs */}
         {showTabs && (
