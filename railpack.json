@@ -7,10 +7,7 @@
   },
   "steps": {
     "install": {
-      "commands": [
-        { "src": ".", "dest": "." },
-        "pnpm install"
-      ]
+      "commands": [{ "src": ".", "dest": "." }, "pnpm install"]
     },
     "build": {
       "inputs": [{ "step": "install" }],
