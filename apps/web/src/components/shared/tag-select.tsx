@@ -206,7 +206,7 @@ export function TagSelect({
       />
       <PopoverContent align="start" className="w-72 gap-0 p-0">
         {/* Search Input */}
-        <InputGroup className="rounded-none border-x-0 border-t-0">
+        <InputGroup className="rounded-none border-x-0 border-t-0 has-[[data-slot=input-group-control]:focus-visible]:ring-0">
           <InputGroupAddon align="inline-start">
             <InputGroupText>
               <span className="i-hugeicons-search-01 size-4" />

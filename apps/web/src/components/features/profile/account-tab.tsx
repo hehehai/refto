@@ -12,6 +12,7 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
+import { Skeleton } from "@/components/ui/skeleton";
 import { client, orpc } from "@/lib/orpc";
 import {
   changeEmailDialog,
@@ -22,20 +23,13 @@ import {
 import { cn } from "@/lib/utils";
 import { ProfileForm } from "./profile-form";
 
-interface AccountTabProps {
-  profile: {
-    id?: string;
-    name?: string;
-    email?: string;
-    emailVerified?: boolean;
-    image?: string | null;
-    createdAt?: Date;
-    hasCredential?: boolean;
-  };
-}
-
-export function AccountTab({ profile }: AccountTabProps) {
+export function AccountTab() {
   const queryClient = useQueryClient();
+
+  // Fetch profile data
+  const { data: profile, isLoading: isProfileLoading } = useQuery(
+    orpc.app.user.getProfile.queryOptions()
+  );
 
   // Fetch sessions
   const { data: sessions = [] } = useQuery(
@@ -84,7 +78,7 @@ export function AccountTab({ profile }: AccountTabProps) {
   };
 
   const handleEmailAction = () => {
-    if (!profile.email) return;
+    if (!profile?.email) return;
     if (profile.emailVerified) {
       changeEmailDialog.openWithPayload({ currentEmail: profile.email });
     } else {
@@ -93,12 +87,16 @@ export function AccountTab({ profile }: AccountTabProps) {
   };
 
   const handlePasswordAction = () => {
-    if (profile.hasCredential) {
+    if (profile?.hasCredential) {
       changePasswordDialog.openWithPayload(undefined);
     } else {
       setPasswordDialog.openWithPayload(undefined);
     }
   };
+
+  if (isProfileLoading || !profile) {
+    return <AccountTabSkeleton />;
+  }
 
   return (
     <div className="space-y-6">
@@ -233,6 +231,40 @@ export function AccountTab({ profile }: AccountTabProps) {
           </ItemGroup>
         </section>
       )}
+    </div>
+  );
+}
+
+function AccountTabSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Profile Section Skeleton */}
+      <section className="space-y-4">
+        <Skeleton className="h-5 w-16" />
+        <div className="flex gap-4">
+          <Skeleton className="size-16 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-9 w-full" />
+          </div>
+        </div>
+      </section>
+
+      {/* Account Section Skeleton */}
+      <section className="space-y-3">
+        <Skeleton className="h-5 w-20" />
+        <div className="space-y-2">
+          <Skeleton className="h-16 w-full rounded-lg" />
+          <Skeleton className="h-16 w-full rounded-lg" />
+        </div>
+      </section>
+
+      {/* Sessions Section Skeleton */}
+      <section className="space-y-3">
+        <Skeleton className="h-5 w-20" />
+        <div className="space-y-2">
+          <Skeleton className="h-16 w-full rounded-lg" />
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   Dialog,
@@ -7,7 +6,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { orpc } from "@/lib/orpc";
 import { userProfileDialog } from "@/lib/sheets";
 import { AccountTab } from "./account-tab";
 import { AppearanceTab } from "./appearance-tab";
@@ -35,19 +33,6 @@ export function UserProfileDialog() {
 
 function UserProfileContent() {
   const [activeTab, setActiveTab] = useState("account");
-
-  // Fetch profile data
-  const { data: profile, isLoading } = useQuery(
-    orpc.app.user.getProfile.queryOptions()
-  );
-
-  if (isLoading || !profile) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <span className="i-hugeicons-loading-01 animate-spin text-2xl text-muted-foreground" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-120">
@@ -79,7 +64,7 @@ function UserProfileContent() {
             className="m-0 h-160 overflow-y-auto py-4 pr-6 pl-4"
             value="account"
           >
-            <AccountTab profile={profile} />
+            <AccountTab />
           </TabsContent>
           <TabsContent
             className="m-0 h-160 overflow-y-auto py-4 pr-6 pl-4"
