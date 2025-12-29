@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useFilePicker } from "use-file-picker";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,9 @@ export function ImageUpload({
   const useUploadHook = getUploadHook();
   const { upload, isUploading } = useUploadHook({
     onSuccess: (result) => onChange(result.url),
+    onError: (error) => {
+      toast.error(error.message || "Upload failed");
+    },
   });
 
   const { openFilePicker, filesContent, clear } = useFilePicker({

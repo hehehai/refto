@@ -72,6 +72,9 @@ export function MediaUpload({
   const videoRef = useRef<HTMLVideoElement>(null);
   const { upload, isUploading } = useAdminUpload({
     onSuccess: (result) => onChange(result.url),
+    onError: (error) => {
+      toast.error(error.message || "Upload failed");
+    },
   });
 
   const { openFilePicker, filesContent, clear } = useFilePicker({
