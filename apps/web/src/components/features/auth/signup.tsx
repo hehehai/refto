@@ -11,24 +11,15 @@ export const SignUp = () => {
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState(false);
 
-  const convertImageToBase64 = async (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
   const handleSubmit = async (data: SignUpFormData) => {
     setIsPending(true);
-    const image = data.image ? await convertImageToBase64(data.image) : "";
 
     try {
       const { error } = await authClient.signUp.email({
         email: data.email,
         password: data.password,
         name: `${data.firstName} ${data.lastName}`,
-        image,
+        image: data.image || "",
       });
       if (error) {
         toast.error(error.message || "Failed to create account");

@@ -72,7 +72,7 @@ export const SigninEmailPassword = ({
                 name={field.name}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="New Password"
+                placeholder="Password"
                 type="password"
                 value={field.state.value}
               />

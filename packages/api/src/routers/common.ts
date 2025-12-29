@@ -1,10 +1,11 @@
 import {
   adminUploadSchema,
   getFileUrlSchema,
+  publicUploadSchema,
   uploadUrlSchema,
   userUploadSchema,
 } from "@refto-one/common";
-import { adminProcedure, protectedProcedure } from "../index";
+import { adminProcedure, protectedProcedure, publicProcedure } from "../index";
 import {
   getDownloadSignedUrl,
   getUploadSignedUrl,
@@ -15,6 +16,14 @@ export const commonRouter = {
   getUploadUrl: protectedProcedure
     .input(uploadUrlSchema)
     .handler(async ({ input }) => getUploadSignedUrl(input)),
+
+  /**
+   * Public file upload for unauthenticated users (max 2MB, images only)
+   * Used for signup avatar upload
+   */
+  publicUpload: publicProcedure
+    .input(publicUploadSchema)
+    .handler(async ({ input }) => uploadR2File(input.file, input.file.name)),
 
   /**
    * Direct file upload for user (max 5MB, images only)

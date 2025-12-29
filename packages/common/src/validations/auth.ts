@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
   emailSchema,
-  imageSchema,
   nameSchema,
   passwordSchema,
   simplePasswordSchema,
@@ -43,7 +42,7 @@ export const signUpSchema = z
     email: emailSchema,
     password: passwordSchema,
     passwordConfirmation: z.string().min(1, "Please confirm your password"),
-    image: imageSchema.nullable(),
+    image: z.string().nullable(),
   })
   .refine((data) => data.password === data.passwordConfirmation, {
     message: "Passwords do not match",

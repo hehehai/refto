@@ -3,12 +3,22 @@ import {
   ALL_MIME_TYPES,
   IMAGE_MIME_TYPES,
   MAX_SIZE_ADMIN,
+  MAX_SIZE_PUBLIC,
   MAX_SIZE_USER,
 } from "../constants/file";
 
 export const uploadUrlSchema = z.string().min(1);
 
 export type UploadUrlSchema = z.infer<typeof uploadUrlSchema>;
+
+export const publicUploadSchema = z.object({
+  file: z
+    .file()
+    .max(MAX_SIZE_PUBLIC, "File size exceeds 2MB limit")
+    .mime(IMAGE_MIME_TYPES, "Only image files are allowed"),
+});
+
+export type PublicUploadSchema = z.infer<typeof publicUploadSchema>;
 
 export const userUploadSchema = z.object({
   file: z

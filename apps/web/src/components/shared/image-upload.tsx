@@ -1,7 +1,7 @@
 import { useFilePicker } from "use-file-picker";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useAdminUpload, useUpload } from "@/hooks/use-upload";
+import { useAdminUpload, usePublicUpload, useUpload } from "@/hooks/use-upload";
 import { cn } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
 
@@ -12,7 +12,7 @@ interface ImageUploadProps {
   className?: string;
   variant?: "avatar" | "square";
   size?: "sm" | "default" | "lg";
-  uploadType?: "user" | "admin";
+  uploadType?: "user" | "admin" | "public";
   placeholder?: React.ReactNode;
   fallback?: string;
   right?: React.ReactNode;
@@ -42,7 +42,17 @@ export function ImageUpload({
   fallback = "?",
   right,
 }: ImageUploadProps) {
-  const useUploadHook = uploadType === "admin" ? useAdminUpload : useUpload;
+  const getUploadHook = () => {
+    switch (uploadType) {
+      case "public":
+        return usePublicUpload;
+      case "user":
+        return useUpload;
+      default:
+        return useAdminUpload;
+    }
+  };
+  const useUploadHook = getUploadHook();
   const { upload, isUploading } = useUploadHook({
     onSuccess: (result) => onChange(result.url),
   });
