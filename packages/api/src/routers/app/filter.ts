@@ -71,6 +71,7 @@ export const filterRouter = {
       const { sitesLimit, tagsLimit } = input;
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const sevenDaysAgoISO = sevenDaysAgo.toISOString();
 
       // Trending sites: most viewed in last 7 days
       // Using subquery to count page views
@@ -85,7 +86,7 @@ export const filterRouter = {
             WHERE event_logs.target_id = ${sites.id}
               AND event_logs.target_type = 'site'
               AND event_logs.event_type = 'PAGE_VIEWED'
-              AND event_logs.created_at >= ${sevenDaysAgo}
+              AND event_logs.created_at >= ${sevenDaysAgoISO}
           ), 0)`.as("view_count"),
         })
         .from(sites)
@@ -97,7 +98,7 @@ export const filterRouter = {
               WHERE event_logs.target_id = ${sites.id}
                 AND event_logs.target_type = 'site'
                 AND event_logs.event_type = 'PAGE_VIEWED'
-                AND event_logs.created_at >= ${sevenDaysAgo}
+                AND event_logs.created_at >= ${sevenDaysAgoISO}
             ), 0)`
           ),
           desc(sites.createdAt)

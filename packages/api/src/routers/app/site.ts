@@ -199,12 +199,13 @@ export const appSiteRouter = {
         // Trending: likes in the last 7 days, offset-based pagination
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const sevenDaysAgoISO = sevenDaysAgo.toISOString();
 
         // Define the subquery once and reference by alias in ORDER BY
         const likeCountExpr = sql<number>`(
           SELECT COUNT(*) FROM site_page_version_likes
           WHERE site_page_version_likes."versionId" = ${sitePageVersions.id}
-          AND site_page_version_likes.created_at >= ${sevenDaysAgo}
+          AND site_page_version_likes.created_at >= ${sevenDaysAgoISO}
         )`.as("like_count");
 
         const versions = await db
