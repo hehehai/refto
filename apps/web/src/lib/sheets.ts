@@ -37,3 +37,10 @@ export const filterDialog = Dialog.createHandle<
     }
   | undefined
 >();
+
+// Version Preview Sheet (for app section - bottom sheet)
+export const versionPreviewSheet = Dialog.createHandle<{
+  siteSlug: string;
+  pageSlug: string;
+  versionSlug: string;
+}>();

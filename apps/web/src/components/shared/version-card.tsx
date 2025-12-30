@@ -1,6 +1,6 @@
-import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { versionPreviewSheet } from "@/lib/sheets";
 import { CircularProgressButton } from "./circular-progress-button";
 import { LikeButton } from "./like-button";
 import { VideoWrapper } from "./video-wrapper";
@@ -78,20 +78,29 @@ export function VersionCard({
     }
   }, []);
 
+  // Open sheet instead of navigating
+  const handleCardClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      versionPreviewSheet.openWithPayload({
+        siteSlug: site.slug,
+        pageSlug: page.slug,
+        versionSlug: format(version.versionDate, "yyyy-MM-dd"),
+      });
+    },
+    [site.slug, page.slug, version.versionDate]
+  );
+
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl bg-card">
-      {/* Content area - clickable to detail page */}
+      {/* Content area - clickable to open sheet */}
       <div className="group relative bg-muted p-3">
-        <Link
-          className="relative block aspect-video overflow-hidden"
-          params={{
-            siteSlug: site.slug,
-            pageSlug: page.slug,
-            versionSlug: format(version.versionDate, "yyyy-MM-dd"),
-          }}
-          to="/$siteSlug/$pageSlug/$versionSlug"
+        <button
+          className="relative block aspect-video w-full cursor-pointer overflow-hidden"
+          onClick={handleCardClick}
+          type="button"
         >
           {hasVideo ? (
             <VideoWrapper
@@ -111,7 +120,7 @@ export function VersionCard({
               src={version.webCover}
             />
           )}
-        </Link>
+        </button>
 
         {/* Circular progress button - only show for videos */}
         {hasVideo && (
