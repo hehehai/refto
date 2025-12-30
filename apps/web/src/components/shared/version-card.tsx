@@ -150,7 +150,7 @@ export function VersionCard({
             rel="noopener noreferrer"
             target="_blank"
           >
-            {site.title}
+            {site.title} - {page.title}
           </a>
         </div>
 

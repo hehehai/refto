@@ -30,7 +30,7 @@ export const userUploadSchema = z.object({
 export const adminUploadSchema = z.object({
   file: z
     .file()
-    .max(MAX_SIZE_ADMIN, "File size exceeds 20MB limit")
+    .max(MAX_SIZE_ADMIN, "File size exceeds 100MB limit")
     .mime(ALL_MIME_TYPES, "Only image and video files are allowed"),
 });
 

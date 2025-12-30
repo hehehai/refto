@@ -19,4 +19,4 @@ export const ALL_MIME_TYPES: util.MimeTypes[] = [
 
 export const MAX_SIZE_PUBLIC = 2 * 1024 * 1024; // 2MB (for public uploads like signup avatar)
 export const MAX_SIZE_USER = 5 * 1024 * 1024; // 5MB
-export const MAX_SIZE_ADMIN = 20 * 1024 * 1024; // 20MB
+export const MAX_SIZE_ADMIN = 100 * 1024 * 1024; // 100MB
