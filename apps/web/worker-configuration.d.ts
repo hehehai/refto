@@ -9,8 +9,10 @@ interface Env {
   CLOUD_FLARE_S3_UPLOAD_BUCKET: string;
   VITE_CLOUD_FLARE_R2_URL: string;
 
+  // Hyperdrive binding
+  HYPERDRIVE: Hyperdrive;
+
   // Secrets (set via wrangler secret put)
-  DATABASE_URL: string;
   BETTER_AUTH_SECRET: string;
   RESEND_API_KEY: string;
   GITHUB_CLIENT_SECRET: string;
