@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useRef } from "react";
+import {
+  getCFVideoUrlByPreset,
+  type VideoPreset,
+} from "@/components/ui/cf-video";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { cn } from "@/lib/utils";
 
@@ -8,6 +12,7 @@ export interface VideoWrapperProps {
   className?: string;
   src?: string | null;
   cover: string;
+  preset?: VideoPreset;
   ref?: React.Ref<HTMLVideoElement>;
   playing?: boolean;
   onPlayingChange?: (playing: boolean) => void;
@@ -20,6 +25,7 @@ export function VideoWrapper({
   className,
   src,
   cover,
+  preset,
   ref,
   playing,
   onPlayingChange,
@@ -29,6 +35,9 @@ export function VideoWrapper({
 }: VideoWrapperProps) {
   const internalRef = useRef<HTMLVideoElement>(null);
   const videoRef = (ref as React.RefObject<HTMLVideoElement>) ?? internalRef;
+
+  // Apply video transformations if preset is provided
+  const videoSrc = preset ? getCFVideoUrlByPreset(src, preset) : src;
 
   const inView = useIntersectionObserver(videoRef, {
     rootMargin: "50% 0px 50% 0px",
@@ -127,7 +136,7 @@ export function VideoWrapper({
       preload="none"
       ref={videoRef}
     >
-      <source src={src ?? undefined} type="video/mp4" />
+      <source src={videoSrc ?? undefined} type="video/mp4" />
       Your browser does not support the video tag.
     </video>
   );

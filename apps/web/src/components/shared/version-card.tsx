@@ -101,6 +101,7 @@ export function VersionCard({
               onDurationChange={setDuration}
               onLoop={handleLoop}
               onPlayingChange={setPlaying}
+              preset="webRecordThumb"
               ref={videoRef}
               src={version.webRecord}
             />

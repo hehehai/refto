@@ -21,7 +21,7 @@ A modern full-stack TypeScript application for discovering and curating website 
 | **API Layer** | oRPC (end-to-end type-safe RPC) |
 | **Database** | PostgreSQL + Drizzle ORM |
 | **Authentication** | Better Auth (Email/Password, GitHub, Google OAuth) |
-| **File Storage** | Cloudflare R2 |
+| **File Storage** | Cloudflare R2 + Image/Video Transformations |
 | **Email** | React Email + Resend |
 | **Deployment** | Cloudflare Workers + Wrangler |
 | **Code Quality** | Biome + Ultracite |

@@ -21,10 +21,10 @@ export const IMAGE_PRESETS = {
   logoSm: { width: 32, height: 32, fit: "contain", quality: 85 },
 
   // Version covers
-  webCover: { width: 800, quality: 80, fit: "cover" },
-  webCoverThumb: { width: 400, quality: 75, fit: "cover" },
-  mobileCover: { width: 400, quality: 80, fit: "cover" },
-  mobileCoverThumb: { width: 200, quality: 75, fit: "cover" },
+  webCover: { width: 1280, quality: 80, fit: "cover" },
+  webCoverThumb: { width: 800, quality: 80, fit: "cover" },
+  mobileCover: { width: 480, quality: 80, fit: "cover" },
+  mobileCoverThumb: { width: 320, quality: 80, fit: "cover" },
 
   // OG images
   og: { width: 1200, height: 630, quality: 85, fit: "cover" },

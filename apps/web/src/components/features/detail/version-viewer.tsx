@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CircularProgressButton } from "@/components/shared/circular-progress-button";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
 import { CFImage, getCFImageUrlByPreset } from "@/components/ui/cf-image";
+import type { VideoPreset } from "@/components/ui/cf-video";
 import { cn } from "@/lib/utils";
 
 interface Version {
@@ -34,6 +35,8 @@ export function VersionViewer({
   const cover = viewMode === "mobile" ? version.mobileCover : version.webCover;
   const record =
     viewMode === "mobile" ? version.mobileRecord : version.webRecord;
+  const videoPreset: VideoPreset =
+    viewMode === "mobile" ? "mobileRecord" : "webRecord";
 
   const hasVideo = Boolean(record);
 
@@ -147,6 +150,7 @@ export function VersionViewer({
                 onDurationChange={setDuration}
                 onLoop={handleLoop}
                 onPlayingChange={setPlaying}
+                preset={videoPreset}
                 ref={videoRef}
                 src={record}
               />

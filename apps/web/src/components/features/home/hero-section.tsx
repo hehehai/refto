@@ -105,6 +105,7 @@ export function HeroSection({
                       first.version.webCover,
                       "webCoverThumb"
                     )}
+                    preset="webRecordThumb"
                     src={first.version.webRecord}
                   />
                 )}
@@ -119,6 +120,7 @@ export function HeroSection({
                       second.version.webCover,
                       "webCoverThumb"
                     )}
+                    preset="webRecordThumb"
                     src={second.version.webRecord}
                   />
                 )}
@@ -129,6 +131,7 @@ export function HeroSection({
                       third.version.webCover,
                       "webCoverThumb"
                     )}
+                    preset="webRecordThumb"
                     src={third.version.webRecord}
                   />
                 )}
