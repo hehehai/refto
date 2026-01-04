@@ -23,6 +23,7 @@ A modern full-stack TypeScript application for discovering and curating website 
 | **Authentication** | Better Auth (Email/Password, GitHub, Google OAuth) |
 | **File Storage** | Cloudflare R2 |
 | **Email** | React Email + Resend |
+| **Deployment** | Cloudflare Workers + Wrangler |
 | **Code Quality** | Biome + Ultracite |
 | **Package Manager** | pnpm (monorepo workspaces) |
 
@@ -58,7 +59,7 @@ refto-one/
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - pnpm 10+
 - PostgreSQL database
 
@@ -87,6 +88,7 @@ DATABASE_URL="postgresql://user:password@localhost:5432/refto_one"
 # Better Auth
 BETTER_AUTH_SECRET="your-secret-key"
 BETTER_AUTH_URL="http://localhost:3001"
+CORS_ORIGIN="http://localhost:3001"
 
 # OAuth (optional)
 GITHUB_CLIENT_ID=""
@@ -95,13 +97,15 @@ GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
 
 # Email (optional)
+EMAIL_USER="noreply@your-domain.com"
 RESEND_API_KEY=""
 
-# File Storage (optional)
-R2_ACCOUNT_ID=""
-R2_ACCESS_KEY_ID=""
-R2_SECRET_ACCESS_KEY=""
-R2_BUCKET_NAME=""
+# Cloudflare R2 Storage (optional)
+CLOUD_FLARE_R2_ACCOUNT_ID=""
+CLOUD_FLARE_S3_UPLOAD_KEY=""
+CLOUD_FLARE_S3_UPLOAD_SECRET=""
+CLOUD_FLARE_S3_UPLOAD_BUCKET=""
+VITE_CLOUD_FLARE_R2_URL=""
 ```
 
 3. Initialize the database:
@@ -147,58 +151,69 @@ pnpm run db:studio    # Open Drizzle Studio
 pnpm run build
 ```
 
-Build output is located at `apps/web/.output/`
+Build output is located at `apps/web/dist/`
 
 ## Deployment
 
-### Cloudflare Workers (Recommended)
+### Cloudflare Workers
 
-This project uses [Alchemy](https://alchemy.run) for deploying to Cloudflare Workers.
+This project uses Wrangler and the Cloudflare Vite plugin for deploying to Cloudflare Workers.
 
-#### Prerequisites
+#### Configuration Files
 
-1. A Cloudflare account with Workers enabled
-2. Cloudflare API token with appropriate permissions
-3. Configure environment variables in `apps/web/.env`
+| File | Purpose |
+|------|---------|
+| `apps/web/wrangler.toml` | Wrangler configuration with non-sensitive vars |
+| `apps/web/.dev.vars` | Local development secrets (not committed) |
 
 #### Environment Variables
 
-```env
-# Required
-DATABASE_URL="postgresql://..."
-BETTER_AUTH_SECRET="your-secret-key-32-chars-min"
-BETTER_AUTH_URL="https://your-domain.com"
-CORS_ORIGIN="https://your-domain.com"
-EMAIL_USER="noreply@your-domain.com"
+**Non-sensitive variables** are stored in `wrangler.toml`:
 
-# OAuth
-GITHUB_CLIENT_ID=""
-GITHUB_CLIENT_SECRET=""
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
+```toml
+[vars]
+CORS_ORIGIN = "https://your-domain.com"
+BETTER_AUTH_URL = "https://your-domain.com"
+EMAIL_USER = "hi@your-domain.com"
+GITHUB_CLIENT_ID = "..."
+GOOGLE_CLIENT_ID = "..."
+CLOUD_FLARE_R2_ACCOUNT_ID = "..."
+CLOUD_FLARE_S3_UPLOAD_BUCKET = "..."
+VITE_CLOUD_FLARE_R2_URL = "https://storage.your-domain.com"
+```
+
+**Sensitive secrets** are set via Wrangler CLI (one-time setup):
+
+```bash
+cd apps/web
+
+# Database
+pnpm exec wrangler secret put DATABASE_URL
+
+# Auth
+pnpm exec wrangler secret put BETTER_AUTH_SECRET
 
 # Email
-RESEND_API_KEY=""
+pnpm exec wrangler secret put RESEND_API_KEY
 
-# Cloudflare R2 Storage
-CLOUD_FLARE_R2_ACCOUNT_ID=""
-CLOUD_FLARE_S3_UPLOAD_KEY=""
-CLOUD_FLARE_S3_UPLOAD_SECRET=""
-CLOUD_FLARE_S3_UPLOAD_BUCKET=""
-VITE_CLOUD_FLARE_R2_URL=""
+# OAuth secrets
+pnpm exec wrangler secret put GITHUB_CLIENT_SECRET
+pnpm exec wrangler secret put GOOGLE_CLIENT_SECRET
+
+# R2 storage
+pnpm exec wrangler secret put CLOUD_FLARE_S3_UPLOAD_KEY
+pnpm exec wrangler secret put CLOUD_FLARE_S3_UPLOAD_SECRET
 ```
 
 #### Deploy Commands
 
 ```bash
-# Deploy to Cloudflare Workers
+# Build and deploy to Cloudflare Workers
 pnpm run deploy
 
-# Destroy deployment
+# Delete deployment
 pnpm run deploy:destroy
 ```
-
-The deployment configuration is defined in `apps/web/alchemy.run.ts`. Custom domains can be configured in the `domains` option.
 
 ### Alternative Platforms
 
