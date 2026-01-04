@@ -436,8 +436,16 @@ export const appSiteRouter = {
         .innerJoin(tags, eq(siteTags.tagId, tags.id))
         .where(and(eq(siteTags.siteId, site.id), isNull(tags.deletedAt)));
 
+      // Sort pages: default first, then by createdAt ascending
+      const sortedPages = [...site.pages].sort((a, b) => {
+        if (a.isDefault && !b.isDefault) return -1;
+        if (!a.isDefault && b.isDefault) return 1;
+        return a.createdAt.getTime() - b.createdAt.getTime();
+      });
+
       const siteWithTags = {
         ...site,
+        pages: sortedPages,
         tags: siteTagsData.map((t) => t.tag),
       };
 
