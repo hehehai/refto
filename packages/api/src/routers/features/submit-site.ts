@@ -3,9 +3,8 @@ import {
   submitSiteCreateSchema,
   submitSiteUpdateSchema,
 } from "@refto-one/common";
-import { db } from "@refto-one/db";
+import { and, desc, eq, isNull } from "@refto-one/db";
 import { submitSite } from "@refto-one/db/schema/submissions";
-import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../../index";
 
@@ -13,6 +12,7 @@ export const submitSiteRouter = {
   // List user's submitted sites (excluding deleted)
   list: protectedProcedure.handler(async ({ context }) => {
     const userId = context.session.user.id;
+    const { db } = context;
 
     const sites = await db
       .select()
@@ -29,6 +29,7 @@ export const submitSiteRouter = {
     .handler(async ({ input, context }) => {
       const userId = context.session.user.id;
       const email = context.session.user.email;
+      const { db } = context;
 
       const [site] = await db
         .insert(submitSite)
@@ -49,6 +50,7 @@ export const submitSiteRouter = {
     .handler(async ({ input, context }) => {
       const userId = context.session.user.id;
       const { id, ...updateData } = input;
+      const { db } = context;
 
       // Check if site exists and belongs to user
       const [existing] = await db
@@ -101,6 +103,7 @@ export const submitSiteRouter = {
     .input(z.object({ id: z.number() }))
     .handler(async ({ input, context }) => {
       const userId = context.session.user.id;
+      const { db } = context;
 
       // Check if site exists and belongs to user
       const [existing] = await db

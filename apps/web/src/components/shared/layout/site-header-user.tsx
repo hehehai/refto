@@ -44,8 +44,13 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
             className="flex items-center rounded-full pl-3"
             variant="secondary"
           >
-            <Avatar className="size-5">
-              <AvatarImage alt={user.name} src={user.image ?? undefined} />
+            <Avatar className="size-5" size="sm">
+              <AvatarImage
+                alt={user.name}
+                optimize
+                size="sm"
+                src={user.image ?? undefined}
+              />
               <AvatarFallback className="text-xs">
                 {getInitials(user.name)}
               </AvatarFallback>
@@ -60,7 +65,11 @@ export function SiteHeaderUser({ initialUser }: SiteHeaderUserProps) {
         <DropdownMenuGroup>
           <DropdownMenuLabel className="flex items-center gap-1.5 font-normal">
             <Avatar className="size-8">
-              <AvatarImage alt={user.name} src={user.image ?? undefined} />
+              <AvatarImage
+                alt={user.name}
+                optimize
+                src={user.image ?? undefined}
+              />
               <AvatarFallback className="text-xs">
                 {getInitials(user.name)}
               </AvatarFallback>

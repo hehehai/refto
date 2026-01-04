@@ -1,10 +1,9 @@
 import { ORPCError } from "@orpc/server";
 import { updateProfileSchema } from "@refto-one/common";
-import { db } from "@refto-one/db";
+import { and, eq, isNull, ne } from "@refto-one/db";
 import { account, session, user } from "@refto-one/db/schema/auth";
 import { sitePageVersionLikes } from "@refto-one/db/schema/sites";
 import { submitSite } from "@refto-one/db/schema/submissions";
-import { and, eq, isNull, ne } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../../index";
 import { generateId, hashPassword } from "../../lib/utils";
@@ -13,6 +12,7 @@ export const appUserRouter = {
   // Get current user profile
   getProfile: protectedProcedure.handler(async ({ context }) => {
     const userId = context.session.user.id;
+    const { db } = context;
 
     const profile = await db.query.user.findFirst({
       where: eq(user.id, userId),
@@ -47,6 +47,7 @@ export const appUserRouter = {
     .input(updateProfileSchema)
     .handler(async ({ input, context }) => {
       const userId = context.session.user.id;
+      const { db } = context;
 
       const updateData: { name?: string; image?: string | null } = {};
 
@@ -88,6 +89,7 @@ export const appUserRouter = {
   // Get user's active sessions (latest 5)
   getSessions: protectedProcedure.handler(async ({ context }) => {
     const userId = context.session.user.id;
+    const { db } = context;
 
     const sessions = await db.query.session.findMany({
       where: eq(session.userId, userId),
@@ -115,6 +117,7 @@ export const appUserRouter = {
   // Get linked OAuth accounts
   getLinkedAccounts: protectedProcedure.handler(async ({ context }) => {
     const userId = context.session.user.id;
+    const { db } = context;
 
     const accounts = await db.query.account.findMany({
       where: eq(account.userId, userId),
@@ -135,6 +138,7 @@ export const appUserRouter = {
     .handler(async ({ input, context }) => {
       const userId = context.session.user.id;
       const currentSessionId = context.session.session.id;
+      const { db } = context;
 
       // Cannot revoke current session
       if (input.sessionId === currentSessionId) {
@@ -167,6 +171,7 @@ export const appUserRouter = {
   // Delete all user submissions (soft delete)
   deleteAllSubmissions: protectedProcedure.handler(async ({ context }) => {
     const userId = context.session.user.id;
+    const { db } = context;
 
     const result = await db
       .update(submitSite)
@@ -180,6 +185,7 @@ export const appUserRouter = {
   // Delete all user likes
   deleteAllLikes: protectedProcedure.handler(async ({ context }) => {
     const userId = context.session.user.id;
+    const { db } = context;
 
     const result = await db
       .delete(sitePageVersionLikes)
@@ -194,6 +200,7 @@ export const appUserRouter = {
     .input(z.object({ newPassword: z.string().min(8) }))
     .handler(async ({ input, context }) => {
       const userId = context.session.user.id;
+      const { db } = context;
 
       // Check if user already has a credential account
       const existingCredential = await db.query.account.findFirst({

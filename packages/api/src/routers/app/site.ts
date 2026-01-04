@@ -9,16 +9,6 @@ import {
   versionsFeedSchema,
   weeklyFeedSchema,
 } from "@refto-one/common";
-import { db } from "@refto-one/db";
-import { eventLogs } from "@refto-one/db/schema/events";
-import {
-  sitePages,
-  sitePageVersionLikes,
-  sitePageVersions,
-  sites,
-} from "@refto-one/db/schema/sites";
-import { siteTags, tags } from "@refto-one/db/schema/tags";
-import { format } from "date-fns";
 import {
   and,
   count,
@@ -29,15 +19,25 @@ import {
   isNull,
   lt,
   sql,
-} from "drizzle-orm";
+} from "@refto-one/db";
+import { eventLogs } from "@refto-one/db/schema/events";
+import {
+  sitePages,
+  sitePageVersionLikes,
+  sitePageVersions,
+  sites,
+} from "@refto-one/db/schema/sites";
+import { siteTags, tags } from "@refto-one/db/schema/tags";
+import { format } from "date-fns";
 import { publicProcedure } from "../../index";
 
 export const appSiteRouter = {
   // Get pinned sites with their latest pageVersion
   getPinnedSites: publicProcedure
     .input(pinnedSitesSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { limit } = input;
+      const { db } = context;
 
       // Get pinned sites
       const pinnedSites = await db.query.sites.findMany({
@@ -93,6 +93,7 @@ export const appSiteRouter = {
     .handler(async ({ input, context }) => {
       const { cursor, limit, sort, tags: tagValues } = input;
       const userId = context.session?.user?.id;
+      const { db } = context;
 
       // Unauthenticated users are limited to 36 items total
       const maxUnauthItems = 36;
@@ -329,6 +330,7 @@ export const appSiteRouter = {
     .handler(async ({ input, context }) => {
       const { id } = input;
       const userId = context.session?.user?.id;
+      const { db } = context;
 
       const version = await db.query.sitePageVersions.findFirst({
         where: eq(sitePageVersions.id, id),
@@ -381,8 +383,9 @@ export const appSiteRouter = {
   // Get site detail with all pages and versions
   getSiteDetail: publicProcedure
     .input(siteDetailSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { id } = input;
+      const { db } = context;
 
       const site = await db.query.sites.findFirst({
         where: and(eq(sites.id, id), isNull(sites.deletedAt)),
@@ -410,6 +413,7 @@ export const appSiteRouter = {
     .handler(async ({ input, context }) => {
       const { siteSlug, pageSlug, versionSlug } = input;
       const userId = context.session?.user?.id;
+      const { db } = context;
 
       // Find site by slug
       const site = await db.query.sites.findFirst({
@@ -497,8 +501,9 @@ export const appSiteRouter = {
   // Get related sites by tag similarity
   getRelatedSites: publicProcedure
     .input(relatedSitesSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { siteId, limit } = input;
+      const { db } = context;
 
       // Get the current site's tag IDs
       const currentSiteTagIds = await db
@@ -649,6 +654,7 @@ export const appSiteRouter = {
     .handler(async ({ input, context }) => {
       const { cursor = 0, limit } = input;
       const userId = context.session?.user?.id;
+      const { db } = context;
 
       // Unauthenticated users limited to 3 weeks
       const maxWeeksUnauth = 3;

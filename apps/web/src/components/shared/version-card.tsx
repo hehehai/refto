@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CFImage, getCFImageUrlByPreset } from "@/components/ui/cf-image";
 import { CircularProgressButton } from "./circular-progress-button";
 import { LikeButton } from "./like-button";
 import { VideoWrapper } from "./video-wrapper";
@@ -96,7 +97,7 @@ export function VersionCard({
           {hasVideo ? (
             <VideoWrapper
               className="size-full rounded-[10px] object-cover"
-              cover={version.webCover}
+              cover={getCFImageUrlByPreset(version.webCover, "webCoverThumb")}
               onDurationChange={setDuration}
               onLoop={handleLoop}
               onPlayingChange={setPlaying}
@@ -104,10 +105,11 @@ export function VersionCard({
               src={version.webRecord}
             />
           ) : (
-            <img
+            <CFImage
               alt={page.title}
               className="size-full rounded-[10px] object-cover"
               loading="lazy"
+              preset="webCoverThumb"
               src={version.webCover}
             />
           )}
@@ -135,9 +137,10 @@ export function VersionCard({
             rel="noopener noreferrer"
             target="_blank"
           >
-            <img
+            <CFImage
               alt={site.title}
               className="size-5.5 rounded object-cover"
+              preset="logoSm"
               src={site.logo}
             />
           </a>

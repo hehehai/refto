@@ -5,10 +5,9 @@ import {
   submitSiteIdSchema,
   submitSiteRejectSchema,
 } from "@refto-one/common";
-import { db } from "@refto-one/db";
+import { and, count, eq, ilike, isNull, or, type SQL } from "@refto-one/db";
 import { user } from "@refto-one/db/schema/auth";
 import { submitSite } from "@refto-one/db/schema/submissions";
-import { and, count, eq, ilike, isNull, or, type SQL } from "drizzle-orm";
 import { adminProcedure } from "../../index";
 import {
   buildPaginationResult,
@@ -21,9 +20,10 @@ export const panelSubmitSiteRouter = {
   // List all submissions with pagination, search, filter, sort
   list: adminProcedure
     .input(panelSubmitSiteListSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { page, pageSize, search, userId, status, sortBy, sortOrder } =
         input;
+      const { db } = context;
       const offset = getPaginationOffset({ page, pageSize });
 
       // Build where conditions
@@ -90,7 +90,9 @@ export const panelSubmitSiteRouter = {
   // Approve a submission
   approve: adminProcedure
     .input(submitSiteIdSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
+      const { db } = context;
+
       const existing = await db.query.submitSite.findFirst({
         where: and(eq(submitSite.id, input.id), isNull(submitSite.deletedAt)),
       });
@@ -123,8 +125,9 @@ export const panelSubmitSiteRouter = {
   // Reject a submission
   reject: adminProcedure
     .input(submitSiteRejectSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { id, reason } = input;
+      const { db } = context;
 
       const existing = await db.query.submitSite.findFirst({
         where: and(eq(submitSite.id, id), isNull(submitSite.deletedAt)),
@@ -158,7 +161,9 @@ export const panelSubmitSiteRouter = {
   // Soft delete a submission
   delete: adminProcedure
     .input(submitSiteDeleteSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
+      const { db } = context;
+
       const existing = await db.query.submitSite.findFirst({
         where: and(eq(submitSite.id, input.id), isNull(submitSite.deletedAt)),
       });

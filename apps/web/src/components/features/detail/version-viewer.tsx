@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CircularProgressButton } from "@/components/shared/circular-progress-button";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
+import { CFImage, getCFImageUrlByPreset } from "@/components/ui/cf-image";
 import { cn } from "@/lib/utils";
 
 interface Version {
@@ -137,7 +138,12 @@ export function VersionViewer({
             {hasVideo ? (
               <VideoWrapper
                 className="w-full"
-                cover={cover ?? ""}
+                cover={
+                  getCFImageUrlByPreset(
+                    cover,
+                    viewMode === "mobile" ? "mobileCover" : "webCover"
+                  ) ?? ""
+                }
                 onDurationChange={setDuration}
                 onLoop={handleLoop}
                 onPlayingChange={setPlaying}
@@ -145,7 +151,12 @@ export function VersionViewer({
                 src={record}
               />
             ) : cover ? (
-              <img alt="Page screenshot" className="w-full" src={cover} />
+              <CFImage
+                alt="Page screenshot"
+                className="w-full"
+                preset={viewMode === "mobile" ? "mobileCover" : "webCover"}
+                src={cover}
+              />
             ) : (
               <div className="flex aspect-video items-center justify-center bg-muted text-muted-foreground">
                 <span className="i-hugeicons-image-not-found-01 text-4xl" />

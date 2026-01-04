@@ -7,8 +7,6 @@ import {
   tagListSchema,
   tagUpsertSchema,
 } from "@refto-one/common";
-import { db } from "@refto-one/db";
-import { tags } from "@refto-one/db/schema/tags";
 import {
   and,
   count,
@@ -19,7 +17,8 @@ import {
   not,
   or,
   type SQL,
-} from "drizzle-orm";
+} from "@refto-one/db";
+import { tags } from "@refto-one/db/schema/tags";
 import { adminProcedure, protectedProcedure } from "../../index";
 import {
   buildPaginationResult,
@@ -32,159 +31,174 @@ import {
 
 export const tagRouter = {
   // List tags with pagination, search, filter, sort
-  list: adminProcedure.input(tagListSchema).handler(async ({ input }) => {
-    const { page, pageSize, search, type, sortBy, sortOrder } = input;
-    const offset = getPaginationOffset({ page, pageSize });
+  list: adminProcedure
+    .input(tagListSchema)
+    .handler(async ({ input, context }) => {
+      const { page, pageSize, search, type, sortBy, sortOrder } = input;
+      const { db } = context;
+      const offset = getPaginationOffset({ page, pageSize });
 
-    // Build where conditions
-    const conditions: SQL[] = [isNull(tags.deletedAt)];
+      // Build where conditions
+      const conditions: SQL[] = [isNull(tags.deletedAt)];
 
-    if (search) {
-      const searchCondition = or(
-        ilike(tags.name, `%${search}%`),
-        ilike(tags.value, `%${search}%`)
-      );
-      if (searchCondition) {
-        conditions.push(searchCondition);
+      if (search) {
+        const searchCondition = or(
+          ilike(tags.name, `%${search}%`),
+          ilike(tags.value, `%${search}%`)
+        );
+        if (searchCondition) {
+          conditions.push(searchCondition);
+        }
       }
-    }
 
-    if (type) {
-      conditions.push(eq(tags.type, type));
-    }
+      if (type) {
+        conditions.push(eq(tags.type, type));
+      }
 
-    const whereClause = and(...conditions);
+      const whereClause = and(...conditions);
 
-    // Get total count
-    const totalResult = await db
-      .select({ count: count() })
-      .from(tags)
-      .where(whereClause);
-    const total = getCountFromResult(totalResult);
+      // Get total count
+      const totalResult = await db
+        .select({ count: count() })
+        .from(tags)
+        .where(whereClause);
+      const total = getCountFromResult(totalResult);
 
-    // Build order by
-    const sortColumn = sortBy === "name" ? tags.name : tags.createdAt;
+      // Build order by
+      const sortColumn = sortBy === "name" ? tags.name : tags.createdAt;
 
-    // Get tags
-    const tagList = await db
-      .select()
-      .from(tags)
-      .where(whereClause)
-      .orderBy(getSortOrder(sortColumn, sortOrder))
-      .limit(pageSize)
-      .offset(offset);
+      // Get tags
+      const tagList = await db
+        .select()
+        .from(tags)
+        .where(whereClause)
+        .orderBy(getSortOrder(sortColumn, sortOrder))
+        .limit(pageSize)
+        .offset(offset);
 
-    return buildPaginationResult(tagList, total, { page, pageSize });
-  }),
+      return buildPaginationResult(tagList, total, { page, pageSize });
+    }),
 
   // Get tag by ID
-  getById: adminProcedure.input(tagIdSchema).handler(async ({ input }) => {
-    const tag = await db.query.tags.findFirst({
-      where: and(eq(tags.id, input.id), isNull(tags.deletedAt)),
-    });
+  getById: adminProcedure
+    .input(tagIdSchema)
+    .handler(async ({ input, context }) => {
+      const { db } = context;
 
-    if (!tag) {
-      throw new ORPCError("NOT_FOUND", { message: "Tag not found" });
-    }
-
-    return tag;
-  }),
-
-  // Upsert tag (create if no id, update if id provided)
-  upsert: adminProcedure.input(tagUpsertSchema).handler(async ({ input }) => {
-    const { id, value, type, ...data } = input;
-
-    try {
-      // Check value+type uniqueness among non-deleted tags
-      const valueConditions = [
-        eq(tags.value, value),
-        eq(tags.type, type),
-        isNull(tags.deletedAt),
-      ];
-      if (id) {
-        valueConditions.push(not(eq(tags.id, id)));
-      }
-
-      const existingValue = await db.query.tags.findFirst({
-        where: and(...valueConditions),
+      const tag = await db.query.tags.findFirst({
+        where: and(eq(tags.id, input.id), isNull(tags.deletedAt)),
       });
 
-      if (existingValue) {
-        throw new ORPCError("CONFLICT", {
-          message: "Tag with this value and type already exists",
-        });
+      if (!tag) {
+        throw new ORPCError("NOT_FOUND", { message: "Tag not found" });
       }
 
-      if (id) {
-        // UPDATE
-        const existing = await db.query.tags.findFirst({
-          where: and(eq(tags.id, id), isNull(tags.deletedAt)),
-        });
+      return tag;
+    }),
 
-        if (!existing) {
-          throw new ORPCError("NOT_FOUND", { message: "Tag not found" });
+  // Upsert tag (create if no id, update if id provided)
+  upsert: adminProcedure
+    .input(tagUpsertSchema)
+    .handler(async ({ input, context }) => {
+      const { id, value, type, ...data } = input;
+      const { db } = context;
+
+      try {
+        // Check value+type uniqueness among non-deleted tags
+        const valueConditions = [
+          eq(tags.value, value),
+          eq(tags.type, type),
+          isNull(tags.deletedAt),
+        ];
+        if (id) {
+          valueConditions.push(not(eq(tags.id, id)));
         }
 
-        const [updated] = await db
-          .update(tags)
-          .set({
+        const existingValue = await db.query.tags.findFirst({
+          where: and(...valueConditions),
+        });
+
+        if (existingValue) {
+          throw new ORPCError("CONFLICT", {
+            message: "Tag with this value and type already exists",
+          });
+        }
+
+        if (id) {
+          // UPDATE
+          const existing = await db.query.tags.findFirst({
+            where: and(eq(tags.id, id), isNull(tags.deletedAt)),
+          });
+
+          if (!existing) {
+            throw new ORPCError("NOT_FOUND", { message: "Tag not found" });
+          }
+
+          const [updated] = await db
+            .update(tags)
+            .set({
+              ...data,
+              value,
+              type,
+              updatedAt: new Date(),
+            })
+            .where(eq(tags.id, id))
+            .returning();
+
+          return updated;
+        }
+
+        // CREATE
+        const tagId = generateId();
+
+        const [newTag] = await db
+          .insert(tags)
+          .values({
+            id: tagId,
             ...data,
             value,
             type,
-            updatedAt: new Date(),
           })
-          .where(eq(tags.id, id))
           .returning();
 
-        return updated;
+        return newTag;
+      } catch (error) {
+        return handleDbError(error);
       }
-
-      // CREATE
-      const tagId = generateId();
-
-      const [newTag] = await db
-        .insert(tags)
-        .values({
-          id: tagId,
-          ...data,
-          value,
-          type,
-        })
-        .returning();
-
-      return newTag;
-    } catch (error) {
-      return handleDbError(error);
-    }
-  }),
+    }),
 
   // Soft delete tag
-  delete: adminProcedure.input(tagIdSchema).handler(async ({ input }) => {
-    const existing = await db.query.tags.findFirst({
-      where: and(eq(tags.id, input.id), isNull(tags.deletedAt)),
-    });
+  delete: adminProcedure
+    .input(tagIdSchema)
+    .handler(async ({ input, context }) => {
+      const { db } = context;
 
-    if (!existing) {
-      throw new ORPCError("NOT_FOUND", { message: "Tag not found" });
-    }
+      const existing = await db.query.tags.findFirst({
+        where: and(eq(tags.id, input.id), isNull(tags.deletedAt)),
+      });
 
-    const [updated] = await db
-      .update(tags)
-      .set({
-        deletedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(tags.id, input.id))
-      .returning();
+      if (!existing) {
+        throw new ORPCError("NOT_FOUND", { message: "Tag not found" });
+      }
 
-    return updated;
-  }),
+      const [updated] = await db
+        .update(tags)
+        .set({
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(tags.id, input.id))
+        .returning();
+
+      return updated;
+    }),
 
   // Batch soft delete tags
   batchDelete: adminProcedure
     .input(tagBatchDeleteSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { ids } = input;
+      const { db } = context;
 
       await db
         .update(tags)
@@ -200,8 +214,9 @@ export const tagRouter = {
   // List tags for select dropdown (lightweight, no pagination)
   listForSelect: protectedProcedure
     .input(tagListForSelectSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { search, type, limit } = input;
+      const { db } = context;
 
       // Build where conditions
       const conditions: SQL[] = [isNull(tags.deletedAt)];
@@ -242,8 +257,9 @@ export const tagRouter = {
   // List tags by IDs (for fetching specific tags)
   listByIds: protectedProcedure
     .input(tagListByIdsSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { ids } = input;
+      const { db } = context;
 
       if (ids.length === 0) {
         return [];

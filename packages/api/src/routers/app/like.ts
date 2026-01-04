@@ -4,7 +4,7 @@ import {
   toggleLikeSchema,
   userLikesSchema,
 } from "@refto-one/common";
-import { db } from "@refto-one/db";
+import { and, desc, eq, inArray, isNull, lt } from "@refto-one/db";
 import { eventLogs } from "@refto-one/db/schema/events";
 import {
   sitePages,
@@ -12,7 +12,6 @@ import {
   sitePageVersions,
   sites,
 } from "@refto-one/db/schema/sites";
-import { and, desc, eq, inArray, isNull, lt } from "drizzle-orm";
 import { protectedProcedure } from "../../index";
 import { generateId } from "../../lib/utils";
 
@@ -23,6 +22,7 @@ export const likeRouter = {
     .handler(async ({ input, context }) => {
       const { versionId } = input;
       const userId = context.session.user.id;
+      const { db } = context;
 
       // Check if version exists
       const version = await db.query.sitePageVersions.findFirst({
@@ -98,6 +98,7 @@ export const likeRouter = {
     .handler(async ({ input, context }) => {
       const { cursor, limit } = input;
       const userId = context.session.user.id;
+      const { db } = context;
 
       // Build cursor condition
       const cursorCondition = cursor
@@ -173,6 +174,7 @@ export const likeRouter = {
     .handler(async ({ input, context }) => {
       const { versionIds } = input;
       const userId = context.session.user.id;
+      const { db } = context;
 
       if (versionIds.length === 0) {
         return {};

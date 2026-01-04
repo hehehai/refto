@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CFImage } from "@/components/ui/cf-image";
 import { Rating } from "@/components/ui/rating";
 
 interface Tag {
@@ -27,9 +28,10 @@ export function SiteHero({ site }: SiteHeroProps) {
         <div className="flex items-start gap-4">
           {/* Site logo */}
           <a href={site.url} rel="noopener noreferrer" target="_blank">
-            <img
+            <CFImage
               alt={site.title}
               className="size-16 rounded-lg object-cover shadow-md"
+              preset="logo"
               src={site.logo}
             />
           </a>

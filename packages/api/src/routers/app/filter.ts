@@ -4,11 +4,10 @@ import {
   trackPageViewSchema,
   trendingDataSchema,
 } from "@refto-one/common";
-import { db } from "@refto-one/db";
+import { and, count, desc, eq, ilike, isNull, or, sql } from "@refto-one/db";
 import { eventLogs } from "@refto-one/db/schema/events";
 import { sites } from "@refto-one/db/schema/sites";
 import { siteTags, tags } from "@refto-one/db/schema/tags";
-import { and, count, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 import { publicProcedure } from "../../index";
 import { generateId } from "../../lib/utils";
 
@@ -16,9 +15,10 @@ export const filterRouter = {
   // Search tags and sites
   search: publicProcedure
     .input(filterSearchSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { q, limit } = input;
       const searchTerm = `%${q}%`;
+      const { db } = context;
 
       // Search tags
       const matchingTags = await db
@@ -67,8 +67,9 @@ export const filterRouter = {
   // Get trending data for empty state
   getTrendingData: publicProcedure
     .input(trendingDataSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { sitesLimit, tagsLimit } = input;
+      const { db } = context;
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const sevenDaysAgoISO = sevenDaysAgo.toISOString();
@@ -142,8 +143,9 @@ export const filterRouter = {
   // Get all tags by type
   getTagsByType: publicProcedure
     .input(tagsByTypeSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { type } = input;
+      const { db } = context;
 
       const tagList = await db
         .select({
@@ -166,6 +168,7 @@ export const filterRouter = {
     .handler(async ({ input, context }) => {
       const { siteId, pageId } = input;
       const userId = context.session?.user?.id ?? null;
+      const { db } = context;
 
       // Insert page view event
       await db.insert(eventLogs).values({

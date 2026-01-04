@@ -1,5 +1,5 @@
 import { likeLeaderboardSchema, statPeriodSchema } from "@refto-one/common";
-import { db } from "@refto-one/db";
+import { and, count, desc, eq, gte, isNull, lt, sql } from "@refto-one/db";
 import { user } from "@refto-one/db/schema/auth";
 import { eventLogs } from "@refto-one/db/schema/events";
 import {
@@ -8,7 +8,6 @@ import {
   sites,
 } from "@refto-one/db/schema/sites";
 import { submitSite } from "@refto-one/db/schema/submissions";
-import { and, count, desc, eq, gte, isNull, lt, sql } from "drizzle-orm";
 import { adminProcedure } from "../../index";
 import {
   calculateChangePercent,
@@ -85,8 +84,9 @@ function getLeaderboardTimeRange(range: string): { start: Date; end: Date } {
 export const statRouter = {
   getStats: adminProcedure
     .input(statPeriodSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { period } = input;
+      const { db } = context;
       const { currentStart, previousStart, previousEnd } = getTimeRange(period);
 
       // User stats
@@ -179,7 +179,8 @@ export const statRouter = {
     }),
 
   // Dashboard stats with month-over-month comparison
-  getDashboardStats: adminProcedure.handler(async () => {
+  getDashboardStats: adminProcedure.handler(async ({ context }) => {
+    const { db } = context;
     const thisMonth = getMonthRange(0);
     const lastMonth = getMonthRange(1);
 
@@ -316,7 +317,8 @@ export const statRouter = {
   }),
 
   // User growth chart data
-  getUserGrowthChart: adminProcedure.handler(async () => {
+  getUserGrowthChart: adminProcedure.handler(async ({ context }) => {
+    const { db } = context;
     const now = new Date();
     const thisWeekStart = getWeekStart(now);
     const lastWeekStart = new Date(thisWeekStart);
@@ -415,8 +417,9 @@ export const statRouter = {
   // Like leaderboard
   getLikeLeaderboard: adminProcedure
     .input(likeLeaderboardSchema)
-    .handler(async ({ input }) => {
+    .handler(async ({ input, context }) => {
       const { range, limit } = input;
+      const { db } = context;
       const { start, end } = getLeaderboardTimeRange(range);
 
       // Get likes from event logs within time range, grouped by site

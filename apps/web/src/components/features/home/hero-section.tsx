@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { BadgeLinearGradient } from "@/components/shared/badge-linear-gradient";
 import { TagSelect } from "@/components/shared/tag-select";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
+import { getCFImageUrlByPreset } from "@/components/ui/cf-image";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PinnedSite } from "@/lib/orpc-types";
 
@@ -100,7 +101,10 @@ export function HeroSection({
                 {first?.version && (
                   <VideoWrapper
                     className="rounded-xl border border-y-zinc-100 dark:border-zinc-900"
-                    cover={first.version.webCover}
+                    cover={getCFImageUrlByPreset(
+                      first.version.webCover,
+                      "webCoverThumb"
+                    )}
                     src={first.version.webRecord}
                   />
                 )}
@@ -111,14 +115,20 @@ export function HeroSection({
                 {second?.version && (
                   <VideoWrapper
                     className="rounded-xl border border-zinc-100 dark:border-zinc-900"
-                    cover={second.version.webCover}
+                    cover={getCFImageUrlByPreset(
+                      second.version.webCover,
+                      "webCoverThumb"
+                    )}
                     src={second.version.webRecord}
                   />
                 )}
                 {third?.version && (
                   <VideoWrapper
                     className="rounded-xl border border-zinc-100 dark:border-zinc-900"
-                    cover={third.version.webCover}
+                    cover={getCFImageUrlByPreset(
+                      third.version.webCover,
+                      "webCoverThumb"
+                    )}
                     src={third.version.webRecord}
                   />
                 )}

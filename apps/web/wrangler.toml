@@ -1,6 +1,6 @@
 name = "refto-one"
 main = "@tanstack/react-start/server-entry"
-compatibility_date = "2025-12-17"
+compatibility_date = "2025-12-10"
 compatibility_flags = ["nodejs_compat", "nodejs_compat_populate_process_env"]
 
 [observability]
@@ -21,6 +21,7 @@ VITE_CLOUD_FLARE_R2_URL = "https://storage.refto.one"
 [[hyperdrive]]
 binding = "HYPERDRIVE"
 id = "90471877dbdf4681aa43db981cab467c"
+localConnectionString = "postgresql://root:gcw1swoll2ds6pwv@154.12.21.191:7235/refto-one"
 
 # Secrets set via: wrangler secret put <NAME>
 # BETTER_AUTH_SECRET, RESEND_API_KEY

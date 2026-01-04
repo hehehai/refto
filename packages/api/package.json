@@ -25,7 +25,6 @@
     "@types/pg": "catalog:",
     "date-fns": "catalog:",
     "dotenv": "catalog:",
-    "drizzle-orm": "catalog:",
     "es-toolkit": "catalog:",
     "slug": "^11.0.1",
     "zod": "catalog:"

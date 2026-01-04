@@ -4,6 +4,7 @@ import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { type CFImageOptions, getCFImageUrl } from "./cf-image";
 
 function Avatar({
   className,
@@ -25,7 +26,34 @@ function Avatar({
   );
 }
 
-function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
+// Size to pixel mapping for Cloudflare image optimization
+const AVATAR_SIZE_MAP = {
+  sm: 24, // size-6 = 1.5rem = 24px
+  default: 32, // size-8 = 2rem = 32px
+  lg: 40, // size-10 = 2.5rem = 40px
+} as const;
+
+function AvatarImage({
+  className,
+  src,
+  optimize = false,
+  size = "default",
+  ...props
+}: AvatarPrimitive.Image.Props & {
+  optimize?: boolean;
+  size?: "default" | "sm" | "lg";
+}) {
+  // Apply Cloudflare image optimization if enabled
+  const optimizedSrc =
+    optimize && src
+      ? getCFImageUrl(src, {
+          width: AVATAR_SIZE_MAP[size] * 2, // 2x for retina
+          height: AVATAR_SIZE_MAP[size] * 2,
+          fit: "cover",
+          quality: 80,
+        } satisfies CFImageOptions)
+      : src;
+
   return (
     <AvatarPrimitive.Image
       className={cn(
@@ -33,6 +61,7 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
         className
       )}
       data-slot="avatar-image"
+      src={optimizedSrc}
       {...props}
     />
   );
