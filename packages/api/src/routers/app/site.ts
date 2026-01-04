@@ -21,6 +21,7 @@ import { siteTags, tags } from "@refto-one/db/schema/tags";
 import { format } from "date-fns";
 import {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -338,6 +339,10 @@ export const appSiteRouter = {
               site: {
                 with: {
                   pages: {
+                    orderBy: [
+                      desc(sitePages.isDefault),
+                      asc(sitePages.createdAt),
+                    ],
                     with: {
                       versions: {
                         orderBy: [desc(sitePageVersions.createdAt)],
@@ -388,6 +393,7 @@ export const appSiteRouter = {
         where: and(eq(sites.id, id), isNull(sites.deletedAt)),
         with: {
           pages: {
+            orderBy: [desc(sitePages.isDefault), asc(sitePages.createdAt)],
             with: {
               versions: {
                 orderBy: [desc(sitePageVersions.createdAt)],
@@ -416,6 +422,7 @@ export const appSiteRouter = {
         where: and(eq(sites.slug, siteSlug), isNull(sites.deletedAt)),
         with: {
           pages: {
+            orderBy: [desc(sitePages.isDefault), asc(sitePages.createdAt)],
             with: {
               versions: {
                 orderBy: [desc(sitePageVersions.versionDate)],

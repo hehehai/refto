@@ -10,6 +10,7 @@ import {
   LazySubmitSiteDialog,
   LazyUserProfileDialog,
   LazyVerifyEmailDialog,
+  LazyVersionPreviewSheet,
 } from "@/components/shared/lazy-dialogs";
 import { getUser } from "@/functions/get-user";
 import { useGlobalHotkeys } from "@/hooks/use-global-hotkeys";
@@ -44,6 +45,7 @@ function RouteComponent() {
         <LazyConfirmDialog />
         <LazySubmitSiteDialog />
         <LazyFilterDialog />
+        <LazyVersionPreviewSheet />
       </Suspense>
     </div>
   );

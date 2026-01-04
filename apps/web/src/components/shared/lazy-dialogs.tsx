@@ -71,3 +71,10 @@ export const LazyUserDetailSheet = lazy(() =>
     default: m.UserDetailSheet,
   }))
 );
+
+// App Sheets
+export const LazyVersionPreviewSheet = lazy(() =>
+  import("@/components/features/detail/version-preview-sheet").then((m) => ({
+    default: m.VersionPreviewSheet,
+  }))
+);
