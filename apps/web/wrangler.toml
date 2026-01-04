@@ -1,0 +1,23 @@
+name = "refto-one"
+main = "@tanstack/react-start/server-entry"
+compatibility_date = "2025-12-17"
+compatibility_flags = ["nodejs_compat", "nodejs_compat_populate_process_env"]
+
+[observability]
+enabled = true
+
+# Non-sensitive variables (production values)
+[vars]
+CORS_ORIGIN = "https://refto.one"
+BETTER_AUTH_URL = "https://refto.one"
+EMAIL_USER = "hi@refto.one"
+GITHUB_CLIENT_ID = "Ov23likOiTYU5aIHDlFE"
+GOOGLE_CLIENT_ID = "140850536204-p3vm0gokbes37ai5hd6gpimo3u40k2hd.apps.googleusercontent.com"
+CLOUD_FLARE_R2_ACCOUNT_ID = "8a8325619b834f43256fd77f030b11a2"
+CLOUD_FLARE_S3_UPLOAD_BUCKET = "refto"
+VITE_CLOUD_FLARE_R2_URL = "https://storage.refto.one"
+
+# Secrets set via: wrangler secret put <NAME>
+# DATABASE_URL, BETTER_AUTH_SECRET, RESEND_API_KEY
+# GITHUB_CLIENT_SECRET, GOOGLE_CLIENT_SECRET
+# CLOUD_FLARE_S3_UPLOAD_KEY, CLOUD_FLARE_S3_UPLOAD_SECRET
