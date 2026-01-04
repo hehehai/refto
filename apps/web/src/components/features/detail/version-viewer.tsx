@@ -1,3 +1,4 @@
+import type { HTMLAttributes } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CircularProgressButton } from "@/components/shared/circular-progress-button";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
@@ -13,7 +14,7 @@ interface Version {
   mobileRecord?: string | null;
 }
 
-interface VersionViewerProps {
+interface VersionViewerProps extends HTMLAttributes<HTMLDivElement> {
   version: Version;
   viewMode: "web" | "mobile";
   hasMobileContent: boolean;
@@ -25,6 +26,8 @@ export function VersionViewer({
   viewMode,
   hasMobileContent,
   onViewModeChange,
+  className,
+  ...props
 }: VersionViewerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -84,91 +87,87 @@ export function VersionViewer({
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <section className="py-8">
-      <div className="container mx-auto px-4">
-        <div className="relative mx-auto w-[88%] rounded-2xl bg-muted/50 p-18">
-          <div className="absolute inset-x-4 top-4 z-10 flex items-center justify-between">
-            <div className="flex rounded-lg bg-background/80 p-1 shadow-sm backdrop-blur-sm">
-              <button
-                className={cn(
-                  "flex size-8 items-center justify-center rounded-md transition-colors",
-                  viewMode === "web"
-                    ? "bg-muted text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                onClick={() => onViewModeChange("web")}
-                title="Web view"
-                type="button"
-              >
-                <span className="i-hugeicons-computer" />
-              </button>
-              {hasMobileContent && (
-                <button
-                  className={cn(
-                    "flex size-8 items-center justify-center rounded-md transition-colors",
-                    viewMode === "mobile"
-                      ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                  onClick={() => onViewModeChange("mobile")}
-                  title="Mobile view"
-                  type="button"
-                >
-                  <span className="i-hugeicons-smart-phone-01" />
-                </button>
-              )}
-            </div>
-
-            {/* Progress button - right (only for video) */}
-            {hasVideo && (
-              <CircularProgressButton
-                iconClassName="text-xs"
-                onClick={handleTogglePlay}
-                playing={playing}
-                progress={progress}
-                size={28}
-              />
-            )}
-          </div>
-
-          {/* Content */}
-          <div
+    <div className={cn("relative", className)} {...props}>
+      <div className="absolute inset-x-4 top-4 z-10 flex items-center justify-between">
+        <div className="flex rounded-lg bg-background/80 p-1 shadow-sm backdrop-blur-sm">
+          <button
             className={cn(
-              "mx-auto overflow-hidden rounded-lg shadow-lg",
-              viewMode === "mobile" ? "max-w-xs" : "w-full"
+              "flex size-8 items-center justify-center rounded-md transition-colors",
+              viewMode === "web"
+                ? "bg-muted text-foreground"
+                : "text-muted-foreground hover:text-foreground"
             )}
+            onClick={() => onViewModeChange("web")}
+            title="Web view"
+            type="button"
           >
-            {hasVideo ? (
-              <VideoWrapper
-                className="w-full"
-                cover={
-                  getCFImageUrlByPreset(
-                    cover,
-                    viewMode === "mobile" ? "mobileCover" : "webCover"
-                  ) ?? ""
-                }
-                onDurationChange={setDuration}
-                onLoop={handleLoop}
-                onPlayingChange={setPlaying}
-                preset={videoPreset}
-                ref={videoRef}
-                src={record}
-              />
-            ) : cover ? (
-              <CFImage
-                alt="Page screenshot"
-                className="w-full"
-                preset={viewMode === "mobile" ? "mobileCover" : "webCover"}
-                src={cover}
-              />
-            ) : (
-              <div className="flex aspect-video items-center justify-center bg-muted text-muted-foreground">
-                <span className="i-hugeicons-image-not-found-01 text-4xl" />
-              </div>
-            )}
-          </div>
+            <span className="i-hugeicons-computer" />
+          </button>
+          {hasMobileContent && (
+            <button
+              className={cn(
+                "flex size-8 items-center justify-center rounded-md transition-colors",
+                viewMode === "mobile"
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              onClick={() => onViewModeChange("mobile")}
+              title="Mobile view"
+              type="button"
+            >
+              <span className="i-hugeicons-smart-phone-01" />
+            </button>
+          )}
         </div>
+
+        {/* Progress button - right (only for video) */}
+        {hasVideo && (
+          <CircularProgressButton
+            iconClassName="text-xs"
+            onClick={handleTogglePlay}
+            playing={playing}
+            progress={progress}
+            size={28}
+          />
+        )}
       </div>
-    </section>
+
+      {/* Content */}
+      <div
+        className={cn(
+          "mx-auto overflow-hidden rounded-lg shadow-lg",
+          viewMode === "mobile" ? "max-w-xs" : "w-full"
+        )}
+      >
+        {hasVideo ? (
+          <VideoWrapper
+            className="w-full"
+            cover={
+              getCFImageUrlByPreset(
+                cover,
+                viewMode === "mobile" ? "mobileCover" : "webCover"
+              ) ?? ""
+            }
+            onDurationChange={setDuration}
+            onLoop={handleLoop}
+            onPlayingChange={setPlaying}
+            preset={videoPreset}
+            ref={videoRef}
+            src={record}
+          />
+        ) : cover ? (
+          <CFImage
+            alt="Page screenshot"
+            className="w-full"
+            preset={viewMode === "mobile" ? "mobileCover" : "webCover"}
+            src={cover}
+          />
+        ) : (
+          <div className="flex aspect-video items-center justify-center bg-muted text-muted-foreground">
+            <span className="i-hugeicons-image-not-found-01 text-4xl" />
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

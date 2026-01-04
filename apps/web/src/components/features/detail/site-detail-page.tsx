@@ -113,12 +113,17 @@ export function SiteDetailPage({
 
       {/* Version Viewer */}
       {currentVersion && (
-        <VersionViewer
-          hasMobileContent={hasMobileContent}
-          onViewModeChange={setViewMode}
-          version={currentVersion}
-          viewMode={viewMode}
-        />
+        <section className="py-8">
+          <div className="container mx-auto px-4">
+            <VersionViewer
+              className="relative mx-auto w-[88%] rounded-2xl bg-muted/50 p-18"
+              hasMobileContent={hasMobileContent}
+              onViewModeChange={setViewMode}
+              version={currentVersion}
+              viewMode={viewMode}
+            />
+          </div>
+        </section>
       )}
 
       {/* Related Sites */}
