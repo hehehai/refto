@@ -279,7 +279,7 @@ export function MediaUpload({
 
         {media && !disabled && !isUploading && (
           <Button
-            className="-right-1 -top-1 absolute z-20 size-5 rounded-full p-0.5"
+            className="-top-1 -right-1 absolute z-20 size-5 rounded-full p-0.5"
             onClick={handleRemove}
             size="icon-xs"
             type="button"

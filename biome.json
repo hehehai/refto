@@ -3,7 +3,6 @@
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "**",
       "!**/convex/**/_*",
       "!**/.next",
       "!**/dist",

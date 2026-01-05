@@ -47,7 +47,7 @@ export const AuthLayout = ({ children }: React.PropsWithChildren) => {
               </div>
               <span className="i-hugeicons-flash-1 text-lg text-muted-foreground" />
             </div>
-            <div className="flex-1 overflow-y-auto flex items-center justify-center px-4 pb-4">
+            <div className="flex flex-1 items-center justify-center overflow-y-auto px-4 pb-4">
               {latestVersion ? (
                 <VersionViewer
                   className="w-full max-w-4xl rounded-2xl"
