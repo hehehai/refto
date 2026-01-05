@@ -91,9 +91,17 @@ function HomeSkeleton() {
               </div>
             </div>
             <div className="grid w-1/2 grid-cols-2 gap-8">
-              {[0, 1, 2].map((i) => (
-                <Skeleton className="aspect-video w-full rounded-xl" key={i} />
-              ))}
+              <div className="flex flex-col justify-end">
+                <Skeleton className="aspect-video w-full rounded-xl" />
+              </div>
+              <div className="flex flex-col justify-end gap-8">
+                {[0, 1].map((i) => (
+                  <Skeleton
+                    className="aspect-video w-full rounded-xl"
+                    key={i}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>

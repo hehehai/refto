@@ -11,12 +11,12 @@
   "type": "module",
   "scripts": {},
   "devDependencies": {
-    "@types/react": "^19"
+    "@types/react": "^19.2.7"
   },
   "dependencies": {
-    "@react-email/components": "^1.0.1",
-    "@react-email/render": "^2.0.0",
-    "@react-email/tailwind": "^2.0.1",
+    "@react-email/components": "^1.0.3",
+    "@react-email/render": "^2.0.1",
+    "@react-email/tailwind": "^2.0.3",
     "react": "catalog:",
     "resend": "catalog:"
   }
