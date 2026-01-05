@@ -13,11 +13,11 @@ export interface CFVideoOptions {
 // Video presets for common use cases
 export const VIDEO_PRESETS = {
   // Video mode - web
-  webRecord: { mode: "video", width: 1280, audio: false },
+  webRecord: { mode: "video", width: 1920, audio: false },
   webRecordThumb: { mode: "video", width: 800, audio: false },
 
   // Video mode - mobile (smaller screen, less bandwidth needed)
-  mobileRecord: { mode: "video", width: 480, audio: false },
+  mobileRecord: { mode: "video", width: 750, audio: false },
   mobileRecordThumb: { mode: "video", width: 320, audio: false },
 
   // Frame mode - extract thumbnail from video

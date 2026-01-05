@@ -21,9 +21,9 @@ export const IMAGE_PRESETS = {
   logoSm: { width: 32, height: 32, fit: "contain", quality: 85 },
 
   // Version covers
-  webCover: { width: 1280, quality: 80, fit: "cover" },
+  webCover: { width: 1920, quality: 90, fit: "cover" },
   webCoverThumb: { width: 800, quality: 80, fit: "cover" },
-  mobileCover: { width: 480, quality: 80, fit: "cover" },
+  mobileCover: { width: 750, quality: 90, fit: "cover" },
   mobileCoverThumb: { width: 320, quality: 80, fit: "cover" },
 
   // OG images

@@ -141,7 +141,10 @@ export function VersionViewer({
       >
         {hasVideo ? (
           <VideoWrapper
-            className="w-full"
+            className={cn(
+              "w-full",
+              viewMode === "mobile" ? "aspect-[9/16]" : "aspect-[3420/1962]"
+            )}
             cover={
               getCFImageUrlByPreset(
                 cover,
@@ -158,12 +161,15 @@ export function VersionViewer({
         ) : cover ? (
           <CFImage
             alt="Page screenshot"
-            className="w-full"
+            className={cn(
+              "w-full",
+              viewMode === "mobile" ? "aspect-[9/16]" : "aspect-[3420/1962]"
+            )}
             preset={viewMode === "mobile" ? "mobileCover" : "webCover"}
             src={cover}
           />
         ) : (
-          <div className="flex aspect-video items-center justify-center bg-muted text-muted-foreground">
+          <div className="flex aspect-[3420/1962] items-center justify-center bg-muted text-muted-foreground">
             <span className="i-hugeicons-image-not-found-01 text-4xl" />
           </div>
         )}
