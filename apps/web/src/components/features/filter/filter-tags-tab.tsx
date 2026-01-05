@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 interface Tag {
@@ -13,6 +14,7 @@ interface FilterTagsTabProps {
   tags: Tag[];
   type: "category" | "section" | "style";
   onTagClick: (tagValue: string) => void;
+  isLoading?: boolean;
   className?: string;
 }
 
@@ -20,8 +22,26 @@ export function FilterTagsTab({
   tags,
   type,
   onTagClick,
+  isLoading = false,
   className,
 }: FilterTagsTabProps) {
+  // Show skeleton loading state
+  if (isLoading) {
+    const widths = [16, 20, 14, 18, 22, 15, 17, 19];
+
+    return (
+      <div className={cn("flex flex-wrap gap-2", className)}>
+        {widths.map((width, i) => (
+          <Skeleton
+            className="h-7 rounded-full"
+            key={i}
+            style={{ width: `${width * 4}px` }}
+          />
+        ))}
+      </div>
+    );
+  }
+
   if (tags.length === 0) {
     return (
       <div

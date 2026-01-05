@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 interface TrendingTag {
@@ -6,6 +7,7 @@ interface TrendingTag {
   name: string;
   value: string;
   type: string;
+  tipMedia: string | null;
   usageCount: number;
 }
 
@@ -39,26 +41,52 @@ export function FilterTrendingTab({
 }: FilterTrendingTabProps) {
   if (!data) {
     return (
-      <div className={cn("space-y-6", className)}>
-        {/* Loading skeleton */}
+      <div className={cn("space-y-5", className)}>
+        {/* Hot Sites skeleton */}
         <section>
-          <div className="mb-3 h-4 w-20 animate-pulse rounded bg-muted" />
-          <div className="grid grid-cols-6 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                className="flex aspect-square animate-pulse items-center justify-center rounded-xl bg-muted"
+          <div className="mb-3 grid grid-cols-6 gap-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton className="aspect-square size-14 rounded-xl" key={i} />
+            ))}
+          </div>
+        </section>
+
+        {/* Categories skeleton */}
+        <section>
+          <Skeleton className="mb-3 h-4 w-20" />
+          <div className="grid grid-cols-4 gap-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div className="space-y-2" key={i}>
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-16 w-full rounded-lg" />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Sections skeleton */}
+        <section>
+          <Skeleton className="mb-3 h-4 w-20" />
+          <div className="flex flex-wrap gap-2">
+            {[20, 14, 18, 16, 22, 15].map((width, i) => (
+              <Skeleton
+                className="h-7 rounded-full"
                 key={i}
+                style={{ width: `${width * 4}px` }}
               />
             ))}
           </div>
         </section>
+
+        {/* Styles skeleton */}
         <section>
-          <div className="mb-3 h-4 w-20 animate-pulse rounded bg-muted" />
+          <Skeleton className="mb-3 h-4 w-20" />
           <div className="flex flex-wrap gap-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                className="h-7 w-20 animate-pulse rounded-full bg-muted"
+            {[18, 16, 14, 20, 17, 19].map((width, i) => (
+              <Skeleton
+                className="h-7 rounded-full"
                 key={i}
+                style={{ width: `${width * 4}px` }}
               />
             ))}
           </div>
@@ -105,7 +133,15 @@ export function FilterTrendingTab({
                 type="button"
               >
                 <span className="font-medium text-sm">{tag.name}</span>
-                <div className="h-16 w-full rounded-lg bg-muted/50" />
+                {tag.tipMedia ? (
+                  <img
+                    alt={tag.name}
+                    className="h-16 w-full rounded-lg object-cover"
+                    src={tag.tipMedia}
+                  />
+                ) : (
+                  <div className="h-16 w-full rounded-lg bg-muted/50" />
+                )}
               </button>
             ))}
           </div>

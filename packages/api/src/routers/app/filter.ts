@@ -113,6 +113,7 @@ export const filterRouter = {
           name: tags.name,
           value: tags.value,
           type: tags.type,
+          tipMedia: tags.tipMedia,
           usageCount: count(siteTags.siteId),
         })
         .from(tags)

@@ -41,7 +41,7 @@ export function FilterBrowseTabs({
   );
 
   // Tags by type query (only when non-trending tab is active)
-  const { data: tagsByType } = useQuery({
+  const { data: tagsByType, isLoading: isLoadingTags } = useQuery({
     ...orpc.app.filter.getTagsByType.queryOptions({
       input: { type: activeTab as "category" | "section" | "style" },
     }),
@@ -83,6 +83,7 @@ export function FilterBrowseTabs({
         {TABS.filter((tab) => tab.value !== "trending").map((tab) => (
           <TabsContent className="mt-0" key={tab.value} value={tab.value}>
             <FilterTagsTab
+              isLoading={isLoadingTags}
               onTagClick={onTagClick}
               tags={tagsByType ?? []}
               type={tab.value as "category" | "section" | "style"}
