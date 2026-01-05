@@ -41,5 +41,5 @@ export const Route = createFileRoute("/(app)/$siteSlug/")({
 function SiteSlugIndexComponent() {
   const { siteSlug } = Route.useParams();
 
-  return <SiteDetailPage siteSlug={siteSlug} />;
+  return <SiteDetailPage key={siteSlug} siteSlug={siteSlug} />;
 }

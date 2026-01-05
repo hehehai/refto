@@ -47,6 +47,7 @@ function VersionSlugComponent() {
 
   return (
     <SiteDetailPage
+      key={`${siteSlug}-${pageSlug}-${versionSlug}`}
       pageSlug={pageSlug}
       siteSlug={siteSlug}
       versionSlug={versionSlug}
