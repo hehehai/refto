@@ -11,7 +11,7 @@ interface RelatedSite {
   id: string;
   title: string;
   slug: string;
-  description: string;
+  description: string | null;
   logo: string;
   url: string;
   tags: Tag[];

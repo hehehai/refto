@@ -9,6 +9,8 @@ import { eventLogs } from "@refto-one/db/schema/events";
 import { sites } from "@refto-one/db/schema/sites";
 import { siteTags, tags } from "@refto-one/db/schema/tags";
 import { publicProcedure } from "../../index";
+import { CACHE_TTL, KVCache } from "../../lib/cache";
+import { CacheKeys } from "../../lib/cache-keys";
 import { generateId } from "../../lib/utils";
 
 export const filterRouter = {
@@ -17,8 +19,34 @@ export const filterRouter = {
     .input(filterSearchSchema)
     .handler(async ({ input, context }) => {
       const { q, limit } = input;
+      const { db, kv } = context;
+      const cache = new KVCache(kv);
+      const cacheKey = CacheKeys.search(q, limit);
+
+      // Define return type
+      type SearchResult = {
+        tags: Array<{
+          id: string;
+          name: string;
+          value: string;
+          type: string;
+        }>;
+        sites: Array<{
+          id: string;
+          title: string;
+          slug: string;
+          description: string | null;
+          logo: string;
+        }>;
+      };
+
+      // Try cache first
+      const cached = await cache.get<SearchResult>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
       const searchTerm = `%${q}%`;
-      const { db } = context;
 
       // Search tags
       const matchingTags = await db
@@ -58,10 +86,15 @@ export const filterRouter = {
         )
         .limit(limit);
 
-      return {
+      const result = {
         tags: matchingTags,
         sites: matchingSites,
       };
+
+      // Cache the result
+      await cache.set(cacheKey, result, { ttl: CACHE_TTL.SEARCH });
+
+      return result;
     }),
 
   // Get trending data for empty state
@@ -69,7 +102,51 @@ export const filterRouter = {
     .input(trendingDataSchema)
     .handler(async ({ input, context }) => {
       const { sitesLimit, tagsLimit } = input;
-      const { db } = context;
+      const { db, kv } = context;
+      const cache = new KVCache(kv);
+      const cacheKey = CacheKeys.trendingData(sitesLimit, tagsLimit);
+
+      // Define return type
+      type TrendingDataResult = {
+        sites: Array<{
+          id: string;
+          title: string;
+          slug: string;
+          logo: string;
+          viewCount: number;
+        }>;
+        categories: Array<{
+          id: string;
+          name: string;
+          value: string;
+          type: string;
+          tipMedia: string | null;
+          usageCount: number;
+        }>;
+        sections: Array<{
+          id: string;
+          name: string;
+          value: string;
+          type: string;
+          tipMedia: string | null;
+          usageCount: number;
+        }>;
+        styles: Array<{
+          id: string;
+          name: string;
+          value: string;
+          type: string;
+          tipMedia: string | null;
+          usageCount: number;
+        }>;
+      };
+
+      // Try cache first
+      const cached = await cache.get<TrendingDataResult>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const sevenDaysAgoISO = sevenDaysAgo.toISOString();
@@ -133,12 +210,17 @@ export const filterRouter = {
         .filter((t) => t.type === "style")
         .slice(0, tagsLimit);
 
-      return {
+      const result = {
         sites: trendingSites,
         categories,
         sections,
         styles,
       };
+
+      // Cache the result
+      await cache.set(cacheKey, result, { ttl: CACHE_TTL.TRENDING_DATA });
+
+      return result;
     }),
 
   // Get all tags by type
@@ -146,7 +228,24 @@ export const filterRouter = {
     .input(tagsByTypeSchema)
     .handler(async ({ input, context }) => {
       const { type } = input;
-      const { db } = context;
+      const { db, kv } = context;
+      const cache = new KVCache(kv);
+      const cacheKey = CacheKeys.tagsByType(type);
+
+      // Define return type
+      type TagsByTypeResult = Array<{
+        id: string;
+        name: string;
+        value: string;
+        type: string;
+        description: string | null;
+      }>;
+
+      // Try cache first
+      const cached = await cache.get<TagsByTypeResult>(cacheKey);
+      if (cached) {
+        return cached;
+      }
 
       const tagList = await db
         .select({
@@ -160,10 +259,14 @@ export const filterRouter = {
         .where(and(eq(tags.type, type), isNull(tags.deletedAt)))
         .orderBy(tags.name);
 
+      // Cache the result
+      await cache.set(cacheKey, tagList, { ttl: CACHE_TTL.TAGS_BY_TYPE });
+
       return tagList;
     }),
 
   // Track page view (for trending calculation)
+  // Note: This is a write operation, no caching needed
   trackPageView: publicProcedure
     .input(trackPageViewSchema)
     .handler(async ({ input, context }) => {

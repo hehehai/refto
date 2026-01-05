@@ -27,6 +27,8 @@ import { user } from "@refto-one/db/schema/auth";
 import { sitePages, sitePageVersions, sites } from "@refto-one/db/schema/sites";
 import { pageVersionTags, siteTags, tags } from "@refto-one/db/schema/tags";
 import { adminProcedure } from "../../index";
+import { KVCache, type KVNamespace } from "../../lib/cache";
+import { CachePrefix } from "../../lib/cache-keys";
 import {
   buildPaginationResult,
   generateId,
@@ -35,6 +37,33 @@ import {
   getSortOrder,
   handleDbError,
 } from "../../lib/utils";
+
+// Helper to invalidate site-related caches
+async function invalidateSiteCaches(kv: KVNamespace | undefined) {
+  const cache = new KVCache(kv);
+  await Promise.all([
+    cache.invalidateVersion(CachePrefix.FEED),
+    cache.invalidateVersion(CachePrefix.SITES),
+    cache.invalidateVersion(CachePrefix.RELATED),
+    cache.invalidateVersion(CachePrefix.TRENDING),
+  ]);
+}
+
+// Helper to invalidate pinned sites cache
+async function invalidatePinnedCaches(kv: KVNamespace | undefined) {
+  const cache = new KVCache(kv);
+  await cache.invalidateVersion(CachePrefix.PINNED);
+}
+
+// Helper to invalidate version-related caches
+async function invalidateVersionCaches(kv: KVNamespace | undefined) {
+  const cache = new KVCache(kv);
+  await Promise.all([
+    cache.invalidateVersion(CachePrefix.FEED),
+    cache.invalidateVersion(CachePrefix.VERSIONS),
+    cache.invalidateVersion(CachePrefix.WEEKLY),
+  ]);
+}
 
 // Helper to get tags for sites
 async function getTagsForSites(db: DbType, siteIds: string[]) {
@@ -392,6 +421,12 @@ export const siteRouter = {
           // Update site tags
           await updateSiteTags(db, id, tagIds);
 
+          // Invalidate caches
+          await invalidateSiteCaches(context.kv);
+          if (existing.isPinned || data.isPinned) {
+            await invalidatePinnedCaches(context.kv);
+          }
+
           return { ...updated, tagIds };
         }
         // CREATE: Generate ID, insert
@@ -409,6 +444,9 @@ export const siteRouter = {
 
         // Add site tags
         await updateSiteTags(db, siteId, tagIds);
+
+        // Invalidate caches
+        await invalidateSiteCaches(context.kv);
 
         return { ...newSite, tagIds };
       } catch (error) {
@@ -439,6 +477,12 @@ export const siteRouter = {
         .where(eq(sites.id, input.id))
         .returning();
 
+      // Invalidate caches
+      await invalidateSiteCaches(context.kv);
+      if (existing.isPinned) {
+        await invalidatePinnedCaches(context.kv);
+      }
+
       return updated;
     }),
 
@@ -456,6 +500,10 @@ export const siteRouter = {
           updatedAt: new Date(),
         })
         .where(and(inArray(sites.id, ids), isNull(sites.deletedAt)));
+
+      // Invalidate caches
+      await invalidateSiteCaches(context.kv);
+      await invalidatePinnedCaches(context.kv);
 
       return { success: true, deletedCount: ids.length };
     }),
@@ -483,6 +531,9 @@ export const siteRouter = {
         .where(eq(sites.id, input.id))
         .returning();
 
+      // Invalidate pinned cache
+      await invalidatePinnedCaches(context.kv);
+
       return updated;
     }),
 
@@ -508,6 +559,9 @@ export const siteRouter = {
         })
         .where(eq(sites.id, input.id))
         .returning();
+
+      // Invalidate pinned cache
+      await invalidatePinnedCaches(context.kv);
 
       return updated;
     }),
@@ -651,6 +705,9 @@ export const pageRouter = {
           .where(eq(sitePages.id, id))
           .returning();
 
+        // Invalidate caches
+        await invalidateSiteCaches(context.kv);
+
         return updated;
       }
 
@@ -715,6 +772,9 @@ export const pageRouter = {
         })
         .returning();
 
+      // Invalidate caches
+      await invalidateSiteCaches(context.kv);
+
       return newPage;
     }),
 
@@ -734,6 +794,10 @@ export const pageRouter = {
 
       // Physical delete (cascade will handle versions)
       await db.delete(sitePages).where(eq(sitePages.id, input.id));
+
+      // Invalidate caches
+      await invalidateSiteCaches(context.kv);
+      await invalidateVersionCaches(context.kv);
 
       return { success: true };
     }),
@@ -794,6 +858,9 @@ export const versionRouter = {
         // Update version tags
         await updateVersionTags(db, id, tagIds);
 
+        // Invalidate caches
+        await invalidateVersionCaches(context.kv);
+
         return updated;
       }
 
@@ -827,6 +894,9 @@ export const versionRouter = {
       // Add version tags
       await updateVersionTags(db, versionId, tagIds);
 
+      // Invalidate caches
+      await invalidateVersionCaches(context.kv);
+
       return newVersion;
     }),
 
@@ -848,6 +918,9 @@ export const versionRouter = {
       await db
         .delete(sitePageVersions)
         .where(eq(sitePageVersions.id, input.id));
+
+      // Invalidate caches
+      await invalidateVersionCaches(context.kv);
 
       return { success: true };
     }),

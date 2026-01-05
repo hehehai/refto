@@ -11,7 +11,7 @@ interface SearchSite {
   id: string;
   title: string;
   slug: string;
-  description: string;
+  description: string | null;
   logo: string;
 }
 

@@ -20,6 +20,8 @@ import {
 } from "@refto-one/db";
 import { tags } from "@refto-one/db/schema/tags";
 import { adminProcedure, protectedProcedure } from "../../index";
+import { KVCache, type KVNamespace } from "../../lib/cache";
+import { CachePrefix } from "../../lib/cache-keys";
 import {
   buildPaginationResult,
   generateId,
@@ -28,6 +30,16 @@ import {
   getSortOrder,
   handleDbError,
 } from "../../lib/utils";
+
+// Helper to invalidate tag-related caches
+async function invalidateTagCaches(kv: KVNamespace | undefined) {
+  const cache = new KVCache(kv);
+  await Promise.all([
+    cache.invalidateVersion(CachePrefix.TAGS),
+    cache.invalidateVersion(CachePrefix.TRENDING),
+    cache.invalidateVersion(CachePrefix.RELATED),
+  ]);
+}
 
 export const tagRouter = {
   // List tags with pagination, search, filter, sort
@@ -145,6 +157,9 @@ export const tagRouter = {
             .where(eq(tags.id, id))
             .returning();
 
+          // Invalidate caches
+          await invalidateTagCaches(context.kv);
+
           return updated;
         }
 
@@ -160,6 +175,9 @@ export const tagRouter = {
             type,
           })
           .returning();
+
+        // Invalidate caches
+        await invalidateTagCaches(context.kv);
 
         return newTag;
       } catch (error) {
@@ -190,6 +208,9 @@ export const tagRouter = {
         .where(eq(tags.id, input.id))
         .returning();
 
+      // Invalidate caches
+      await invalidateTagCaches(context.kv);
+
       return updated;
     }),
 
@@ -207,6 +228,9 @@ export const tagRouter = {
           updatedAt: new Date(),
         })
         .where(and(inArray(tags.id, ids), isNull(tags.deletedAt)));
+
+      // Invalidate caches
+      await invalidateTagCaches(context.kv);
 
       return { success: true, deletedCount: ids.length };
     }),

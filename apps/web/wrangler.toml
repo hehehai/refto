@@ -23,6 +23,12 @@ binding = "HYPERDRIVE"
 id = "90471877dbdf4681aa43db981cab467c"
 localConnectionString = "postgresql://root:gcw1swoll2ds6pwv@154.12.21.191:7235/refto-one"
 
+# KV namespace for caching
+[[kv_namespaces]]
+binding = "CACHE"
+id = "6b5784248180411d9a478afa00f63205"
+preview_id = "f847531c22e2466eae39045d6921ec2e"
+
 # Secrets set via: wrangler secret put <NAME>
 # BETTER_AUTH_SECRET, RESEND_API_KEY
 # GITHUB_CLIENT_SECRET, GOOGLE_CLIENT_SECRET
