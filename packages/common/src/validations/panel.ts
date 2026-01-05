@@ -6,8 +6,8 @@ const slugSchema = z
   .min(1, "Slug is required")
   .max(255, "Slug must be 255 characters or less")
   .regex(
-    /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-    "Slug must be lowercase alphanumeric with hyphens"
+    /^[a-z0-9]+(?:[_-][a-z0-9]+)*$/,
+    "Slug must be lowercase alphanumeric with hyphens or underscores"
   );
 
 // Pagination base schema
