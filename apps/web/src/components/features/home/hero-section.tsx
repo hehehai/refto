@@ -111,8 +111,8 @@ export function HeroSection({
                 )}
               </div>
             </div>
-            <div className="col-span-1 flex flex-col md:hidden lg:block">
-              <div className="mt-auto space-y-6 lg:min-h-96.75">
+            <div className="col-span-1">
+              <div className="flex flex-col justify-end gap-6 lg:min-h-96.75">
                 {second?.version && (
                   <VideoWrapper
                     className="rounded-xl border border-zinc-100 dark:border-zinc-900"
