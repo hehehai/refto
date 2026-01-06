@@ -8,6 +8,8 @@ enabled = true
 
 # Non-sensitive variables (production values)
 [vars]
+CORS_ORIGIN="https://refto.one"
+BETTER_AUTH_URL="https://refto.one"
 EMAIL_USER = "hi@refto.one"
 GITHUB_CLIENT_ID = "Ov23likOiTYU5aIHDlFE"
 GOOGLE_CLIENT_ID = "140850536204-p3vm0gokbes37ai5hd6gpimo3u40k2hd.apps.googleusercontent.com"

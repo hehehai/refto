@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a full-stack TypeScript monorepo built with the Better-T-Stack. It combines React 19, TanStack Start (SSR), oRPC (type-safe RPC), Drizzle ORM, PostgreSQL, and Better Auth.
+This is a full-stack TypeScript monorepo. It combines React 19, TanStack Start (SSR), oRPC (type-safe RPC), Drizzle ORM, PostgreSQL, and Better Auth.
 
 ## Commands
 
@@ -12,6 +12,7 @@ This is a full-stack TypeScript monorepo built with the Better-T-Stack. It combi
 # Development
 pnpm run dev          # Start all apps (web runs on port 3001)
 pnpm run dev:web      # Start web app only
+pnpm -C apps/web run deploy      # Deploy web app
 
 # lint & types check
 pnpm run check        # Biome check with auto-fix
@@ -115,4 +116,9 @@ Write code that is **accessible, performant, type-safe, and maintainable**.
 - Avoid `dangerouslySetInnerHTML`
 - No `eval()` or direct `document.cookie` assignment
 
-Run `npx ultracite fix` before committing.
+### UI
+
+- `apps/web/components/ui` common ui components, use base-ui components for consistency
+- `apps/web/components/shared` Common components, non-basic components
+- `apps/web/components/features` Business components, components coupled with business
+- The component is based on base-ui. Note that base-ui uses `render` props rather than `asChild`

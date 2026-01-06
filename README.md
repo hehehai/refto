@@ -79,34 +79,7 @@ pnpm install
 cp apps/web/.env.example apps/web/.env
 ```
 
-Edit `apps/web/.env`:
-
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/refto_one"
-
-# Better Auth
-BETTER_AUTH_SECRET="your-secret-key"
-BETTER_AUTH_URL="http://localhost:3001"
-CORS_ORIGIN="http://localhost:3001"
-
-# OAuth (optional)
-GITHUB_CLIENT_ID=""
-GITHUB_CLIENT_SECRET=""
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
-
-# Email (optional)
-EMAIL_USER="noreply@your-domain.com"
-RESEND_API_KEY=""
-
-# Cloudflare R2 Storage (optional)
-CLOUD_FLARE_R2_ACCOUNT_ID=""
-CLOUD_FLARE_S3_UPLOAD_KEY=""
-CLOUD_FLARE_S3_UPLOAD_SECRET=""
-CLOUD_FLARE_S3_UPLOAD_BUCKET=""
-VITE_CLOUD_FLARE_R2_URL=""
-```
+Edit `apps/web/.env` with your values (see [Environment Variables](#environment-variables) section below).
 
 3. Initialize the database:
 
@@ -145,6 +118,52 @@ pnpm run db:migrate   # Run migrations
 pnpm run db:studio    # Open Drizzle Studio
 ```
 
+## Environment Variables
+
+This project uses two environment configuration files:
+
+| File | Purpose |
+|------|---------|
+| `.env` | Standard Node.js development (copied from `.env.example`) |
+| `.dev.vars` | Wrangler local development secrets (copied from `.dev.example.vars`) |
+
+### Variable Reference
+
+#### Core Configuration
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `CORS_ORIGIN` | Allowed CORS origin | `http://localhost:3001` |
+| `BETTER_AUTH_URL` | Authentication service URL | `http://localhost:3001` |
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@localhost:5432/refto` |
+
+#### Authentication
+
+| Variable | Description | Sensitive |
+|----------|-------------|-----------|
+| `BETTER_AUTH_SECRET` | Token signing secret (generate with `pnpm dlx @better-auth/cli@latest secret`) | Yes |
+| `GITHUB_CLIENT_ID` | GitHub OAuth app ID | No |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth app secret | Yes |
+| `GOOGLE_CLIENT_ID` | Google OAuth app ID | No |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth app secret | Yes |
+
+#### Email (Resend)
+
+| Variable | Description | Sensitive |
+|----------|-------------|-----------|
+| `EMAIL_USER` | From email address | No |
+| `RESEND_API_KEY` | Resend API key | Yes |
+
+#### Cloudflare R2 Storage
+
+| Variable | Description | Sensitive |
+|----------|-------------|-----------|
+| `CLOUD_FLARE_R2_ACCOUNT_ID` | R2 account ID | No |
+| `CLOUD_FLARE_S3_UPLOAD_BUCKET` | R2 bucket name | No |
+| `CLOUD_FLARE_S3_UPLOAD_KEY` | R2 access key | Yes |
+| `CLOUD_FLARE_S3_UPLOAD_SECRET` | R2 secret key | Yes |
+| `VITE_CLOUD_FLARE_R2_URL` | Public R2 URL (client-accessible) | No |
+
 ## Build
 
 ```bash
@@ -163,17 +182,16 @@ This project uses Wrangler and the Cloudflare Vite plugin for deploying to Cloud
 
 | File | Purpose |
 |------|---------|
-| `apps/web/wrangler.toml` | Wrangler configuration with non-sensitive vars |
-| `apps/web/.dev.vars` | Local development secrets (not committed) |
+| `wrangler.toml` | Wrangler configuration with non-sensitive vars and bindings |
+| `.dev.vars` | Local development secrets (not committed) |
+| `.dev.example.vars` | Template for `.dev.vars` |
 
-#### Environment Variables
+#### Environment Setup
 
-**Non-sensitive variables** are stored in `wrangler.toml`:
+**Non-sensitive variables** are configured in `wrangler.toml`:
 
 ```toml
 [vars]
-CORS_ORIGIN = "https://your-domain.com"
-BETTER_AUTH_URL = "https://your-domain.com"
 EMAIL_USER = "hi@your-domain.com"
 GITHUB_CLIENT_ID = "..."
 GOOGLE_CLIENT_ID = "..."
@@ -182,12 +200,26 @@ CLOUD_FLARE_S3_UPLOAD_BUCKET = "..."
 VITE_CLOUD_FLARE_R2_URL = "https://storage.your-domain.com"
 ```
 
+**Cloudflare bindings** (also in `wrangler.toml`):
+
+```toml
+# Hyperdrive for PostgreSQL connection pooling
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "your-hyperdrive-id"
+
+# KV namespace for API response caching
+[[kv_namespaces]]
+binding = "CACHE"
+id = "your-kv-id"
+```
+
 **Sensitive secrets** are set via Wrangler CLI (one-time setup):
 
 ```bash
 cd apps/web
 
-# Database
+# Database (if not using Hyperdrive)
 pnpm exec wrangler secret put DATABASE_URL
 
 # Auth
