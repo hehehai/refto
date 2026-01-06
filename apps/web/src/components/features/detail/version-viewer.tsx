@@ -143,7 +143,7 @@ export function VersionViewer({
           <VideoWrapper
             className={cn(
               "w-full",
-              viewMode === "mobile" ? "aspect-[9/16]" : "aspect-[3420/1962]"
+              viewMode === "mobile" ? "aspect-9/16" : "aspect-3420/1962"
             )}
             cover={
               getCFImageUrlByPreset(
@@ -151,6 +151,7 @@ export function VersionViewer({
                 viewMode === "mobile" ? "mobileCover" : "webCover"
               ) ?? ""
             }
+            key={`${version.id}-${viewMode}`}
             onDurationChange={setDuration}
             onLoop={handleLoop}
             onPlayingChange={setPlaying}
@@ -163,13 +164,13 @@ export function VersionViewer({
             alt="Page screenshot"
             className={cn(
               "w-full",
-              viewMode === "mobile" ? "aspect-[9/16]" : "aspect-[3420/1962]"
+              viewMode === "mobile" ? "aspect-9/16" : "aspect-3420/1962"
             )}
             preset={viewMode === "mobile" ? "mobileCover" : "webCover"}
             src={cover}
           />
         ) : (
-          <div className="flex aspect-[3420/1962] items-center justify-center bg-muted text-muted-foreground">
+          <div className="flex aspect-3420/1962 items-center justify-center bg-muted text-muted-foreground">
             <span className="i-hugeicons-image-not-found-01 text-4xl" />
           </div>
         )}
