@@ -17,7 +17,7 @@ export const Route = createFileRoute("/(admin)/panel")({
       throw redirect({ to: "/signin" });
     }
 
-    if (data.user.role !== UserRole.ADMIN) {
+    if (data.role !== UserRole.ADMIN) {
       throw notFound();
     }
 
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/(admin)/panel")({
 function RouteComponent() {
   const { data } = useSuspenseQuery(authQueryOptions());
   return (
-    <PanelLayout user={data!.user}>
+    <PanelLayout user={data}>
       <Outlet />
     </PanelLayout>
   );

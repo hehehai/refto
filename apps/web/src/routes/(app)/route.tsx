@@ -31,7 +31,7 @@ function RouteComponent() {
 
   return (
     <div className="grid min-h-svh grid-rows-[auto_1fr]">
-      <SiteHeader user={session?.user ?? null} />
+      <SiteHeader user={session ?? null} />
       <main className="overflow-auto">
         <Outlet />
       </main>
