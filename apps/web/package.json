@@ -6,8 +6,8 @@
     "build": "vite build",
     "dev": "vite dev --port=3001",
     "preview": "vite preview",
-    "deploy": "pnpm build && wrangler deploy",
-    "destroy": "wrangler delete",
+    "deploy": "pnpm build && wrangler deploy --env production",
+    "destroy": "wrangler delete --env production",
     "cf-typegen": "wrangler types",
     "check-types": "tsc --noEmit"
   },

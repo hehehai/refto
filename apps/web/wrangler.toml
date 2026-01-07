@@ -6,10 +6,24 @@ compatibility_flags = ["nodejs_compat", "nodejs_compat_populate_process_env"]
 [observability]
 enabled = true
 
-# Non-sensitive variables (production values)
+# Development environment variables (default)
 [vars]
-CORS_ORIGIN="https://refto.one"
-BETTER_AUTH_URL="https://refto.one"
+CORS_ORIGIN = "http://localhost:3001"
+BETTER_AUTH_URL = "http://localhost:3001"
+EMAIL_USER = "hi@refto.one"
+GITHUB_CLIENT_ID = "Ov23likOiTYU5aIHDlFE"
+GOOGLE_CLIENT_ID = "140850536204-p3vm0gokbes37ai5hd6gpimo3u40k2hd.apps.googleusercontent.com"
+CLOUD_FLARE_R2_ACCOUNT_ID = "8a8325619b834f43256fd77f030b11a2"
+CLOUD_FLARE_S3_UPLOAD_BUCKET = "refto"
+VITE_CLOUD_FLARE_R2_URL = "https://storage.refto.one"
+
+# Production environment variables
+[env.production]
+name = "refto-one"
+
+[env.production.vars]
+CORS_ORIGIN = "https://refto.one"
+BETTER_AUTH_URL = "https://refto.one"
 EMAIL_USER = "hi@refto.one"
 GITHUB_CLIENT_ID = "Ov23likOiTYU5aIHDlFE"
 GOOGLE_CLIENT_ID = "140850536204-p3vm0gokbes37ai5hd6gpimo3u40k2hd.apps.googleusercontent.com"
@@ -29,7 +43,7 @@ binding = "CACHE"
 id = "6b5784248180411d9a478afa00f63205"
 preview_id = "f847531c22e2466eae39045d6921ec2e"
 
-# Secrets set via: wrangler secret put <NAME>
+# Secrets set via: wrangler secret put <NAME> --env production
 # BETTER_AUTH_SECRET, RESEND_API_KEY
 # GITHUB_CLIENT_SECRET, GOOGLE_CLIENT_SECRET
 # CLOUD_FLARE_S3_UPLOAD_KEY, CLOUD_FLARE_S3_UPLOAD_SECRET

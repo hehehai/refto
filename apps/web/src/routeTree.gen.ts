@@ -9,11 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as appRouteRouteImport } from './routes/(app)/route'
 import { Route as appIndexRouteImport } from './routes/(app)/index'
-import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
-import { Route as FeedXmlRouteImport } from './routes/feed.xml'
 import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authSigninRouteImport } from './routes/(auth)/signin'
@@ -37,6 +36,11 @@ import { Route as adminPanelSitesRouteImport } from './routes/(admin)/panel/site
 import { Route as appSiteSlugPageSlugIndexRouteImport } from './routes/(app)/$siteSlug/$pageSlug/index'
 import { Route as appSiteSlugPageSlugVersionSlugRouteImport } from './routes/(app)/$siteSlug/$pageSlug/$versionSlug'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
   getParentRoute: () => rootRouteImport,
@@ -49,16 +53,6 @@ const appIndexRoute = appIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => appRouteRoute,
-} as any)
-const SitemapXmlRoute = SitemapXmlRouteImport.update({
-  id: '/sitemap/xml',
-  path: '/sitemap/xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedXmlRoute = FeedXmlRouteImport.update({
-  id: '/feed/xml',
-  path: '/feed/xml',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -174,6 +168,7 @@ const appSiteSlugPageSlugVersionSlugRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/panel': typeof adminPanelRouteRouteWithChildren
   '/404': typeof app404Route
   '/about': typeof appAboutRoute
@@ -184,8 +179,6 @@ export interface FileRoutesByFullPath {
   '/signin': typeof authSigninRoute
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
-  '/feed/xml': typeof FeedXmlRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/': typeof appIndexRoute
   '/panel/sites': typeof adminPanelSitesRoute
   '/panel/submit-sites': typeof adminPanelSubmitSitesRoute
@@ -201,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/$siteSlug/$pageSlug': typeof appSiteSlugPageSlugIndexRoute
 }
 export interface FileRoutesByTo {
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/404': typeof app404Route
   '/about': typeof appAboutRoute
   '/weekly': typeof appWeeklyRoute
@@ -210,8 +204,6 @@ export interface FileRoutesByTo {
   '/signin': typeof authSigninRoute
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
-  '/feed/xml': typeof FeedXmlRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/': typeof appIndexRoute
   '/panel/sites': typeof adminPanelSitesRoute
   '/panel/submit-sites': typeof adminPanelSubmitSitesRoute
@@ -230,6 +222,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(app)': typeof appRouteRouteWithChildren
   '/(auth)': typeof authRouteRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/(admin)/panel': typeof adminPanelRouteRouteWithChildren
   '/(app)/404': typeof app404Route
   '/(app)/about': typeof appAboutRoute
@@ -240,8 +233,6 @@ export interface FileRoutesById {
   '/(auth)/signin': typeof authSigninRoute
   '/(auth)/signup': typeof authSignupRoute
   '/(auth)/verify-email': typeof authVerifyEmailRoute
-  '/feed/xml': typeof FeedXmlRoute
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/(app)/': typeof appIndexRoute
   '/(admin)/panel/sites': typeof adminPanelSitesRoute
   '/(admin)/panel/submit-sites': typeof adminPanelSubmitSitesRoute
@@ -259,6 +250,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/sitemap.xml'
     | '/panel'
     | '/404'
     | '/about'
@@ -269,8 +261,6 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signup'
     | '/verify-email'
-    | '/feed/xml'
-    | '/sitemap/xml'
     | '/'
     | '/panel/sites'
     | '/panel/submit-sites'
@@ -286,6 +276,7 @@ export interface FileRouteTypes {
     | '/$siteSlug/$pageSlug'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/sitemap.xml'
     | '/404'
     | '/about'
     | '/weekly'
@@ -295,8 +286,6 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signup'
     | '/verify-email'
-    | '/feed/xml'
-    | '/sitemap/xml'
     | '/'
     | '/panel/sites'
     | '/panel/submit-sites'
@@ -314,6 +303,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(app)'
     | '/(auth)'
+    | '/sitemap.xml'
     | '/(admin)/panel'
     | '/(app)/404'
     | '/(app)/about'
@@ -324,8 +314,6 @@ export interface FileRouteTypes {
     | '/(auth)/signin'
     | '/(auth)/signup'
     | '/(auth)/verify-email'
-    | '/feed/xml'
-    | '/sitemap/xml'
     | '/(app)/'
     | '/(admin)/panel/sites'
     | '/(admin)/panel/submit-sites'
@@ -344,15 +332,21 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   appRouteRoute: typeof appRouteRouteWithChildren
   authRouteRoute: typeof authRouteRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   adminPanelRouteRoute: typeof adminPanelRouteRouteWithChildren
-  FeedXmlRoute: typeof FeedXmlRoute
-  SitemapXmlRoute: typeof SitemapXmlRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(auth)': {
       id: '/(auth)'
       path: ''
@@ -373,20 +367,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof appIndexRouteImport
       parentRoute: typeof appRouteRoute
-    }
-    '/sitemap/xml': {
-      id: '/sitemap/xml'
-      path: '/sitemap/xml'
-      fullPath: '/sitemap/xml'
-      preLoaderRoute: typeof SitemapXmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feed/xml': {
-      id: '/feed/xml'
-      path: '/feed/xml'
-      fullPath: '/feed/xml'
-      preLoaderRoute: typeof FeedXmlRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/(auth)/verify-email': {
       id: '/(auth)/verify-email'
@@ -618,9 +598,8 @@ const adminPanelRouteRouteWithChildren = adminPanelRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   appRouteRoute: appRouteRouteWithChildren,
   authRouteRoute: authRouteRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   adminPanelRouteRoute: adminPanelRouteRouteWithChildren,
-  FeedXmlRoute: FeedXmlRoute,
-  SitemapXmlRoute: SitemapXmlRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
