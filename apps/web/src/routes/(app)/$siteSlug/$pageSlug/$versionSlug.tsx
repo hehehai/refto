@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { SiteDetailPage } from "@/components/features/detail/site-detail-page";
+import {
+  createBreadcrumbSchema,
+  createJsonLdScript,
+  createSiteArticleSchema,
+} from "@/lib/json-ld";
 import { orpc } from "@/lib/orpc";
 import { createDetailPageMeta } from "@/lib/seo";
 
@@ -31,13 +36,44 @@ export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/$versionSlug")(
       if (!(loaderData?.site && loaderData?.currentVersion)) return {};
       const { site, currentPage, currentVersion } = loaderData;
       const versionDateStr = format(currentVersion.versionDate, "yyyy-MM-dd");
+      const pageTitle = `${currentPage?.title ?? ""} (${versionDateStr}) - ${site.title}`;
+      const url = `/${site.slug}/${currentPage?.slug ?? ""}/${versionDateStr}`;
       const meta = createDetailPageMeta(
-        `${currentPage?.title ?? ""} (${versionDateStr}) - ${site.title}`,
+        pageTitle,
         site.description,
         currentVersion.webCover,
-        `/${site.slug}/${currentPage?.slug ?? ""}/${versionDateStr}`
+        url
       );
-      return { meta: meta.meta, links: meta.links };
+
+      const articleSchema = createSiteArticleSchema({
+        title: pageTitle,
+        description:
+          site.description || `Explore ${site.title} design on Refto.`,
+        image: currentVersion.webCover || "/images/og.jpg",
+        url,
+        datePublished: currentVersion.createdAt,
+        dateModified: currentVersion.createdAt,
+        tags: site.tags?.map((t) => t.name),
+      });
+
+      const breadcrumbSchema = createBreadcrumbSchema([
+        { name: "Home", url: "/" },
+        { name: site.title, url: `/${site.slug}` },
+        {
+          name: currentPage?.title ?? "",
+          url: `/${site.slug}/${currentPage?.slug ?? ""}`,
+        },
+        { name: versionDateStr, url },
+      ]);
+
+      return {
+        meta: meta.meta,
+        links: meta.links,
+        scripts: [
+          createJsonLdScript(articleSchema),
+          createJsonLdScript(breadcrumbSchema),
+        ],
+      };
     },
   }
 );

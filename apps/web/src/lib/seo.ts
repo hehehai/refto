@@ -1,13 +1,17 @@
+import { site } from "@refto-one/common";
+
 const SITE_NAME = "Refto";
 const DEFAULT_SLUG = "Unleash limitless inspiration";
 const DEFAULT_DESCRIPTION =
   "Unleash limitless inspiration. Embrace pure simplicity.";
 const DEFAULT_OG_IMAGE = "/og-image.png";
 const SITE_URL = "https://refto.one";
+const DEFAULT_KEYWORDS = site.keywords;
 
 interface PageMetaOptions {
   title?: string;
   description?: string;
+  keywords?: string[];
   image?: string;
   url?: string;
   type?: "website" | "article";
@@ -37,6 +41,7 @@ export function createPageMeta(options: PageMetaOptions = {}): HeadConfig {
   const {
     title,
     description = DEFAULT_DESCRIPTION,
+    keywords = DEFAULT_KEYWORDS,
     image = DEFAULT_OG_IMAGE,
     url,
     type = "website",
@@ -59,6 +64,7 @@ export function createPageMeta(options: PageMetaOptions = {}): HeadConfig {
   const meta: MetaTag[] = [
     { title: fullTitle },
     { name: "description", content: description },
+    { name: "keywords", content: keywords.join(", ") },
 
     // Open Graph
     { property: "og:title", content: fullTitle },

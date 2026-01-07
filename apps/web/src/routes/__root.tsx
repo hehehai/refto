@@ -10,6 +10,11 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import {
+  createJsonLdScript,
+  createOrganizationSchema,
+  createWebSiteSchema,
+} from "@/lib/json-ld";
 import type { orpc } from "@/lib/orpc";
 import { createPageMeta } from "@/lib/seo";
 import appCss from "../index.css?url";
@@ -20,6 +25,8 @@ export interface RouterAppContext {
 }
 
 const defaultMeta = createPageMeta();
+const organizationSchema = createOrganizationSchema();
+const websiteSchema = createWebSiteSchema();
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
@@ -44,6 +51,10 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         href: appCss,
       },
       ...defaultMeta.links,
+    ],
+    scripts: [
+      createJsonLdScript(organizationSchema),
+      createJsonLdScript(websiteSchema),
     ],
   }),
 

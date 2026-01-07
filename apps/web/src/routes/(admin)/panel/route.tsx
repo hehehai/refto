@@ -8,6 +8,11 @@ import {
 } from "@tanstack/react-router";
 import PanelLayout from "@/components/features/panel/layout/layout";
 import { authQueryOptions } from "@/lib/queries";
+import { createPageMeta } from "@/lib/seo";
+
+const adminMeta = createPageMeta({
+  noIndex: true,
+});
 
 export const Route = createFileRoute("/(admin)/panel")({
   beforeLoad: async ({ context }) => {
@@ -23,6 +28,9 @@ export const Route = createFileRoute("/(admin)/panel")({
 
     return data;
   },
+  head: () => ({
+    meta: adminMeta.meta,
+  }),
   component: RouteComponent,
 });
 

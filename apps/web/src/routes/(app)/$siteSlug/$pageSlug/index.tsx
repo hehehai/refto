@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteDetailPage } from "@/components/features/detail/site-detail-page";
+import {
+  createBreadcrumbSchema,
+  createJsonLdScript,
+  createSiteArticleSchema,
+} from "@/lib/json-ld";
 import { orpc } from "@/lib/orpc";
 import { createDetailPageMeta } from "@/lib/seo";
 
@@ -28,13 +33,39 @@ export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/")({
   head: ({ loaderData }) => {
     if (!(loaderData?.site && loaderData?.currentVersion)) return {};
     const { site, currentPage, currentVersion } = loaderData;
+    const pageTitle = `${currentPage?.title ?? ""} - ${site.title}`;
+    const url = `/${site.slug}/${currentPage?.slug ?? ""}`;
     const meta = createDetailPageMeta(
-      `${currentPage?.title ?? ""} - ${site.title}`,
+      pageTitle,
       site.description,
       currentVersion.webCover,
-      `/${site.slug}/${currentPage?.slug ?? ""}`
+      url
     );
-    return { meta: meta.meta, links: meta.links };
+
+    const articleSchema = createSiteArticleSchema({
+      title: pageTitle,
+      description: site.description || `Explore ${site.title} design on Refto.`,
+      image: currentVersion.webCover || "/images/og.jpg",
+      url,
+      datePublished: currentVersion.createdAt,
+      dateModified: currentVersion.createdAt,
+      tags: site.tags?.map((t) => t.name),
+    });
+
+    const breadcrumbSchema = createBreadcrumbSchema([
+      { name: "Home", url: "/" },
+      { name: site.title, url: `/${site.slug}` },
+      { name: currentPage?.title ?? "", url },
+    ]);
+
+    return {
+      meta: meta.meta,
+      links: meta.links,
+      scripts: [
+        createJsonLdScript(articleSchema),
+        createJsonLdScript(breadcrumbSchema),
+      ],
+    };
   },
 });
 

@@ -23,6 +23,8 @@
     "@orpc/zod": "catalog:",
     "@refto-one/api": "workspace:*",
     "@refto-one/auth": "workspace:*",
+    "@refto-one/common": "workspace:*",
+    "@refto-one/db": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-form": "^1.27.7",
     "@tanstack/react-query": "^5.90.16",

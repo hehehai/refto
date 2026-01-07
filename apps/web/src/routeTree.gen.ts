@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as appRouteRouteImport } from './routes/(app)/route'
 import { Route as appIndexRouteImport } from './routes/(app)/index'
+import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
+import { Route as FeedXmlRouteImport } from './routes/feed.xml'
 import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authSigninRouteImport } from './routes/(auth)/signin'
@@ -47,6 +49,16 @@ const appIndexRoute = appIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => appRouteRoute,
+} as any)
+const SitemapXmlRoute = SitemapXmlRouteImport.update({
+  id: '/sitemap/xml',
+  path: '/sitemap/xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedXmlRoute = FeedXmlRouteImport.update({
+  id: '/feed/xml',
+  path: '/feed/xml',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -172,6 +184,8 @@ export interface FileRoutesByFullPath {
   '/signin': typeof authSigninRoute
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
+  '/feed/xml': typeof FeedXmlRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/': typeof appIndexRoute
   '/panel/sites': typeof adminPanelSitesRoute
   '/panel/submit-sites': typeof adminPanelSubmitSitesRoute
@@ -196,6 +210,8 @@ export interface FileRoutesByTo {
   '/signin': typeof authSigninRoute
   '/signup': typeof authSignupRoute
   '/verify-email': typeof authVerifyEmailRoute
+  '/feed/xml': typeof FeedXmlRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/': typeof appIndexRoute
   '/panel/sites': typeof adminPanelSitesRoute
   '/panel/submit-sites': typeof adminPanelSubmitSitesRoute
@@ -224,6 +240,8 @@ export interface FileRoutesById {
   '/(auth)/signin': typeof authSigninRoute
   '/(auth)/signup': typeof authSignupRoute
   '/(auth)/verify-email': typeof authVerifyEmailRoute
+  '/feed/xml': typeof FeedXmlRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/(app)/': typeof appIndexRoute
   '/(admin)/panel/sites': typeof adminPanelSitesRoute
   '/(admin)/panel/submit-sites': typeof adminPanelSubmitSitesRoute
@@ -251,6 +269,8 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signup'
     | '/verify-email'
+    | '/feed/xml'
+    | '/sitemap/xml'
     | '/'
     | '/panel/sites'
     | '/panel/submit-sites'
@@ -275,6 +295,8 @@ export interface FileRouteTypes {
     | '/signin'
     | '/signup'
     | '/verify-email'
+    | '/feed/xml'
+    | '/sitemap/xml'
     | '/'
     | '/panel/sites'
     | '/panel/submit-sites'
@@ -302,6 +324,8 @@ export interface FileRouteTypes {
     | '/(auth)/signin'
     | '/(auth)/signup'
     | '/(auth)/verify-email'
+    | '/feed/xml'
+    | '/sitemap/xml'
     | '/(app)/'
     | '/(admin)/panel/sites'
     | '/(admin)/panel/submit-sites'
@@ -321,6 +345,8 @@ export interface RootRouteChildren {
   appRouteRoute: typeof appRouteRouteWithChildren
   authRouteRoute: typeof authRouteRouteWithChildren
   adminPanelRouteRoute: typeof adminPanelRouteRouteWithChildren
+  FeedXmlRoute: typeof FeedXmlRoute
+  SitemapXmlRoute: typeof SitemapXmlRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
@@ -347,6 +373,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof appIndexRouteImport
       parentRoute: typeof appRouteRoute
+    }
+    '/sitemap/xml': {
+      id: '/sitemap/xml'
+      path: '/sitemap/xml'
+      fullPath: '/sitemap/xml'
+      preLoaderRoute: typeof SitemapXmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed/xml': {
+      id: '/feed/xml'
+      path: '/feed/xml'
+      fullPath: '/feed/xml'
+      preLoaderRoute: typeof FeedXmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(auth)/verify-email': {
       id: '/(auth)/verify-email'
@@ -579,6 +619,8 @@ const rootRouteChildren: RootRouteChildren = {
   appRouteRoute: appRouteRouteWithChildren,
   authRouteRoute: authRouteRouteWithChildren,
   adminPanelRouteRoute: adminPanelRouteRouteWithChildren,
+  FeedXmlRoute: FeedXmlRoute,
+  SitemapXmlRoute: SitemapXmlRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
