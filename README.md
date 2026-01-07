@@ -1,6 +1,15 @@
 # refto-one
 
-A modern full-stack TypeScript application for discovering and curating website design inspiration. Built with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack).
+Discover, collect, and track the evolution of inspiring website designs. A community-driven platform for designers and developers.
+
+[![GitHub stars](https://img.shields.io/github/stars/hehehai/refto)](https://github.com/hehehai/refto/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/hehehai/refto)](https://github.com/hehehai/refto/network/members)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Frefto.one)](https://refto.one)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+<p align="center">
+  <img src="https://cdn.actnow.dev/public/screenshot-2026-01-07T02-25-14.jpeg" alt="refto-one screenshot" />
+</p>
 
 ## Features
 
@@ -257,4 +266,4 @@ Built with TanStack Start, also deployable to:
 
 ## License
 
-MIT
+[Apache License 2.0](LICENSE)
