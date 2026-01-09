@@ -284,6 +284,12 @@ export const filterRouter = {
         metadata: pageId ? { pageId } : null,
       });
 
+      // Increment site visit counter
+      await db
+        .update(sites)
+        .set({ visits: sql<number>`${sites.visits} + 1` })
+        .where(and(eq(sites.id, siteId), isNull(sites.deletedAt)));
+
       return { success: true };
     }),
 };

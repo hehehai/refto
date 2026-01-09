@@ -18,10 +18,16 @@ interface SiteHeroProps {
     url: string;
     tags: Tag[];
     rating: number;
+    visits: number;
   };
 }
 
 export function SiteHero({ site }: SiteHeroProps) {
+  const formattedVisits =
+    site.visits < 1000
+      ? String(site.visits)
+      : `${(site.visits / 1000).toFixed(1)}k`;
+
   return (
     <section className="py-8">
       <div className="container mx-auto px-4">
@@ -61,17 +67,25 @@ export function SiteHero({ site }: SiteHeroProps) {
             </div>
           </div>
 
-          {/* Visit site button */}
-          <Button
-            nativeButton={false}
-            render={
-              <a href={site.url} rel="noopener noreferrer" target="_blank">
-                <span className="i-hugeicons-link-square-01" />
-                Visit
-              </a>
-            }
-            variant="outline"
-          />
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="font-semibold text-foreground text-sm">
+                {formattedVisits}
+              </div>
+              <div className="text-muted-foreground text-xs">Visits</div>
+            </div>
+            {/* Visit site button */}
+            <Button
+              nativeButton={false}
+              render={
+                <a href={site.url} rel="noopener noreferrer" target="_blank">
+                  <span className="i-hugeicons-link-square-01" />
+                  Visit
+                </a>
+              }
+              variant="outline"
+            />
+          </div>
         </div>
       </div>
     </section>

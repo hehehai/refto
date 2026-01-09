@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteDetailPage } from "@/components/features/detail/site-detail-page";
+import { useTrackPageView } from "@/components/features/detail/use-track-page-view";
 import {
   createBreadcrumbSchema,
   createJsonLdScript,
@@ -70,7 +71,10 @@ export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/")({
 });
 
 function PageSlugIndexComponent() {
+  const data = Route.useLoaderData();
   const { siteSlug, pageSlug } = Route.useParams();
+
+  useTrackPageView(data?.site?.id, data?.currentPage?.id);
 
   return (
     <SiteDetailPage

@@ -1,7 +1,7 @@
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { orpc } from "@/lib/orpc";
 import { RelatedSites } from "./related-sites";
 import { SiteHero } from "./site-hero";
@@ -31,21 +31,6 @@ export function SiteDetailPage({
   );
 
   const { site, currentPage, currentVersion, liked: initialLiked } = data;
-
-  // Track page view
-  const trackPageView = useMutation({
-    mutationFn: () =>
-      orpc.app.filter.trackPageView.call({
-        siteId: site.id,
-        pageId: currentPage?.id,
-      }),
-  });
-
-  useEffect(() => {
-    // Track page view on mount (only once per page load)
-    trackPageView.mutate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [site.id, currentPage?.id]);
 
   // Fetch related sites
   const { data: relatedSites = [] } = useSuspenseQuery(
