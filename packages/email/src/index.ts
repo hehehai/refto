@@ -1,15 +1,22 @@
-import { type Options, render } from "@react-email/render";
 import { site } from "@refto-one/common";
 import type { JSXElementConstructor, ReactElement } from "react";
-import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy-loaded dependencies to reduce initial bundle size
+let resendClient: import("resend").Resend | null = null;
+
+async function getResendClient() {
+  if (!resendClient) {
+    const { Resend } = await import("resend");
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendClient;
+}
 
 interface SendEmailOptions {
   to: string | string[];
   subject: string;
   renderData: ReactElement<any, string | JSXElementConstructor<any>>;
-  renderOptions?: Options;
+  renderOptions?: import("@react-email/render").Options;
 }
 
 export async function sendEmail({
@@ -19,6 +26,8 @@ export async function sendEmail({
   renderOptions,
 }: SendEmailOptions) {
   try {
+    const { render } = await import("@react-email/render");
+    const resend = await getResendClient();
     const emailHtml = await render(renderData, renderOptions);
 
     const status = await resend.emails.send({
@@ -50,6 +59,8 @@ export async function batchSendEmail({
   renderOptions,
 }: BatchSendEmailOptions) {
   try {
+    const { render } = await import("@react-email/render");
+    const resend = await getResendClient();
     const emailHtml = renderData.map((item) => render(item, renderOptions));
 
     const mailTask = to.map(async (email, idx) => ({
