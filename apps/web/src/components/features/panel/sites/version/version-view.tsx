@@ -1,4 +1,15 @@
+import { Bookmark02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { orpc } from "@/lib/orpc";
+import { videoMarkerDetailDialog } from "@/lib/sheets";
+import { cn } from "@/lib/utils";
 
 interface VersionViewData {
   siteOG: string | null;
@@ -10,6 +21,7 @@ interface VersionViewData {
 
 interface VersionViewProps {
   value: VersionViewData;
+  versionId: string;
 }
 
 interface MediaPreviewProps {
@@ -45,7 +57,40 @@ function MediaPreview({ src, alt, className, type }: MediaPreviewProps) {
   );
 }
 
-export function VersionView({ value }: VersionViewProps) {
+export function VersionView({ value, versionId }: VersionViewProps) {
+  const { data: webMarkers = [] } = useQuery(
+    orpc.panel.marker.list.queryOptions({
+      input:
+        value.webRecord && versionId
+          ? { versionId, recordType: "web" }
+          : skipToken,
+    })
+  );
+  const { data: mobileMarkers = [] } = useQuery(
+    orpc.panel.marker.list.queryOptions({
+      input:
+        value.mobileRecord && versionId
+          ? { versionId, recordType: "mobile" }
+          : skipToken,
+    })
+  );
+  const hasWebMarkers = webMarkers.length > 0;
+  const hasMobileMarkers = mobileMarkers.length > 0;
+
+  const handleOpenMarkerDialog = (
+    recordType: "web" | "mobile",
+    videoUrl: string | null,
+    coverUrl: string | null
+  ) => {
+    if (!videoUrl) return;
+    videoMarkerDetailDialog.openWithPayload({
+      versionId,
+      recordType,
+      videoUrl,
+      coverUrl: coverUrl ?? "",
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* OG Image */}
@@ -88,9 +133,37 @@ export function VersionView({ value }: VersionViewProps) {
 
           {/* Web Recording */}
           <div>
-            <span className="mb-2 block text-muted-foreground text-xs">
-              Web Recording
-            </span>
+            <div className="mb-2 flex items-center justify-between text-muted-foreground text-xs">
+              <span>Web Recording</span>
+              {value.webRecord && (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        className={cn(
+                          "h-6 px-1.5",
+                          hasWebMarkers && "text-primary ring-1 ring-primary/40"
+                        )}
+                        onClick={() =>
+                          handleOpenMarkerDialog(
+                            "web",
+                            value.webRecord,
+                            value.webCover
+                          )
+                        }
+                        size="icon-xs"
+                        variant="secondary"
+                      />
+                    }
+                  >
+                    <HugeiconsIcon icon={Bookmark02Icon} size={14} />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {hasWebMarkers ? "Markers set" : "View markers"}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
             {value.webRecord ? (
               <MediaPreview
                 alt="Web recording"
@@ -132,9 +205,38 @@ export function VersionView({ value }: VersionViewProps) {
 
           {/* Mobile Recording */}
           <div>
-            <span className="mb-2 block text-muted-foreground text-xs">
-              Mobile Recording
-            </span>
+            <div className="mb-2 flex items-center justify-between text-muted-foreground text-xs">
+              <span>Mobile Recording</span>
+              {value.mobileRecord && (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        className={cn(
+                          "h-6 px-1.5",
+                          hasMobileMarkers &&
+                            "text-primary ring-1 ring-primary/40"
+                        )}
+                        onClick={() =>
+                          handleOpenMarkerDialog(
+                            "mobile",
+                            value.mobileRecord,
+                            value.mobileCover
+                          )
+                        }
+                        size="icon-xs"
+                        variant="secondary"
+                      />
+                    }
+                  >
+                    <HugeiconsIcon icon={Bookmark02Icon} size={14} />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {hasMobileMarkers ? "Markers set" : "View markers"}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
             {value.mobileRecord ? (
               <MediaPreview
                 alt="Mobile recording"
