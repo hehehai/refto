@@ -26,6 +26,10 @@ interface SitePageHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   currentPageId: string;
   currentVersionId: string;
   liked: boolean;
+  activeDetailTab: "record" | "refs";
+  markersCount: number;
+  showDetailTabs: boolean;
+  onDetailTabChange: (tab: "record" | "refs") => void;
   onPageChange: (pageId: string) => void;
   onVersionChange: (versionId: string) => void;
   onLikeChange: (liked: boolean) => void;
@@ -36,6 +40,10 @@ export function SitePageHeader({
   currentPageId,
   currentVersionId,
   liked,
+  activeDetailTab,
+  markersCount,
+  showDetailTabs,
+  onDetailTabChange,
   onPageChange,
   onVersionChange,
   onLikeChange,
@@ -65,20 +73,45 @@ export function SitePageHeader({
   return (
     <header className={cn(className)} {...props}>
       <div className="container mx-auto flex items-center justify-between px-4 py-2">
-        {/* Page tabs */}
-        <Tabs
-          className="flex-row gap-0"
-          onValueChange={onPageChange}
-          value={currentPageId}
-        >
-          <TabsList className="overflow-x-auto">
-            {pages.map((page) => (
-              <TabsTrigger className="px-4" key={page.id} value={page.id}>
-                {page.title}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        {/* Page tabs + Detail tabs */}
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <Tabs
+            className="flex-row gap-0"
+            onValueChange={onPageChange}
+            value={currentPageId}
+          >
+            <TabsList className="overflow-x-auto">
+              {pages.map((page) => (
+                <TabsTrigger className="px-4" key={page.id} value={page.id}>
+                  {page.title}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+
+          {showDetailTabs && (
+            <>
+              <div className="h-6 w-px bg-border" />
+              <Tabs
+                className="flex-row gap-0"
+                onValueChange={(value) =>
+                  onDetailTabChange(value as "record" | "refs")
+                }
+                value={activeDetailTab}
+              >
+                <TabsList>
+                  <TabsTrigger value="record">Record</TabsTrigger>
+                  <TabsTrigger value="refs">
+                    Refs
+                    <span className="ml-1 text-muted-foreground text-xs">
+                      {markersCount}
+                    </span>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </>
+          )}
+        </div>
 
         {/* Version select and actions */}
         <div className="flex items-center gap-2">

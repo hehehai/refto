@@ -17,6 +17,7 @@ export interface VideoWrapperProps {
   playing?: boolean;
   onPlayingChange?: (playing: boolean) => void;
   onDurationChange?: (duration: number) => void;
+  onTimeUpdate?: (currentTime: number) => void;
   onLoadingStateChange?: (state: VideoLoadingState) => void;
   onLoop?: () => void;
 }
@@ -30,6 +31,7 @@ export function VideoWrapper({
   playing,
   onPlayingChange,
   onDurationChange,
+  onTimeUpdate,
   onLoadingStateChange,
   onLoop,
 }: VideoWrapperProps) {
@@ -92,6 +94,13 @@ export function VideoWrapper({
     [onDurationChange]
   );
 
+  const handleTimeUpdate = useCallback(
+    (e: React.SyntheticEvent<HTMLVideoElement>) => {
+      onTimeUpdate?.(e.currentTarget.currentTime);
+    },
+    [onTimeUpdate]
+  );
+
   const handleLoadStart = useCallback(() => {
     onLoadingStateChange?.("loading");
   }, [onLoadingStateChange]);
@@ -131,6 +140,7 @@ export function VideoWrapper({
       onPause={handlePause}
       onPlay={handlePlay}
       onSeeked={handleSeeked}
+      onTimeUpdate={handleTimeUpdate}
       playsInline
       poster={cover}
       preload="none"

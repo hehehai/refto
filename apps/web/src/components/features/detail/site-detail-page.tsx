@@ -1,8 +1,9 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { skipToken, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { orpc } from "@/lib/orpc";
+import { MarkerRefsPanel } from "./marker-refs-panel";
 import { RelatedSites } from "./related-sites";
 import { SiteHero } from "./site-hero";
 import { SitePageHeader } from "./site-page-header";
@@ -21,6 +22,7 @@ export function SiteDetailPage({
 }: SiteDetailPageProps) {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<"web" | "mobile">("web");
+  const [detailTab, setDetailTab] = useState<"record" | "refs">("record");
   const [liked, setLiked] = useState<boolean | null>(null);
 
   // Fetch version data by slug
@@ -43,6 +45,21 @@ export function SiteDetailPage({
   const hasMobileContent = !!(
     currentVersion?.mobileCover || currentVersion?.mobileRecord
   );
+
+  const { data: markers = [] } = useQuery(
+    orpc.app.marker.list.queryOptions({
+      input: currentVersion
+        ? { versionId: currentVersion.id, recordType: viewMode }
+        : skipToken,
+    })
+  );
+  const showDetailTabs = markers.length > 0;
+
+  useEffect(() => {
+    if (!showDetailTabs && detailTab === "refs") {
+      setDetailTab("record");
+    }
+  }, [showDetailTabs, detailTab]);
 
   // Use local liked state if available, otherwise use from API
   const isLiked = liked ?? initialLiked;
@@ -87,26 +104,59 @@ export function SiteDetailPage({
 
       {/* Page Tabs and Version Select */}
       <SitePageHeader
+        activeDetailTab={detailTab}
         currentPageId={currentPage?.id ?? ""}
         currentVersionId={currentVersion?.id ?? ""}
         liked={isLiked}
+        markersCount={markers.length}
+        onDetailTabChange={setDetailTab}
         onLikeChange={handleLikeChange}
         onPageChange={handlePageChange}
         onVersionChange={handleVersionChange}
         pages={site.pages}
+        showDetailTabs={showDetailTabs}
       />
 
       {/* Version Viewer */}
       {currentVersion && (
         <section className="py-8">
           <div className="container mx-auto px-4">
-            <VersionViewer
-              className="relative mx-auto w-[88%] rounded-2xl bg-muted/50 p-18"
-              hasMobileContent={hasMobileContent}
-              onViewModeChange={setViewMode}
-              version={currentVersion}
-              viewMode={viewMode}
-            />
+            {detailTab === "record" ? (
+              <VersionViewer
+                className="relative mx-auto w-[88%] rounded-2xl bg-muted/50 p-18"
+                hasMobileContent={hasMobileContent}
+                markers={markers.map((marker) => ({
+                  id: marker.id,
+                  sequence: marker.sequence,
+                  time: marker.time,
+                  text: marker.text,
+                }))}
+                onViewModeChange={setViewMode}
+                showMarkers={markers.length > 0}
+                showShortcuts
+                version={currentVersion}
+                viewMode={viewMode}
+              />
+            ) : (
+              <MarkerRefsPanel
+                coverUrl={
+                  viewMode === "web"
+                    ? currentVersion.webCover
+                    : currentVersion.mobileCover
+                }
+                markers={markers.map((marker) => ({
+                  id: marker.id,
+                  sequence: marker.sequence,
+                  time: marker.time,
+                  text: marker.text,
+                }))}
+                videoUrl={
+                  viewMode === "web"
+                    ? currentVersion.webRecord
+                    : currentVersion.mobileRecord
+                }
+              />
+            )}
           </div>
         </section>
       )}
