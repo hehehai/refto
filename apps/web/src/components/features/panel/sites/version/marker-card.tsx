@@ -3,6 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { forwardRef, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatTimeShortWithMs } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import type { MarkerState } from "./marker-timeline";
 
@@ -14,14 +15,6 @@ interface MarkerCardProps {
   onUpdateText: (text: string) => void;
   onDelete: () => void;
   onSeekTo: () => void;
-}
-
-function formatTimeShort(seconds: number): string {
-  if (!Number.isFinite(seconds)) return "0:00";
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  const ms = Math.floor((seconds % 1) * 10);
-  return `${mins}:${secs.toString().padStart(2, "0")}.${ms}`;
 }
 
 export const MarkerCard = forwardRef<HTMLDivElement, MarkerCardProps>(
@@ -98,7 +91,7 @@ export const MarkerCard = forwardRef<HTMLDivElement, MarkerCardProps>(
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           {/* Time */}
           <div className="font-mono text-muted-foreground text-xs">
-            {formatTimeShort(marker.time)}
+            {formatTimeShortWithMs(marker.time)}
           </div>
 
           {/* Text input */}

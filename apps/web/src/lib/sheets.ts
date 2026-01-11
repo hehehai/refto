@@ -53,3 +53,11 @@ export const videoMarkerDetailDialog = Dialog.createHandle<{
   videoUrl: string;
   coverUrl: string;
 }>();
+
+// Image Preview Dialog
+export const imagePreviewDialog = Dialog.createHandle<{
+  src: string;
+  alt?: string;
+  title?: string;
+  filename?: string;
+}>();

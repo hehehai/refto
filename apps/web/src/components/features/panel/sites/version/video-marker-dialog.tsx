@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMarkerHotkeys } from "@/hooks/use-marker-hotkeys";
+import { useMarkerThumbnails } from "@/hooks/use-marker-thumbnails";
 import { orpc } from "@/lib/orpc";
 import { videoMarkerDialog } from "@/lib/sheets";
 import { MarkerListPanel } from "./marker-list-panel";
@@ -41,7 +42,19 @@ function VideoMarkerDialogContent({
   const [duration, setDuration] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const isCapturingRef = useRef(false);
+  const { thumbnails } = useMarkerThumbnails({
+    enabled: isVideoReady && !isPlaying,
+    markers,
+    videoRef,
+  });
+  const markersWithThumbnails = useMemo(
+    () =>
+      markers.map((marker) => ({
+        ...marker,
+        thumbnail: marker.thumbnail ?? thumbnails[marker.id],
+      })),
+    [markers, thumbnails]
+  );
 
   // Fetch existing markers when dialog opens
   useEffect(() => {
@@ -266,54 +279,6 @@ function VideoMarkerDialogContent({
     }
   }, [versionId, recordType, markers]);
 
-  // Populate thumbnails for existing markers
-  useEffect(() => {
-    if (
-      !(isVideoReady && videoRef.current) ||
-      isCapturingRef.current ||
-      isPlaying
-    ) {
-      return;
-    }
-    const missing = markers.filter((marker) => !marker.thumbnail);
-    if (missing.length === 0) return;
-
-    isCapturingRef.current = true;
-    let cancelled = false;
-
-    const captureMissing = async () => {
-      const thumbnails = new Map<string, string>();
-      for (const marker of missing) {
-        if (cancelled || !videoRef.current) break;
-        const time = Math.max(0.01, marker.time);
-        const thumbnail = await videoRef.current.captureFrameAt(time);
-        if (thumbnail) {
-          thumbnails.set(marker.id, thumbnail);
-        }
-      }
-
-      if (!cancelled && thumbnails.size > 0) {
-        setMarkers((prev) =>
-          prev.map((marker) =>
-            thumbnails.has(marker.id)
-              ? { ...marker, thumbnail: thumbnails.get(marker.id) }
-              : marker
-          )
-        );
-      }
-
-      if (!cancelled) {
-        isCapturingRef.current = false;
-      }
-    };
-
-    captureMissing();
-    return () => {
-      cancelled = true;
-      isCapturingRef.current = false;
-    };
-  }, [markers, isVideoReady, isPlaying]);
-
   // Keyboard shortcuts
   useMarkerHotkeys({
     enabled: true,
@@ -380,7 +345,7 @@ function VideoMarkerDialogContent({
             <MarkerTimeline
               currentTime={currentTime}
               duration={duration}
-              markers={markers}
+              markers={markersWithThumbnails}
               onSeek={handleSeek}
               onSeekToMarker={handleSeekToMarker}
               onSelectMarker={handleSelectMarker}
@@ -395,7 +360,7 @@ function VideoMarkerDialogContent({
             Markers ({markers.length})
           </div>
           <MarkerListPanel
-            markers={markers}
+            markers={markersWithThumbnails}
             onDeleteMarker={handleDeleteMarker}
             onSeekToMarker={handleSeekToMarker}
             onSelectMarker={handleSelectMarker}

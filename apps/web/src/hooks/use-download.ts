@@ -7,6 +7,7 @@ interface DownloadOptions {
 
 export function useDownload() {
   const download = useCallback(({ dataUrl, filename }: DownloadOptions) => {
+    if (typeof document === "undefined") return;
     if (!dataUrl) return;
     const link = document.createElement("a");
     link.href = dataUrl;

@@ -4,6 +4,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { formatTimeShort } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 export interface MarkerState {
@@ -22,13 +23,6 @@ interface MarkerTimelineProps {
   onSelectMarker: (id: string) => void;
   onSeekToMarker: (id: string) => void;
   onSeek: (time: number) => void;
-}
-
-function formatTimeShort(seconds: number): string {
-  if (!Number.isFinite(seconds)) return "0:00";
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
 export function MarkerTimeline({
