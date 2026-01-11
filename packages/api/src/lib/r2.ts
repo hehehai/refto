@@ -1,10 +1,3 @@
-import {
-  DeleteObjectCommand,
-  GetObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { format } from "date-fns";
 import slug from "slug";
 
@@ -19,14 +12,23 @@ const R2_CONFIG = {
   secretAccessKey: process.env.CLOUD_FLARE_S3_UPLOAD_SECRET!,
 } as const;
 
-const r2Client = new S3Client({
-  region: "auto",
-  endpoint: `https://${R2_CONFIG.accountId}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: R2_CONFIG.accessKeyId,
-    secretAccessKey: R2_CONFIG.secretAccessKey,
-  },
-});
+// Lazy-loaded S3 client to avoid loading AWS SDK at module initialization
+let r2Client: import("@aws-sdk/client-s3").S3Client | null = null;
+
+async function getR2Client() {
+  if (!r2Client) {
+    const { S3Client } = await import("@aws-sdk/client-s3");
+    r2Client = new S3Client({
+      region: "auto",
+      endpoint: `https://${R2_CONFIG.accountId}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: R2_CONFIG.accessKeyId,
+        secretAccessKey: R2_CONFIG.secretAccessKey,
+      },
+    });
+  }
+  return r2Client;
+}
 
 // ============================================================================
 // Utilities
@@ -68,9 +70,12 @@ export async function getUploadSignedUrl(
   expiresIn = 60
 ): Promise<{ uploadUrl: string; filename: string }> {
   return withR2Operation("Generating upload URL", async () => {
+    const { PutObjectCommand } = await import("@aws-sdk/client-s3");
+    const { getSignedUrl } = await import("@aws-sdk/s3-request-presigner");
+    const client = await getR2Client();
     const safeFilename = generateSafeFilename(fileName);
     const uploadUrl = await getSignedUrl(
-      r2Client,
+      client,
       new PutObjectCommand({
         Bucket: R2_CONFIG.bucket,
         Key: safeFilename,
@@ -85,7 +90,9 @@ export async function getUploadSignedUrl(
 
 export async function getR2File(fileName: string) {
   return withR2Operation("Downloading file", async () => {
-    const file = await r2Client.send(
+    const { GetObjectCommand } = await import("@aws-sdk/client-s3");
+    const client = await getR2Client();
+    const file = await client.send(
       new GetObjectCommand({
         Bucket: R2_CONFIG.bucket,
         Key: fileName,
@@ -103,8 +110,11 @@ export async function getDownloadSignedUrl(
   expiresIn = 3600
 ): Promise<string> {
   return withR2Operation("Generating download URL", async () => {
+    const { GetObjectCommand } = await import("@aws-sdk/client-s3");
+    const { getSignedUrl } = await import("@aws-sdk/s3-request-presigner");
+    const client = await getR2Client();
     const url = await getSignedUrl(
-      r2Client,
+      client,
       new GetObjectCommand({
         Bucket: R2_CONFIG.bucket,
         Key: fileName,
@@ -117,7 +127,9 @@ export async function getDownloadSignedUrl(
 
 export async function deleteR2File(fileName: string): Promise<void> {
   return withR2Operation("Deleting file", async () => {
-    await r2Client.send(
+    const { DeleteObjectCommand } = await import("@aws-sdk/client-s3");
+    const client = await getR2Client();
+    await client.send(
       new DeleteObjectCommand({
         Bucket: R2_CONFIG.bucket,
         Key: fileName,
@@ -131,10 +143,12 @@ export async function uploadR2File(
   fileName: string
 ): Promise<{ type: string; filename: string; url: string }> {
   return withR2Operation("Uploading file", async () => {
+    const { PutObjectCommand } = await import("@aws-sdk/client-s3");
+    const client = await getR2Client();
     const safeFilename = generateSafeFilename(fileName);
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    await r2Client.send(
+    await client.send(
       new PutObjectCommand({
         Bucket: R2_CONFIG.bucket,
         Key: safeFilename,

@@ -3,6 +3,7 @@ import { VersionDialog } from "../version/version-dialog";
 import { VersionForm } from "../version/version-form";
 import { VersionFormSkeleton } from "../version/version-form-skeleton";
 import { VersionTabs } from "../version/version-tabs";
+import { VideoMarkerDialog } from "../version/video-marker-dialog";
 import { useSiteEdit } from "./site-edit-context";
 
 export function VersionEditPanel() {
@@ -49,6 +50,7 @@ export function VersionEditPanel() {
               mobileRecord: activeVersion.mobileRecord,
               tagIds: activeVersion.tagIds ?? [],
             }}
+            versionId={activeVersionId ?? undefined}
           />
         ) : versionsLoading ? (
           <VersionFormSkeleton />
@@ -69,6 +71,9 @@ export function VersionEditPanel() {
         open={versionDialogOpen}
         version={editingVersion ?? undefined}
       />
+
+      {/* Video Marker Dialog */}
+      <VideoMarkerDialog />
     </>
   );
 }

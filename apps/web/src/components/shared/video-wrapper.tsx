@@ -14,9 +14,11 @@ export interface VideoWrapperProps {
   cover: string;
   preset?: VideoPreset;
   ref?: React.Ref<HTMLVideoElement>;
+  crossOrigin?: "" | "anonymous" | "use-credentials";
   playing?: boolean;
   onPlayingChange?: (playing: boolean) => void;
   onDurationChange?: (duration: number) => void;
+  onTimeUpdate?: (currentTime: number) => void;
   onLoadingStateChange?: (state: VideoLoadingState) => void;
   onLoop?: () => void;
 }
@@ -27,9 +29,11 @@ export function VideoWrapper({
   cover,
   preset,
   ref,
+  crossOrigin,
   playing,
   onPlayingChange,
   onDurationChange,
+  onTimeUpdate,
   onLoadingStateChange,
   onLoop,
 }: VideoWrapperProps) {
@@ -92,6 +96,13 @@ export function VideoWrapper({
     [onDurationChange]
   );
 
+  const handleTimeUpdate = useCallback(
+    (e: React.SyntheticEvent<HTMLVideoElement>) => {
+      onTimeUpdate?.(e.currentTarget.currentTime);
+    },
+    [onTimeUpdate]
+  );
+
   const handleLoadStart = useCallback(() => {
     onLoadingStateChange?.("loading");
   }, [onLoadingStateChange]);
@@ -121,6 +132,7 @@ export function VideoWrapper({
       aria-label="Video player"
       autoPlay={false}
       className={cn("block w-full", className)}
+      crossOrigin={crossOrigin}
       loop
       muted
       onCanPlay={handleCanPlay}
@@ -131,6 +143,7 @@ export function VideoWrapper({
       onPause={handlePause}
       onPlay={handlePlay}
       onSeeked={handleSeeked}
+      onTimeUpdate={handleTimeUpdate}
       playsInline
       poster={cover}
       preload="none"

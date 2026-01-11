@@ -23,6 +23,7 @@ interface MediaUploadProps {
   mediaType?: MediaType;
   aspectRatio?: AspectRatio;
   label?: string;
+  extraTools?: React.ReactNode;
 }
 
 const aspectRatioConfig: Record<
@@ -68,6 +69,7 @@ export function MediaUpload({
   mediaType = "image",
   aspectRatio = "cover",
   label,
+  extraTools,
 }: MediaUploadProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { upload, isUploading } = useAdminUpload({
@@ -187,28 +189,31 @@ export function MediaUpload({
 
   return (
     <div className={cn("space-y-2", className)}>
-      {label && (
-        <span className="font-medium text-muted-foreground text-xs">
-          {label}
-        </span>
-      )}
-      <InputGroup>
-        <InputGroupInput
-          disabled={disabled || isUploading}
-          onChange={handleInputChange}
-          placeholder={`Enter ${mediaType} URL...`}
-          value={value || ""}
-        />
-        <InputGroupAddon align="inline-end">
-          <InputGroupButton
+      <div className="flex items-center gap-1.5">
+        {label && (
+          <span className="font-medium text-muted-foreground text-xs">
+            {label}
+          </span>
+        )}
+        <InputGroup>
+          <InputGroupInput
             disabled={disabled || isUploading}
-            onClick={handlePaste}
-            variant="secondary"
-          >
-            Paste
-          </InputGroupButton>
-        </InputGroupAddon>
-      </InputGroup>
+            onChange={handleInputChange}
+            placeholder={`Enter ${mediaType} URL...`}
+            value={value || ""}
+          />
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton
+              disabled={disabled || isUploading}
+              onClick={handlePaste}
+              variant="secondary"
+            >
+              Paste
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
+        {extraTools}
+      </div>
 
       <div className={cn("group relative", config.width)}>
         <button

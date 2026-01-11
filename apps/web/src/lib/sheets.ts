@@ -37,3 +37,19 @@ export const filterDialog = Dialog.createHandle<
     }
   | undefined
 >();
+
+// Video Marker Dialog
+export const videoMarkerDialog = Dialog.createHandle<{
+  versionId: string;
+  recordType: "web" | "mobile";
+  videoUrl: string;
+  coverUrl: string;
+}>();
+
+// Video Marker Detail Dialog
+export const videoMarkerDetailDialog = Dialog.createHandle<{
+  versionId: string;
+  recordType: "web" | "mobile";
+  videoUrl: string;
+  coverUrl: string;
+}>();

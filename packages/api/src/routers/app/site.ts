@@ -409,8 +409,10 @@ export const appSiteRouter = {
               site: {
                 with: {
                   pages: {
+                    limit: 20,
                     with: {
                       versions: {
+                        limit: 5,
                         orderBy: [desc(sitePageVersions.createdAt)],
                       },
                     },
@@ -461,8 +463,10 @@ export const appSiteRouter = {
         where: and(eq(sites.id, id), isNull(sites.deletedAt)),
         with: {
           pages: {
+            limit: 20,
             with: {
               versions: {
+                limit: 5,
                 orderBy: [desc(sitePageVersions.createdAt)],
               },
             },
@@ -491,8 +495,10 @@ export const appSiteRouter = {
         where: and(eq(sites.slug, siteSlug), isNull(sites.deletedAt)),
         with: {
           pages: {
+            limit: 20,
             with: {
               versions: {
+                limit: 10,
                 orderBy: [desc(sitePageVersions.versionDate)],
               },
             },

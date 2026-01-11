@@ -330,6 +330,32 @@ export const tagListByIdsSchema = z.object({
   ids: z.array(z.string()),
 });
 
+// ============ Video Marker Schemas ============
+
+// Record type enum
+export const recordTypeSchema = z.enum(["web", "mobile"]);
+
+// Marker list query
+export const markerListSchema = z.object({
+  versionId: z.string(),
+  recordType: recordTypeSchema,
+});
+
+// Single marker for bulk save
+const markerItemSchema = z.object({
+  id: z.string().optional(),
+  sequence: z.number().int().min(1),
+  time: z.number().min(0),
+  text: z.string().nullable().optional(),
+});
+
+// Marker bulk save (upsert all markers for a version+recordType)
+export const markerBulkSaveSchema = z.object({
+  versionId: z.string(),
+  recordType: recordTypeSchema,
+  markers: z.array(markerItemSchema),
+});
+
 // Type exports
 export type UserList = z.infer<typeof userListSchema>;
 export type UserCreate = z.infer<typeof userCreateSchema>;
@@ -362,3 +388,6 @@ export type TagUpsert = z.infer<typeof tagUpsertSchema>;
 export type TagBatchDelete = z.infer<typeof tagBatchDeleteSchema>;
 export type TagListForSelect = z.infer<typeof tagListForSelectSchema>;
 export type TagListByIds = z.infer<typeof tagListByIdsSchema>;
+export type RecordType = z.infer<typeof recordTypeSchema>;
+export type MarkerList = z.infer<typeof markerListSchema>;
+export type MarkerBulkSave = z.infer<typeof markerBulkSaveSchema>;

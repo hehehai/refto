@@ -20,6 +20,7 @@
     "@refto-one/db": "workspace:*",
     "@refto-one/email": "workspace:*",
     "better-auth": "catalog:",
+    "better-auth-cloudflare": "^0.2.9",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "zod": "catalog:"

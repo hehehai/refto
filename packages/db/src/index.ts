@@ -16,8 +16,10 @@ function getConnectionString(): string {
 
 // 每个请求创建新的数据库实例
 // Cloudflare Workers 要求每个请求使用独立的数据库连接
-export function createDb(): DbType {
-  const sql = postgres(getConnectionString(), {
+// 可选传入 connectionString，用于从 env.HYPERDRIVE 获取连接
+export function createDb(connectionString?: string): DbType {
+  const connStr = connectionString ?? getConnectionString();
+  const sql = postgres(connStr, {
     prepare: false,
   });
   return drizzle(sql, { schema });

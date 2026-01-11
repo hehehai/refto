@@ -1,3 +1,4 @@
+import { markerRouter } from "./marker";
 import { pageRouter, siteRouter, versionRouter } from "./site";
 import { statRouter } from "./stat";
 import { panelSubmitSiteRouter } from "./submit-site";
@@ -12,4 +13,5 @@ export const panelRouter = {
   page: pageRouter,
   version: versionRouter,
   tag: tagRouter,
+  marker: markerRouter,
 };

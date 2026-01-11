@@ -2,6 +2,7 @@ import { EmptyPlaceholder } from "@/components/shared/empty-placeholder";
 import { VersionFormSkeleton } from "../version/version-form-skeleton";
 import { VersionView } from "../version/version-view";
 import { VersionViewTabs } from "../version/version-view-tabs";
+import { VideoMarkerDetailDialog } from "../version/video-marker-detail-dialog";
 import { useSiteDetail } from "./site-detail-context";
 
 export function VersionViewPanel() {
@@ -30,6 +31,7 @@ export function VersionViewPanel() {
               mobileCover: activeVersion.mobileCover,
               mobileRecord: activeVersion.mobileRecord,
             }}
+            versionId={activeVersion.id}
           />
         ) : versionsLoading ? (
           <VersionFormSkeleton />
@@ -40,6 +42,8 @@ export function VersionViewPanel() {
           />
         )}
       </div>
+
+      <VideoMarkerDetailDialog />
     </>
   );
 }
