@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { EmptyPlaceholder } from "@/components/shared/empty-placeholder";
 import { ImagePreviewDialog } from "@/components/shared/image-preview-dialog";
+import { useDownload } from "@/hooks/use-download";
 import { cn } from "@/lib/utils";
 import {
   MarkerVideoPlayer,
@@ -39,6 +40,7 @@ export function MarkerRefsPanel({
   const [isVideoReady, setIsVideoReady] = useState(false);
   const isCapturingRef = useRef(false);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+  const { download } = useDownload();
 
   useEffect(() => {
     const markerStates: MarkerState[] = markerInput.map((m) => ({
@@ -127,12 +129,21 @@ export function MarkerRefsPanel({
             className="flex flex-col gap-2 rounded-lg border p-3"
             key={marker.id}
           >
-            <button
+            <div
               className="group relative aspect-video w-full overflow-hidden rounded-md bg-muted"
               onClick={() =>
                 marker.thumbnail && setPreviewSrc(marker.thumbnail)
               }
-              type="button"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  if (marker.thumbnail) {
+                    setPreviewSrc(marker.thumbnail);
+                  }
+                }
+              }}
+              role="button"
+              tabIndex={0}
             >
               {marker.thumbnail ? (
                 <img
@@ -148,7 +159,25 @@ export function MarkerRefsPanel({
               <div className="absolute top-2 left-2 rounded bg-foreground/80 px-1.5 py-0.5 text-[10px] text-background">
                 #{marker.sequence}
               </div>
-            </button>
+              {marker.thumbnail && (
+                <button
+                  className="absolute top-2 right-2 rounded bg-background/80 p-1 opacity-0 transition-opacity group-hover:opacity-100"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    download({
+                      dataUrl: marker.thumbnail ?? "",
+                      filename: `marker-${marker.sequence}-${marker.time.toFixed(
+                        1
+                      )}s.jpg`,
+                    });
+                  }}
+                  type="button"
+                >
+                  <span className="i-hugeicons-download-01 size-3.5" />
+                </button>
+              )}
+            </div>
 
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono text-muted-foreground text-xs">

@@ -14,6 +14,7 @@ export interface VideoWrapperProps {
   cover: string;
   preset?: VideoPreset;
   ref?: React.Ref<HTMLVideoElement>;
+  crossOrigin?: "" | "anonymous" | "use-credentials";
   playing?: boolean;
   onPlayingChange?: (playing: boolean) => void;
   onDurationChange?: (duration: number) => void;
@@ -28,6 +29,7 @@ export function VideoWrapper({
   cover,
   preset,
   ref,
+  crossOrigin,
   playing,
   onPlayingChange,
   onDurationChange,
@@ -130,6 +132,7 @@ export function VideoWrapper({
       aria-label="Video player"
       autoPlay={false}
       className={cn("block w-full", className)}
+      crossOrigin={crossOrigin}
       loop
       muted
       onCanPlay={handleCanPlay}
