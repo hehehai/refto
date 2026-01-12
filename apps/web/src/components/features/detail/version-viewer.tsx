@@ -1,5 +1,6 @@
 import type { HTMLAttributes } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { CircularProgressButton } from "@/components/shared/circular-progress-button";
 import { VideoWrapper } from "@/components/shared/video-wrapper";
 import { CFImage, getCFImageUrlByPreset } from "@/components/ui/cf-image";
@@ -23,35 +24,30 @@ interface Version {
   id: string;
   webCover: string;
   webRecord?: string | null;
-  mobileCover?: string | null;
-  mobileRecord?: string | null;
 }
 
 interface MarkerItem {
   id: string;
-  sequence: number;
   time: number;
   text: string | null;
 }
 
 interface VersionViewerProps extends HTMLAttributes<HTMLDivElement> {
   version: Version;
-  viewMode: "web" | "mobile";
-  hasMobileContent: boolean;
   markers?: MarkerItem[];
   showMarkers?: boolean;
   showShortcuts?: boolean;
-  onViewModeChange: (mode: "web" | "mobile") => void;
+  focusMarkerTime?: number;
+  onMarkerSelect?: (markerId: string) => void;
 }
 
 export function VersionViewer({
   version,
-  viewMode,
-  hasMobileContent,
   markers = [],
   showMarkers = false,
   showShortcuts = false,
-  onViewModeChange,
+  focusMarkerTime,
+  onMarkerSelect,
   className,
   ...props
 }: VersionViewerProps) {
@@ -63,11 +59,9 @@ export function VersionViewer({
   const { download } = useDownload();
 
   // Get current content based on view mode
-  const cover = viewMode === "mobile" ? version.mobileCover : version.webCover;
-  const record =
-    viewMode === "mobile" ? version.mobileRecord : version.webRecord;
-  const videoPreset: VideoPreset =
-    viewMode === "mobile" ? "mobileRecord" : "webRecord";
+  const cover = version.webCover;
+  const record = version.webRecord;
+  const videoPreset: VideoPreset = "webRecord";
   const captureSrc = useMemo(
     () => getCFVideoUrlByPreset(record, videoPreset),
     [record, videoPreset]
@@ -75,17 +69,21 @@ export function VersionViewer({
 
   const hasVideo = Boolean(record);
 
-  const sortedMarkers = useMemo(
-    () => [...markers].sort((a, b) => a.sequence - b.sequence),
+  const orderedMarkers = useMemo(
+    () =>
+      [...markers].sort((a, b) => {
+        if (a.time !== b.time) return a.time - b.time;
+        return a.id.localeCompare(b.id);
+      }),
     [markers]
   );
 
-  // Reset state when version or viewMode changes
+  // Reset state when version changes
   // Don't reset duration - let onLoadedMetadata update it naturally
   useEffect(() => {
     setPlaying(false);
     setCurrentTime(0);
-  }, [version.id, viewMode]);
+  }, [version.id]);
 
   const handleLoop = useCallback(() => {
     setCurrentTime(0);
@@ -118,6 +116,12 @@ export function VersionViewer({
     }
   }, []);
 
+  useEffect(() => {
+    if (focusMarkerTime === undefined || focusMarkerTime === null) return;
+    if (!hasVideo) return;
+    handleSeekTo(focusMarkerTime, true);
+  }, [focusMarkerTime, handleSeekTo, hasVideo]);
+
   const handleSeekBy = useCallback(
     (delta: number) => {
       const video = videoRef.current;
@@ -133,12 +137,12 @@ export function VersionViewer({
   );
 
   const activeMarkerId = useMemo(() => {
-    if (!sortedMarkers.length) return null;
-    const active = [...sortedMarkers]
+    if (!orderedMarkers.length) return null;
+    const active = [...orderedMarkers]
       .reverse()
       .find((marker) => marker.time <= currentTime);
     return active?.id ?? null;
-  }, [sortedMarkers, currentTime]);
+  }, [orderedMarkers, currentTime]);
 
   const captureFrameAt = useCallback(async (time: number) => {
     if (captureRef.current) {
@@ -199,94 +203,77 @@ export function VersionViewer({
   }, []);
 
   const handleDownloadMarker = useCallback(
-    async (marker: MarkerItem) => {
+    async (marker: MarkerItem, markerNumber: number) => {
       const captureTime = marker.time === 0 ? 0.01 : marker.time;
       const dataUrl = await captureFrameAt(captureTime);
       if (!dataUrl) return;
-      const filename = `marker-${marker.sequence}-${marker.time.toFixed(1)}s.jpg`;
+      const filename = `marker-${markerNumber}-${marker.time.toFixed(1)}s.jpg`;
       download({ dataUrl, filename });
     },
     [captureFrameAt, download]
   );
 
-  useEffect(() => {
-    if (!(hasVideo && showShortcuts)) return;
-    const shouldIgnoreTarget = (target: EventTarget | null) => {
-      if (!(target instanceof HTMLElement)) return false;
-      const tag = target.tagName;
-      if (target.isContentEditable) return true;
-      return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
-    };
+  const hotkeyOptions = {
+    enabled: hasVideo && showShortcuts,
+    enableOnFormTags: false,
+    enableOnContentEditable: false,
+    preventDefault: true,
+  };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (shouldIgnoreTarget(e.target)) return;
-      if (e.key === " ") {
-        e.preventDefault();
-        const video = videoRef.current;
-        if (!video) return;
-        if (video.paused) {
-          video.play();
-        } else {
-          video.pause();
-        }
-        return;
+  useHotkeys(
+    "space",
+    () => {
+      const video = videoRef.current;
+      if (!video) return;
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
       }
+    },
+    hotkeyOptions,
+    [hasVideo, showShortcuts]
+  );
 
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        handleSeekBy(e.shiftKey ? -10 : -1);
-        return;
-      }
+  useHotkeys(
+    "left",
+    (event) => {
+      if (event.shiftKey) return;
+      handleSeekBy(-1);
+    },
+    hotkeyOptions,
+    [handleSeekBy, hasVideo, showShortcuts]
+  );
 
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        handleSeekBy(e.shiftKey ? 10 : 1);
-      }
-    };
+  useHotkeys("shift+left", () => handleSeekBy(-10), hotkeyOptions, [
+    handleSeekBy,
+    hasVideo,
+    showShortcuts,
+  ]);
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [hasVideo, showShortcuts, handleSeekBy]);
+  useHotkeys(
+    "right",
+    (event) => {
+      if (event.shiftKey) return;
+      handleSeekBy(1);
+    },
+    hotkeyOptions,
+    [handleSeekBy, hasVideo, showShortcuts]
+  );
+
+  useHotkeys("shift+right", () => handleSeekBy(10), hotkeyOptions, [
+    handleSeekBy,
+    hasVideo,
+    showShortcuts,
+  ]);
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const showMarkersPanel = showMarkers && hasVideo && sortedMarkers.length > 0;
+  const showMarkersPanel = showMarkers && hasVideo && orderedMarkers.length > 0;
 
   return (
     <div className={cn("relative", className)} {...props}>
-      <div className="absolute inset-x-4 top-4 z-10 flex items-center justify-between">
-        <div className="flex rounded-lg bg-background/80 p-1 shadow-sm backdrop-blur-sm">
-          <button
-            className={cn(
-              "flex size-8 items-center justify-center rounded-md transition-colors",
-              viewMode === "web"
-                ? "bg-muted text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-            onClick={() => onViewModeChange("web")}
-            title="Web view"
-            type="button"
-          >
-            <span className="i-hugeicons-computer" />
-          </button>
-          {hasMobileContent && (
-            <button
-              className={cn(
-                "flex size-8 items-center justify-center rounded-md transition-colors",
-                viewMode === "mobile"
-                  ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-              onClick={() => onViewModeChange("mobile")}
-              title="Mobile view"
-              type="button"
-            >
-              <span className="i-hugeicons-smart-phone-01" />
-            </button>
-          )}
-        </div>
-
-        {/* Progress button - right (only for video) */}
-        {hasVideo && (
+      {hasVideo && (
+        <div className="absolute inset-x-4 top-4 z-10 flex items-center justify-end">
           <CircularProgressButton
             iconClassName="text-xs"
             onClick={handleTogglePlay}
@@ -294,32 +281,19 @@ export function VersionViewer({
             progress={progress}
             size={28}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="flex items-stretch gap-6">
         <div className="flex min-w-0 flex-1 flex-col">
           {/* Content */}
-          <div
-            className={cn(
-              "mx-auto overflow-hidden rounded-lg shadow-lg",
-              viewMode === "mobile" ? "max-w-xs" : "w-full"
-            )}
-          >
+          <div className="mx-auto w-full overflow-hidden rounded-lg shadow-lg">
             {hasVideo ? (
               <VideoWrapper
-                className={cn(
-                  "w-full",
-                  viewMode === "mobile" ? "aspect-9/16" : "aspect-3420/1962"
-                )}
-                cover={
-                  getCFImageUrlByPreset(
-                    cover,
-                    viewMode === "mobile" ? "mobileCover" : "webCover"
-                  ) ?? ""
-                }
+                className="aspect-3420/1962 w-full"
+                cover={getCFImageUrlByPreset(cover, "webCover") ?? ""}
                 crossOrigin="anonymous"
-                key={`${version.id}-${viewMode}`}
+                key={version.id}
                 onDurationChange={setDuration}
                 onLoop={handleLoop}
                 onPlayingChange={setPlaying}
@@ -331,11 +305,8 @@ export function VersionViewer({
             ) : cover ? (
               <CFImage
                 alt="Page screenshot"
-                className={cn(
-                  "w-full",
-                  viewMode === "mobile" ? "aspect-9/16" : "aspect-3420/1962"
-                )}
-                preset={viewMode === "mobile" ? "mobileCover" : "webCover"}
+                className="aspect-3420/1962 w-full"
+                preset="webCover"
                 src={cover}
               />
             ) : (
@@ -349,10 +320,10 @@ export function VersionViewer({
         {showMarkersPanel && (
           <div className="flex w-56 shrink-0 flex-col rounded-lg border bg-background/60 p-3">
             <div className="mb-2 font-medium text-muted-foreground text-xs">
-              Markers ({sortedMarkers.length})
+              Markers ({orderedMarkers.length})
             </div>
             <div className="flex-1 space-y-1 overflow-y-auto">
-              {sortedMarkers.map((marker) => (
+              {orderedMarkers.map((marker, index) => (
                 <div
                   className={cn(
                     "group flex items-center gap-1 rounded-md px-2 py-1 transition-colors",
@@ -364,11 +335,13 @@ export function VersionViewer({
                   onClick={(e) => {
                     const target = e.target as HTMLElement;
                     if (target.closest("[data-marker-download]")) return;
+                    onMarkerSelect?.(marker.id);
                     handleSeekTo(marker.time, true);
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
+                      onMarkerSelect?.(marker.id);
                       handleSeekTo(marker.time, true);
                     }
                   }}
@@ -391,7 +364,7 @@ export function VersionViewer({
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleDownloadMarker(marker);
+                      handleDownloadMarker(marker, index + 1);
                     }}
                     type="button"
                   >

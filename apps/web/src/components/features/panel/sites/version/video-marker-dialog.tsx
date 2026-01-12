@@ -23,14 +23,12 @@ import {
 
 interface VideoMarkerDialogContentProps {
   versionId: string;
-  recordType: "web" | "mobile";
   videoUrl: string;
   coverUrl: string;
 }
 
 function VideoMarkerDialogContent({
   versionId,
-  recordType,
   videoUrl,
   coverUrl,
 }: VideoMarkerDialogContentProps) {
@@ -55,6 +53,14 @@ function VideoMarkerDialogContent({
       })),
     [markers, thumbnails]
   );
+  const orderedMarkers = useMemo(
+    () =>
+      [...markersWithThumbnails].sort((a, b) => {
+        if (a.time !== b.time) return a.time - b.time;
+        return a.id.localeCompare(b.id);
+      }),
+    [markersWithThumbnails]
+  );
 
   // Fetch existing markers when dialog opens
   useEffect(() => {
@@ -62,13 +68,11 @@ function VideoMarkerDialogContent({
       try {
         const result = await orpc.panel.marker.list.call({
           versionId,
-          recordType,
         });
 
         // Convert to MarkerState (without thumbnails initially)
         const markerStates: MarkerState[] = result.map((m) => ({
           id: m.id,
-          sequence: m.sequence,
           time: m.time,
           text: m.text,
           thumbnail: undefined,
@@ -87,7 +91,7 @@ function VideoMarkerDialogContent({
     setDuration(0);
     setIsVideoReady(false);
     fetchMarkers();
-  }, [versionId, recordType]);
+  }, [versionId]);
 
   // Add marker at current time
   const handleAddMarker = useCallback(async () => {
@@ -111,7 +115,6 @@ function VideoMarkerDialogContent({
 
     const newMarker: MarkerState = {
       id: crypto.randomUUID(),
-      sequence: markers.length + 1,
       time,
       text: null,
       thumbnail,
@@ -119,61 +122,23 @@ function VideoMarkerDialogContent({
 
     setMarkers((prev) => [...prev, newMarker]);
     setSelectedMarkerId(newMarker.id);
-  }, [markers.length]);
+  }, []);
 
   // Delete selected marker
   const handleDeleteSelected = useCallback(() => {
     if (!selectedMarkerId) return;
 
-    setMarkers((prev) => {
-      const filtered = prev.filter((m) => m.id !== selectedMarkerId);
-      // Resequence
-      return filtered.map((m, i) => ({ ...m, sequence: i + 1 }));
-    });
+    setMarkers((prev) => prev.filter((m) => m.id !== selectedMarkerId));
     setSelectedMarkerId(null);
   }, [selectedMarkerId]);
 
-  // Move selected marker up in sequence (swap with previous)
   const handleMoveSelectedLeft = useCallback(() => {
-    if (!selectedMarkerId) return;
+    // Order locked by time.
+  }, []);
 
-    setMarkers((prev) => {
-      const index = prev.findIndex((m) => m.id === selectedMarkerId);
-      if (index <= 0) return prev;
-
-      const newMarkers = [...prev];
-      // Swap sequences
-      const temp = newMarkers[index].sequence;
-      newMarkers[index] = {
-        ...newMarkers[index],
-        sequence: newMarkers[index - 1].sequence,
-      };
-      newMarkers[index - 1] = { ...newMarkers[index - 1], sequence: temp };
-      // Sort by sequence
-      return newMarkers.sort((a, b) => a.sequence - b.sequence);
-    });
-  }, [selectedMarkerId]);
-
-  // Move selected marker down in sequence (swap with next)
   const handleMoveSelectedRight = useCallback(() => {
-    if (!selectedMarkerId) return;
-
-    setMarkers((prev) => {
-      const index = prev.findIndex((m) => m.id === selectedMarkerId);
-      if (index < 0 || index >= prev.length - 1) return prev;
-
-      const newMarkers = [...prev];
-      // Swap sequences
-      const temp = newMarkers[index].sequence;
-      newMarkers[index] = {
-        ...newMarkers[index],
-        sequence: newMarkers[index + 1].sequence,
-      };
-      newMarkers[index + 1] = { ...newMarkers[index + 1], sequence: temp };
-      // Sort by sequence
-      return newMarkers.sort((a, b) => a.sequence - b.sequence);
-    });
-  }, [selectedMarkerId]);
+    // Order locked by time.
+  }, []);
 
   // Playback controls
   const handlePlayFromStart = useCallback(() => {
@@ -250,10 +215,7 @@ function VideoMarkerDialogContent({
   // Delete single marker
   const handleDeleteMarker = useCallback(
     (id: string) => {
-      setMarkers((prev) => {
-        const filtered = prev.filter((m) => m.id !== id);
-        return filtered.map((m, i) => ({ ...m, sequence: i + 1 }));
-      });
+      setMarkers((prev) => prev.filter((m) => m.id !== id));
       if (selectedMarkerId === id) {
         setSelectedMarkerId(null);
       }
@@ -267,7 +229,6 @@ function VideoMarkerDialogContent({
     try {
       await orpc.panel.marker.bulkSave.call({
         versionId,
-        recordType,
         markers: markers.map(({ thumbnail, ...m }) => m),
       });
       toast.success("Markers saved successfully");
@@ -277,11 +238,12 @@ function VideoMarkerDialogContent({
     } finally {
       setIsSaving(false);
     }
-  }, [versionId, recordType, markers]);
+  }, [versionId, markers]);
 
   // Keyboard shortcuts
   useMarkerHotkeys({
     enabled: true,
+    enableReorder: false,
     onPlayPause: handlePlayPause,
     onSeekLeft: () => handleRewind(1),
     onSeekRight: () => handleForward(1),
@@ -299,9 +261,7 @@ function VideoMarkerDialogContent({
       overlayProps={{ forceRender: true }}
     >
       <DialogHeader className="shrink-0 border-b px-3 py-4">
-        <DialogTitle>
-          Video Markers - {recordType === "web" ? "Web" : "Mobile"} Record
-        </DialogTitle>
+        <DialogTitle>Video Markers</DialogTitle>
       </DialogHeader>
 
       {/* Main content */}
@@ -324,6 +284,7 @@ function VideoMarkerDialogContent({
 
           {/* Toolbar */}
           <MarkerToolbar
+            allowReorder={false}
             currentTime={currentTime}
             duration={duration}
             hasMarkers={markers.length > 0}
@@ -345,7 +306,7 @@ function VideoMarkerDialogContent({
             <MarkerTimeline
               currentTime={currentTime}
               duration={duration}
-              markers={markersWithThumbnails}
+              markers={orderedMarkers}
               onSeek={handleSeek}
               onSeekToMarker={handleSeekToMarker}
               onSelectMarker={handleSelectMarker}
@@ -360,7 +321,7 @@ function VideoMarkerDialogContent({
             Markers ({markers.length})
           </div>
           <MarkerListPanel
-            markers={markersWithThumbnails}
+            markers={orderedMarkers}
             onDeleteMarker={handleDeleteMarker}
             onSeekToMarker={handleSeekToMarker}
             onSelectMarker={handleSelectMarker}
@@ -392,7 +353,6 @@ export function VideoMarkerDialog() {
         return (
           <VideoMarkerDialogContent
             coverUrl={payload.coverUrl}
-            recordType={payload.recordType}
             versionId={payload.versionId}
             videoUrl={payload.videoUrl}
           />

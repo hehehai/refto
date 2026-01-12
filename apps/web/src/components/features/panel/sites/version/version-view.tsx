@@ -15,8 +15,6 @@ interface VersionViewData {
   siteOG: string | null;
   webCover: string;
   webRecord: string | null;
-  mobileCover: string | null;
-  mobileRecord: string | null;
 }
 
 interface VersionViewProps {
@@ -58,34 +56,20 @@ function MediaPreview({ src, alt, className, type }: MediaPreviewProps) {
 }
 
 export function VersionView({ value, versionId }: VersionViewProps) {
-  const { data: webMarkers = [] } = useQuery(
+  const { data: markers = [] } = useQuery(
     orpc.panel.marker.list.queryOptions({
-      input:
-        value.webRecord && versionId
-          ? { versionId, recordType: "web" }
-          : skipToken,
+      input: value.webRecord && versionId ? { versionId } : skipToken,
     })
   );
-  const { data: mobileMarkers = [] } = useQuery(
-    orpc.panel.marker.list.queryOptions({
-      input:
-        value.mobileRecord && versionId
-          ? { versionId, recordType: "mobile" }
-          : skipToken,
-    })
-  );
-  const hasWebMarkers = webMarkers.length > 0;
-  const hasMobileMarkers = mobileMarkers.length > 0;
+  const hasMarkers = markers.length > 0;
 
   const handleOpenMarkerDialog = (
-    recordType: "web" | "mobile",
     videoUrl: string | null,
     coverUrl: string | null
   ) => {
     if (!videoUrl) return;
     videoMarkerDetailDialog.openWithPayload({
       versionId,
-      recordType,
       videoUrl,
       coverUrl: coverUrl ?? "",
     });
@@ -110,16 +94,16 @@ export function VersionView({ value, versionId }: VersionViewProps) {
 
       {/* Web Section */}
       <div className="space-y-4">
-        <h4 className="font-medium text-sm">Web Version</h4>
+        <h4 className="font-medium text-sm">Version</h4>
         <div className="grid grid-cols-2 gap-4">
           {/* Web Cover */}
           <div>
             <span className="mb-2 block text-muted-foreground text-xs">
-              Web Cover
+              Cover
             </span>
             {value.webCover ? (
               <MediaPreview
-                alt="Web cover preview"
+                alt="Cover preview"
                 className="aspect-video w-full rounded-lg object-cover"
                 src={value.webCover}
                 type="image"
@@ -134,7 +118,7 @@ export function VersionView({ value, versionId }: VersionViewProps) {
           {/* Web Recording */}
           <div>
             <div className="mb-2 flex items-center justify-between text-muted-foreground text-xs">
-              <span>Web Recording</span>
+              <span>Recording</span>
               {value.webRecord && (
                 <Tooltip>
                   <TooltipTrigger
@@ -142,11 +126,10 @@ export function VersionView({ value, versionId }: VersionViewProps) {
                       <Button
                         className={cn(
                           "h-6 px-1.5",
-                          hasWebMarkers && "text-primary ring-1 ring-primary/40"
+                          hasMarkers && "text-primary ring-1 ring-primary/40"
                         )}
                         onClick={() =>
                           handleOpenMarkerDialog(
-                            "web",
                             value.webRecord,
                             value.webCover
                           )
@@ -159,93 +142,20 @@ export function VersionView({ value, versionId }: VersionViewProps) {
                     <HugeiconsIcon icon={Bookmark02Icon} size={14} />
                   </TooltipTrigger>
                   <TooltipContent>
-                    {hasWebMarkers ? "Markers set" : "View markers"}
+                    {hasMarkers ? "Markers set" : "View markers"}
                   </TooltipContent>
                 </Tooltip>
               )}
             </div>
             {value.webRecord ? (
               <MediaPreview
-                alt="Web recording"
+                alt="Recording"
                 className="aspect-video w-full rounded-lg object-cover"
                 src={value.webRecord}
                 type="video"
               />
             ) : (
               <div className="flex aspect-video w-full items-center justify-center rounded-lg bg-muted">
-                <span className="text-muted-foreground text-xs">No video</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Section */}
-      <div className="space-y-4">
-        <h4 className="font-medium text-sm">Mobile Version</h4>
-        <div className="grid grid-cols-2 gap-4">
-          {/* Mobile Cover */}
-          <div>
-            <span className="mb-2 block text-muted-foreground text-xs">
-              Mobile Cover
-            </span>
-            {value.mobileCover ? (
-              <MediaPreview
-                alt="Mobile cover preview"
-                className="aspect-9/16 w-32 rounded-lg object-cover"
-                src={value.mobileCover}
-                type="image"
-              />
-            ) : (
-              <div className="flex aspect-9/16 w-32 items-center justify-center rounded-lg bg-muted">
-                <span className="text-muted-foreground text-xs">No cover</span>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Recording */}
-          <div>
-            <div className="mb-2 flex items-center justify-between text-muted-foreground text-xs">
-              <span>Mobile Recording</span>
-              {value.mobileRecord && (
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        className={cn(
-                          "h-6 px-1.5",
-                          hasMobileMarkers &&
-                            "text-primary ring-1 ring-primary/40"
-                        )}
-                        onClick={() =>
-                          handleOpenMarkerDialog(
-                            "mobile",
-                            value.mobileRecord,
-                            value.mobileCover
-                          )
-                        }
-                        size="icon-xs"
-                        variant="secondary"
-                      />
-                    }
-                  >
-                    <HugeiconsIcon icon={Bookmark02Icon} size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {hasMobileMarkers ? "Markers set" : "View markers"}
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-            {value.mobileRecord ? (
-              <MediaPreview
-                alt="Mobile recording"
-                className="aspect-9/16 w-32 rounded-lg object-cover"
-                src={value.mobileRecord}
-                type="video"
-              />
-            ) : (
-              <div className="flex aspect-9/16 w-32 items-center justify-center rounded-lg bg-muted">
                 <span className="text-muted-foreground text-xs">No video</span>
               </div>
             )}

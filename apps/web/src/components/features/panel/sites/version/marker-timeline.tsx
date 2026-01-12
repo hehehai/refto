@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 
 export interface MarkerState {
   id: string;
-  sequence: number;
   time: number;
   text: string | null;
   thumbnail?: string;
@@ -107,6 +106,14 @@ export function MarkerTimeline({
 
   // Use preview position during drag, otherwise use actual currentTime
   const playheadPosition = previewPosition ?? currentTimePosition;
+  const orderedMarkers = useMemo(
+    () =>
+      [...markers].sort((a, b) => {
+        if (a.time !== b.time) return a.time - b.time;
+        return a.id.localeCompare(b.id);
+      }),
+    [markers]
+  );
 
   return (
     <div
@@ -124,9 +131,10 @@ export function MarkerTimeline({
       />
 
       {/* Markers */}
-      {markers.map((marker) => {
+      {orderedMarkers.map((marker, index) => {
         const position = duration > 0 ? (marker.time / duration) * 100 : 0;
         const isSelected = marker.id === selectedMarkerId;
+        const markerNumber = index + 1;
 
         return (
           <Tooltip key={marker.id}>
@@ -156,11 +164,11 @@ export function MarkerTimeline({
                 />
               }
             >
-              {marker.sequence}
+              {markerNumber}
             </TooltipTrigger>
             <TooltipContent side="top">
               <div className="text-center">
-                <div className="font-medium">#{marker.sequence}</div>
+                <div className="font-medium">#{markerNumber}</div>
                 <div className="text-muted-foreground text-xs">
                   {formatTimeShort(marker.time)}
                 </div>

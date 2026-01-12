@@ -28,8 +28,6 @@ export function VersionViewPanel() {
               siteOG: activeVersion.siteOG,
               webCover: activeVersion.webCover,
               webRecord: activeVersion.webRecord,
-              mobileCover: activeVersion.mobileCover,
-              mobileRecord: activeVersion.mobileRecord,
             }}
             versionId={activeVersion.id}
           />

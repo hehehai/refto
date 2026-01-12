@@ -76,11 +76,12 @@ export function MarkerListPanel({
   return (
     <ScrollArea className="flex-1">
       <div className="space-y-1 p-2">
-        {markers.map((marker) => (
+        {markers.map((marker, index) => (
           <MarkerCard
             isSelected={marker.id === selectedMarkerId}
             key={marker.id}
             marker={marker}
+            markerNumber={index + 1}
             onDelete={handleDelete(marker.id)}
             onSeekTo={handleSeekTo(marker.id)}
             onSelect={handleSelect(marker.id)}

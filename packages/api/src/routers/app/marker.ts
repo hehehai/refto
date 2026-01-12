@@ -1,6 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { markerListSchema } from "@refto-one/common";
-import { and, eq } from "@refto-one/db";
+import { eq } from "@refto-one/db";
 import { sitePageVersions, videoMarkers } from "@refto-one/db/schema/sites";
 import { publicProcedure } from "../../index";
 
@@ -8,7 +8,7 @@ export const appMarkerRouter = {
   list: publicProcedure
     .input(markerListSchema)
     .handler(async ({ input, context }) => {
-      const { versionId, recordType } = input;
+      const { versionId } = input;
       const { db } = context;
 
       const version = await db.query.sitePageVersions.findFirst({
@@ -20,11 +20,11 @@ export const appMarkerRouter = {
       }
 
       return db.query.videoMarkers.findMany({
-        where: and(
-          eq(videoMarkers.versionId, versionId),
-          eq(videoMarkers.recordType, recordType)
-        ),
-        orderBy: (markers, { asc }) => [asc(markers.sequence)],
+        where: eq(videoMarkers.versionId, versionId),
+        orderBy: (markers, { asc }) => [
+          asc(markers.time),
+          asc(markers.createdAt),
+        ],
       });
     }),
 };

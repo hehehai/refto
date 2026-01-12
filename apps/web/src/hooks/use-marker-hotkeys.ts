@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 interface UseMarkerHotkeysOptions {
   enabled: boolean;
+  enableReorder?: boolean;
   onPlayPause: () => void;
   onSeekLeft: () => void;
   onSeekRight: () => void;
@@ -15,6 +16,7 @@ interface UseMarkerHotkeysOptions {
 
 export function useMarkerHotkeys({
   enabled,
+  enableReorder = true,
   onPlayPause,
   onSeekLeft,
   onSeekRight,
@@ -25,109 +27,48 @@ export function useMarkerHotkeys({
   onMoveSelectedUp,
   onMoveSelectedDown,
 }: UseMarkerHotkeysOptions) {
-  const handlersRef = useRef({
-    onPlayPause,
-    onSeekLeft,
-    onSeekRight,
-    onSeekLeftFast,
-    onSeekRightFast,
-    onAddMarker,
-    onDeleteSelected,
-    onMoveSelectedUp,
-    onMoveSelectedDown,
-  });
+  const options = {
+    enabled,
+    enableOnFormTags: false,
+    enableOnContentEditable: false,
+    preventDefault: true,
+  };
+  const reorderOptions = {
+    ...options,
+    enabled: enabled && enableReorder,
+  };
 
-  useEffect(() => {
-    handlersRef.current = {
-      onPlayPause,
-      onSeekLeft,
-      onSeekRight,
-      onSeekLeftFast,
-      onSeekRightFast,
-      onAddMarker,
-      onDeleteSelected,
-      onMoveSelectedUp,
-      onMoveSelectedDown,
-    };
-  }, [
-    onPlayPause,
-    onSeekLeft,
-    onSeekRight,
-    onSeekLeftFast,
+  useHotkeys("space", () => onPlayPause(), options, [onPlayPause]);
+  useHotkeys(
+    "left",
+    (event) => {
+      if (event.shiftKey) return;
+      onSeekLeft();
+    },
+    options,
+    [onSeekLeft]
+  );
+  useHotkeys("shift+left", () => onSeekLeftFast(), options, [onSeekLeftFast]);
+  useHotkeys(
+    "right",
+    (event) => {
+      if (event.shiftKey) return;
+      onSeekRight();
+    },
+    options,
+    [onSeekRight]
+  );
+  useHotkeys("shift+right", () => onSeekRightFast(), options, [
     onSeekRightFast,
-    onAddMarker,
+  ]);
+  useHotkeys("m", () => onAddMarker(), options, [onAddMarker]);
+  useHotkeys(["backspace", "del"], () => onDeleteSelected(), options, [
     onDeleteSelected,
+  ]);
+  useHotkeys("up", () => onMoveSelectedUp(), reorderOptions, [
     onMoveSelectedUp,
+  ]);
+  useHotkeys("down", () => onMoveSelectedDown(), reorderOptions, [
     onMoveSelectedDown,
   ]);
-
-  useEffect(() => {
-    if (!enabled) return;
-
-    const shouldIgnoreTarget = (target: EventTarget | null) => {
-      if (!(target instanceof HTMLElement)) return false;
-      const tag = target.tagName;
-      if (target.isContentEditable) return true;
-      return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!enabled || shouldIgnoreTarget(e.target)) return;
-
-      const key = e.key.toLowerCase();
-      const handlers = handlersRef.current;
-
-      if (key === " " || key === "spacebar") {
-        e.preventDefault();
-        handlers.onPlayPause();
-        return;
-      }
-
-      if (key === "arrowleft") {
-        e.preventDefault();
-        if (e.shiftKey) {
-          handlers.onSeekLeftFast();
-        } else {
-          handlers.onSeekLeft();
-        }
-        return;
-      }
-
-      if (key === "arrowright") {
-        e.preventDefault();
-        if (e.shiftKey) {
-          handlers.onSeekRightFast();
-        } else {
-          handlers.onSeekRight();
-        }
-        return;
-      }
-
-      if (key === "m") {
-        e.preventDefault();
-        handlers.onAddMarker();
-        return;
-      }
-
-      if (key === "delete" || key === "backspace") {
-        e.preventDefault();
-        handlers.onDeleteSelected();
-        return;
-      }
-
-      if (key === "arrowup") {
-        e.preventDefault();
-        handlers.onMoveSelectedUp();
-        return;
-      }
-
-      if (key === "arrowdown") {
-        e.preventDefault();
-        handlers.onMoveSelectedDown();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [enabled]);
 }

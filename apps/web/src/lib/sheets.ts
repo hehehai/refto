@@ -41,7 +41,6 @@ export const filterDialog = Dialog.createHandle<
 // Video Marker Dialog
 export const videoMarkerDialog = Dialog.createHandle<{
   versionId: string;
-  recordType: "web" | "mobile";
   videoUrl: string;
   coverUrl: string;
 }>();
@@ -49,7 +48,6 @@ export const videoMarkerDialog = Dialog.createHandle<{
 // Video Marker Detail Dialog
 export const videoMarkerDetailDialog = Dialog.createHandle<{
   versionId: string;
-  recordType: "web" | "mobile";
   videoUrl: string;
   coverUrl: string;
 }>();

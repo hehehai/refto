@@ -25,6 +25,7 @@ interface MarkerToolbarProps {
   selectedMarkerId: string | null;
   hasMarkers: boolean;
   readOnly?: boolean;
+  allowReorder?: boolean;
   onAddMarker: () => void;
   onDeleteSelected: () => void;
   onMoveSelectedLeft: () => void;
@@ -88,6 +89,7 @@ export function MarkerToolbar({
   selectedMarkerId,
   hasMarkers,
   readOnly = false,
+  allowReorder = true,
   onAddMarker,
   onDeleteSelected,
   onMoveSelectedLeft,
@@ -146,17 +148,17 @@ export function MarkerToolbar({
             </Tooltip>
 
             <HoldButton
-              disabled={!hasSelection}
+              disabled={!(hasSelection && allowReorder)}
               icon={ArrowLeft01Icon}
               onAction={onMoveSelectedLeft}
-              tooltip="Move left (↑)"
+              tooltip={allowReorder ? "Move left (↑)" : "Order locked by time"}
             />
 
             <HoldButton
-              disabled={!hasSelection}
+              disabled={!(hasSelection && allowReorder)}
               icon={ArrowRight01Icon}
               onAction={onMoveSelectedRight}
-              tooltip="Move right (↓)"
+              tooltip={allowReorder ? "Move right (↓)" : "Order locked by time"}
             />
           </div>
 

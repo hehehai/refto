@@ -9,6 +9,7 @@ import type { MarkerState } from "./marker-timeline";
 
 interface MarkerCardProps {
   marker: MarkerState;
+  markerNumber: number;
   isSelected: boolean;
   readOnly?: boolean;
   onSelect: () => void;
@@ -21,6 +22,7 @@ export const MarkerCard = forwardRef<HTMLDivElement, MarkerCardProps>(
   function MarkerCard(
     {
       marker,
+      markerNumber,
       isSelected,
       readOnly,
       onSelect,
@@ -72,7 +74,7 @@ export const MarkerCard = forwardRef<HTMLDivElement, MarkerCardProps>(
         <div className="relative h-12 w-20 shrink-0 overflow-hidden rounded bg-muted">
           {marker.thumbnail ? (
             <img
-              alt={`Marker ${marker.sequence}`}
+              alt={`Marker ${markerNumber}`}
               className="size-full object-cover"
               src={marker.thumbnail}
             />
@@ -83,7 +85,7 @@ export const MarkerCard = forwardRef<HTMLDivElement, MarkerCardProps>(
           )}
           {/* Sequence badge */}
           <div className="absolute top-0.5 left-0.5 flex size-4 items-center justify-center rounded bg-foreground/80 font-medium text-[10px] text-background">
-            {marker.sequence}
+            {markerNumber}
           </div>
         </div>
 

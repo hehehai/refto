@@ -21,14 +21,12 @@ import {
 
 interface VideoMarkerDetailDialogContentProps {
   versionId: string;
-  recordType: "web" | "mobile";
   videoUrl: string;
   coverUrl: string;
 }
 
 function VideoMarkerDetailDialogContent({
   versionId,
-  recordType,
   videoUrl,
   coverUrl,
 }: VideoMarkerDetailDialogContentProps) {
@@ -55,6 +53,14 @@ function VideoMarkerDetailDialogContent({
       })),
     [markers, thumbnails]
   );
+  const orderedMarkers = useMemo(
+    () =>
+      [...markersWithThumbnails].sort((a, b) => {
+        if (a.time !== b.time) return a.time - b.time;
+        return a.id.localeCompare(b.id);
+      }),
+    [markersWithThumbnails]
+  );
 
   // Fetch existing markers when dialog opens
   useEffect(() => {
@@ -62,12 +68,10 @@ function VideoMarkerDetailDialogContent({
       try {
         const result = await orpc.panel.marker.list.call({
           versionId,
-          recordType,
         });
 
         const markerStates: MarkerState[] = result.map((m) => ({
           id: m.id,
-          sequence: m.sequence,
           time: m.time,
           text: m.text,
           thumbnail: undefined,
@@ -86,7 +90,7 @@ function VideoMarkerDetailDialogContent({
     setDuration(0);
     setIsVideoReady(false);
     fetchMarkers();
-  }, [versionId, recordType]);
+  }, [versionId]);
 
   const handleDurationChange = useCallback((nextDuration: number) => {
     setDuration(nextDuration);
@@ -148,6 +152,7 @@ function VideoMarkerDetailDialogContent({
 
   useMarkerHotkeys({
     enabled: true,
+    enableReorder: false,
     onPlayPause: handlePlayPause,
     onSeekLeft: () => handleRewind(1),
     onSeekRight: () => handleForward(1),
@@ -165,9 +170,7 @@ function VideoMarkerDetailDialogContent({
       overlayProps={{ forceRender: true }}
     >
       <DialogHeader className="shrink-0 border-b px-3 py-4">
-        <DialogTitle>
-          Video Markers - {recordType === "web" ? "Web" : "Mobile"} Record
-        </DialogTitle>
+        <DialogTitle>Video Markers</DialogTitle>
       </DialogHeader>
 
       <div className="flex min-h-0 flex-1">
@@ -207,7 +210,7 @@ function VideoMarkerDetailDialogContent({
             <MarkerTimeline
               currentTime={currentTime}
               duration={duration}
-              markers={markers}
+              markers={orderedMarkers}
               onSeek={handleSeek}
               onSeekToMarker={handleSeekToMarker}
               onSelectMarker={handleSelectMarker}
@@ -221,7 +224,7 @@ function VideoMarkerDetailDialogContent({
             Markers ({markers.length})
           </div>
           <MarkerListPanel
-            markers={markersWithThumbnails}
+            markers={orderedMarkers}
             onDeleteMarker={noop}
             onSeekToMarker={handleSeekToMarker}
             onSelectMarker={handleSelectMarker}
@@ -244,7 +247,6 @@ export function VideoMarkerDetailDialog() {
         return (
           <VideoMarkerDetailDialogContent
             coverUrl={payload.coverUrl}
-            recordType={payload.recordType}
             versionId={payload.versionId}
             videoUrl={payload.videoUrl}
           />

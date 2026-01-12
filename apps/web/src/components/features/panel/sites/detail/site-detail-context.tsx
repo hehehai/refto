@@ -15,8 +15,6 @@ interface Version extends BaseVersion {
   siteOG: string | null;
   webCover: string;
   webRecord: string | null;
-  mobileCover: string | null;
-  mobileRecord: string | null;
   tagIds: string[];
 }
 

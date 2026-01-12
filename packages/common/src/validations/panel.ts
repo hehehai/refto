@@ -255,8 +255,6 @@ export const versionCreateSchema = z.object({
   siteOG: z.string().optional(),
   webCover: z.string().optional(),
   webRecord: z.string().optional(),
-  mobileCover: z.string().optional(),
-  mobileRecord: z.string().optional(),
 });
 
 // Version update
@@ -267,8 +265,6 @@ export const versionUpdateSchema = z.object({
   siteOG: z.string().nullable().optional(),
   webCover: z.string().min(1).optional(),
   webRecord: z.string().nullable().optional(),
-  mobileCover: z.string().nullable().optional(),
-  mobileRecord: z.string().nullable().optional(),
 });
 
 // Version upsert (id optional - no id = create, with id = update)
@@ -280,8 +276,6 @@ export const versionUpsertSchema = z.object({
   siteOG: z.string().nullable().optional(),
   webCover: z.string().optional(),
   webRecord: z.string().nullable().optional(),
-  mobileCover: z.string().nullable().optional(),
-  mobileRecord: z.string().nullable().optional(),
   tagIds: z.array(z.string()).default([]),
 });
 
@@ -332,27 +326,21 @@ export const tagListByIdsSchema = z.object({
 
 // ============ Video Marker Schemas ============
 
-// Record type enum
-export const recordTypeSchema = z.enum(["web", "mobile"]);
-
 // Marker list query
 export const markerListSchema = z.object({
   versionId: z.string(),
-  recordType: recordTypeSchema,
 });
 
 // Single marker for bulk save
 const markerItemSchema = z.object({
   id: z.string().optional(),
-  sequence: z.number().int().min(1),
   time: z.number().min(0),
   text: z.string().nullable().optional(),
 });
 
-// Marker bulk save (upsert all markers for a version+recordType)
+// Marker bulk save (upsert all markers for a version)
 export const markerBulkSaveSchema = z.object({
   versionId: z.string(),
-  recordType: recordTypeSchema,
   markers: z.array(markerItemSchema),
 });
 
@@ -388,6 +376,5 @@ export type TagUpsert = z.infer<typeof tagUpsertSchema>;
 export type TagBatchDelete = z.infer<typeof tagBatchDeleteSchema>;
 export type TagListForSelect = z.infer<typeof tagListForSelectSchema>;
 export type TagListByIds = z.infer<typeof tagListByIdsSchema>;
-export type RecordType = z.infer<typeof recordTypeSchema>;
 export type MarkerList = z.infer<typeof markerListSchema>;
 export type MarkerBulkSave = z.infer<typeof markerBulkSaveSchema>;

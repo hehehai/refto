@@ -69,7 +69,7 @@ export const sitePages = pgTable(
   ]
 );
 
-// Site Page Versions - Date-based snapshots with web/mobile support
+// Site Page Versions - Date-based snapshots
 export const sitePageVersions = pgTable(
   "site_page_versions",
   {
@@ -86,10 +86,6 @@ export const sitePageVersions = pgTable(
     // Web mode (required)
     webCover: text("webCover").notNull(),
     webRecord: text("webRecord"),
-
-    // Mobile mode (optional)
-    mobileCover: text("mobileCover"),
-    mobileRecord: text("mobileRecord"),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -129,18 +125,11 @@ export const videoMarkers = pgTable(
     versionId: text("versionId")
       .notNull()
       .references(() => sitePageVersions.id, { onDelete: "cascade" }),
-    recordType: text("recordType", { enum: ["web", "mobile"] }).notNull(),
-    sequence: integer("sequence").notNull(),
     time: real("time").notNull(), // seconds as decimal (e.g., 5.5 for 5.5 seconds)
     text: text("text"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (table) => [
-    index("video_markers_version_type_idx").on(
-      table.versionId,
-      table.recordType
-    ),
-  ]
+  (table) => [index("video_markers_version_idx").on(table.versionId)]
 );
 
 // Relations

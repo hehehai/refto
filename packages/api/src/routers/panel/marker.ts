@@ -1,16 +1,16 @@
 import { ORPCError } from "@orpc/server";
 import { markerBulkSaveSchema, markerListSchema } from "@refto-one/common";
-import { and, eq } from "@refto-one/db";
+import { eq } from "@refto-one/db";
 import { sitePageVersions, videoMarkers } from "@refto-one/db/schema/sites";
 import { adminProcedure } from "../../index";
 import { generateId } from "../../lib/utils";
 
 export const markerRouter = {
-  // List markers for a version + record type
+  // List markers for a version
   list: adminProcedure
     .input(markerListSchema)
     .handler(async ({ input, context }) => {
-      const { versionId, recordType } = input;
+      const { versionId } = input;
       const { db } = context;
 
       // Verify version exists
@@ -23,21 +23,21 @@ export const markerRouter = {
       }
 
       const markers = await db.query.videoMarkers.findMany({
-        where: and(
-          eq(videoMarkers.versionId, versionId),
-          eq(videoMarkers.recordType, recordType)
-        ),
-        orderBy: (markers, { asc }) => [asc(markers.sequence)],
+        where: eq(videoMarkers.versionId, versionId),
+        orderBy: (markers, { asc }) => [
+          asc(markers.time),
+          asc(markers.createdAt),
+        ],
       });
 
       return markers;
     }),
 
-  // Bulk save markers (replaces all markers for version+recordType)
+  // Bulk save markers (replaces all markers for a version)
   bulkSave: adminProcedure
     .input(markerBulkSaveSchema)
     .handler(async ({ input, context }) => {
-      const { versionId, recordType, markers } = input;
+      const { versionId, markers } = input;
       const { db } = context;
 
       // Verify version exists
@@ -49,23 +49,16 @@ export const markerRouter = {
         throw new ORPCError("NOT_FOUND", { message: "Version not found" });
       }
 
-      // Delete all existing markers for this version+recordType
+      // Delete all existing markers for this version
       await db
         .delete(videoMarkers)
-        .where(
-          and(
-            eq(videoMarkers.versionId, versionId),
-            eq(videoMarkers.recordType, recordType)
-          )
-        );
+        .where(eq(videoMarkers.versionId, versionId));
 
       // Insert new markers
       if (markers.length > 0) {
         const markersToInsert = markers.map((marker) => ({
           id: marker.id ?? generateId(),
           versionId,
-          recordType,
-          sequence: marker.sequence,
           time: marker.time,
           text: marker.text ?? null,
         }));
@@ -75,11 +68,11 @@ export const markerRouter = {
 
       // Return the saved markers
       const savedMarkers = await db.query.videoMarkers.findMany({
-        where: and(
-          eq(videoMarkers.versionId, versionId),
-          eq(videoMarkers.recordType, recordType)
-        ),
-        orderBy: (markers, { asc }) => [asc(markers.sequence)],
+        where: eq(videoMarkers.versionId, versionId),
+        orderBy: (markers, { asc }) => [
+          asc(markers.time),
+          asc(markers.createdAt),
+        ],
       });
 
       return savedMarkers;

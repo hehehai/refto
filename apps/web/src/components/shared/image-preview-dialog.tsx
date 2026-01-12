@@ -37,7 +37,9 @@ export function ImagePreviewDialog() {
   const handleFullscreen = useCallback(() => {
     if (typeof document === "undefined") return;
     if (document.fullscreenElement) {
-      void document.exitFullscreen();
+      document.exitFullscreen().catch(() => {
+        // ignore fullscreen exit errors
+      });
       return;
     }
     contentRef.current?.requestFullscreen();

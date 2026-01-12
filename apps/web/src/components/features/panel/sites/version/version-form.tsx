@@ -18,8 +18,6 @@ interface VersionFormData {
   siteOG: string | null;
   webCover: string;
   webRecord: string | null;
-  mobileCover: string | null;
-  mobileRecord: string | null;
   tagIds: string[];
 }
 
@@ -36,31 +34,23 @@ export function VersionForm({
   disabled = false,
   versionId,
 }: VersionFormProps) {
-  const { data: webMarkers = [] } = useQuery(
+  const { data: markers = [] } = useQuery(
     orpc.panel.marker.list.queryOptions({
-      input: versionId ? { versionId, recordType: "web" } : skipToken,
+      input: versionId ? { versionId } : skipToken,
     })
   );
-  const { data: mobileMarkers = [] } = useQuery(
-    orpc.panel.marker.list.queryOptions({
-      input: versionId ? { versionId, recordType: "mobile" } : skipToken,
-    })
-  );
-  const hasWebMarkers = webMarkers.length > 0;
-  const hasMobileMarkers = mobileMarkers.length > 0;
+  const hasMarkers = markers.length > 0;
 
-  const handleOpenMarkerDialog = (recordType: "web" | "mobile") => {
+  const handleOpenMarkerDialog = () => {
     if (!versionId) return;
 
-    const videoUrl =
-      recordType === "web" ? value.webRecord : value.mobileRecord;
-    const coverUrl = recordType === "web" ? value.webCover : value.mobileCover;
+    const videoUrl = value.webRecord;
+    const coverUrl = value.webCover;
 
     if (!videoUrl) return;
 
     videoMarkerDialog.openWithPayload({
       versionId,
-      recordType,
       videoUrl,
       coverUrl: coverUrl ?? "",
     });
@@ -96,7 +86,7 @@ export function VersionForm({
 
       {/* Web Section */}
       <div className="space-y-4">
-        <h4 className="font-medium text-sm">Web Version</h4>
+        <h4 className="font-medium text-sm">Version</h4>
         <div className="grid grid-cols-2 gap-4">
           <Field>
             <MediaUpload
@@ -120,10 +110,10 @@ export function VersionForm({
                         render={
                           <Button
                             className={cn(
-                              hasWebMarkers &&
+                              hasMarkers &&
                                 "text-primary ring-1 ring-primary/40"
                             )}
-                            onClick={() => handleOpenMarkerDialog("web")}
+                            onClick={handleOpenMarkerDialog}
                             size="icon"
                             variant="secondary"
                           />
@@ -132,7 +122,7 @@ export function VersionForm({
                         <HugeiconsIcon icon={Bookmark02Icon} size={14} />
                       </TooltipTrigger>
                       <TooltipContent>
-                        {hasWebMarkers ? "Markers set" : "Video Markers"}
+                        {hasMarkers ? "Markers set" : "Video Markers"}
                       </TooltipContent>
                     </Tooltip>
                   )
@@ -141,56 +131,6 @@ export function VersionForm({
                 onChange={(url) => onChange({ webRecord: url })}
                 value={value.webRecord}
               />
-            </div>
-          </Field>
-        </div>
-      </div>
-
-      {/* Mobile Section */}
-      <div className="space-y-4">
-        <h4 className="font-medium text-sm">Mobile Version</h4>
-        <div className="grid grid-cols-2 gap-4">
-          <Field>
-            <MediaUpload
-              aspectRatio="mobile"
-              disabled={disabled}
-              mediaType="image"
-              onChange={(url) => onChange({ mobileCover: url })}
-              value={value.mobileCover}
-            />
-          </Field>
-          <Field>
-            <div className="relative">
-              <MediaUpload
-                aspectRatio="mobile"
-                disabled={disabled}
-                mediaType="video"
-                onChange={(url) => onChange({ mobileRecord: url })}
-                value={value.mobileRecord}
-              />
-              {value.mobileRecord && versionId && (
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        className={cn(
-                          "absolute top-2 left-2 z-10",
-                          hasMobileMarkers &&
-                            "text-primary ring-1 ring-primary/40"
-                        )}
-                        onClick={() => handleOpenMarkerDialog("mobile")}
-                        size="icon-xs"
-                        variant="secondary"
-                      />
-                    }
-                  >
-                    <HugeiconsIcon icon={Bookmark02Icon} size={14} />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {hasMobileMarkers ? "Markers set" : "Video Markers"}
-                  </TooltipContent>
-                </Tooltip>
-              )}
             </div>
           </Field>
         </div>

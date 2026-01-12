@@ -6,7 +6,12 @@ import {
 } from "@refto-one/common";
 import { and, count, desc, eq, ilike, isNull, or, sql } from "@refto-one/db";
 import { eventLogs } from "@refto-one/db/schema/events";
-import { sites } from "@refto-one/db/schema/sites";
+import {
+  sitePages,
+  sitePageVersions,
+  sites,
+  videoMarkers,
+} from "@refto-one/db/schema/sites";
 import { siteTags, tags } from "@refto-one/db/schema/tags";
 import { publicProcedure } from "../../index";
 import { CACHE_TTL, KVCache } from "../../lib/cache";
@@ -37,6 +42,16 @@ export const filterRouter = {
           slug: string;
           description: string | null;
           logo: string;
+        }>;
+        markers: Array<{
+          id: string;
+          text: string | null;
+          time: number;
+          versionDate: Date;
+          pageTitle: string;
+          pageSlug: string;
+          siteTitle: string;
+          siteSlug: string;
         }>;
       };
 
@@ -86,9 +101,33 @@ export const filterRouter = {
         )
         .limit(limit);
 
+      const matchingMarkers = await db
+        .select({
+          id: videoMarkers.id,
+          text: videoMarkers.text,
+          time: videoMarkers.time,
+          versionDate: sitePageVersions.versionDate,
+          pageTitle: sitePages.title,
+          pageSlug: sitePages.slug,
+          siteTitle: sites.title,
+          siteSlug: sites.slug,
+        })
+        .from(videoMarkers)
+        .innerJoin(
+          sitePageVersions,
+          eq(videoMarkers.versionId, sitePageVersions.id)
+        )
+        .innerJoin(sitePages, eq(sitePageVersions.pageId, sitePages.id))
+        .innerJoin(sites, eq(sitePages.siteId, sites.id))
+        .where(
+          and(isNull(sites.deletedAt), ilike(videoMarkers.text, searchTerm))
+        )
+        .limit(limit);
+
       const result = {
         tags: matchingTags,
         sites: matchingSites,
+        markers: matchingMarkers,
       };
 
       // Cache the result

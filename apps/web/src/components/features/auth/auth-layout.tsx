@@ -1,14 +1,12 @@
 import { FeedSort } from "@refto-one/common";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { VersionViewer } from "@/components/features/detail/version-viewer";
 import { Button } from "@/components/ui/button";
 import { orpc } from "@/lib/orpc";
 
 export const AuthLayout = ({ children }: React.PropsWithChildren) => {
-  const [viewMode, setViewMode] = useState<"web" | "mobile">("web");
-
   const { data } = useSuspenseQuery(
     orpc.app.site.getVersionsFeed.queryOptions({
       input: { cursor: undefined, limit: 1, sort: FeedSort.LATEST },
@@ -17,15 +15,6 @@ export const AuthLayout = ({ children }: React.PropsWithChildren) => {
 
   const latestItem = useMemo(() => data.items.at(0), [data.items]);
   const latestVersion = latestItem?.version;
-  const hasMobileContent = Boolean(
-    latestVersion?.mobileCover || latestVersion?.mobileRecord
-  );
-
-  useEffect(() => {
-    if (!hasMobileContent && viewMode === "mobile") {
-      setViewMode("web");
-    }
-  }, [hasMobileContent, viewMode]);
 
   return (
     <div className="min-h-screen w-full bg-background">
@@ -51,10 +40,7 @@ export const AuthLayout = ({ children }: React.PropsWithChildren) => {
               {latestVersion ? (
                 <VersionViewer
                   className="w-full max-w-4xl rounded-2xl"
-                  hasMobileContent={hasMobileContent}
-                  onViewModeChange={setViewMode}
                   version={latestVersion}
-                  viewMode={viewMode}
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-muted-foreground">

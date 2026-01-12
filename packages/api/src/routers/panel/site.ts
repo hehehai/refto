@@ -886,8 +886,6 @@ export const versionRouter = {
           siteOG: data.siteOG,
           webCover: data.webCover ?? "",
           webRecord: data.webRecord,
-          mobileCover: data.mobileCover,
-          mobileRecord: data.mobileRecord,
         })
         .returning();
 

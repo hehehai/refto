@@ -25,8 +25,6 @@ interface LocalVersion extends Version {
   siteOG: string | null;
   webCover: string;
   webRecord: string | null;
-  mobileCover: string | null;
-  mobileRecord: string | null;
   tagIds: string[];
 }
 
@@ -141,8 +139,6 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
             siteOG: version.siteOG ?? undefined,
             webCover: version.webCover,
             webRecord: version.webRecord ?? undefined,
-            mobileCover: version.mobileCover ?? undefined,
-            mobileRecord: version.mobileRecord ?? undefined,
             tagIds: version.tagIds,
           });
         }
@@ -295,8 +291,6 @@ export function SiteCreateSheet({ open, onOpenChange }: SiteCreateSheetProps) {
         siteOG: null,
         webCover: "",
         webRecord: null,
-        mobileCover: null,
-        mobileRecord: null,
         tagIds: [],
       };
 
