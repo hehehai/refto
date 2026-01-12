@@ -21,7 +21,7 @@ VITE_CLOUD_FLARE_R2_URL = "https://storage.refto.one"
 [[hyperdrive]]
 binding = "HYPERDRIVE"
 id = "90471877dbdf4681aa43db981cab467c"
-localConnectionString = "postgresql://neondb_owner:npg_1vQ8BOiPSdGa@ep-muddy-sky-a19dmvr8-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# Local connection string comes from CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE in apps/web/.dev.vars
 
 # KV namespace for caching (development)
 [[kv_namespaces]]
