@@ -15,11 +15,24 @@ interface SearchSite {
   logo: string;
 }
 
+interface SearchMarker {
+  id: string;
+  text: string | null;
+  time: number;
+  versionDate: Date | string;
+  pageTitle: string;
+  pageSlug: string;
+  siteTitle: string;
+  siteSlug: string;
+}
+
 interface FilterSearchResultsProps {
   tags: SearchTag[];
   sites: SearchSite[];
+  markers: SearchMarker[];
   onTagClick: (tagValue: string) => void;
   onSiteClick: (siteSlug: string) => void;
+  onMarkerClick: (marker: SearchMarker) => void;
   className?: string;
 }
 
@@ -38,8 +51,10 @@ const tagTypeIcons: Record<string, string> = {
 export function FilterSearchResults({
   tags,
   sites,
+  markers,
   onTagClick,
   onSiteClick,
+  onMarkerClick,
   className,
 }: FilterSearchResultsProps) {
   return (
@@ -86,6 +101,33 @@ export function FilterSearchResults({
             <div className="truncate font-medium">{site.title}</div>
             <div className="truncate text-muted-foreground text-sm">
               {site.description}
+            </div>
+          </div>
+        </button>
+      ))}
+
+      {/* Marker Results */}
+      {markers.map((marker) => (
+        <button
+          className="flex items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors hover:bg-muted"
+          key={marker.id}
+          onClick={() => onMarkerClick(marker)}
+          type="button"
+        >
+          <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+            <span className="i-hugeicons-bookmark-01 size-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate font-medium">
+              {marker.text ? `Marker · ${marker.text}` : "Marker · Untitled"}
+            </div>
+            <div className="truncate text-muted-foreground text-sm">
+              {marker.siteTitle} · {marker.pageTitle} ·{" "}
+              {new Date(marker.versionDate).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
             </div>
           </div>
         </button>

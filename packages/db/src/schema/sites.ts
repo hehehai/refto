@@ -4,6 +4,7 @@ import {
   index,
   integer,
   pgTable,
+  real,
   text,
   timestamp,
   uniqueIndex,
@@ -68,7 +69,7 @@ export const sitePages = pgTable(
   ]
 );
 
-// Site Page Versions - Date-based snapshots with web/mobile support
+// Site Page Versions - Date-based snapshots
 export const sitePageVersions = pgTable(
   "site_page_versions",
   {
@@ -85,10 +86,6 @@ export const sitePageVersions = pgTable(
     // Web mode (required)
     webCover: text("webCover").notNull(),
     webRecord: text("webRecord"),
-
-    // Mobile mode (optional)
-    mobileCover: text("mobileCover"),
-    mobileRecord: text("mobileRecord"),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -120,6 +117,21 @@ export const sitePageVersionLikes = pgTable(
   ]
 );
 
+// Video Markers - Time-based markers for video recordings
+export const videoMarkers = pgTable(
+  "video_markers",
+  {
+    id: text("id").primaryKey(),
+    versionId: text("versionId")
+      .notNull()
+      .references(() => sitePageVersions.id, { onDelete: "cascade" }),
+    time: real("time").notNull(), // seconds as decimal (e.g., 5.5 for 5.5 seconds)
+    text: text("text"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("video_markers_version_idx").on(table.versionId)]
+);
+
 // Relations
 export const sitesRelations = relations(sites, ({ one, many }) => ({
   createdBy: one(user, {
@@ -145,6 +157,7 @@ export const sitePageVersionsRelations = relations(
       references: [sitePages.id],
     }),
     likes: many(sitePageVersionLikes),
+    markers: many(videoMarkers),
   })
 );
 
@@ -162,6 +175,13 @@ export const sitePageVersionLikesRelations = relations(
   })
 );
 
+export const videoMarkersRelations = relations(videoMarkers, ({ one }) => ({
+  version: one(sitePageVersions, {
+    fields: [videoMarkers.versionId],
+    references: [sitePageVersions.id],
+  }),
+}));
+
 // Type exports
 export type Site = typeof sites.$inferSelect;
 export type NewSite = typeof sites.$inferInsert;
@@ -171,3 +191,5 @@ export type SitePageVersion = typeof sitePageVersions.$inferSelect;
 export type NewSitePageVersion = typeof sitePageVersions.$inferInsert;
 export type SitePageVersionLike = typeof sitePageVersionLikes.$inferSelect;
 export type NewSitePageVersionLike = typeof sitePageVersionLikes.$inferInsert;
+export type VideoMarker = typeof videoMarkers.$inferSelect;
+export type NewVideoMarker = typeof videoMarkers.$inferInsert;

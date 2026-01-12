@@ -6,6 +6,7 @@ import {
   LazyChangePasswordDialog,
   LazyConfirmDialog,
   LazyFilterDialog,
+  LazyImagePreviewDialog,
   LazySetPasswordDialog,
   LazySubmitSiteDialog,
   LazyUserProfileDialog,
@@ -44,6 +45,7 @@ function RouteComponent() {
         <LazyConfirmDialog />
         <LazySubmitSiteDialog />
         <LazyFilterDialog />
+        <LazyImagePreviewDialog />
       </Suspense>
     </div>
   );

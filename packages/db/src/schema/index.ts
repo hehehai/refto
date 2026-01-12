@@ -2,8 +2,6 @@
 
 // Re-export all auth tables and relations
 export * from "./auth";
-// Re-export all business tables
-export * from "./business";
 export * from "./enums";
 // Re-export all event tables
 export * from "./events";
@@ -34,8 +32,6 @@ export type SiteDetailData = Site & {
   siteOG?: string | null;
   webCover?: string;
   webRecord?: string | null;
-  mobileCover?: string | null;
-  mobileRecord?: string | null;
   versionNote?: string | null;
   pages?: Array<{
     id: string;
@@ -52,8 +48,6 @@ export type SiteDetailData = Site & {
       siteOG: string | null;
       webCover: string;
       webRecord: string | null;
-      mobileCover: string | null;
-      mobileRecord: string | null;
       versionNote: string | null;
       createdAt: Date;
     }>;

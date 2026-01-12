@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
+import { z } from "zod";
 import { SiteDetailPage } from "@/components/features/detail/site-detail-page";
 import { useTrackPageView } from "@/components/features/detail/use-track-page-view";
 import {
@@ -13,6 +14,9 @@ import { createDetailPageMeta } from "@/lib/seo";
 export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/$versionSlug")(
   {
     component: VersionSlugComponent,
+    validateSearch: z.object({
+      panel: z.enum(["record", "refs"]).optional(),
+    }),
     loader: async ({ context, params }) => {
       const { siteSlug, pageSlug, versionSlug } = params;
 
@@ -27,6 +31,14 @@ export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/$versionSlug")(
         await context.queryClient.prefetchQuery(
           orpc.app.site.getRelatedSites.queryOptions({
             input: { siteId: data.site.id, limit: 6 },
+          })
+        );
+      }
+
+      if (data.currentVersion?.id) {
+        await context.queryClient.ensureQueryData(
+          orpc.app.marker.list.queryOptions({
+            input: { versionId: data.currentVersion.id },
           })
         );
       }
@@ -81,6 +93,7 @@ export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/$versionSlug")(
 
 function VersionSlugComponent() {
   const data = Route.useLoaderData();
+  const { panel } = Route.useSearch();
   const { siteSlug, pageSlug, versionSlug } = Route.useParams();
 
   useTrackPageView(data?.site?.id, data?.currentPage?.id);
@@ -89,6 +102,7 @@ function VersionSlugComponent() {
     <SiteDetailPage
       key={`${siteSlug}-${pageSlug}-${versionSlug}`}
       pageSlug={pageSlug}
+      panel={panel}
       siteSlug={siteSlug}
       versionSlug={versionSlug}
     />

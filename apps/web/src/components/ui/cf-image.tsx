@@ -23,8 +23,6 @@ export const IMAGE_PRESETS = {
   // Version covers
   webCover: { width: 1920, quality: 90, fit: "cover" },
   webCoverThumb: { width: 800, quality: 80, fit: "cover" },
-  mobileCover: { width: 750, quality: 90, fit: "cover" },
-  mobileCoverThumb: { width: 320, quality: 80, fit: "cover" },
 
   // OG images
   og: { width: 1200, height: 630, quality: 85, fit: "cover" },

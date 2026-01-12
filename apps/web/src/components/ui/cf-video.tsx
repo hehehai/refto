@@ -16,10 +16,6 @@ export const VIDEO_PRESETS = {
   webRecord: { mode: "video", width: 1920, audio: false },
   webRecordThumb: { mode: "video", width: 800, audio: false },
 
-  // Video mode - mobile (smaller screen, less bandwidth needed)
-  mobileRecord: { mode: "video", width: 750, audio: false },
-  mobileRecordThumb: { mode: "video", width: 320, audio: false },
-
   // Frame mode - extract thumbnail from video
   videoThumbnail: { mode: "frame", width: 800, time: "0s", format: "jpg" },
 } as const satisfies Record<string, CFVideoOptions>;

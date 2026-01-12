@@ -112,8 +112,6 @@ export const appSiteRouter = {
             id: string;
             webCover: string;
             webRecord: string | null;
-            mobileCover: string | null;
-            mobileRecord: string | null;
             createdAt: string;
             versionDate: string;
           };
@@ -165,8 +163,6 @@ export const appSiteRouter = {
             id: string;
             webCover: string;
             webRecord: string | null;
-            mobileCover: string | null;
-            mobileRecord: string | null;
             createdAt: Date;
             versionDate: Date;
           };
@@ -200,8 +196,6 @@ export const appSiteRouter = {
                 id: sitePageVersions.id,
                 webCover: sitePageVersions.webCover,
                 webRecord: sitePageVersions.webRecord,
-                mobileCover: sitePageVersions.mobileCover,
-                mobileRecord: sitePageVersions.mobileRecord,
                 createdAt: sitePageVersions.createdAt,
                 versionDate: sitePageVersions.versionDate,
               },
@@ -252,8 +246,6 @@ export const appSiteRouter = {
                 id: sitePageVersions.id,
                 webCover: sitePageVersions.webCover,
                 webRecord: sitePageVersions.webRecord,
-                mobileCover: sitePageVersions.mobileCover,
-                mobileRecord: sitePageVersions.mobileRecord,
                 createdAt: sitePageVersions.createdAt,
                 versionDate: sitePageVersions.versionDate,
               },
@@ -297,8 +289,6 @@ export const appSiteRouter = {
                 id: sitePageVersions.id,
                 webCover: sitePageVersions.webCover,
                 webRecord: sitePageVersions.webRecord,
-                mobileCover: sitePageVersions.mobileCover,
-                mobileRecord: sitePageVersions.mobileRecord,
                 createdAt: sitePageVersions.createdAt,
                 versionDate: sitePageVersions.versionDate,
               },
@@ -409,8 +399,10 @@ export const appSiteRouter = {
               site: {
                 with: {
                   pages: {
+                    limit: 20,
                     with: {
                       versions: {
+                        limit: 5,
                         orderBy: [desc(sitePageVersions.createdAt)],
                       },
                     },
@@ -461,8 +453,10 @@ export const appSiteRouter = {
         where: and(eq(sites.id, id), isNull(sites.deletedAt)),
         with: {
           pages: {
+            limit: 20,
             with: {
               versions: {
+                limit: 5,
                 orderBy: [desc(sitePageVersions.createdAt)],
               },
             },
@@ -491,8 +485,10 @@ export const appSiteRouter = {
         where: and(eq(sites.slug, siteSlug), isNull(sites.deletedAt)),
         with: {
           pages: {
+            limit: 20,
             with: {
               versions: {
+                limit: 10,
                 orderBy: [desc(sitePageVersions.versionDate)],
               },
             },
@@ -593,8 +589,6 @@ export const appSiteRouter = {
           versionDate: Date;
           webCover: string;
           webRecord: string | null;
-          mobileCover: string | null;
-          mobileRecord: string | null;
         };
       }>;
 
@@ -679,8 +673,6 @@ export const appSiteRouter = {
           versionDate: sitePageVersions.versionDate,
           webCover: sitePageVersions.webCover,
           webRecord: sitePageVersions.webRecord,
-          mobileCover: sitePageVersions.mobileCover,
-          mobileRecord: sitePageVersions.mobileRecord,
         })
         .from(sitePages)
         .innerJoin(sitePageVersions, eq(sitePageVersions.pageId, sitePages.id))
@@ -699,8 +691,6 @@ export const appSiteRouter = {
             versionDate: Date;
             webCover: string;
             webRecord: string | null;
-            mobileCover: string | null;
-            mobileRecord: string | null;
           };
         }
       >();
@@ -719,8 +709,6 @@ export const appSiteRouter = {
               versionDate: row.versionDate,
               webCover: row.webCover,
               webRecord: row.webRecord,
-              mobileCover: row.mobileCover,
-              mobileRecord: row.mobileRecord,
             },
           });
         }
@@ -784,8 +772,6 @@ export const appSiteRouter = {
               id: string;
               webCover: string;
               webRecord: string | null;
-              mobileCover: string | null;
-              mobileRecord: string | null;
               versionDate: string;
               createdAt: string;
             };
@@ -869,8 +855,6 @@ export const appSiteRouter = {
                   id: version.id,
                   webCover: version.webCover,
                   webRecord: version.webRecord,
-                  mobileCover: version.mobileCover,
-                  mobileRecord: version.mobileRecord,
                   createdAt: version.createdAt.toISOString(),
                   versionDate: version.versionDate.toISOString(),
                 },

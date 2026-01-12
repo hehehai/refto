@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import { SiteDetailPage } from "@/components/features/detail/site-detail-page";
 import { useTrackPageView } from "@/components/features/detail/use-track-page-view";
 import {
@@ -11,6 +12,9 @@ import { createDetailPageMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/(app)/$siteSlug/")({
   component: SiteSlugIndexComponent,
+  validateSearch: z.object({
+    panel: z.enum(["record", "refs"]).optional(),
+  }),
   loader: async ({ context, params }) => {
     const { siteSlug } = params;
 
@@ -25,6 +29,14 @@ export const Route = createFileRoute("/(app)/$siteSlug/")({
       await context.queryClient.prefetchQuery(
         orpc.app.site.getRelatedSites.queryOptions({
           input: { siteId: data.site.id, limit: 6 },
+        })
+      );
+    }
+
+    if (data.currentVersion?.id) {
+      await context.queryClient.ensureQueryData(
+        orpc.app.marker.list.queryOptions({
+          input: { versionId: data.currentVersion.id },
         })
       );
     }
@@ -70,9 +82,10 @@ export const Route = createFileRoute("/(app)/$siteSlug/")({
 
 function SiteSlugIndexComponent() {
   const data = Route.useLoaderData();
+  const { panel } = Route.useSearch();
   const { siteSlug } = Route.useParams();
 
   useTrackPageView(data?.site?.id, data?.currentPage?.id);
 
-  return <SiteDetailPage key={siteSlug} siteSlug={siteSlug} />;
+  return <SiteDetailPage key={siteSlug} panel={panel} siteSlug={siteSlug} />;
 }

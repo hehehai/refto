@@ -11,6 +11,7 @@
   "type": "module",
   "scripts": {},
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260109.0",
     "@types/slug": "^5.0.9"
   },
   "dependencies": {

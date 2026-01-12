@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import slugify from "slug";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { orpc } from "@/lib/orpc";
@@ -142,8 +144,39 @@ function FilterDialogContent({ payload }: FilterDialogContentProps) {
   const hasResults = useMemo(
     () =>
       searchResults &&
-      (searchResults.tags.length > 0 || searchResults.sites.length > 0),
+      (searchResults.tags.length > 0 ||
+        searchResults.sites.length > 0 ||
+        searchResults.markers.length > 0),
     [searchResults]
+  );
+
+  const handleMarkerClick = useCallback(
+    (marker: {
+      siteSlug: string;
+      pageSlug: string;
+      versionDate: Date | string;
+      text: string | null;
+    }) => {
+      if (searchValue) {
+        saveRecentSearch(searchValue);
+      }
+      const versionSlug = format(new Date(marker.versionDate), "yyyy-MM-dd");
+      const markerSlug = marker.text
+        ? slugify(marker.text, { lower: true })
+        : "marker";
+      filterDialog.close();
+      navigate({
+        to: "/$siteSlug/$pageSlug/$versionSlug",
+        params: {
+          siteSlug: marker.siteSlug,
+          pageSlug: marker.pageSlug,
+          versionSlug,
+        },
+        hash: markerSlug,
+        search: (prev) => ({ ...prev, panel: undefined }),
+      });
+    },
+    [navigate, saveRecentSearch, searchValue]
   );
 
   return (
@@ -168,6 +201,8 @@ function FilterDialogContent({ payload }: FilterDialogContentProps) {
                 </div>
               ) : hasResults ? (
                 <FilterSearchResults
+                  markers={searchResults?.markers ?? []}
+                  onMarkerClick={handleMarkerClick}
                   onSiteClick={handleSiteClick}
                   onTagClick={handleTagClick}
                   sites={searchResults?.sites ?? []}

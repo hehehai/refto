@@ -49,6 +49,12 @@ export const LazyFilterDialog = lazy(() =>
   }))
 );
 
+export const LazyImagePreviewDialog = lazy(() =>
+  import("@/components/shared/image-preview-dialog").then((m) => ({
+    default: m.ImagePreviewDialog,
+  }))
+);
+
 // Panel Sheets
 export const LazySiteDetailSheet = lazy(() =>
   import("@/components/features/panel/sites/detail/site-detail-sheet").then(

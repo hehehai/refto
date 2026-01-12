@@ -114,8 +114,6 @@ export const likeRouter = {
             id: sitePageVersions.id,
             webCover: sitePageVersions.webCover,
             webRecord: sitePageVersions.webRecord,
-            mobileCover: sitePageVersions.mobileCover,
-            mobileRecord: sitePageVersions.mobileRecord,
             versionDate: sitePageVersions.versionDate,
             createdAt: sitePageVersions.createdAt,
           },

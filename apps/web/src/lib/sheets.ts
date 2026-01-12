@@ -37,3 +37,25 @@ export const filterDialog = Dialog.createHandle<
     }
   | undefined
 >();
+
+// Video Marker Dialog
+export const videoMarkerDialog = Dialog.createHandle<{
+  versionId: string;
+  videoUrl: string;
+  coverUrl: string;
+}>();
+
+// Video Marker Detail Dialog
+export const videoMarkerDetailDialog = Dialog.createHandle<{
+  versionId: string;
+  videoUrl: string;
+  coverUrl: string;
+}>();
+
+// Image Preview Dialog
+export const imagePreviewDialog = Dialog.createHandle<{
+  src: string;
+  alt?: string;
+  title?: string;
+  filename?: string;
+}>();

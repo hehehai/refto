@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import { SiteDetailPage } from "@/components/features/detail/site-detail-page";
 import { useTrackPageView } from "@/components/features/detail/use-track-page-view";
 import {
@@ -11,6 +12,9 @@ import { createDetailPageMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/")({
   component: PageSlugIndexComponent,
+  validateSearch: z.object({
+    panel: z.enum(["record", "refs"]).optional(),
+  }),
   loader: async ({ context, params }) => {
     const { siteSlug, pageSlug } = params;
 
@@ -25,6 +29,14 @@ export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/")({
       await context.queryClient.prefetchQuery(
         orpc.app.site.getRelatedSites.queryOptions({
           input: { siteId: data.site.id, limit: 6 },
+        })
+      );
+    }
+
+    if (data.currentVersion?.id) {
+      await context.queryClient.ensureQueryData(
+        orpc.app.marker.list.queryOptions({
+          input: { versionId: data.currentVersion.id },
         })
       );
     }
@@ -72,6 +84,7 @@ export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/")({
 
 function PageSlugIndexComponent() {
   const data = Route.useLoaderData();
+  const { panel } = Route.useSearch();
   const { siteSlug, pageSlug } = Route.useParams();
 
   useTrackPageView(data?.site?.id, data?.currentPage?.id);
@@ -80,6 +93,7 @@ function PageSlugIndexComponent() {
     <SiteDetailPage
       key={`${siteSlug}-${pageSlug}`}
       pageSlug={pageSlug}
+      panel={panel}
       siteSlug={siteSlug}
     />
   );
