@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatTimeShortWithMs } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +21,7 @@ export function MarkerRefItem({
   onDownload,
 }: MarkerRefItemProps) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border p-3">
+    <div className="flex flex-col gap-2 rounded-xl border border-muted p-3">
       <div
         className="group relative aspect-video w-full overflow-hidden rounded-md bg-muted"
         onClick={onOpenPreview}
@@ -41,11 +42,11 @@ export function MarkerRefItem({
             src={thumbnail}
           />
         ) : (
-          <div className="flex size-full items-center justify-center bg-muted/60">
-            <div className="h-10 w-16 animate-pulse rounded bg-muted-foreground/20" />
+          <div className="flex size-full items-center justify-center bg-background">
+            <Skeleton className="h-full w-full rounded-md" />
           </div>
         )}
-        <div className="absolute top-2 left-2 rounded bg-foreground/80 px-1.5 py-0.5 text-[10px] text-background">
+        <div className="absolute top-2 left-2 rounded bg-foreground/60 px-1.5 py-0.5 text-[10px] text-background backdrop-blur-md">
           #{markerNumber}
         </div>
         {thumbnail && onDownload && (
@@ -71,7 +72,7 @@ export function MarkerRefItem({
         </span>
         <span
           className={cn(
-            "truncate text-muted-foreground text-xs",
+            "truncate text-muted-foreground text-xs capitalize",
             !markerText && "italic"
           )}
         >

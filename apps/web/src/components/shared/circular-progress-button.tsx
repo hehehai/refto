@@ -55,7 +55,7 @@ export function CircularProgressButton({
     >
       <svg
         aria-hidden="true"
-        className="-rotate-90 absolute inset-0"
+        className="absolute inset-0 -rotate-90"
         height={size}
         width={size}
       >

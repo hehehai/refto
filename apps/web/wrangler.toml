@@ -21,6 +21,7 @@ VITE_CLOUD_FLARE_R2_URL = "https://storage.refto.one"
 [[hyperdrive]]
 binding = "HYPERDRIVE"
 id = "90471877dbdf4681aa43db981cab467c"
+localConnectionString="postgresql://postgres:root123@localhost:5432/refto"
 # Local connection string comes from CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE in apps/web/.dev.vars
 
 # KV namespace for caching (development)

@@ -8,6 +8,7 @@ import { MarkerRefsPanel } from "./marker-refs-panel";
 import { RelatedSites } from "./related-sites";
 import { SiteHero } from "./site-hero";
 import { SitePageHeader } from "./site-page-header";
+import { VersionShortcuts } from "./version-shortcuts";
 import { VersionViewer } from "./version-viewer";
 
 const HASH_PREFIX = /^#/;
@@ -223,19 +224,26 @@ export function SiteDetailPage({
         <section className="py-8">
           <div className="container mx-auto px-4">
             {detailTab === "record" ? (
-              <VersionViewer
-                className="relative rounded-2xl bg-muted/50 p-18"
-                focusMarkerTime={focusMarkerTime ?? undefined}
-                markers={orderedMarkers.map((marker) => ({
-                  id: marker.id,
-                  time: marker.time,
-                  text: marker.text,
-                }))}
-                onMarkerSelect={handleMarkerSelect}
-                showMarkers={markers.length > 0}
-                showShortcuts
-                version={currentVersion}
-              />
+              <div className="w-full">
+                <VersionViewer
+                  className="relative rounded-2xl bg-muted/50 p-18"
+                  focusMarkerTime={focusMarkerTime ?? undefined}
+                  markers={orderedMarkers.map((marker) => ({
+                    id: marker.id,
+                    time: marker.time,
+                    text: marker.text,
+                  }))}
+                  onMarkerSelect={handleMarkerSelect}
+                  showMarkers={markers.length > 0}
+                  showShortcuts
+                  version={currentVersion}
+                />
+                {currentVersion.webRecord && (
+                  <div className="mt-3 py-5 text-center text-muted-foreground text-xs">
+                    <VersionShortcuts />
+                  </div>
+                )}
+              </div>
             ) : (
               <MarkerRefsPanel
                 coverUrl={currentVersion.webCover}

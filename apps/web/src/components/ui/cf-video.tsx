@@ -14,7 +14,7 @@ export interface CFVideoOptions {
 export const VIDEO_PRESETS = {
   // Video mode - web
   webRecord: { mode: "video", width: 1920, audio: false },
-  webRecordThumb: { mode: "video", width: 800, audio: false },
+  webRecordThumb: { mode: "video", width: 640, audio: false },
 
   // Frame mode - extract thumbnail from video
   videoThumbnail: { mode: "frame", width: 800, time: "0s", format: "jpg" },

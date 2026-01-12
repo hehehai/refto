@@ -8,28 +8,18 @@ import {
   getCFVideoUrlByPreset,
   type VideoPreset,
 } from "@/components/ui/cf-video";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useDownload } from "@/hooks/use-download";
 import { cn } from "@/lib/utils";
 import {
   MarkerVideoPlayer,
   type MarkerVideoPlayerHandle,
 } from "../panel/sites/version/marker-video-player";
+import { type MarkerItem, VersionMarkersPanel } from "./version-markers-panel";
 
 interface Version {
   id: string;
   webCover: string;
   webRecord?: string | null;
-}
-
-interface MarkerItem {
-  id: string;
-  time: number;
-  text: string | null;
 }
 
 interface VersionViewerProps extends HTMLAttributes<HTMLDivElement> {
@@ -318,70 +308,17 @@ export function VersionViewer({
         </div>
 
         {showMarkersPanel && (
-          <div className="flex w-56 shrink-0 flex-col rounded-lg border bg-background/60 p-3">
-            <div className="mb-2 font-medium text-muted-foreground text-xs">
-              Markers ({orderedMarkers.length})
-            </div>
-            <div className="flex-1 space-y-1 overflow-y-auto">
-              {orderedMarkers.map((marker, index) => (
-                <div
-                  className={cn(
-                    "group flex items-center gap-1 rounded-md px-2 py-1 transition-colors",
-                    marker.id === activeMarkerId
-                      ? "bg-primary/10 text-primary"
-                      : "text-foreground hover:bg-muted/60"
-                  )}
-                  key={marker.id}
-                  onClick={(e) => {
-                    const target = e.target as HTMLElement;
-                    if (target.closest("[data-marker-download]")) return;
-                    onMarkerSelect?.(marker.id);
-                    handleSeekTo(marker.time, true);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      onMarkerSelect?.(marker.id);
-                      handleSeekTo(marker.time, true);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <Tooltip>
-                    <TooltipTrigger className="min-w-0 flex-1">
-                      <span className="block truncate text-sm">
-                        {marker.text || "No description"}
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent side="left">
-                      {marker.time.toFixed(1)}s
-                    </TooltipContent>
-                  </Tooltip>
-                  <button
-                    className="opacity-0 transition-opacity group-hover:opacity-100"
-                    data-marker-download
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleDownloadMarker(marker, index + 1);
-                    }}
-                    type="button"
-                  >
-                    <span className="i-hugeicons-download-01 size-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+          <VersionMarkersPanel
+            activeMarkerId={activeMarkerId}
+            markers={orderedMarkers}
+            onDownload={handleDownloadMarker}
+            onMarkerSelect={(marker) => {
+              onMarkerSelect?.(marker.id);
+              handleSeekTo(marker.time, true);
+            }}
+          />
         )}
       </div>
-
-      {showShortcuts && hasVideo && (
-        <div className="mt-3 text-muted-foreground text-xs">
-          Space: Play/Pause · ←/→: Seek 1s · Shift+←/→: Seek 10s
-        </div>
-      )}
 
       {hasVideo && (
         <div className="pointer-events-none h-0 w-0 overflow-hidden">

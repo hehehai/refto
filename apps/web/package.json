@@ -6,6 +6,7 @@
     "build": "vite build",
     "dev": "NODE_OPTIONS='--max-old-space-size=8192' vite dev --port=3001",
     "dev:clean": "rm -rf node_modules/.vite && pnpm run dev",
+    "dev:kv:clear": "rm -rf .wrangler/state/v3/kv && mkdir -p .wrangler/state/v3/kv",
     "preview": "vite preview",
     "deploy": "CLOUDFLARE_ENV=production pnpm build && wrangler deploy",
     "destroy": "wrangler delete --env production",
