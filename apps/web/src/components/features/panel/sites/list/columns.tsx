@@ -29,7 +29,7 @@ export function createSiteColumns(
     {
       accessorKey: "site",
       header: "Site",
-      size: 280,
+      size: 240,
       cell: ({ row }) => {
         const { title, logo, url, isPinned } = row.original;
         return (
@@ -88,7 +88,7 @@ export function createSiteColumns(
     {
       accessorKey: "tags",
       header: "Tags",
-      size: 160,
+      size: 200,
       cell: ({ row }) => {
         const tags = row.original.tags;
         if (!tags || tags.length === 0) {

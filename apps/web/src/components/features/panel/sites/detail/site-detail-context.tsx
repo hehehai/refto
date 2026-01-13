@@ -121,14 +121,24 @@ export function SiteDetailProvider({
 
   const isLoading = siteLoading || pagesLoading;
 
-  // Auto-select first page or initialPageId
+  // Auto-select initial page or ensure we always have a valid page selected
   useEffect(() => {
-    if (open && sortedPages.length > 0 && !activePageId) {
-      const targetPageId =
-        initialPageId && sortedPages.some((p: Page) => p.id === initialPageId)
-          ? initialPageId
-          : sortedPages[0].id;
-      setActivePageId(targetPageId);
+    if (!open || sortedPages.length === 0) return;
+
+    const initialPageExists =
+      initialPageId &&
+      sortedPages.some((page: Page) => page.id === initialPageId);
+    const activePageExists =
+      activePageId &&
+      sortedPages.some((page: Page) => page.id === activePageId);
+
+    if (initialPageExists && activePageId !== initialPageId) {
+      setActivePageId(initialPageId);
+      return;
+    }
+
+    if (!activePageExists) {
+      setActivePageId(sortedPages[0].id);
     }
   }, [open, sortedPages, activePageId, initialPageId]);
 
