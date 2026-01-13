@@ -54,7 +54,7 @@ export function SiteDetailView({ site }: SiteDetailViewProps) {
         {site.logo ? (
           <img
             alt={site.title}
-            className="size-16 rounded-lg object-cover"
+            className="size-16 rounded-lg object-cover dark:bg-foreground"
             src={site.logo}
           />
         ) : (

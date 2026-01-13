@@ -36,7 +36,7 @@ export function SiteHero({ site }: SiteHeroProps) {
           <a href={site.url} rel="noopener noreferrer" target="_blank">
             <CFImage
               alt={site.title}
-              className="size-16 rounded-lg object-cover shadow-md"
+              className="size-16 rounded-lg object-cover shadow-md dark:bg-foreground"
               preset="logo"
               src={site.logo}
             />

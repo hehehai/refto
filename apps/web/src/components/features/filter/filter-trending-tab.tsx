@@ -111,7 +111,7 @@ export function FilterTrendingTab({
               >
                 <img
                   alt={site.title}
-                  className="size-11 rounded-lg object-contain"
+                  className="size-11 rounded-lg object-contain dark:bg-foreground"
                   src={site.logo}
                 />
               </button>

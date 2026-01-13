@@ -37,7 +37,7 @@ export function createSiteColumns(
             {logo ? (
               <img
                 alt={title}
-                className="size-9 rounded-lg object-cover"
+                className="size-9 rounded-lg object-cover dark:bg-foreground"
                 src={logo}
               />
             ) : (

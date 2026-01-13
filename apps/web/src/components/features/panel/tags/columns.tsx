@@ -67,7 +67,7 @@ export function createTagColumns(
               <span className="font-medium">{name}</span>
               {tipMedia && (
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger className="flex items-center">
                     <span className="i-hugeicons-image-02 size-4 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent side="right">

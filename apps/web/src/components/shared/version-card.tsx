@@ -140,7 +140,7 @@ export function VersionCard({
           >
             <CFImage
               alt={site.title}
-              className="size-5.5 rounded object-cover"
+              className="size-5.5 rounded object-cover dark:bg-foreground"
               preset="logoSm"
               src={site.logo}
             />
