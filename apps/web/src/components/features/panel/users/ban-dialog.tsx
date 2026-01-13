@@ -30,6 +30,7 @@ export function BanDialog({
       onConfirm={(reason) => onConfirm(user.id, reason)}
       onOpenChange={onOpenChange}
       open={open}
+      overlayProps={{ forceRender: true }}
       placeholder="Enter the reason for banning this user..."
       title="Ban User"
     />

@@ -89,7 +89,7 @@ export function UserFormDialog({
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
       {trigger && <DialogTrigger render={trigger} />}
-      <DialogContent>
+      <DialogContent overlayProps={{ forceRender: true }}>
         <DialogHeader>
           <DialogTitle>
             {mode === "create" ? "Create User" : "Edit User"}

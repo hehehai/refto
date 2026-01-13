@@ -1,3 +1,4 @@
+import type { DialogBackdropProps } from "@base-ui/react/dialog";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ interface ReasonDialogProps {
   confirmText?: string;
   confirmingText?: string;
   variant?: "default" | "destructive";
+  overlayProps?: DialogBackdropProps;
 }
 
 export function ReasonDialog({
@@ -36,6 +38,7 @@ export function ReasonDialog({
   confirmText = "Confirm",
   confirmingText = "Confirming...",
   variant = "destructive",
+  overlayProps,
 }: ReasonDialogProps) {
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,7 +71,7 @@ export function ReasonDialog({
 
   return (
     <Dialog onOpenChange={handleOpenChange} open={open}>
-      <DialogContent>
+      <DialogContent overlayProps={overlayProps}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
