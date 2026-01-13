@@ -32,6 +32,7 @@ export function useMarkerHotkeys({
     enableOnFormTags: false,
     enableOnContentEditable: false,
     preventDefault: true,
+    eventListenerOptions: { capture: true },
   };
   const reorderOptions = {
     ...options,

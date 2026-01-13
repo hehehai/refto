@@ -166,14 +166,11 @@ export function MarkerToolbar({
           <TooltipContent>Play from start</TooltipContent>
         </Tooltip>
 
-        <HoldButton
-          onAction={() => onRewind(10)}
-          tooltip="Rewind 10s (Shift+←)"
-        >
+        <HoldButton onAction={() => onRewind(1)} tooltip="Rewind 1s (Shift+←)">
           <span className="i-hugeicons-arrow-left-double" />
         </HoldButton>
 
-        <HoldButton onAction={() => onRewind(1)} tooltip="Rewind 1s (←)">
+        <HoldButton onAction={() => onRewind(0.1)} tooltip="Rewind 0.1s (←)">
           <span className="i-hugeicons-arrow-left-01" />
         </HoldButton>
 
@@ -194,13 +191,13 @@ export function MarkerToolbar({
           </TooltipContent>
         </Tooltip>
 
-        <HoldButton onAction={() => onForward(1)} tooltip="Forward 1s (→)">
+        <HoldButton onAction={() => onForward(0.1)} tooltip="Forward 0.1s (→)">
           <span className="i-hugeicons-arrow-right-01" />
         </HoldButton>
 
         <HoldButton
-          onAction={() => onForward(10)}
-          tooltip="Forward 10s (Shift+→)"
+          onAction={() => onForward(1)}
+          tooltip="Forward 1s (Shift+→)"
         >
           <span className="i-hugeicons-arrow-right-double" />
         </HoldButton>

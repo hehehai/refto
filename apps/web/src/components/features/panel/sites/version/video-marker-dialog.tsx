@@ -28,6 +28,8 @@ interface VideoMarkerDialogContentProps {
   coverUrl: string;
 }
 
+const MARKER_NUDGE_SECONDS = 0.1;
+
 function VideoMarkerDialogContent({
   versionId,
   videoUrl,
@@ -133,13 +135,59 @@ function VideoMarkerDialogContent({
     setSelectedMarkerId(null);
   }, [selectedMarkerId]);
 
+  const clampTime = useCallback(
+    (time: number) => {
+      const maxDuration =
+        duration > 0 ? duration : (videoRef.current?.getDuration() ?? 0);
+      if (maxDuration > 0) {
+        return Math.min(Math.max(0, time), maxDuration);
+      }
+      return Math.max(0, time);
+    },
+    [duration, videoRef]
+  );
+
+  const moveSelectedMarker = useCallback(
+    (direction: -1 | 1) => {
+      if (!selectedMarkerId) return;
+
+      let updatedTime: number | null = null;
+
+      setMarkers((prev) => {
+        const index = prev.findIndex(
+          (marker) => marker.id === selectedMarkerId
+        );
+        if (index === -1) return prev;
+
+        const marker = prev[index];
+        const nextTime = clampTime(
+          marker.time + direction * MARKER_NUDGE_SECONDS
+        );
+
+        if (nextTime === marker.time) return prev;
+
+        updatedTime = nextTime;
+        const nextMarkers = [...prev];
+        nextMarkers[index] = { ...marker, time: nextTime };
+        return nextMarkers;
+      });
+
+      if (updatedTime !== null) {
+        videoRef.current?.pause();
+        videoRef.current?.seek(updatedTime);
+        setCurrentTime(updatedTime);
+      }
+    },
+    [clampTime, selectedMarkerId, videoRef]
+  );
+
   const handleMoveSelectedLeft = useCallback(() => {
-    // Order locked by time.
-  }, []);
+    moveSelectedMarker(-1);
+  }, [moveSelectedMarker]);
 
   const handleMoveSelectedRight = useCallback(() => {
-    // Order locked by time.
-  }, []);
+    moveSelectedMarker(1);
+  }, [moveSelectedMarker]);
 
   // Playback controls
   const handlePlayFromStart = useCallback(() => {
@@ -244,12 +292,12 @@ function VideoMarkerDialogContent({
   // Keyboard shortcuts
   useMarkerHotkeys({
     enabled: true,
-    enableReorder: false,
+    enableReorder: true,
     onPlayPause: handlePlayPause,
-    onSeekLeft: () => handleRewind(1),
-    onSeekRight: () => handleForward(1),
-    onSeekLeftFast: () => handleRewind(10),
-    onSeekRightFast: () => handleForward(10),
+    onSeekLeft: () => handleRewind(0.1),
+    onSeekRight: () => handleForward(0.1),
+    onSeekLeftFast: () => handleRewind(1),
+    onSeekRightFast: () => handleForward(1),
     onAddMarker: handleAddMarker,
     onDeleteSelected: handleDeleteSelected,
     onMoveSelectedUp: handleMoveSelectedLeft,
@@ -292,7 +340,6 @@ function VideoMarkerDialogContent({
 
           {/* Toolbar */}
           <MarkerToolbar
-            allowReorder={false}
             currentTime={currentTime}
             duration={duration}
             hasMarkers={markers.length > 0}
