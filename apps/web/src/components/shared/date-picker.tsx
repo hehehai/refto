@@ -49,7 +49,7 @@ export function DatePicker({
               <span
                 className={cn(
                   buttonVariants({ size: "icon-xs", variant: "ghost" }),
-                  "absolute top-1/2 right-1 ml-auto -translate-y-1/2"
+                  "-translate-y-1/2 absolute top-1/2 right-1 ml-auto"
                 )}
                 onClick={(e) => {
                   e.stopPropagation();

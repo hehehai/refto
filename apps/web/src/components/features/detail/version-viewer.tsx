@@ -9,6 +9,7 @@ import {
   type VideoPreset,
 } from "@/components/ui/cf-video";
 import { useDownload } from "@/hooks/use-download";
+import { buildMarkerFilename } from "@/lib/markers";
 import { cn } from "@/lib/utils";
 import {
   MarkerVideoPlayer,
@@ -197,7 +198,11 @@ export function VersionViewer({
       const captureTime = marker.time === 0 ? 0.01 : marker.time;
       const dataUrl = await captureFrameAt(captureTime);
       if (!dataUrl) return;
-      const filename = `marker-${markerNumber}-${marker.time.toFixed(1)}s.jpg`;
+      const filename = buildMarkerFilename({
+        markerNumber,
+        markerTime: marker.time,
+        markerTitle: marker.text,
+      });
       download({ dataUrl, filename });
     },
     [captureFrameAt, download]

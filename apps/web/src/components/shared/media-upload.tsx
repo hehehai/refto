@@ -246,7 +246,7 @@ export function MediaUpload({
         </button>
         <div
           className={cn(
-            "absolute inset-0 -z-10 flex items-center justify-center overflow-hidden rounded-lg bg-black/50 transition-opacity",
+            "-z-10 absolute inset-0 flex items-center justify-center overflow-hidden rounded-lg bg-black/50 transition-opacity",
             isUploading ? "z-10 opacity-100" : "opacity-0",
             !(disabled || isUploading) &&
               media &&
@@ -284,7 +284,7 @@ export function MediaUpload({
 
         {media && !disabled && !isUploading && (
           <Button
-            className="absolute -top-1 -right-1 z-20 size-5 rounded-full p-0.5"
+            className="-top-1 -right-1 absolute z-20 size-5 rounded-full p-0.5"
             onClick={handleRemove}
             size="icon-xs"
             type="button"

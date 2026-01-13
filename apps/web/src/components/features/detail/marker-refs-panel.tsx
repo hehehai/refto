@@ -1,8 +1,17 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { MarkerRefItem } from "@/components/features/detail/marker-ref-item";
 import { EmptyPlaceholder } from "@/components/shared/empty-placeholder";
 import { useDownload } from "@/hooks/use-download";
 import { useMarkerThumbnails } from "@/hooks/use-marker-thumbnails";
+import { buildMarkerFilename } from "@/lib/markers";
 import { imagePreviewDialog } from "@/lib/sheets";
 import { formatTimeShortWithMs } from "@/lib/time";
 import {
@@ -23,6 +32,10 @@ interface MarkerRefsPanelProps {
   coverUrl: string | null;
   siteTitle?: string | null;
   pageTitle?: string | null;
+  isSelectionMode?: boolean;
+  selectedMarkerIds?: string[];
+  onSelectedMarkersChange?: Dispatch<SetStateAction<string[]>>;
+  downloadSelectedMarkersRef?: { current: (() => void) | null };
 }
 
 export function MarkerRefsPanel({
@@ -31,6 +44,10 @@ export function MarkerRefsPanel({
   coverUrl,
   siteTitle,
   pageTitle,
+  isSelectionMode = false,
+  selectedMarkerIds = [],
+  onSelectedMarkersChange,
+  downloadSelectedMarkersRef,
 }: MarkerRefsPanelProps) {
   const videoRef = useRef<MarkerVideoPlayerHandle>(null);
   const [isVideoReady, setIsVideoReady] = useState(false);
@@ -48,12 +65,86 @@ export function MarkerRefsPanel({
       }),
     [markers]
   );
+  const markerById = useMemo(() => {
+    const map = new Map<string, MarkerState>();
+    for (const marker of orderedMarkers) {
+      map.set(marker.id, marker);
+    }
+    return map;
+  }, [orderedMarkers]);
+
+  const markerNumberById = useMemo(() => {
+    const map = new Map<string, number>();
+    orderedMarkers.forEach((marker, index) => {
+      map.set(marker.id, index + 1);
+    });
+    return map;
+  }, [orderedMarkers]);
+
+  const selectedMarkerSet = useMemo(
+    () => new Set(selectedMarkerIds),
+    [selectedMarkerIds]
+  );
 
   const handleDurationChange = useCallback((nextDuration: number) => {
     if (nextDuration > 0) {
       setIsVideoReady(true);
     }
   }, []);
+
+  const handleMarkerSelectionToggle = useCallback(
+    (markerId: string) => {
+      if (!onSelectedMarkersChange) return;
+      onSelectedMarkersChange((prev) => {
+        const selection = new Set(prev);
+        if (selection.has(markerId)) {
+          selection.delete(markerId);
+        } else {
+          selection.add(markerId);
+        }
+        return Array.from(selection);
+      });
+    },
+    [onSelectedMarkersChange]
+  );
+
+  useEffect(() => {
+    if (!downloadSelectedMarkersRef) return;
+    const handler = () => {
+      if (!selectedMarkerIds.length) return;
+      for (const markerId of selectedMarkerIds) {
+        const marker = markerById.get(markerId);
+        const thumbnail = thumbnails[markerId];
+        const markerNumber = markerNumberById.get(markerId);
+        if (!(marker && thumbnail) || markerNumber === undefined) return;
+        download({
+          dataUrl: thumbnail,
+          filename: buildMarkerFilename({
+            markerNumber,
+            markerTime: marker.time,
+            markerTitle: marker.text,
+            siteTitle,
+            pageTitle,
+          }),
+        });
+      }
+    };
+    downloadSelectedMarkersRef.current = handler;
+    return () => {
+      if (downloadSelectedMarkersRef.current === handler) {
+        downloadSelectedMarkersRef.current = null;
+      }
+    };
+  }, [
+    download,
+    downloadSelectedMarkersRef,
+    markerById,
+    markerNumberById,
+    pageTitle,
+    selectedMarkerIds,
+    siteTitle,
+    thumbnails,
+  ]);
 
   if (!videoUrl) {
     return (
@@ -95,12 +186,20 @@ export function MarkerRefsPanel({
               src: thumbnail,
               alt: `Marker ${markerNumber}`,
               title,
-              filename: `marker-${markerNumber}-${marker.time.toFixed(1)}s.jpg`,
+              filename: buildMarkerFilename({
+                markerNumber,
+                markerTime: marker.time,
+                markerTitle: marker.text,
+                siteTitle,
+                pageTitle,
+              }),
             });
           };
 
           return (
             <MarkerRefItem
+              isSelectable={isSelectionMode}
+              isSelected={selectedMarkerSet.has(marker.id)}
               key={marker.id}
               markerNumber={markerNumber}
               markerText={marker.text}
@@ -110,13 +209,24 @@ export function MarkerRefsPanel({
                   ? () =>
                       download({
                         dataUrl: thumbnail,
-                        filename: `marker-${markerNumber}-${marker.time.toFixed(
-                          1
-                        )}s.jpg`,
+                        filename: buildMarkerFilename({
+                          markerNumber,
+                          markerTime: marker.time,
+                          markerTitle: marker.text,
+                          siteTitle,
+                          pageTitle,
+                        }),
                       })
                   : undefined
               }
-              onOpenPreview={thumbnail ? handleOpenPreview : undefined}
+              onOpenPreview={
+                !isSelectionMode && thumbnail ? handleOpenPreview : undefined
+              }
+              onToggleSelect={
+                isSelectionMode
+                  ? () => handleMarkerSelectionToggle(marker.id)
+                  : undefined
+              }
               thumbnail={thumbnail}
             />
           );

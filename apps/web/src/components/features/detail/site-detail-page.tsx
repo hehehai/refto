@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import slugify from "slug";
 import { orpc } from "@/lib/orpc";
 import { MarkerRefsPanel } from "./marker-refs-panel";
@@ -32,6 +32,9 @@ export function SiteDetailPage({
     panel === "refs" ? "refs" : "record"
   );
   const [liked, setLiked] = useState<boolean | null>(null);
+  const [isMarkerSelectionMode, setIsMarkerSelectionMode] = useState(false);
+  const [selectedMarkerIds, setSelectedMarkerIds] = useState<string[]>([]);
+  const downloadSelectedMarkersRef = useRef<(() => void) | null>(null);
 
   // Fetch version data by slug
   const { data } = useSuspenseQuery(
@@ -141,6 +144,31 @@ export function SiteDetailPage({
   const handleLikeChange = (newLiked: boolean) => {
     setLiked(newLiked);
   };
+
+  useEffect(() => {
+    setSelectedMarkerIds((prev) =>
+      prev.filter((markerId) =>
+        orderedMarkers.some((marker) => marker.id === markerId)
+      )
+    );
+  }, [orderedMarkers]);
+
+  useEffect(() => {
+    if (detailTab !== "refs" || markers.length === 0) {
+      setIsMarkerSelectionMode(false);
+      setSelectedMarkerIds([]);
+    }
+  }, [detailTab, markers.length]);
+
+  const handleToggleMarkerSelectionMode = useCallback(() => {
+    setIsMarkerSelectionMode((prev) => {
+      const next = !prev;
+      if (!next) {
+        setSelectedMarkerIds([]);
+      }
+      return next;
+    });
+  }, []);
   const handleDetailTabChange = useCallback(
     (tab: "record" | "refs") => {
       if (tab === "refs" && !showDetailTabs) return;
@@ -209,13 +237,19 @@ export function SiteDetailPage({
         activeDetailTab={detailTab}
         currentPageId={currentPage?.id ?? ""}
         currentVersionId={currentVersion?.id ?? ""}
+        isMarkerSelectionMode={isMarkerSelectionMode}
         liked={isLiked}
         markersCount={markers.length}
         onDetailTabChange={handleDetailTabChange}
+        onDownloadSelectedMarkers={() => downloadSelectedMarkersRef.current?.()}
         onLikeChange={handleLikeChange}
         onPageChange={handlePageChange}
+        onToggleMarkerSelectionMode={
+          markers.length > 0 ? handleToggleMarkerSelectionMode : undefined
+        }
         onVersionChange={handleVersionChange}
         pages={site.pages}
+        selectedMarkerCount={selectedMarkerIds.length}
         showDetailTabs={showDetailTabs}
       />
 
@@ -247,12 +281,16 @@ export function SiteDetailPage({
             ) : (
               <MarkerRefsPanel
                 coverUrl={currentVersion.webCover}
+                downloadSelectedMarkersRef={downloadSelectedMarkersRef}
+                isSelectionMode={isMarkerSelectionMode}
                 markers={orderedMarkers.map((marker) => ({
                   id: marker.id,
                   time: marker.time,
                   text: marker.text,
                 }))}
+                onSelectedMarkersChange={setSelectedMarkerIds}
                 pageTitle={currentPage?.title}
+                selectedMarkerIds={selectedMarkerIds}
                 siteTitle={site.title}
                 videoUrl={currentVersion.webRecord}
               />

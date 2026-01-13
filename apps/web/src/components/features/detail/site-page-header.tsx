@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { MarkerSelectionControls } from "./marker-selection-controls";
 
 interface Page {
   id: string;
@@ -33,6 +34,10 @@ interface SitePageHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   onPageChange: (pageId: string) => void;
   onVersionChange: (versionId: string) => void;
   onLikeChange: (liked: boolean) => void;
+  isMarkerSelectionMode?: boolean;
+  selectedMarkerCount?: number;
+  onToggleMarkerSelectionMode?: () => void;
+  onDownloadSelectedMarkers?: () => void;
 }
 
 export function SitePageHeader({
@@ -43,6 +48,10 @@ export function SitePageHeader({
   activeDetailTab,
   markersCount,
   showDetailTabs,
+  isMarkerSelectionMode = false,
+  selectedMarkerCount = 0,
+  onToggleMarkerSelectionMode,
+  onDownloadSelectedMarkers,
   onDetailTabChange,
   onPageChange,
   onVersionChange,
@@ -115,6 +124,16 @@ export function SitePageHeader({
 
         {/* Version select and actions */}
         <div className="flex items-center gap-2">
+          {markersCount > 0 &&
+            activeDetailTab === "refs" &&
+            onToggleMarkerSelectionMode && (
+              <MarkerSelectionControls
+                isSelectionMode={isMarkerSelectionMode}
+                onDownloadSelectedMarkers={onDownloadSelectedMarkers}
+                onToggleSelectionMode={onToggleMarkerSelectionMode}
+                selectedMarkerCount={selectedMarkerCount}
+              />
+            )}
           {/* Version select */}
           {currentPage && currentPage.versions.length > 0 && (
             <Select
