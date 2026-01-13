@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/tooltip";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import { BadgeOverflow } from "./badge-overflow";
 
 type TagType = "category" | "section" | "style";
 type FilterType = "all" | TagType;
@@ -150,45 +151,56 @@ export function TagSelect({
           <Button
             aria-expanded={open}
             className={cn(
-              "h-auto min-h-9 w-full justify-between px-3 py-1.5",
+              "relative h-auto min-h-9 w-full justify-between px-2 py-1.5",
               className
             )}
             disabled={disabled}
             role="combobox"
             variant="outline"
           >
-            <div className="flex flex-1 flex-wrap gap-1">
+            <div className="relative flex w-48 flex-1 items-center">
               {selectedTags.length > 0 ? (
-                selectedTags.map((tag) => (
-                  <Badge
-                    className="gap-1 pr-1"
-                    key={tag.id}
-                    variant={TAG_TYPE_VARIANTS[tag.type]}
-                  >
-                    {tag.name}
-                    <span
-                      className="i-hugeicons-cancel-01 size-3 cursor-pointer opacity-50 hover:opacity-100"
-                      onClick={(e) => handleRemoveTag(e, tag)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          handleRemoveTag(
-                            e as unknown as React.MouseEvent,
-                            tag
-                          );
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                    />
-                  </Badge>
-                ))
+                <BadgeOverflow
+                  className="min-w-0 flex-1 gap-1"
+                  getBadgeLabel={(tag) => tag.name}
+                  items={selectedTags}
+                  lineCount={1}
+                  renderBadge={(tag) => (
+                    <Badge
+                      className="gap-1 pr-1"
+                      key={tag.id}
+                      variant={TAG_TYPE_VARIANTS[tag.type]}
+                    >
+                      {tag.name}
+                      <span
+                        className="i-hugeicons-cancel-01 size-3 cursor-pointer opacity-50 hover:opacity-100"
+                        onClick={(e) => handleRemoveTag(e, tag)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            handleRemoveTag(
+                              e as unknown as React.MouseEvent,
+                              tag
+                            );
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                      />
+                    </Badge>
+                  )}
+                  renderOverflow={(count) => (
+                    <Badge className="gap-1 pr-1" variant="outline">
+                      +{count}
+                    </Badge>
+                  )}
+                />
               ) : (
                 <span className="text-muted-foreground">{placeholder}</span>
               )}
             </div>
-            {value.length > 0 ? (
+            {value.length > 0 && (
               <span
-                className="i-hugeicons-cancel-01 ml-2 size-4 shrink-0 opacity-50 hover:opacity-100"
+                className="-translate-y-1/2 i-hugeicons-cancel-01 absolute top-1/2 right-2 size-4 shrink-0 opacity-50 hover:opacity-100"
                 onClick={handleClear}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -198,15 +210,13 @@ export function TagSelect({
                 role="button"
                 tabIndex={0}
               />
-            ) : (
-              <span className="i-hugeicons-unfold-more ml-2 size-4 shrink-0 opacity-50" />
             )}
           </Button>
         }
       />
       <PopoverContent align="start" className="w-72 gap-0 p-0">
         {/* Search Input */}
-        <InputGroup className="rounded-none border-x-0 border-t-0 has-[[data-slot=input-group-control]:focus-visible]:ring-0">
+        <InputGroup className="rounded-none border-x-0 border-t-0 has-[[data-slot=input-group-control]:focus-visible]:border-border has-[[data-slot=input-group-control]:focus-visible]:ring-0">
           <InputGroupAddon align="inline-start">
             <InputGroupText>
               <span className="i-hugeicons-search-01 size-4" />
@@ -327,8 +337,8 @@ function TagItem({ tag, isSelected, onToggle }: TagItemProps) {
           <span className="truncate text-sm">{tag.name}</span>
           {tag.tipMedia && (
             <Tooltip>
-              <TooltipTrigger>
-                <span className="i-hugeicons-image-02 size-3.5 shrink-0 text-muted-foreground" />
+              <TooltipTrigger className="flex items-center">
+                <span className="i-hugeicons-image-02 size-4 shrink-0 text-muted-foreground" />
               </TooltipTrigger>
               <TooltipContent side="right">
                 {tag.tipMedia.includes("video") ? (
