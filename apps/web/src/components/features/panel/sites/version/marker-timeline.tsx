@@ -142,7 +142,7 @@ export function MarkerTimeline({
               render={
                 <button
                   className={cn(
-                    "absolute top-1/2 z-10 flex size-5 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 font-medium text-[10px] transition-all duration-150",
+                    "-translate-x-1/2 -translate-y-1/2 absolute top-1/2 z-10 flex size-5 cursor-pointer items-center justify-center rounded-full border-2 font-medium text-[10px] transition-all duration-150",
                     isSelected
                       ? "scale-110 border-primary bg-primary text-primary-foreground shadow-md"
                       : "border-foreground/50 bg-background text-foreground hover:scale-110 hover:border-primary hover:bg-primary/10 hover:shadow-sm"
@@ -168,9 +168,11 @@ export function MarkerTimeline({
             </TooltipTrigger>
             <TooltipContent side="top">
               <div className="text-center">
-                <div className="font-medium">#{markerNumber}</div>
-                <div className="text-muted-foreground text-xs">
-                  {formatTimeShort(marker.time)}
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">#{markerNumber}</span>
+                  <span className="text-muted-foreground text-xs">
+                    {formatTimeShort(marker.time)}
+                  </span>
                 </div>
                 {marker.text && (
                   <div className="mt-1 max-w-32 truncate text-xs">
@@ -186,7 +188,7 @@ export function MarkerTimeline({
       {/* Playhead */}
       <div
         className={cn(
-          "pointer-events-none absolute top-0 bottom-0 z-20 w-0.5 -translate-x-1/2 bg-primary transition-[left,opacity] duration-150 ease-out",
+          "-translate-x-1/2 pointer-events-none absolute top-0 bottom-0 z-20 w-0.5 bg-primary transition-[left,opacity] duration-150 ease-out",
           isDragging && "bg-primary/80"
         )}
         style={{ left: `${playheadPosition}%` }}
@@ -194,7 +196,7 @@ export function MarkerTimeline({
         {/* Playhead handle */}
         <div
           className={cn(
-            "absolute -top-1 left-1/2 size-3 -translate-x-1/2 rounded-full bg-primary shadow-sm transition-transform duration-150",
+            "-top-1 -translate-x-1/2 absolute left-1/2 size-3 rounded-full bg-primary shadow-sm transition-transform duration-150",
             isDragging && "scale-125"
           )}
         />

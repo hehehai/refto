@@ -25,17 +25,24 @@ interface VersionViewProps {
 interface MediaPreviewProps {
   src: string;
   alt: string;
+  wraperClassName?: string;
   className?: string;
   type: "image" | "video";
 }
 
-function MediaPreview({ src, alt, className, type }: MediaPreviewProps) {
+function MediaPreview({
+  src,
+  alt,
+  wraperClassName,
+  className,
+  type,
+}: MediaPreviewProps) {
   const handlePreview = () => {
     window.open(src, "_blank", "noopener,noreferrer");
   };
 
   return (
-    <div className="group relative">
+    <div className={cn("group relative", wraperClassName)}>
       {type === "image" ? (
         <img alt={alt} className={className} src={src} />
       ) : (
@@ -85,9 +92,10 @@ export function VersionView({ value, versionId }: VersionViewProps) {
           </h4>
           <MediaPreview
             alt="Open Graph preview"
-            className="max-w-xs rounded-lg object-cover"
+            className="object-cover"
             src={value.siteOG}
             type="image"
+            wraperClassName="max-w-xs rounded-lg overflow-hidden"
           />
         </div>
       )}
@@ -98,9 +106,9 @@ export function VersionView({ value, versionId }: VersionViewProps) {
         <div className="grid grid-cols-2 gap-4">
           {/* Web Cover */}
           <div>
-            <span className="mb-2 block text-muted-foreground text-xs">
-              Cover
-            </span>
+            <div className="mb-2 block h-6 text-muted-foreground text-xs">
+              <span>Cover</span>
+            </div>
             {value.webCover ? (
               <MediaPreview
                 alt="Cover preview"
@@ -117,7 +125,7 @@ export function VersionView({ value, versionId }: VersionViewProps) {
 
           {/* Web Recording */}
           <div>
-            <div className="mb-2 flex items-center justify-between text-muted-foreground text-xs">
+            <div className="mb-2 flex h-6 items-center justify-between text-muted-foreground text-xs">
               <span>Recording</span>
               {value.webRecord && (
                 <Tooltip>

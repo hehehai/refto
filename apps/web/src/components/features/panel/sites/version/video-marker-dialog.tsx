@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -259,9 +260,16 @@ function VideoMarkerDialogContent({
     <DialogContent
       className="flex h-[90vh] w-[90vw] max-w-6xl flex-col gap-0 rounded-2xl p-0 sm:max-w-6xl"
       overlayProps={{ forceRender: true }}
+      showCloseButton={false}
     >
-      <DialogHeader className="shrink-0 border-b px-3 py-4">
+      <DialogHeader className="shrink-0 flex-row items-center justify-between border-b px-3 py-2">
         <DialogTitle>Video Markers</DialogTitle>
+        <div className="flex w-69 items-center justify-between gap-3">
+          <div className="text-xs">Markers ({markers.length})</div>
+          <DialogClose render={<Button size="icon-xs" variant="ghost" />}>
+            <span className="i-hugeicons-cancel-01 size-4" />
+          </DialogClose>
+        </div>
       </DialogHeader>
 
       {/* Main content */}
@@ -317,9 +325,6 @@ function VideoMarkerDialogContent({
 
         {/* Right: Marker list */}
         <div className="flex w-72 shrink-0 flex-col border-l">
-          <div className="shrink-0 border-b px-3 py-2 font-medium text-sm">
-            Markers ({markers.length})
-          </div>
           <MarkerListPanel
             markers={orderedMarkers}
             onDeleteMarker={handleDeleteMarker}
@@ -328,18 +333,20 @@ function VideoMarkerDialogContent({
             onUpdateMarkerText={handleUpdateMarkerText}
             selectedMarkerId={selectedMarkerId}
           />
+          <DialogFooter className="mx-0 my-0 shrink-0 border-t px-2 py-2">
+            <Button
+              onClick={() => videoMarkerDialog.close()}
+              size="sm"
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button disabled={isSaving} onClick={handleSave} size="sm">
+              {isSaving ? "Saving..." : "Save Markers"}
+            </Button>
+          </DialogFooter>
         </div>
       </div>
-
-      {/* Footer */}
-      <DialogFooter className="mx-0 my-0 shrink-0 border-t px-2 py-2">
-        <Button onClick={() => videoMarkerDialog.close()} variant="outline">
-          Cancel
-        </Button>
-        <Button disabled={isSaving} onClick={handleSave}>
-          {isSaving ? "Saving..." : "Save Markers"}
-        </Button>
-      </DialogFooter>
     </DialogContent>
   );
 }

@@ -62,6 +62,7 @@ export function VersionForm({
       <Field>
         <FieldLabel>Tags</FieldLabel>
         <TagSelect
+          className="max-w-xs"
           disabled={disabled}
           matchBy="id"
           onChange={(tagIds) => onChange({ tagIds })}

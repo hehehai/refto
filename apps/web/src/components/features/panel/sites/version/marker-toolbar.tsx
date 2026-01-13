@@ -1,15 +1,4 @@
-import {
-  Add01Icon,
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  Delete02Icon,
-  PauseIcon,
-  PlayIcon,
-  StopIcon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
@@ -46,19 +35,19 @@ function formatTime(seconds: number): string {
 }
 
 interface HoldButtonProps {
-  icon: typeof Add01Icon;
   tooltip: string;
   onAction: () => void;
   disabled?: boolean;
   className?: string;
+  children?: React.ReactNode;
 }
 
 function HoldButton({
-  icon,
   tooltip,
   onAction,
   disabled,
   className,
+  children,
 }: HoldButtonProps) {
   const holdHandlers = useHoldAction({ onAction });
 
@@ -75,7 +64,7 @@ function HoldButton({
           />
         }
       >
-        <HugeiconsIcon className="size-3.5" icon={icon} strokeWidth={2} />
+        {children}
       </TooltipTrigger>
       <TooltipContent>{tooltip}</TooltipContent>
     </Tooltip>
@@ -103,11 +92,13 @@ export function MarkerToolbar({
   const hasSelection = selectedMarkerId !== null;
 
   return (
-    <div className="flex items-center gap-1 border-t bg-muted/30 px-3 py-2">
-      {!readOnly && (
+    <div className="flex items-center justify-between gap-1 border-t bg-muted/30 px-3 py-1">
+      {readOnly ? (
+        <div className="w-40" />
+      ) : (
         <>
           {/* Marker controls */}
-          <div className="flex items-center gap-0.5">
+          <div className="flex w-40 items-center gap-0.5">
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -118,11 +109,7 @@ export function MarkerToolbar({
                   />
                 }
               >
-                <HugeiconsIcon
-                  className="size-3.5"
-                  icon={Add01Icon}
-                  strokeWidth={2}
-                />
+                <span className="i-hugeicons-bookmark-add-02" />
               </TooltipTrigger>
               <TooltipContent>Add marker (M)</TooltipContent>
             </Tooltip>
@@ -138,36 +125,32 @@ export function MarkerToolbar({
                   />
                 }
               >
-                <HugeiconsIcon
-                  className="size-3.5"
-                  icon={Delete02Icon}
-                  strokeWidth={2}
-                />
+                <span className="i-hugeicons-bookmark-remove-02" />
               </TooltipTrigger>
               <TooltipContent>Delete selected (Del)</TooltipContent>
             </Tooltip>
 
             <HoldButton
               disabled={!(hasSelection && allowReorder)}
-              icon={ArrowLeft01Icon}
               onAction={onMoveSelectedLeft}
               tooltip={allowReorder ? "Move left (↑)" : "Order locked by time"}
-            />
+            >
+              <span className="i-hugeicons-move-left" />
+            </HoldButton>
 
             <HoldButton
               disabled={!(hasSelection && allowReorder)}
-              icon={ArrowRight01Icon}
               onAction={onMoveSelectedRight}
               tooltip={allowReorder ? "Move right (↓)" : "Order locked by time"}
-            />
+            >
+              <span className="i-hugeicons-move-right" />
+            </HoldButton>
           </div>
-
-          <Separator className="mx-1 h-5" orientation="vertical" />
         </>
       )}
 
       {/* Playback controls */}
-      <div className="flex items-center gap-0.5">
+      <div className="flex flex-1 items-center justify-center gap-0.5">
         <Tooltip>
           <TooltipTrigger
             render={
@@ -178,26 +161,21 @@ export function MarkerToolbar({
               />
             }
           >
-            <HugeiconsIcon
-              className="size-3.5"
-              icon={StopIcon}
-              strokeWidth={2}
-            />
+            <span className="i-hugeicons-stop-circle" />
           </TooltipTrigger>
           <TooltipContent>Play from start</TooltipContent>
         </Tooltip>
 
         <HoldButton
-          icon={ArrowLeft01Icon}
           onAction={() => onRewind(10)}
           tooltip="Rewind 10s (Shift+←)"
-        />
+        >
+          <span className="i-hugeicons-arrow-left-double" />
+        </HoldButton>
 
-        <HoldButton
-          icon={ArrowLeft01Icon}
-          onAction={() => onRewind(1)}
-          tooltip="Rewind 1s (←)"
-        />
+        <HoldButton onAction={() => onRewind(1)} tooltip="Rewind 1s (←)">
+          <span className="i-hugeicons-arrow-left-01" />
+        </HoldButton>
 
         <Tooltip>
           <TooltipTrigger
@@ -205,10 +183,10 @@ export function MarkerToolbar({
               <Button onClick={onPlayPause} size="icon-xs" variant="ghost" />
             }
           >
-            <HugeiconsIcon
-              className="size-3.5"
-              icon={isPlaying ? PauseIcon : PlayIcon}
-              strokeWidth={2}
+            <span
+              className={cn(
+                isPlaying ? "i-hugeicons-pause" : "i-hugeicons-play"
+              )}
             />
           </TooltipTrigger>
           <TooltipContent>
@@ -216,57 +194,48 @@ export function MarkerToolbar({
           </TooltipContent>
         </Tooltip>
 
-        <HoldButton
-          icon={ArrowRight01Icon}
-          onAction={() => onForward(1)}
-          tooltip="Forward 1s (→)"
-        />
+        <HoldButton onAction={() => onForward(1)} tooltip="Forward 1s (→)">
+          <span className="i-hugeicons-arrow-right-01" />
+        </HoldButton>
 
         <HoldButton
-          icon={ArrowRight01Icon}
           onAction={() => onForward(10)}
           tooltip="Forward 10s (Shift+→)"
-        />
+        >
+          <span className="i-hugeicons-arrow-right-double" />
+        </HoldButton>
       </div>
 
-      {!readOnly && (
-        <>
-          <Separator className="mx-1 h-5" orientation="vertical" />
-
-          {/* Delete all */}
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  className="text-destructive hover:bg-destructive/10"
-                  disabled={!hasMarkers}
-                  onClick={onDeleteAll}
-                  size="icon-xs"
-                  variant="ghost"
-                />
-              }
-            >
-              <HugeiconsIcon
-                className="size-3.5"
-                icon={Delete02Icon}
-                strokeWidth={2}
-              />
-            </TooltipTrigger>
-            <TooltipContent>Delete all markers</TooltipContent>
-          </Tooltip>
-        </>
-      )}
-
-      {/* Spacer */}
-      <div className="flex-1" />
-
       {/* Time display */}
-      <div className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
-        <span className={cn("tabular-nums", isPlaying && "text-foreground")}>
-          {formatTime(currentTime)}
-        </span>
-        <span>/</span>
-        <span className="tabular-nums">{formatTime(duration)}</span>
+      <div className="flex w-40 items-center justify-end gap-2">
+        {!readOnly && (
+          <>
+            {/* Delete all */}
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    className="text-destructive hover:bg-destructive/10"
+                    disabled={!hasMarkers}
+                    onClick={onDeleteAll}
+                    size="icon-xs"
+                    variant="ghost"
+                  />
+                }
+              >
+                <span className="i-hugeicons-delete-03" />
+              </TooltipTrigger>
+              <TooltipContent>Delete all markers</TooltipContent>
+            </Tooltip>
+          </>
+        )}
+        <div className="flex items-center gap-2 font-mono text-muted-foreground text-xs">
+          <span className={cn("tabular-nums", isPlaying && "text-foreground")}>
+            {formatTime(currentTime)}
+          </span>
+          <span>/</span>
+          <span className="tabular-nums">{formatTime(duration)}</span>
+        </div>
       </div>
     </div>
   );

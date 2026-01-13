@@ -1,8 +1,7 @@
-import { Delete02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { forwardRef, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatTimeShortWithMs } from "@/lib/time";
 import { cn } from "@/lib/utils";
 import type { MarkerState } from "./marker-timeline";
@@ -79,8 +78,8 @@ export const MarkerCard = forwardRef<HTMLDivElement, MarkerCardProps>(
               src={marker.thumbnail}
             />
           ) : (
-            <div className="flex size-full items-center justify-center bg-muted/60">
-              <div className="h-6 w-10 animate-pulse rounded bg-muted-foreground/20" />
+            <div className="flex size-full items-center justify-center bg-background">
+              <Skeleton className="h-full w-full" />
             </div>
           )}
           {/* Sequence badge */}
@@ -113,7 +112,7 @@ export const MarkerCard = forwardRef<HTMLDivElement, MarkerCardProps>(
             </div>
           ) : (
             <button
-              className="truncate text-left text-sm hover:text-primary"
+              className="truncate py-1 text-left text-sm hover:text-primary"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsEditing(true);
@@ -140,11 +139,7 @@ export const MarkerCard = forwardRef<HTMLDivElement, MarkerCardProps>(
             size="icon-xs"
             variant="ghost"
           >
-            <HugeiconsIcon
-              className="size-3.5"
-              icon={Delete02Icon}
-              strokeWidth={2}
-            />
+            <span className="i-hugeicons-bookmark-remove-02" />
           </Button>
         )}
       </div>
