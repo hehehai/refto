@@ -74,7 +74,7 @@ export function MarkerListPanel({
   }
 
   return (
-    <ScrollArea className="flex-1">
+    <ScrollArea className="h-197.5 flex-1">
       <div className="space-y-1 p-2">
         {markers.map((marker, index) => (
           <MarkerCard

@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
+import type { FilterTag } from "./filter-tags-tab";
 import { FilterTagsTab } from "./filter-tags-tab";
 import { FilterTrendingTab } from "./filter-trending-tab";
 
@@ -32,6 +34,10 @@ export function FilterBrowseTabs({
   className,
 }: FilterBrowseTabsProps) {
   const [activeTab, setActiveTab] = useState<TabValue>("trending");
+  const [hoveredTag, setHoveredTag] = useState<Pick<
+    FilterTag,
+    "id" | "name" | "tipMedia"
+  > | null>(null);
 
   // Trending data query
   const { data: trendingData } = useQuery(
@@ -48,15 +54,33 @@ export function FilterBrowseTabs({
     enabled: activeTab !== "trending",
   });
 
+  const handleTagHover = useCallback(
+    (tag: Pick<FilterTag, "id" | "name" | "tipMedia"> | null) => {
+      if (tag?.tipMedia) {
+        setHoveredTag(tag);
+      } else {
+        setHoveredTag(null);
+      }
+    },
+    []
+  );
+
+  const previewMedia = hoveredTag?.tipMedia ?? null;
+  const isVideoPreview =
+    typeof previewMedia === "string" && previewMedia.includes("video");
+
   return (
     <Tabs
       className={cn("flex gap-6", className)}
-      onValueChange={(v) => setActiveTab(v as TabValue)}
+      onValueChange={(v) => {
+        setActiveTab(v as TabValue);
+        setHoveredTag(null);
+      }}
       orientation="vertical"
       value={activeTab}
     >
       {/* Left Navigation */}
-      <div className="flex h-auto w-40 shrink-0 flex-col">
+      <div className="flex h-full w-40 shrink-0 flex-col">
         <TabsList className="flex h-auto w-full shrink-0 flex-col items-stretch gap-1 bg-transparent p-0">
           {TABS.map((tab) => (
             <TabsTrigger
@@ -69,10 +93,42 @@ export function FilterBrowseTabs({
             </TabsTrigger>
           ))}
         </TabsList>
+        <div className="mt-auto flex flex-col gap-3 text-muted-foreground text-xs">
+          {previewMedia && (
+            <div className="space-y-2">
+              <div className="overflow-hidden rounded-xl border bg-muted/20">
+                {isVideoPreview ? (
+                  <video
+                    autoPlay
+                    className="h-28 w-full object-cover"
+                    loop
+                    muted
+                    playsInline
+                    src={previewMedia}
+                  />
+                ) : (
+                  <img
+                    alt={hoveredTag?.name ?? "Tag media preview"}
+                    className="h-28 w-full object-cover"
+                    src={previewMedia}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <KbdGroup>
+              <Kbd>
+                <span className="i-hugeicons-keyboard size-4" />
+              </Kbd>
+              <Kbd>⌘ + K</Kbd>
+            </KbdGroup>
+          </div>
+        </div>
       </div>
 
       {/* Right Content */}
-      <ScrollArea className="min-h-0 min-w-0 flex-1">
+      <ScrollArea className="h-115.5 min-h-0 min-w-0 flex-1">
         <TabsContent className="mt-0" value="trending">
           <FilterTrendingTab
             data={trendingData}
@@ -85,6 +141,7 @@ export function FilterBrowseTabs({
             <FilterTagsTab
               isLoading={isLoadingTags}
               onTagClick={onTagClick}
+              onTagHover={handleTagHover}
               tags={tagsByType ?? []}
               type={tab.value as "category" | "section" | "style"}
             />

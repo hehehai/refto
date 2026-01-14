@@ -40,7 +40,7 @@ export const CacheKeys = {
   trendingData: (sitesLimit: number, tagsLimit: number) =>
     `filter:trending:${sitesLimit}:${tagsLimit}`,
 
-  tagsByType: (type: string) => `filter:tags:${type}`,
+  tagsByType: (type: string) => `filter:tags:${type}:v2`,
 };
 
 // 失效模式前缀

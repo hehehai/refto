@@ -278,6 +278,7 @@ export const filterRouter = {
         value: string;
         type: string;
         description: string | null;
+        tipMedia: string | null;
       }>;
 
       // Try cache first
@@ -293,6 +294,7 @@ export const filterRouter = {
           value: tags.value,
           type: tags.type,
           description: tags.description,
+          tipMedia: tags.tipMedia,
         })
         .from(tags)
         .where(and(eq(tags.type, type), isNull(tags.deletedAt)))
