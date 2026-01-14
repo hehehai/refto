@@ -2,10 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CFImage } from "@/components/ui/cf-image";
 import { Rating } from "@/components/ui/rating";
+import { Route as HomeRoute } from "@/routes/(app)/index";
+import { Link } from "@tanstack/react-router";
 
 interface Tag {
   id: string;
   name: string;
+  value: string;
   type: string;
 }
 
@@ -52,7 +55,17 @@ export function SiteHero({ site }: SiteHeroProps) {
               <div className="mt-3 flex flex-wrap gap-2">
                 {site.tags.map((tag) => (
                   <Badge key={tag.id} variant="secondary">
-                    {tag.name}
+                    <Link
+                      className="hover:underline"
+                      preload="intent"
+                      search={(prev) => ({
+                        ...(prev ?? {}),
+                        tag: tag.value,
+                      })}
+                      to={HomeRoute.to}
+                    >
+                      {tag.name}
+                    </Link>
                   </Badge>
                 ))}
               </div>
