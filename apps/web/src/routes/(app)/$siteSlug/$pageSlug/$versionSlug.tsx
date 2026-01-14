@@ -3,13 +3,12 @@ import { format } from "date-fns";
 import { z } from "zod";
 import { SiteDetailPage } from "@/components/features/detail/site-detail-page";
 import { useTrackPageView } from "@/components/features/detail/use-track-page-view";
-import {
-  createBreadcrumbSchema,
-  createJsonLdScript,
-  createSiteArticleSchema,
-} from "@/lib/json-ld";
 import { orpc } from "@/lib/orpc";
-import { createDetailPageMeta } from "@/lib/seo";
+import { createSiteDetailHead } from "@/lib/seo";
+
+type MarkerListResult = Awaited<
+  ReturnType<typeof orpc.app.marker.list.call>
+>;
 
 export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/$versionSlug")(
   {
@@ -35,58 +34,42 @@ export const Route = createFileRoute("/(app)/$siteSlug/$pageSlug/$versionSlug")(
         );
       }
 
+      let markers: MarkerListResult = [];
       if (data.currentVersion?.id) {
-        await context.queryClient.ensureQueryData(
+        markers = await context.queryClient.ensureQueryData(
           orpc.app.marker.list.queryOptions({
             input: { versionId: data.currentVersion.id },
           })
         );
       }
 
-      return data;
+      return { ...data, markers };
     },
     head: ({ loaderData }) => {
       if (!(loaderData?.site && loaderData?.currentVersion)) return {};
-      const { site, currentPage, currentVersion } = loaderData;
+      const { site, currentPage, currentVersion, markers = [] } = loaderData;
       const versionDateStr = format(currentVersion.versionDate, "yyyy-MM-dd");
       const pageTitle = `${currentPage?.title ?? ""} (${versionDateStr}) - ${site.title}`;
       const url = `/${site.slug}/${currentPage?.slug ?? ""}/${versionDateStr}`;
-      const meta = createDetailPageMeta(
+
+      return createSiteDetailHead({
         pageTitle,
-        site.description,
-        currentVersion.webCover,
-        url
-      );
-
-      const articleSchema = createSiteArticleSchema({
-        title: pageTitle,
-        description:
-          site.description || `Explore ${site.title} design on Refto.`,
-        image: currentVersion.webCover || "/images/og.jpg",
         url,
-        datePublished: currentVersion.createdAt,
-        dateModified: currentVersion.createdAt,
-        tags: site.tags?.map((t) => t.name),
-      });
-
-      const breadcrumbSchema = createBreadcrumbSchema([
-        { name: "Home", url: "/" },
-        { name: site.title, url: `/${site.slug}` },
-        {
-          name: currentPage?.title ?? "",
-          url: `/${site.slug}/${currentPage?.slug ?? ""}`,
-        },
-        { name: versionDateStr, url },
-      ]);
-
-      return {
-        meta: meta.meta,
-        links: meta.links,
-        scripts: [
-          createJsonLdScript(articleSchema),
-          createJsonLdScript(breadcrumbSchema),
+        siteTitle: site.title,
+        siteDescription: site.description,
+        siteTags: site.tags,
+        currentVersion,
+        markers,
+        breadcrumbs: [
+          { name: "Home", url: "/" },
+          { name: site.title, url: `/${site.slug}` },
+          {
+            name: currentPage?.title ?? "",
+            url: `/${site.slug}/${currentPage?.slug ?? ""}`,
+          },
+          { name: versionDateStr, url },
         ],
-      };
+      });
     },
   }
 );

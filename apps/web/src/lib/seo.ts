@@ -1,12 +1,20 @@
 import { site } from "@refto-one/common";
+import {
+  createBreadcrumbSchema,
+  createJsonLdScript,
+  createMarkerListSchema,
+  createMarkerVideoSchema,
+  createSiteArticleSchema,
+  type BreadcrumbItem,
+} from "./json-ld";
+import { createMarkerSlugEntries, type MarkerSummary } from "./markers";
 
-const SITE_NAME = "Refto";
-const DEFAULT_SLUG = "Unleash limitless inspiration";
-const DEFAULT_DESCRIPTION =
-  "Unleash limitless inspiration. Embrace pure simplicity.";
-const DEFAULT_OG_IMAGE = "/og-image.png";
-const SITE_URL = "https://refto.one";
-const DEFAULT_KEYWORDS = site.keywords;
+const SITE_NAME = site.siteName;
+const DEFAULT_TITLE_SUFFIX = site.description;
+const DEFAULT_DESCRIPTION = site.description;
+const DEFAULT_OG_IMAGE = site.ogImage ?? "/images/og.jpg";
+const SITE_URL = site.url;
+const DEFAULT_KEYWORDS = site.keywords ?? [];
 
 interface PageMetaOptions {
   title?: string;
@@ -51,7 +59,7 @@ export function createPageMeta(options: PageMetaOptions = {}): HeadConfig {
 
   let fullTitle: string;
   if (!title) {
-    fullTitle = `${SITE_NAME} - ${DEFAULT_SLUG}`;
+    fullTitle = `${SITE_NAME} - ${DEFAULT_TITLE_SUFFIX}`;
   } else if (siteNameFirst) {
     fullTitle = `${SITE_NAME} - ${title}`;
   } else {
@@ -100,8 +108,17 @@ export function createDetailPageMeta(
   siteName: string,
   siteDescription?: string | null,
   coverImage?: string | null,
-  pageVersionId?: string
+  pageVersionId?: string,
+  options?: { keywords?: string[] }
 ): HeadConfig {
+  const extraKeywords = options?.keywords
+    ?.map((keyword) => keyword.trim())
+    .filter((keyword): keyword is string => Boolean(keyword));
+  const keywords =
+    extraKeywords && extraKeywords.length > 0
+      ? Array.from(new Set([...DEFAULT_KEYWORDS, ...extraKeywords]))
+      : undefined;
+
   return createPageMeta({
     title: siteName,
     description:
@@ -110,5 +127,95 @@ export function createDetailPageMeta(
     image: coverImage || DEFAULT_OG_IMAGE,
     url: pageVersionId ? `/${pageVersionId}` : undefined,
     type: "article",
+    keywords,
   });
+}
+
+interface SiteDetailHeadParams {
+  pageTitle: string;
+  url: string;
+  siteTitle: string;
+  siteDescription?: string | null;
+  siteTags?: Array<{ name?: string | null }>;
+  currentVersion: {
+    webCover?: string | null;
+    webRecord?: string | null;
+    createdAt: Date;
+  };
+  markers?: MarkerSummary[];
+  breadcrumbs: BreadcrumbItem[];
+}
+
+export function createSiteDetailHead({
+  pageTitle,
+  url,
+  siteTitle,
+  siteDescription,
+  siteTags,
+  currentVersion,
+  markers = [],
+  breadcrumbs,
+}: SiteDetailHeadParams) {
+  const description =
+    siteDescription || `Explore ${siteTitle} design on Refto.`;
+  const tagKeywords =
+    siteTags
+      ?.map((tag) => tag?.name)
+      .filter((name): name is string => Boolean(name)) ?? [];
+  const markerEntries = markers.length
+    ? createMarkerSlugEntries(markers)
+    : [];
+  const markerKeywords = markerEntries.map((entry) => entry.title);
+  const keywords = Array.from(new Set([...tagKeywords, ...markerKeywords]));
+  const meta = createDetailPageMeta(
+    pageTitle,
+    siteDescription,
+    currentVersion.webCover,
+    url,
+    keywords.length ? { keywords } : undefined
+  );
+
+  const articleSchema = createSiteArticleSchema({
+    title: pageTitle,
+    description,
+    image: currentVersion.webCover || "/images/og.jpg",
+    url,
+    datePublished: currentVersion.createdAt,
+    dateModified: currentVersion.createdAt,
+    tags: tagKeywords,
+  });
+
+  const breadcrumbSchema = createBreadcrumbSchema(breadcrumbs);
+
+  const scripts = [
+    createJsonLdScript(articleSchema),
+    createJsonLdScript(breadcrumbSchema),
+  ];
+
+  if (markerEntries.length) {
+    const markerListSchema = createMarkerListSchema({
+      title: pageTitle,
+      url,
+      markers: markerEntries,
+    });
+    scripts.push(createJsonLdScript(markerListSchema));
+    const markerVideoSchema = createMarkerVideoSchema({
+      title: pageTitle,
+      description,
+      coverImage: currentVersion.webCover,
+      videoUrl: currentVersion.webRecord ?? undefined,
+      url,
+      markers: markerEntries,
+      datePublished: currentVersion.createdAt,
+    });
+    if (markerVideoSchema) {
+      scripts.push(createJsonLdScript(markerVideoSchema));
+    }
+  }
+
+  return {
+    meta: meta.meta,
+    links: meta.links,
+    scripts,
+  };
 }

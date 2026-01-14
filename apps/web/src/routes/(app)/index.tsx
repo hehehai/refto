@@ -1,4 +1,4 @@
-import { FeedSort } from "@refto-one/common";
+import { FeedSort, site } from "@refto-one/common";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
@@ -18,8 +18,7 @@ const searchSchema = z.object({
 });
 
 const homeMeta = createPageMeta({
-  description:
-    "Unleash limitless inspiration. Embrace pure simplicity. Discover curated website designs.",
+  description: `${site.description} Discover curated website designs.`,
   url: "/",
 });
 

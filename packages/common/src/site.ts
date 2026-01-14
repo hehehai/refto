@@ -2,7 +2,7 @@ export const site = {
   url: "https://refto.one",
   name: "refto",
   siteName: "Refto",
-  description: "Unleash limitless inspiration Embrace pure simplicity",
+  description: "Unleash limitless inspiration. Embrace pure simplicity.",
   keywords: [
     "refto",
     "refto.one",

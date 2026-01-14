@@ -2,8 +2,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import slugify from "slug";
 import { orpc } from "@/lib/orpc";
+import {
+  createMarkerSlugEntries,
+  sortMarkers,
+  type MarkerSlugEntry,
+} from "@/lib/markers";
 import { MarkerRefsPanel } from "./marker-refs-panel";
 import { RelatedSites } from "./related-sites";
 import { SiteHero } from "./site-hero";
@@ -34,6 +38,7 @@ export function SiteDetailPage({
   const [liked, setLiked] = useState<boolean | null>(null);
   const [isMarkerSelectionMode, setIsMarkerSelectionMode] = useState(false);
   const [selectedMarkerIds, setSelectedMarkerIds] = useState<string[]>([]);
+  const [markerRefsColumns, setMarkerRefsColumns] = useState<2 | 3>(3);
   const downloadSelectedMarkersRef = useRef<(() => void) | null>(null);
 
   // Fetch version data by slug
@@ -63,27 +68,11 @@ export function SiteDetailPage({
       };
   const { data: markers = [] } = useSuspenseQuery(markersQueryOptions);
   const showDetailTabs = markers.length > 0;
-  const orderedMarkers = useMemo(
-    () =>
-      [...markers].sort((a, b) => {
-        if (a.time !== b.time) return a.time - b.time;
-        return a.id.localeCompare(b.id);
-      }),
-    [markers]
+  const orderedMarkers = useMemo(() => sortMarkers(markers), [markers]);
+  const markerSlugEntries: MarkerSlugEntry[] = useMemo(
+    () => createMarkerSlugEntries(orderedMarkers, { preSorted: true }),
+    [orderedMarkers]
   );
-  const markerSlugEntries = useMemo(() => {
-    const seen = new Map<string, number>();
-    return orderedMarkers.map((marker, index) => {
-      const baseSlug = marker.text
-        ? slugify(marker.text, { lower: true })
-        : `marker-${index + 1}`;
-      const normalized = baseSlug || `marker-${index + 1}`;
-      const dupCount = (seen.get(normalized) ?? 0) + 1;
-      seen.set(normalized, dupCount);
-      const slug = dupCount > 1 ? `${normalized}-${dupCount}` : normalized;
-      return { id: marker.id, slug, time: marker.time };
-    });
-  }, [orderedMarkers]);
   const markerSlugById = useMemo(
     () => new Map(markerSlugEntries.map((entry) => [entry.id, entry.slug])),
     [markerSlugEntries]
@@ -198,6 +187,10 @@ export function SiteDetailPage({
     [location.pathname, markerSlugById, navigate]
   );
 
+  const handleToggleMarkerRefsColumns = useCallback(() => {
+    setMarkerRefsColumns((prev) => (prev === 3 ? 2 : 3));
+  }, []);
+
   // Navigation handlers using slugs
   const handlePageChange = (pageId: string) => {
     const selectedPage = site.pages.find((p) => p.id === pageId);
@@ -239,11 +232,13 @@ export function SiteDetailPage({
         currentVersionId={currentVersion?.id ?? ""}
         isMarkerSelectionMode={isMarkerSelectionMode}
         liked={isLiked}
+        markerRefsColumns={markerRefsColumns}
         markersCount={markers.length}
         onDetailTabChange={handleDetailTabChange}
         onDownloadSelectedMarkers={() => downloadSelectedMarkersRef.current?.()}
         onLikeChange={handleLikeChange}
         onPageChange={handlePageChange}
+        onToggleMarkerRefsColumns={handleToggleMarkerRefsColumns}
         onToggleMarkerSelectionMode={
           markers.length > 0 ? handleToggleMarkerSelectionMode : undefined
         }
@@ -280,6 +275,7 @@ export function SiteDetailPage({
               </div>
             ) : (
               <MarkerRefsPanel
+                columns={markerRefsColumns}
                 coverUrl={currentVersion.webCover}
                 downloadSelectedMarkersRef={downloadSelectedMarkersRef}
                 isSelectionMode={isMarkerSelectionMode}

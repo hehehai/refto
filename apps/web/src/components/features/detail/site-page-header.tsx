@@ -8,6 +8,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { MarkerSelectionControls } from "./marker-selection-controls";
 
@@ -28,12 +33,14 @@ interface SitePageHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   currentVersionId: string;
   liked: boolean;
   activeDetailTab: "record" | "refs";
+  markerRefsColumns: 2 | 3;
   markersCount: number;
   showDetailTabs: boolean;
   onDetailTabChange: (tab: "record" | "refs") => void;
   onPageChange: (pageId: string) => void;
   onVersionChange: (versionId: string) => void;
   onLikeChange: (liked: boolean) => void;
+  onToggleMarkerRefsColumns: () => void;
   isMarkerSelectionMode?: boolean;
   selectedMarkerCount?: number;
   onToggleMarkerSelectionMode?: () => void;
@@ -56,6 +63,8 @@ export function SitePageHeader({
   onPageChange,
   onVersionChange,
   onLikeChange,
+  markerRefsColumns,
+  onToggleMarkerRefsColumns,
   className,
   ...props
 }: SitePageHeaderProps) {
@@ -78,6 +87,10 @@ export function SitePageHeader({
       onVersionChange(value);
     }
   };
+  const isTwoColumnLayout = markerRefsColumns === 2;
+  const layoutToggleLabel = isTwoColumnLayout
+    ? "Switch to 3-column grid"
+    : "Switch to 2-column grid";
 
   return (
     <header className={cn(className)} {...props}>
@@ -134,6 +147,24 @@ export function SitePageHeader({
                 selectedMarkerCount={selectedMarkerCount}
               />
             )}
+          {markersCount > 0 && activeDetailTab === "refs" && (
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  aria-label={layoutToggleLabel}
+                  onClick={onToggleMarkerRefsColumns}
+                  size="icon"
+                  variant="outline"
+                >
+                  <span
+                    aria-hidden
+                    className={cn(isTwoColumnLayout ? "i-hugeicons-layout-2-column" : "i-hugeicons-layout-3-column")}
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{layoutToggleLabel}</TooltipContent>
+            </Tooltip>
+          )}
           {/* Version select */}
           {currentPage && currentPage.versions.length > 0 && (
             <Select

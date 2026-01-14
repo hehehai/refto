@@ -1,4 +1,5 @@
 import { site } from "@refto-one/common";
+import type { MarkerSlugEntry } from "@/lib/markers";
 
 interface ScriptTag {
   type: string;
@@ -81,7 +82,7 @@ export function createSiteArticleSchema(params: ArticleSchemaParams) {
   };
 }
 
-interface BreadcrumbItem {
+export interface BreadcrumbItem {
   name: string;
   url: string;
 }
@@ -109,5 +110,77 @@ export function createJsonLdScript(schema: object): ScriptTag {
   return {
     type: "application/ld+json",
     children: JSON.stringify(schema),
+  };
+}
+
+interface MarkerListSchemaParams {
+  title: string;
+  url: string;
+  markers: MarkerSlugEntry[];
+}
+
+export function createMarkerListSchema(params: MarkerListSchemaParams) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `${params.title} markers`,
+    url: `${site.url}${params.url}`,
+    itemListElement: params.markers.map((marker) => ({
+      "@type": "ListItem",
+      position: marker.position,
+      name: marker.title,
+      url: `${site.url}${params.url}#${marker.slug}`,
+    })),
+  };
+}
+
+interface MarkerVideoSchemaParams {
+  title: string;
+  description: string;
+  coverImage?: string | null;
+  videoUrl?: string | null;
+  url: string;
+  markers: MarkerSlugEntry[];
+  datePublished?: Date;
+}
+
+export function createMarkerVideoSchema(params: MarkerVideoSchemaParams) {
+  if (!params.markers.length || !params.videoUrl) {
+    return null;
+  }
+
+  const thumbnailUrl = params.coverImage
+    ? params.coverImage.startsWith("http")
+      ? params.coverImage
+      : `${site.url}${params.coverImage}`
+    : `${site.url}/images/og.jpg`;
+  const videoUrl = params.videoUrl.startsWith("http")
+    ? params.videoUrl
+    : `${site.url}${params.videoUrl}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: params.title,
+    description: params.description,
+    thumbnailUrl,
+    uploadDate: params.datePublished?.toISOString(),
+    contentUrl: videoUrl,
+    embedUrl: videoUrl,
+    publisher: {
+      "@type": "Organization",
+      name: site.siteName,
+      logo: {
+        "@type": "ImageObject",
+        url: `${site.url}/images/logo.png`,
+      },
+    },
+    hasPart: params.markers.map((marker) => ({
+      "@type": "Clip",
+      name: marker.title,
+      url: `${site.url}${params.url}#${marker.slug}`,
+      startOffset: Number(marker.time.toFixed(3)),
+      position: marker.position,
+    })),
   };
 }

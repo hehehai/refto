@@ -14,6 +14,7 @@ import { useMarkerThumbnails } from "@/hooks/use-marker-thumbnails";
 import { buildMarkerFilename } from "@/lib/markers";
 import { imagePreviewDialog } from "@/lib/sheets";
 import { formatTimeShortWithMs } from "@/lib/time";
+import { cn } from "@/lib/utils";
 import {
   MarkerVideoPlayer,
   type MarkerVideoPlayerHandle,
@@ -32,6 +33,7 @@ interface MarkerRefsPanelProps {
   coverUrl: string | null;
   siteTitle?: string | null;
   pageTitle?: string | null;
+  columns?: 2 | 3;
   isSelectionMode?: boolean;
   selectedMarkerIds?: string[];
   onSelectedMarkersChange?: Dispatch<SetStateAction<string[]>>;
@@ -44,6 +46,7 @@ export function MarkerRefsPanel({
   coverUrl,
   siteTitle,
   pageTitle,
+  columns = 3,
   isSelectionMode = false,
   selectedMarkerIds = [],
   onSelectedMarkersChange,
@@ -168,7 +171,12 @@ export function MarkerRefsPanel({
 
   return (
     <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
-      <div className="grid grid-cols-3 gap-4">
+      <div
+        className={cn(
+          "grid gap-4",
+          columns === 2 ? "grid-cols-2" : "grid-cols-3"
+        )}
+      >
         {orderedMarkers.map((marker, index) => {
           const thumbnail = thumbnails[marker.id];
           const markerNumber = index + 1;

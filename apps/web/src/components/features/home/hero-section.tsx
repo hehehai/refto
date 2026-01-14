@@ -1,4 +1,4 @@
-import { FeedSort, type FeedSortType } from "@refto-one/common";
+import { FeedSort, type FeedSortType, site } from "@refto-one/common";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { BadgeLinearGradient } from "@/components/shared/badge-linear-gradient";
 import { TagSelect } from "@/components/shared/tag-select";
@@ -20,6 +20,12 @@ export function HeroSection({
 }: HeroSectionProps) {
   const [first, second, third] = pinnedSites;
   const navigate = useNavigate();
+  const [primaryTagline, ...restTaglineParts] = site.description
+    .split(". ")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const secondaryTagline =
+    restTaglineParts.length > 0 ? restTaglineParts.join(". ") : undefined;
 
   const handleSortChange = (value: string) => {
     navigate({
@@ -52,9 +58,13 @@ export function HeroSection({
               </BadgeLinearGradient>
             </Link>
             <h2 className="text-nowrap text-3xl leading-tight md:text-4xl lg:text-5xl">
-              Unleash limitless inspiration
-              <br />
-              Embrace pure simplicity
+              {primaryTagline ?? site.description}
+              {secondaryTagline && (
+                <>
+                  <br />
+                  {secondaryTagline}
+                </>
+              )}
             </h2>
             <ul className="mt-10 space-y-1.5">
               <li>✦ Curated design references</li>
