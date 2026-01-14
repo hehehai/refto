@@ -1,6 +1,8 @@
+import { FEED_NEW_BADGE_DAYS } from "@refto-one/common/constants/site";
 import { Link } from "@tanstack/react-router";
-import { format } from "date-fns";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { format, isAfter, subDays } from "date-fns";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { CFImage, getCFImageUrlByPreset } from "@/components/ui/cf-image";
 import { CircularProgressButton } from "./circular-progress-button";
 import { LikeButton } from "./like-button";
@@ -41,6 +43,10 @@ export function VersionCard({
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const isNew = useMemo(() => {
+    const thresholdDate = subDays(new Date(), FEED_NEW_BADGE_DAYS);
+    return isAfter(version.versionDate, thresholdDate);
+  }, [version.versionDate]);
 
   const hasVideo = Boolean(version.webRecord);
 
@@ -115,6 +121,15 @@ export function VersionCard({
             />
           )}
         </Link>
+
+        {isNew && (
+          <Badge
+            className="pointer-events-none absolute left-5 top-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-white shadow-sm transition-opacity group-hover:opacity-0 pb-0 pl-1.5 pr-1"
+            shape="simple"
+          >
+            New
+          </Badge>
+        )}
 
         {/* Circular progress button - only show for videos */}
         {hasVideo && (
