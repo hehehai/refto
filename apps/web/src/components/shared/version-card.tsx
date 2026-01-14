@@ -124,7 +124,7 @@ export function VersionCard({
 
         {isNew && (
           <Badge
-            className="pointer-events-none absolute left-5 top-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-white shadow-sm transition-opacity group-hover:opacity-0 pb-0 pl-1.5 pr-1"
+            className="pointer-events-none absolute top-5 left-5 pr-1 pb-0 pl-1.5 font-semibold text-[10px] text-white uppercase tracking-[0.15em] shadow-sm transition-opacity group-hover:opacity-0"
             shape="simple"
           >
             New

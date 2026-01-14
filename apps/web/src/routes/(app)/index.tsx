@@ -4,9 +4,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { FeedSection } from "@/components/features/home/feed-section";
 import { HeroSection } from "@/components/features/home/hero-section";
+import { HomeSkeleton } from "@/components/features/home/home-skeleton";
 import { orpc } from "@/lib/orpc";
 import { createPageMeta } from "@/lib/seo";
-import { HomeSkeleton } from "@/components/features/home/home-skeleton";
 
 const searchSchema = z.object({
   sort: z

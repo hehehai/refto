@@ -145,7 +145,7 @@ interface MarkerVideoSchemaParams {
 }
 
 export function createMarkerVideoSchema(params: MarkerVideoSchemaParams) {
-  if (!params.markers.length || !params.videoUrl) {
+  if (!(params.markers.length && params.videoUrl)) {
     return null;
   }
 

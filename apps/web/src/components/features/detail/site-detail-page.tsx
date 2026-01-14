@@ -2,12 +2,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { orpc } from "@/lib/orpc";
 import {
   createMarkerSlugEntries,
-  sortMarkers,
   type MarkerSlugEntry,
+  sortMarkers,
 } from "@/lib/markers";
+import { orpc } from "@/lib/orpc";
 import { MarkerRefsPanel } from "./marker-refs-panel";
 import { RelatedSites } from "./related-sites";
 import { SiteHero } from "./site-hero";

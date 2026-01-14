@@ -1,11 +1,11 @@
 import { site } from "@refto-one/common";
 import {
+  type BreadcrumbItem,
   createBreadcrumbSchema,
   createJsonLdScript,
   createMarkerListSchema,
   createMarkerVideoSchema,
   createSiteArticleSchema,
-  type BreadcrumbItem,
 } from "./json-ld";
 import { createMarkerSlugEntries, type MarkerSummary } from "./markers";
 
@@ -162,9 +162,7 @@ export function createSiteDetailHead({
     siteTags
       ?.map((tag) => tag?.name)
       .filter((name): name is string => Boolean(name)) ?? [];
-  const markerEntries = markers.length
-    ? createMarkerSlugEntries(markers)
-    : [];
+  const markerEntries = markers.length ? createMarkerSlugEntries(markers) : [];
   const markerKeywords = markerEntries.map((entry) => entry.title);
   const keywords = Array.from(new Set([...tagKeywords, ...markerKeywords]));
   const meta = createDetailPageMeta(

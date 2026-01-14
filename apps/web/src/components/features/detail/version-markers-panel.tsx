@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import type { HTMLAttributes } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,9 +44,9 @@ export function VersionMarkersPanel({
         {markers.map((marker, index) => (
           <div
             className={cn(
-              "group flex items-center gap-1 rounded-md pr-1 transition-colors",
+              "group relative flex items-center gap-1 rounded-md pr-1 transition-colors",
               marker.id === activeMarkerId
-                ? "bg-muted text-primary"
+                ? "text-primary"
                 : "text-foreground hover:bg-muted/60"
             )}
             key={marker.id}
@@ -63,6 +64,13 @@ export function VersionMarkersPanel({
             role="button"
             tabIndex={0}
           >
+            {marker.id === activeMarkerId ? (
+              <motion.div
+                aria-hidden="true"
+                className="-z-10 pointer-events-none absolute inset-0 rounded-md bg-muted"
+                layoutId="marker-active-highlight"
+              />
+            ) : null}
             <Tooltip>
               <TooltipTrigger className="min-w-0 flex-1 px-3 py-1.5 text-left">
                 <span className="truncate text-sm capitalize">

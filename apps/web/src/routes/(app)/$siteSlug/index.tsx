@@ -5,9 +5,7 @@ import { useTrackPageView } from "@/components/features/detail/use-track-page-vi
 import { orpc } from "@/lib/orpc";
 import { createSiteDetailHead } from "@/lib/seo";
 
-type MarkerListResult = Awaited<
-  ReturnType<typeof orpc.app.marker.list.call>
->;
+type MarkerListResult = Awaited<ReturnType<typeof orpc.app.marker.list.call>>;
 
 export const Route = createFileRoute("/(app)/$siteSlug/")({
   component: SiteSlugIndexComponent,

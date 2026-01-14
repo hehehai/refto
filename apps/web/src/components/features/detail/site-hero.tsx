@@ -1,9 +1,9 @@
+import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CFImage } from "@/components/ui/cf-image";
 import { Rating } from "@/components/ui/rating";
 import { Route as HomeRoute } from "@/routes/(app)/index";
-import { Link } from "@tanstack/react-router";
 
 interface Tag {
   id: string;

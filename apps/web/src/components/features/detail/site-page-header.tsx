@@ -158,7 +158,11 @@ export function SitePageHeader({
                 >
                   <span
                     aria-hidden
-                    className={cn(isTwoColumnLayout ? "i-hugeicons-layout-2-column" : "i-hugeicons-layout-3-column")}
+                    className={cn(
+                      isTwoColumnLayout
+                        ? "i-hugeicons-layout-2-column"
+                        : "i-hugeicons-layout-3-column"
+                    )}
                   />
                 </Button>
               </TooltipTrigger>
