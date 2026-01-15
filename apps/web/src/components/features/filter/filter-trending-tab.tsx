@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { CFImage } from "@/components/ui/cf-image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +34,10 @@ interface FilterTrendingTabProps {
   className?: string;
 }
 
+interface FilterTrendingTabSkeletonProps {
+  className?: string;
+}
+
 export function FilterTrendingTab({
   data,
   onTagClick,
@@ -40,59 +45,7 @@ export function FilterTrendingTab({
   className,
 }: FilterTrendingTabProps) {
   if (!data) {
-    return (
-      <div className={cn("space-y-5", className)}>
-        {/* Hot Sites skeleton */}
-        <section>
-          <div className="mb-3 grid grid-cols-6 gap-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton className="aspect-square size-14 rounded-xl" key={i} />
-            ))}
-          </div>
-        </section>
-
-        {/* Categories skeleton */}
-        <section>
-          <Skeleton className="mb-3 h-4 w-20" />
-          <div className="grid grid-cols-4 gap-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div className="space-y-2" key={i}>
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-16 w-full rounded-lg" />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Sections skeleton */}
-        <section>
-          <Skeleton className="mb-3 h-4 w-20" />
-          <div className="flex flex-wrap gap-2">
-            {[20, 14, 18, 16, 22, 15].map((width, i) => (
-              <Skeleton
-                className="h-7 rounded-full"
-                key={i}
-                style={{ width: `${width * 4}px` }}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* Styles skeleton */}
-        <section>
-          <Skeleton className="mb-3 h-4 w-20" />
-          <div className="flex flex-wrap gap-2">
-            {[18, 16, 14, 20, 17, 19].map((width, i) => (
-              <Skeleton
-                className="h-7 rounded-full"
-                key={i}
-                style={{ width: `${width * 4}px` }}
-              />
-            ))}
-          </div>
-        </section>
-      </div>
-    );
+    return <FilterTrendingTabSkeleton className={className} />;
   }
 
   return (
@@ -134,8 +87,12 @@ export function FilterTrendingTab({
               >
                 <span className="font-medium text-sm">{tag.name}</span>
                 {tag.tipMedia ? (
-                  <img
+                  <CFImage
                     alt={tag.name}
+                    cfFit="cover"
+                    cfHeight={128}
+                    cfQuality={85}
+                    cfWidth={320}
                     className="h-16 w-full rounded-lg object-cover"
                     src={tag.tipMedia}
                   />
@@ -185,6 +142,64 @@ export function FilterTrendingTab({
           </div>
         </section>
       )}
+    </div>
+  );
+}
+
+function FilterTrendingTabSkeleton({
+  className,
+}: FilterTrendingTabSkeletonProps) {
+  return (
+    <div className={cn("space-y-5", className)}>
+      {/* Hot Sites skeleton */}
+      <section>
+        <div className="mb-3 grid grid-cols-6 gap-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton className="aspect-square size-14 rounded-xl" key={i} />
+          ))}
+        </div>
+      </section>
+
+      {/* Categories skeleton */}
+      <section>
+        <Skeleton className="mb-3 h-4 w-20" />
+        <div className="grid grid-cols-4 gap-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div className="space-y-2" key={i}>
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-16 w-full rounded-lg" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Sections skeleton */}
+      <section>
+        <Skeleton className="mb-3 h-4 w-20" />
+        <div className="flex flex-wrap gap-2">
+          {[20, 14, 18, 16, 22, 15].map((width, i) => (
+            <Skeleton
+              className="h-7 rounded-full"
+              key={i}
+              style={{ width: `${width * 4}px` }}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Styles skeleton */}
+      <section>
+        <Skeleton className="mb-3 h-4 w-20" />
+        <div className="flex flex-wrap gap-2">
+          {[18, 16, 14, 20, 17, 19].map((width, i) => (
+            <Skeleton
+              className="h-7 rounded-full"
+              key={i}
+              style={{ width: `${width * 4}px` }}
+            />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

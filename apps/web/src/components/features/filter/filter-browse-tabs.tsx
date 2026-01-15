@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
+import { CFImage } from "@/components/ui/cf-image";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -66,8 +67,6 @@ export function FilterBrowseTabs({
   );
 
   const previewMedia = hoveredTag?.tipMedia ?? null;
-  const isVideoPreview =
-    typeof previewMedia === "string" && previewMedia.includes("video");
 
   return (
     <Tabs
@@ -97,22 +96,15 @@ export function FilterBrowseTabs({
           {previewMedia && (
             <div className="space-y-2">
               <div className="overflow-hidden rounded-xl border bg-muted/20">
-                {isVideoPreview ? (
-                  <video
-                    autoPlay
-                    className="h-28 w-full object-cover"
-                    loop
-                    muted
-                    playsInline
-                    src={previewMedia}
-                  />
-                ) : (
-                  <img
-                    alt={hoveredTag?.name ?? "Tag media preview"}
-                    className="h-28 w-full object-cover"
-                    src={previewMedia}
-                  />
-                )}
+                <CFImage
+                  alt={hoveredTag?.name ?? "Tag media preview"}
+                  cfFit="cover"
+                  cfHeight={224}
+                  cfQuality={85}
+                  cfWidth={320}
+                  className="h-28 w-full object-cover"
+                  src={previewMedia}
+                />
               </div>
             </div>
           )}
